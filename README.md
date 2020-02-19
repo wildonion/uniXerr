@@ -1,4 +1,4 @@
-## Anything can be everything, and everything can turn into anything else.
+## Everything can be everything, and everything can turn into everything else.
 
 ###### :rice: _if you don't understand is because you don't look closer :grey_exclamation:_
 
