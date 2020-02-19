@@ -1,6 +1,6 @@
 ## Everything can be everything, and everything can turn into everything else.
 
-###### :rice: _if you don't understand is because you don't look closer :grey_exclamation:_
+###### :rice: _if you can't find the pattern is because you don't look closely :grey_exclamation:_
 
 ---
 
