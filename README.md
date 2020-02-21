@@ -14,3 +14,14 @@ Find more details in [ColdRice](https://github.com/wildonion/coldrice) project
 * Export your active environment to _uniXerr.yml_ file: ```conda env export > uniXerr.yml```
 * Update the environment using the _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 ###### see [conda docs](https://docs.conda.io/projects/conda/en/latest/index.html) to have more management.
+
+# Tools
+[VSCode](https://code.visualstudio.com/download)
+| [Anaconda](https://www.anaconda.com/distribution/)
+| [Dart](https://dart.dev/get-dart)
+| [Flutter](https://flutter.dev/docs/get-started/install)
+| [Zeplin](zeplin.io) 
+| [Figma](https://www.figma.com/) 
+| [AdobeXD](https://www.adobe.com/products/xd.html?sdid=12B9F15S&mv=Search&ef_id=EAIaIQobChMI3cH-gori5wIVwp6zCh1vxgaUEAAYASAAEgJkYfD_BwE:G:s&s_kwcid=AL!3085!3!394015009822!e!!g!!adobe%20xd)
+| [Kite](https://kite.com/download/)
+| [Github Desktop](https://desktop.github.com/)
