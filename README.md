@@ -4,9 +4,11 @@
 
 ---
 
-[Starter gist](https://gist.github.com/wildonion/9809326f32901bf8490cc09611f887cb) for VPS configuration
+[Starter gist](https://gist.github.com/wildonion/9809326f32901bf8490cc09611f887cb) for VPS configuration.
 
-Find more details in [ColdRice](https://github.com/wildonion/coldrice) project
+Find more details in [ColdRice](https://github.com/wildonion/coldrice) project.
+
+If you need to reconstruct everything from scratch in computer science you can continue with [Stomegranate](https://github.com/wildonion/stomegranate) project.
 
 # Setup
 > Download & install anaconda then use one the following command or its navigator (on your local machine) to setup your workspace.
