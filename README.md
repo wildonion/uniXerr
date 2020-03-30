@@ -19,6 +19,12 @@ If you need to reconstruct everything from scratch in computer science you can c
 * Update the environment using the _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 ###### see [conda docs](https://docs.conda.io/projects/conda/en/latest/index.html) to have more management.
 
+# SLIDES
+
+[Blockchain Technology](https://drive.google.com/open?id=1bB_d_wIUyWDoKZlY217AODeYeypw2BUj)
+
+[Deep Q-Network](https://drive.google.com/open?id=1SXAkytWDIN1Yunsh_3HuxgPihTXmHM6D)
+
 # Tools
 [VSCode](https://code.visualstudio.com/download)
 | [Anaconda](https://www.anaconda.com/distribution/)
