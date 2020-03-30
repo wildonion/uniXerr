@@ -4,6 +4,8 @@
 
 ---
 
+[Colab project](https://colab.research.google.com/drive/11h7Wq40Y6xa4WDfj7miQCs_bpSw4f3h8) for developing AI core.
+
 [Starter gist](https://gist.github.com/wildonion/9809326f32901bf8490cc09611f887cb) for VPS configuration.
 
 Find more details in [ColdRice](https://github.com/wildonion/coldrice) project.
