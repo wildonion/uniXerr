@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://github.com/wildonion/uniXerr/blob/master/board/uniXerr-Logo_1.png">
-</p>
+![uniXerr logo](https://github.com/wildonion/uniXerr/blob/master/board/uniXerr.png)
 
 ## Everything can be everything, and everything can turn into everything else.
 
