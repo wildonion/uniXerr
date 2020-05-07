@@ -1,4 +1,6 @@
-![uniXerr logo](https://drive.google.com/uc?export=view&id=1TXJwfJsTJzU2M7LrIQgx2Tx4cfUzcQuX)
+<p align="center">
+  <img src="https://github.com/wildonion/uniXerr/blob/master/board/uniXerr-Logo_1.png">
+</p>
 
 ## Everything can be everything, and everything can turn into everything else.
 
@@ -24,6 +26,8 @@ If you need to reconstruct everything from scratch in computer science you can c
 [Blockchain Technology](https://drive.google.com/open?id=1bB_d_wIUyWDoKZlY217AODeYeypw2BUj)
 
 [Deep Q-Network](https://drive.google.com/open?id=1SXAkytWDIN1Yunsh_3HuxgPihTXmHM6D)
+
+[uniXerr Proposal](https://docs.google.com/presentation/d/1GK3pkiIfIzD472j6eXYRZ59xo9yky3sYgX-_MpS9TX8/edit#slide=id.gc6f919934_0_0)
 
 # Tools
 [VSCode](https://code.visualstudio.com/download)
