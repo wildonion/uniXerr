@@ -21,7 +21,7 @@ If you need to reconstruct everything from scratch in computer science you can c
 * Update the environment using the _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 ###### see [conda docs](https://docs.conda.io/projects/conda/en/latest/index.html) to have more management.
 
-# SLIDES
+# Slides
 
 [Blockchain Technology](https://drive.google.com/open?id=1bB_d_wIUyWDoKZlY217AODeYeypw2BUj)
 
@@ -29,7 +29,7 @@ If you need to reconstruct everything from scratch in computer science you can c
 
 [uniXerr Proposal](https://docs.google.com/presentation/d/1GK3pkiIfIzD472j6eXYRZ59xo9yky3sYgX-_MpS9TX8/edit#slide=id.gc6f919934_0_0)
 
-# EXPERIENCES
+# Experiences
 
 Four main [branches](https://drive.google.com/drive/folders/1vNTdWOWXI3MetTYlIxnxDuWRK6M5VGZH?usp=sharing) of computer science. Contact me if you want to access the drive.
 
