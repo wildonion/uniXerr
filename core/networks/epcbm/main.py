@@ -91,3 +91,5 @@
                 semester status                          : passed
 
 '''
+
+import plotly.graph_objects as go

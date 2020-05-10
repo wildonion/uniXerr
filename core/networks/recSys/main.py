@@ -28,3 +28,5 @@
                 [hey wildonion]
             recommended users near to your position  : @alexa , @rosii, @force
 '''
+
+import plotly.graph_objects as go

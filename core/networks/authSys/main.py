@@ -18,3 +18,5 @@
         https://medium.com/@curiousily/credit-card-fraud-detection-using-autoencoders-in-keras-tensorflow-for-hackers-part-vii-20e0c85301bd
         https://towardsdatascience.com/traditional-vs-deep-learning-algorithms-used-in-blockchain-in-retail-industry-iii-ed873186b6e9
 '''
+
+import plotly.graph_objects as go

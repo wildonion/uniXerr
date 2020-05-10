@@ -60,3 +60,5 @@
 
         EX : login with face detection.
 '''
+
+import plotly.graph_objects as go
