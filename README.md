@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/board/uniXerr_R50.png"
+    <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
 ## Everything can be everything, and everything can turn into everything else.
