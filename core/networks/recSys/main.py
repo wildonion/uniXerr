@@ -11,7 +11,8 @@
         https://www.kaggle.com/siweiluo/variational-autoencoder-vae-recommendation
         https://www.youtube.com/watch?v=Eeg1DEeWUjA
         https://www.youtube.com/watch?v=u1bpD8Lgp8E
-        https://colab.research.google.com/drive/1OOttboitAThA2FKAsUKwJQlMfrdRxVlH#scrollTo=Z-JIkbOWCNt3
+        https://www.youtube.com/watch?v=HEqQ2_1XRTs
+        https://www.youtube.com/watch?v=VjeAJABH_iU
         https://developers.google.com/machine-learning/recommendation
         https://developers.google.com/machine-learning/glossary/recsystemshttps
         https://www.youtube.com/watch?v=y_TzOOCJqxI
