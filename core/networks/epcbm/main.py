@@ -4,8 +4,17 @@
     FOR uniXerr USERS BASED ON THEIR PAST EVENTS AND CLUSTER USING RNNs (LSTM/GRU) & GAN (AAE)
 ----------------------------------------------------------------------------------------------
               |text <-> speech & natural language processing with BERT & GPT-2|
-
-
+        
+        
+        https://stackabuse.com/time-series-prediction-using-lstm-with-pytorch-in-python/
+        https://www.curiousily.com/posts/time-series-forecasting-with-lstm-for-daily-coronavirus-cases/
+        https://www.kaggle.com/amirrezaeian/time-series-data-analysis-using-lstm-tutorial
+        https://stackabuse.com/time-series-analysis-with-lstm-using-pythons-keras-library/
+        https://stackabuse.com/time-series-analysis-with-lstm-using-pythons-keras-library/
+        https://towardsdatascience.com/time-series-analysis-visualization-forecasting-with-lstm-77a905180eba
+        https://romanorac.github.io/machine/learning/2019/09/27/time-series-prediction-with-lstm.html
+        https://www.tensorflow.org/tutorials/structured_data/time_series
+        https://machinelearningmastery.com/how-to-develop-lstm-models-for-time-series-forecasting/
         https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
         https://missinglink.ai/guides/tensorflow/tensorflow-speech-recognition-two-quick-tutorials/
         https://github.com/mozilla/TTS
