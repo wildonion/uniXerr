@@ -4,7 +4,8 @@
 ---------------------------------------------------------------------
                           |image processing|
 
-
+        
+        https://medium.com/gradientcrescent/urban-sound-classification-using-convolutional-neural-networks-with-keras-theory-and-486e92785df4
         https://www.endpoint.com/blog/2019/01/08/speech-recognition-with-tensorflow
         https://www.analyticsvidhya.com/blog/2019/07/learn-build-first-speech-to-text-model-python/
         https://medium.com/@mikesmales/sound-classification-using-deep-learning-8bc2aa1990b7
