@@ -6,7 +6,7 @@
               |text <-> speech & natural language processing with BERT & GPT-2|
 
 
-
+        https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
         https://missinglink.ai/guides/tensorflow/tensorflow-speech-recognition-two-quick-tutorials/
         https://github.com/mozilla/TTS
         https://github.com/r9y9/nnmnkwii
