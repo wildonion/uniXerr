@@ -13,10 +13,6 @@
         |=> to mine a block (add users predictions to a block) we use an ai algorithm like clustering to verify the predictions and user authenticity validation <=|
         |=> after the blocks are mined and added to the chain with no problem, predicted coins by epcbm NETWORK will give to each user <=|
         |=> finally we'll sotore the whole blockchain in a mongo database <=|
-
-
-        https://medium.com/@curiousily/credit-card-fraud-detection-using-autoencoders-in-keras-tensorflow-for-hackers-part-vii-20e0c85301bd
-        https://towardsdatascience.com/traditional-vs-deep-learning-algorithms-used-in-blockchain-in-retail-industry-iii-ed873186b6e9
 '''
 
 import plotly.graph_objects as go

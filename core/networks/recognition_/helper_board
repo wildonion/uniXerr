@@ -1,4 +1,4 @@
-'''
+
 ---------------------------------------------------------------------
   IMAGE PROCESSING AND OBJECT DETECTION USING CNN , YOLO & CapsuleNet
 ---------------------------------------------------------------------
@@ -60,6 +60,3 @@
         https://towardsdatascience.com/face-recognition-using-artificial-intelligence-fffa3b20ad5f
 
         EX : login with face detection.
-'''
-
-import plotly.graph_objects as go

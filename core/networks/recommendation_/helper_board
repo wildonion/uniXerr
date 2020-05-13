@@ -1,10 +1,10 @@
-'''
+
 --------------------------------------------------------------------------
   HYBRID CONTENT COLLABORATIVE recSys USING ADVERSARIAL AUTOENCODERS (AAE)
 --------------------------------------------------------------------------
 
-        |=> use all personal infos inside users phone for mining process like location, mobile model and etc. <=|
-        |=> We don’t want the same input and thus we take a sample from latent vector and put into the decoder to give similar output. <=|
+    |=> use all personal infos inside users phone for mining process like location, mobile model and etc. <=|
+    |=> We don’t want the same input and thus we take a sample from latent vector and put into the decoder to give similar output. <=|
 
 
         https://github.com/kilolgupta/Variational-Autoencoders-Collaborative-Filtering
@@ -28,6 +28,3 @@
         EX : 
                 [hey wildonion]
             recommended users near to your position  : @alexa , @rosii, @force
-'''
-
-import plotly.graph_objects as go

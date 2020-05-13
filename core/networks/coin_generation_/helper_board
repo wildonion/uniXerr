@@ -1,4 +1,4 @@
-'''
+
 ----------------------------------------------------------------------------------------------
   ESTIMATE & PREDICT THE POSITIONS , COINS , BEHAVIOUR ACTIVITY , SEMESTER STATUS & MARKS 
     FOR uniXerr USERS BASED ON THEIR PAST EVENTS AND CLUSTER USING RNNs (LSTM/GRU) & GAN (AAE)
@@ -99,6 +99,3 @@
                 age                                      : 22
                 semester status                          : passed
 
-'''
-
-import plotly.graph_objects as go
