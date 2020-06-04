@@ -4,8 +4,6 @@
 
 ## Everything can be everything, and everything can turn into everything else.
 
-###### :rice: _if you can't find the pattern is because you don't look closely :grey_exclamation:_
-
 ---
 
 # Setup
@@ -15,4 +13,48 @@
 * Export your active environment to _uniXerr.yml_ file: ```conda env export > uniXerr.yml```
 
 # Usage
-Run `app.py`. This is the main server of the uniXerr protocol and it can be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core. The whole structure is simaple and understandable and running the code you can understand the whole protocol, 
+> `python app.py`
+
+this is the main server of the uniXerr protocol and it can be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core.
+###### by running the code you can understand the whole protocol.
+
+---
+
+# Position Clustering Algorithm
+
+#### Prerequisites
+[Dataloader Object - Standard Scaler](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pc_dataloader.pth)
+
+[Fake Dataset for Offline Training](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pc_features.csv)
+
+> Plotted Dataset before Clustering using PCA - Standard Scaler
+<p align="center">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pca_pc_beforeClustering.png"
+</p>
+
+> Plotted Dataset before Clustering using TSNE - Standard Scaler
+<p align="center">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/tsne_pc_beforeClustering.png"
+</p>
+    
+#### Results
+> Clusters Found by KMeans on Latent Space of Pre-Trained VAE model - Plotted using PCA
+<p align="center">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/clusters-kmeans-pca.png"
+</p>
+
+> Clusters Found by KMeans on Latent Space of Pre-Trained VAE model - Plotted using TSNE
+<p align="center">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/clusters-kmeans-tsne.png"
+</p>
+
+> VAE Model Training Loss 
+<p align="center">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_model_loss.png"
+</p>
+
+[Clustered Dataset](https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_features_labeled.csv)
+
+[VAE Pre-Trained Model](https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_model.pth)
+
+
