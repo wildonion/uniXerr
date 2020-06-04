@@ -19,7 +19,7 @@ this is the main server of the uniXerr protocol and it can be controlled using `
 # Position Clustering Algorithm
 
 #### Prerequisites
-[Dataloader Object - Standard Scaler](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pc_dataloader.pth)
+[Dataloader Object - MinMax Scaler](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pc_dataloader.pth)
 
 [Fake Dataset for Offline Training](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pc_features.csv)
 
