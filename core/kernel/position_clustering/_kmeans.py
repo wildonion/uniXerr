@@ -42,13 +42,18 @@ class kmeans():
 		'''
 			we don't need scale our data to fit into the kmeans, pca and tsne algorithm
 			cause the data is the latent space of VAE model and has a
-			normal distribution with mu ~ 0 ans std ~ 1
+			normal distribution.
+			
+			the Normal distribution stretches from -Infinity to +Infinity. 
+			the mean of the distribution is the location of the value with 
+			the highest likelihood, which could be anywhere. 
+			the mean can be positive, negative or zero.
 		'''		
 
 		self.__data = data
 		self.positions = {0:'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F'}
 
-		clusterer = KMeans(n_clusters=6, random_state=1).fit(self.__data)
+		clusterer = KMeans(n_clusters=6, random_state=10).fit(self.__data)
 		self.__clusterer_labels = clusterer.labels_
 		self.__clusterer_centers = clusterer.cluster_centers_
 		np.savetxt(os.path.dirname(os.path.abspath(__file__))+'/utils/KMEANS-cluster_labels.out', self.__clusterer_labels, delimiter=',')
@@ -58,7 +63,7 @@ class kmeans():
 
 
 	def __repr__(self):
-		return f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tscaler : standard'
+		return f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tPDF : normal'
 
 
 	def __getitem__(self, sample_idx):
