@@ -2,10 +2,6 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
-## Everything can be everything, and everything can turn into everything else.
-
----
-
 # Setup
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
 * Create the environment from the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
@@ -16,7 +12,7 @@
 > `python app.py`
 
 this is the main server of the uniXerr protocol and it can be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core.
-###### by running the code you can understand the whole protocol.
+###### By running the code you can understand the whole protocol.
 
 ---
 
@@ -38,6 +34,11 @@ this is the main server of the uniXerr protocol and it can be controlled using `
 </p>
     
 #### Results
+
+[Clustered Dataset](https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_features_labeled.csv)
+
+[VAE Pre-Trained Model](https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_model.pth)
+
 > Clusters Found by KMeans on Latent Space of Pre-Trained VAE model - Plotted using PCA
 <p align="center">
     <img src="https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/clusters-kmeans-pca.png"
@@ -52,9 +53,5 @@ this is the main server of the uniXerr protocol and it can be controlled using `
 <p align="center">
     <img src="https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_model_loss.png"
 </p>
-
-[Clustered Dataset](https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_features_labeled.csv)
-
-[VAE Pre-Trained Model](https://github.com/wildonion/uniXerr/blob/master/core/kernel/position_clustering/utils/pc_model.pth)
 
 
