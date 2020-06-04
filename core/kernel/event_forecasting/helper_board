@@ -1,0 +1,55 @@
+
+----------------------------------------------------------------------------------------------
+                     PREDICT THE POSITIONS , SEMESTER STATUS & EVENTS
+                     FOR uniXerr USERS BASED ON THEIR PAST EVENTS AND 
+                           CLUSTERS USING RNNs (LSTM/GRU/LSTM) AND
+                                   INFORMATION THEORY
+----------------------------------------------------------------------------------------------
+
+
+        
+        https://discuss.pytorch.org/t/make-a-tensordataset-and-dataloader-with-multiple-inputs-parameters/26605/14
+        https://archive.ics.uci.edu/ml/datasets/student+performance
+        https://stackabuse.com/time-series-prediction-using-lstm-with-pytorch-in-python/
+        https://towardsdatascience.com/understanding-bidirectional-rnn-in-pytorch-5bd25a5dd66
+        https://discuss.pytorch.org/t/how-can-i-use-a-linear-layer-with-a-bidirectional-lstm/58716
+        https://blog.floydhub.com/long-short-term-memory-from-zero-to-hero-with-pytorch/
+        https://www.curiousily.com/posts/time-series-forecasting-with-lstm-for-daily-coronavirus-cases/
+        https://www.kaggle.com/amirrezaeian/time-series-data-analysis-using-lstm-tutorial
+        https://stackabuse.com/time-series-analysis-with-lstm-using-pythons-keras-library/
+        https://towardsdatascience.com/time-series-analysis-visualization-forecasting-with-lstm-77a905180eba
+        https://romanorac.github.io/machine/learning/2019/09/27/time-series-prediction-with-lstm.html
+        https://www.tensorflow.org/tutorials/structured_data/time_series
+        https://machinelearningmastery.com/how-to-develop-lstm-models-for-time-series-forecasting/
+        https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
+        https://machinelearningmastery.com/sequence-classification-lstm-recurrent-neural-networks-python-keras/
+        https://becominghuman.ai/how-to-train-a-neural-network-to-code-by-itself-a432e8a120df
+        https://towardsdatascience.com/how-to-build-a-recurrent-neural-network-to-detect-fake-news-35953c19cf0b
+        https://machinetalk.org/2019/03/29/neural-machine-translation-with-attention-mechanism/
+        https://blog.exxactcorp.com/getting-started-with-nlp-using-the-tensorflow-and-keras-frameworks/
+        https://machinelearningmastery.com/tensorflow-tutorial-deep-learning-with-tf-keras/
+        https://colab.research.google.com/drive/1nQYJq1f7f4R0yeZOzQ9rBKgk00AfLoS0#scrollTo=Uw4JkktB9ceM
+        https://stackabuse.com/solving-sequence-problems-with-lstm-in-keras/
+        https://mc.ai/lstm-with-keras/
+        https://adventuresinmachinelearning.com/keras-lstm-tutorial/
+        https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
+        https://xiandong79.github.io/seq2seq-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86
+        https://galaxyproject.github.io/training-material/topics/statistics/tutorials/age-prediction-with-ml/tutorial.html
+        https://arxiv.org/pdf/1708.08744.pdf
+        https://arxiv.org/pdf/1804.07405.pdf
+        https://www.ritchieng.com/machine-learning-project-student-intervention/
+        https://towardsdatascience.com/predicting-students-grades-on-kaggle-fd6ac9b1bfb9
+
+
+        EX :
+                    [hey wildonion]
+                positon (will update in real time if there was any changes)       : [A.....B..*..C.....D]
+                total mined coins                                                 : 45
+                estimated marks for next quizzes                                  : [NLA : 80 , CSA : 45 , MATH-1 : 78]
+                estimated mark for semester courses exam                          : [NLA : 43 , CSA : 23 , MATH-1 : 34]
+                interests (based on browsing the app)                             : parkour , music-rock , paiting 
+                characteristic (based on browsing the app)                        : generosity , integrity and loving
+                age                                                               : 22
+                semester status                                                   : passed
+                next week events status                                           : good
+
