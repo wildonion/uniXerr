@@ -179,7 +179,7 @@ class VAE(nn.Module):
 
 			because our input is binary data and we use Linear layer for that we have to use the bce loss
 			as our reconstruction loss and our input must be in range [0, 1]
-			so we fixed this by passing it through sigmoid activation function.
+			so we fixed this by passing it through the sigmoid activation function.
 		'''
 		bce = nn.BCELoss() # we choose bce as our reconstruction loss because of our input data which is binary data
 		bce_loss = bce(reconstruction.double(), x.view(-1, self.pc_features).double())
