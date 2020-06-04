@@ -54,7 +54,7 @@ class pipeline(Dataset):
 
 
 	def __repr__(self):
-		return f'\tmean : {np.mean(self.data)}\n\tstd : {np.std(self.data)}\n\tscaler : standard'
+		return f'\tmean : {np.mean(self.data)}\n\tstd : {np.std(self.data)}\n\tscaler : minmax'
 
 
 	def __len__(self):
@@ -65,10 +65,12 @@ class pipeline(Dataset):
 
 	def __call__(self):
 		'''
-			transform data in rane [-1, 1]
+			transform data in rane [0, 1]
+			because standard scaler is in range [-1, 1]
+			and KLD loss will be negative
 		'''
-		std_scaler = preprocessing.StandardScaler()
-		self.data = std_scaler.fit_transform(self.__data_frame.iloc[:, 1:].values)
+		minmax_scaler = preprocessing.MinMaxScaler()
+		self.data = minmax_scaler.fit_transform(self.__data_frame.iloc[:, 1:].values)
 
 
 	def plot_data_(self, plot_method='pca'):
