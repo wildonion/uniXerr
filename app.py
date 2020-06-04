@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
 	training = 'offline' # online, pre - default offline
 	latent_dim = 2 # use different dims for latent space like 10 - default is 2
-	epoch = 40
+	epoch = 3
 	generate_fake_samples = False # default False
 	cluster_method = 'kmeans' # hdbscan is not suitable for latent space of VAE and has some drawbacks for new dataset - default kmeans
 	device = 'cpu' # cuda - default cpu
@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
 		print("\n________VAE model last training loss saved________\n")
 		print("\t---current check point loss : {:.6f}".format(pc_model.loss))
-		pc_model.plot_loss() # plot training loss - negative loss is in KLD & is because of standard scaler (range : [-1, 1])
+		pc_model.plot_loss() # plot training loss
 
 		
 		print("\n________testing VAE model________\n")
