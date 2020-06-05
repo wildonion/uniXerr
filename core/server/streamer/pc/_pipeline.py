@@ -64,6 +64,10 @@ class pipeline(Dataset):
 		return self.data[idx]
 
 	def __call__(self):
+		'''
+			standard scaler produce a negative loss in KLD
+			because it'll put input data in range [-1, 1]
+		'''
 		minmax_scaler = preprocessing.MinMaxScaler()
 		self.data = minmax_scaler.fit_transform(self.__data_frame.iloc[:, 1:].values)
 
