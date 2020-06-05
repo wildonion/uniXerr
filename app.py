@@ -12,8 +12,6 @@
 
 '''
 
-import torch
-from torch.autograd import Variable
 import numpy as np
 import os
 import zmq
@@ -63,7 +61,7 @@ if __name__ == "__main__":
 	plot_method = 'pca' # tsne - default pca , if you want plot data before clustering on different methods just remove the pc_dataloader.pth
 
 	'''				   
-    |
+        |
 	|
 	 --------------------------------------------------------------------------------------------
 	'''
