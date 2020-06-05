@@ -25,7 +25,8 @@
 | load               : load existing model if there is
 | train              : train the model on dataloader objcet
 | __call__           : get the latent space of the data
-| decode             : reconstruct the input data
+| decode             : decode the input data
+| recons	     : reconstruction of input data
 | 
 
 '''
