@@ -163,10 +163,14 @@ if __name__ == "__main__":
 		print("\n________testing VAE model________\n")
 		sample_zero = dataloader().dataset.data[0]
 		sample_zero_latent = pc_model(sample_zero)
-		sample_zero_recons = pc_model.decode(sample_zero_latent).data.numpy()
+		sample_zero_recons_decode_m = pc_model.decode(sample_zero_latent).data.numpy()
+		sample_zero_recons_recons_m, mu, log_variance = pc_model.recons(sample_zero)
 		print(f"\t---sample 0 of dataset : {sample_zero}")
 		print(f"\t---getting the latent space of sample 0 : {sample_zero_latent}")
-		print(f"\t---reconstructing the sample 0 from latent space : {sample_zero_recons}")
+		print(f"\t---reconstructing the sample 0 from latent space using decode method : {sample_zero_recons_decode_m}")
+		print(f"\t---reconstructing the sample 0 from latent space using recons method : {sample_zero_recons_recons_m.data.numpy()}")
+		print(f"\t---mu : {mu.data.numpy()}") # mu is equals to the latent space cause we are not in training mode, in this case reparam method return mu
+		print(f"\t---log variance : {log_variance.data.numpy()}")
 
 
 

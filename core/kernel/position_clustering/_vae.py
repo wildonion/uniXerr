@@ -102,8 +102,8 @@ class VAE(nn.Module):
 		'''
 			return the mu and std of the latent space distribution (gaussian) for a given batch
 		'''
-		h1 = self.relu(self.en1(x))
-		return self.en_mu(h1), self.en_std(h1)
+		h1 = self.relu(self.en1(x)) # is always positive even for input in range [-1, 1]
+		return self.en_mu(h1), self.en_std(h1) # because of the weight mu and std will be negative
 
 
 	def decode(self, z):
@@ -111,7 +111,7 @@ class VAE(nn.Module):
 			decode a batch of latent variables (space) from mu and std
 		'''                        
 		h2 = self.relu(self.de1(z))
-		return self.sigmoid(self.de2(h2))
+		return self.sigmoid(self.de2(h2)) # decoded batch is always positive because of the sigmoid function
 
 
 	def reparam(self, mu, log_variance):
