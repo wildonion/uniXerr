@@ -10,9 +10,8 @@
 
 # Usage
 > `python app.py`
-
-this is the main server of the uniXerr protocol and it can be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core.
-###### By running the code you can understand the whole protocol.
+This is the main server of the uniXerr protocol and it can be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core.
+###### :information_source: _By running the code you can understand the whole protocol._
 
 ---
 
