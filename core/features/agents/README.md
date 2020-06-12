@@ -1,1 +1,1 @@
-> Reinforcement Learning Algorithms & Robotic Agents for uniXerr Games.
+> Reinforcement Learning Algorithms(Graphs and Trees) & Robotic Agents for uniXerr.
