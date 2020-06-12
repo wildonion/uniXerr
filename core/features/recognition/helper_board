@@ -3,9 +3,14 @@
   IMAGE PROCESSING , OBJECT DETECTION USING CNN , YOLO & CapsuleNet
 -------------------------------------------------------------------
                 |image and text <-> speech processing|
-            |natural language processing with BERT & GPT-2|
+            |natural language processing with BERT & GPT|
 
         
+        https://medium.com/analytics-vidhya/search-engine-using-machine-learning-and-nlp-c1ec1e28be7a
+        https://towardsdatascience.com/how-we-built-an-ai-powered-search-engine-without-being-google-5ad93e5a8591
+        https://towardsdatascience.com/semantic-code-search-3cd6d244a39c
+        https://medium.com/@deangelaneves/how-to-build-a-search-engine-from-scratch-in-python-part-1-96eb240f9ecb
+        https://azati.ai/build-an-intelligent-search-engine-from-scratch/
         https://github.com/pytorch/examples/blob/master/vae/main.py
         https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variational%20Autoencoders.ipynb
         https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
