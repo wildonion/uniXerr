@@ -142,7 +142,7 @@ class VAE(nn.Module):
 
 				log_variance = log_sigma = the diagonal covariance matrix = variances ~ std = the positive square root of these variances
 			        it makes sense that:
-			    log_variance.exp() = sigma = std
+			    log_variance.exp() = sigma = std => we took exp instead of square root
 			        mathematically it is all equivalent.
 
 			'''
