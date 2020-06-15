@@ -17,8 +17,8 @@
 |  coin generation model
 | ------------------------
 | generate coins based on positions
-| and other features using 
-| CVAE (Conditional Variational Autoencoder)
+| and other features using: 
+| AAE, CVAE, VAE-GAN and GANs
 |
 | minimum number of coins for everyone generated 
 | by uinXerr protocol is 10, because the minimum 
