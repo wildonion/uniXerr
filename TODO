@@ -9,4 +9,4 @@
 3 - online training algorithm in app.py, streamer.py and pc folder model.py
 4 - run app.py in vps using pm2 with a load balancer like nginx, traefik or docker
 
-* next section : coing generation
+* next section : position classification
