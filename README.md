@@ -3,16 +3,16 @@
 </p>
 
 # Setup
+* Install pm2: ```npm install pm2@latest -g```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
 * Create the environment from the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Update the environment using the _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 * Export your active environment to _uniXerr.yml_ file: ```conda env export > uniXerr.yml```
 
 # Usage
-> `python app.py`
+> `pm2 start app.py`
 
 This is the main server of the uniXerr protocol and it can be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core.
-###### :information_source: _By running the code you can understand the whole protocol._
 
 ---
 
