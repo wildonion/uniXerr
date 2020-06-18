@@ -17,10 +17,10 @@ import os
 import zmq
 import time
 import sys
-from core.server.streamer.pc.loader import DatasetLoader
-from core.server.streamer.pc.streamer import DatasetStreamer
+from core.server.streamer.loader import DatasetLoader
+from core.server.streamer import DatasetStreamer
 from core.kernel.position_clustering.model import trainer
-from core.kernel.position_clustering.cluster import labels
+from core.kernel.position_clustering.cluster import labels 
 
 
 if __name__ == "__main__":
@@ -60,8 +60,9 @@ if __name__ == "__main__":
 	batch_size = 8
 	plot_method = 'pca' # tsne - default pca , if you want plot data before clustering on different methods just remove the pc_dataloader.pth
 
+	
 	'''				   
-        |
+    |
 	|
 	 --------------------------------------------------------------------------------------------
 	'''
