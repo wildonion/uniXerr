@@ -44,7 +44,7 @@ class kmeans():
 			cause the data is the latent space of VAE model and has a
 			normal distribution.
 			
-			the Normal distribution stretches from -Infinity to +Infinity. 
+			the normal distribution stretches from -Infinity to +Infinity. 
 			the mean of the distribution is the location of the value with 
 			the highest likelihood, which could be anywhere. 
 			the mean can be positive, negative or zero.
@@ -73,7 +73,7 @@ class kmeans():
 	def export_csv(self):
 		print("\n________setting clustered labels on pc_features dataset________\n")
 		curr_dir = os.path.dirname(os.path.abspath(__file__))
-		pc_features = os.path.abspath(curr_dir + "/../../server/streamer/pc/dataset/pc_features.csv")
+		pc_features = os.path.abspath(curr_dir + "/../../server/streamer/dataset/pc_features.csv")
 		Df = pd.read_csv(pc_features)
 		Df['position'] = np.array(list(self.positions[clus_idx] for clus_idx in self.__clusterer_labels))
 		Df.to_csv(curr_dir+"/utils/pc_features_labeled.csv", index=False)
