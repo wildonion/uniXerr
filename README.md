@@ -19,18 +19,18 @@ This is the main server of the uniXerr protocol and it can be controlled using `
 # Position Clustering Algorithm
 
 #### Prerequisites
-[Dataloader Object - MinMax Scaler](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pc_dataloader.pth)
+[Dataloader Object - MinMax Scaler](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/dataset/pc_dataloader.pth)
 
-[Fake Dataset for Offline Training](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pc_features.csv)
+[Fake Dataset for Offline Training](https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/dataset/pc_features.csv)
 
 > Plotted Dataset before Clustering using PCA - Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/pca_pc_beforeClustering.png"
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/dataset/pca_pc_beforeClustering.png"
 </p>
 
 > Plotted Dataset before Clustering using TSNE - Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/pc/dataset/tsne_pc_beforeClustering.png"
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/server/streamer/dataset/tsne_pc_beforeClustering.png"
 </p>
     
 #### Results
