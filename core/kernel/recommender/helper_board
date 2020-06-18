@@ -1,0 +1,38 @@
+
+-------------------------------------------------------------------------------
+  HYBRID CONTENT COLLABORATIVE recSys USING ADVERSARIAL AUTOENCODERS (AAE) & RL
+-------------------------------------------------------------------------------
+
+    |=> use all personal infos inside users phone for mining process like location, mobile model and etc. <=|
+    |=> We don’t want the same input and thus we take a sample from latent vector and put into the decoder to give similar output. <=|
+    |=> after clustering search for all users that match this position then show the result to this user <=| 
+
+
+        https://ml-cheatsheet.readthedocs.io/en/latest/architectures.html
+        https://medium.com/recombee-blog/machine-learning-for-recommender-systems-part-1-algorithms-evaluation-and-cold-start-6f696683d0ed
+        https://realpython.com/build-recommendation-engine-collaborative-filtering/
+        https://www.analyticsvidhya.com/blog/2018/06/comprehensive-guide-recommendation-engine-python/
+        https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
+        https://blog.statsbot.co/recommendation-system-algorithms-ba67f39ac9a3
+        https://www.kdnuggets.com/2019/09/machine-learning-recommender-systems.html
+        https://github.com/kilolgupta/Variational-Autoencoders-Collaborative-Filtering
+        https://www.kaggle.com/siweiluo/variational-autoencoder-vae-recommendation
+        https://www.youtube.com/watch?v=Eeg1DEeWUjA
+        https://www.youtube.com/watch?v=u1bpD8Lgp8E
+        https://www.youtube.com/watch?v=HEqQ2_1XRTs
+        https://www.youtube.com/watch?v=VjeAJABH_iU
+        https://developers.google.com/machine-learning/recommendation
+        https://developers.google.com/machine-learning/glossary/recsystemshttps
+        https://www.youtube.com/watch?v=y_TzOOCJqxI
+        https://pdfs.semanticscholar.org/dfad/b5e2e274d3b2de2c203178b5b30cb7a7d0db.pdf
+        http://ceur-ws.org/Vol-2367/paper_2.pdf
+        https://blog.keras.io/building-autoencoders-in-keras.html
+        https://towardsdatascience.com/creating-a-hybrid-content-collaborative-movie-recommender-using-deep-learning-cc8b431618af
+        https://github.com/SudharshanShanmugasundaram/Movie-Recommendation-System-using-AutoEncoders
+        https://medium.com/snipfeed/how-variational-autoencoders-make-classical-recommender-systems-obsolete-4df8bae51546
+        https://towardsdatascience.com/deep-autoencoders-for-collaborative-filtering-6cf8d25bbf1d
+
+
+        EX : 
+                [hey wildonion]
+            recommended users near to your position using clustering algorithm  : @alexa , @rosii, @force
