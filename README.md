@@ -10,9 +10,13 @@
 * Export your active environment to _uniXerr.yml_ file: ```conda env export > uniXerr.yml```
 
 # Usage
-> `pm2 start app.py`
+> Run `pm2 start app.py -i max` in a VPS.
 
-This is the main server of the uniXerr protocol and it can be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core.
+###### This is the main server of the uniXerr protocol and it can only be controlled using `eye.py` through `ZMQ` socket. It's a layer on top of the uniXerr core.
+
+> Run `pm2 logs`
+
+###### Show the logging informations.
 
 ---
 
