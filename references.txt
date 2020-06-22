@@ -620,6 +620,7 @@ https://ml-cheatsheet.readthedocs.io/en/latest/backpropagation.htm
 http://hmkcode.com/ai/backpropagation-step-by-step/
 https://www.youtube.com/watch?v=2s3aJfRr9gE
 https://towardsdatascience.com/understanding-binary-cross-entropy-log-loss-a-visual-explanation-a3ac6025181a
+https://www.deepideas.net/deep-learning-from-scratch-iv-gradient-descent-and-backpropagation/
 https://towardsdatascience.com/only-numpy-understanding-back-propagation-for-transpose-convolution-in-multi-layer-cnn-with-c0a07d191981
 https://towardsdatascience.com/back-propagation-the-easy-way-part-3-cc1de33e8397
 https://rubikscode.net/2018/01/22/backpropagation-algorithm-in-artificial-neural-networks/
