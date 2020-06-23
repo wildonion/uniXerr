@@ -4,9 +4,6 @@
 
 
 
-1 - setup zmq with auth system between app.py and eye.py
-2 - garbage collection for _hdb.py
-3 - online training algorithm in app.py, streamer.py and pc folder model.py
-4 - run app.py in vps using pm2 with a load balancer like nginx, traefik or docker
 
-* next section : position classification
+1 - https://fastapi.tiangolo.com/project-generation/ -> setup fastapi server for app.py
+2 - complete position_classification section
