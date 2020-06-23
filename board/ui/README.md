@@ -1,1 +1,1 @@
-> uniXerr UI
+> uniXerr Flutter UI

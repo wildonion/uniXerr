@@ -14,31 +14,15 @@
 
 import numpy as np
 import os
-import zmq
 import time
 import sys
-from core.server.streamer.loader import DatasetLoader
-from core.server.streamer import DatasetStreamer
-from core.kernel.position_clustering.model import trainer
-from core.kernel.position_clustering.cluster import labels 
+from server.loader import DatasetLoader
+from server.streamer import DatasetStreamer
+from core.position_clustering.model import trainer
+from core.position_clustering.cluster import labels 
 
 
 if __name__ == "__main__":
-
-	# context = zmq.Context()
-	# socket = context.socket(zmq.REP)
-	# socket.bind("tcp://*:5555")
-
-	# while True:
-	# 	message = socket.recv()
-	# 	print(f"Received request: {message}")
-
-	# 	# parse args from zmq eye using protocol buffers
-	# 	# ...
-
-	# 	time.sleep(1)
-
-	# 	socket.send(b"World")
 
 
 	'''
@@ -90,6 +74,11 @@ if __name__ == "__main__":
 			| ex : (get the scaled data)
 			|		pc_model.dataloader_.dataset.data
 			|
+			|
+			| ex : (get the unscaled data)
+			|
+			|		pc_model.dataloader_.dataset.get_raw()
+			|		
 			|
 			| ex : (dataset information)
 			|		pc_model.dataloader_.dataset.__repr__()
@@ -173,7 +162,7 @@ if __name__ == "__main__":
 
 
 
-		cluster_ = labels(data=latent, cluster_method=cluster_method)
+		cluster_ = labels(data=latent, cluster_method=cluster_method) # data can be latent space or dataloader().dataset.get_raw()
 		cluster_.set() # export a csv of dataset with their labels
 		cluster_.plot(method=plot_method) # plot the clustered data
 		print("\n________latent space of VAE information________\n")
@@ -202,7 +191,3 @@ if __name__ == "__main__":
 		# datastreamer()
 		# pc_model = model(data=None, device=device, training=training)
 		raise NotImplementedError
-
-
-
-	
