@@ -16,6 +16,7 @@ _________________________________________________________________
 TODO : 
 
 	https://github.com/fawkesley/pub-sub-python-zeromq-protobuf
+	https://typer.tiangolo.com/
 
 only this script can run the uniXerr protocol using zmq.
 enable authentication for this file and uniXerr app server
