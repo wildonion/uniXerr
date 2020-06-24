@@ -49,6 +49,12 @@ class kmeans():
 			the mean of the distribution is the location of the value with 
 			the highest likelihood, which could be anywhere. 
 			the mean can be positive, negative or zero.
+			
+			clustering is difficult to do in high dimensions because 
+			the distance between most pairs of points is similar. 
+			using an autoencoder lets you re-represent high dimensional 
+			points in a lower-dimensional space. it doesn't do clustering 
+			but it is a useful preprocessing step for a secondary clustering step.
 		'''		
 
 		if torch.is_tensor(data):
