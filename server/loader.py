@@ -71,7 +71,7 @@ class DatasetLoader():
 	def __save(self): # save the dataloader
 		'''
 			pickle does not save the pipeline class itself. rather, it saves a path to the file containing the class
-			path to save by pickle : core.server.streamer.pc._pipeline
+			path to save by pickle : server._pipeline
 		'''
 		try:
 			print("\n________saving dataloader object________\n")
