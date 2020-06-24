@@ -138,7 +138,7 @@ class VAE(nn.Module):
 			    we'll typically have the network learn log(σ) and exponentiate this value to 
 			    get the latent distribution's variance.
 				
-				calculate during training : std + mu * ε = z
+				calculate during training : std * ε + mu = z
 
 				log_variance = log_sigma = the diagonal covariance matrix = variances ~ std = the positive square root of these variances
 			        it makes sense that:
