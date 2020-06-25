@@ -6,7 +6,7 @@
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
 * Create the environment from the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Update the environment using the _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
-* Export your active environment to _uniXerr.yml_ file: ```conda env export > uniXerr.yml```
+* Export your active environment to _uniXerr.yml_ file: ```conda env export | grep -v "^prefix: " > uniXerr.yml```
 
 ### Development
 
