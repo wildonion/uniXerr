@@ -117,5 +117,3 @@ dependencies:
     - pyscreenshot==2.2
     - pywin32-ctypes==0.2.0
     - yarl==1.4.2
-prefix: C:\Users\VOCFU\anaconda3\envs\uniXerr
-
