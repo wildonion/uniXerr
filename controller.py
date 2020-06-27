@@ -108,7 +108,7 @@ def cluster_positions(training: str = typer.Option('offline', help="Training alg
 			 latent_dim: int = typer.Option(2, help="Dimension of VAE latent space.", min=2, max=10), 
 			 ddo: bool = typer.Option(False, "--ddo", help="Force deletion with confirmation for dataloader object."),
 			 dpm: bool = typer.Option(False, "--dpm", help="Force deletion with confirmation for pre-trained VAE model."),
-			 cluster_on_latent: bool = typer.Option(True, "--cluster-on-raw-data", help="Clustering on pc_features dataset. default is set to VAE latent space"),
+			 cluster_on_latent: bool = typer.Option(True, "--cluster-on-raw-data", help="Clustering on pc_features dataset, default is set to VAE latent space"),
 			 cluster_method: str = typer.Option('kmeans', help="Clustering method. kmeans or hdbscan; hdbscan is not suitable for latent space of VAE and has some drawbacks for new dataset."),
 			 plot_method: str = typer.Option('pca', help="Plotting method for data. pca or tsne; if you want plot data before clustering on different methods just remove the pc_dataloader.pth with --ddo option.")
 		 ):
