@@ -18,7 +18,7 @@
 $ python app.py
 Usage: app.py [OPTIONS] COMMAND [ARGS]...
 
-  uniXerr CLI user manager.
+  |> uniXerr CLI controller <|
 
 Options:
   --install-completion  Install completion for the current shell.
