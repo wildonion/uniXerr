@@ -28,8 +28,8 @@ Options:
   --help                Show this message and exit.
 
 Commands:
-  classify-position
-  cluster-position
+  classify-positions
+  cluster-positions
   deploy
   develop
 
@@ -37,7 +37,10 @@ $ python app.py cluster-positions --help
 Usage: app.py cluster-positions [OPTIONS]
 
 Options:
-  --training TEXT              Training algorithm. offline or online
+  --training TEXT              Training algorithm. offline or online; offline
+                               uses a csv file and online uses a streamer for
+                               training.
+
   --generate-fake-samples      Generating fake samples for training.
   --epoch INTEGER RANGE        Number of epoch for training VAE.
   --batch-size INTEGER RANGE   Number of batch size for training VAE.
@@ -45,7 +48,7 @@ Options:
   --num-workers INTEGER RANGE  Number of workers for pytroch dataloader
                                object.
 
-  --latent-dim INTEGER RANGE   Latent dimension of VAE.
+  --latent-dim INTEGER RANGE   Dimension of VAE latent space.
   --ddo                        Force deletion with confirmation for dataloader
                                object.
 
