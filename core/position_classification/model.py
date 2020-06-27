@@ -1,13 +1,17 @@
 
 
+# coding: utf-8
+
+'''
+	Codded By : 
+
+ █     █░ ██▓ ██▓    ▓█████▄  ▒█████   ███▄    █  ██▓ ▒█████   ███▄    █ 
+▓█░ █ ░█░▓██▒▓██▒    ▒██▀ ██▌▒██▒  ██▒ ██ ▀█   █ ▓██▒▒██▒  ██▒ ██ ▀█   █ 
+▒█░ █ ░█ ▒██▒▒██░    ░██   █▌▒██░  ██▒▓██  ▀█ ██▒▒██▒▒██░  ██▒▓██  ▀█ ██▒
+░█░ █ ░█ ░██░▒██░    ░▓█▄   ▌▒██   ██░▓██▒  ▐▌██▒░██░▒██   ██░▓██▒  ▐▌██▒
+░░██▒██▓ ░██░░██████▒░▒████▓ ░ ████▓▒░▒██░   ▓██░░██░░ ████▓▒░▒██░   ▓██
 
 
-
-
-
-# load pc_features_labeled.csv then train the model to predict the unseen students position
-
-import numpy as np
 
 n = 5
 A = np.diag(list(range(1, n+1)))
@@ -21,3 +25,16 @@ col_C = np.insert(diag_C, 0, 0, axis=1) # insert zeros at first col
 C = np.insert(col_C, n-1, 0, axis=0) # insert zeros at the last row 
 
 mat = np.add(np.add(A, B), C)
+
+
+'''
+
+
+
+
+import numpy as np
+import pandas as pd
+
+class trainer:
+	def __init__(self, csv_path):
+		df = pd.read_csv(csv_path)
