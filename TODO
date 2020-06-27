@@ -5,5 +5,9 @@
 
 
 
-1 - https://fastapi.tiangolo.com/project-generation/ -> setup fastapi server for app.py
-2 - complete position_classification section
+1 - complete api.py using one of the template in https://fastapi.tiangolo.com/project-generation/
+2 - use openai api for the core -> https://beta.openai.com/
+3 - setup conda and install uvloop for linux
+4 - build the app using https://typer.tiangolo.com/tutorial/package/
+
+* next-section : complete position_classification algo and its api server
