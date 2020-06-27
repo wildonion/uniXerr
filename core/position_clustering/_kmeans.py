@@ -22,6 +22,7 @@
 
 '''
 
+import sys
 import torch
 from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
@@ -86,10 +87,11 @@ class kmeans():
 		print("\n________setting clustered labels on pc_features dataset________\n")
 		curr_dir = os.path.dirname(os.path.abspath(__file__))
 		pc_features = os.path.abspath(curr_dir + "/../../server/dataset/pc_features.csv")
+		pc_features_labeled = os.path.abspath(curr_dir + "/../../server/dataset/pc_features_labeled.csv")
 		Df = pd.read_csv(pc_features)
 		Df['position'] = np.array(list(self.positions[clus_idx] for clus_idx in self.__clusterer_labels))
-		Df.to_csv(curr_dir+"/utils/pc_features_labeled.csv", index=False)
-		print(f"\t---new dataset saved in {curr_dir+'/utils/pc_features_labeled.csv'}\n")
+		Df.to_csv(pc_features_labeled, index=False)
+		print(f"\t---new dataset saved in {pc_features_labeled}\n")
 
 
 	def plot_clusters(self, method='pca'):
@@ -97,14 +99,18 @@ class kmeans():
 		print(f"\t---extracting components using {method} method")
 		fig_path = os.path.dirname(os.path.abspath(__file__))+f'/utils/clusters-{self.__class__.__name__}-{method}.png'
 		
-		if method is 'pca':
+		if method == 'pca':
 			pca_data = PCA(n_components=2)
 			reductioned_data = pca_data.fit_transform(self.__data)
 			np.savetxt(os.path.dirname(os.path.abspath(__file__))+f'/utils/pca_comps_variance_{self.__class__.__name__}.out', pca_data.explained_variance_ratio_, delimiter=',')
 
-		if method is 'tsne':
+		elif method == 'tsne':
 			tsne_data = TSNE(n_components=2)
 			reductioned_data = tsne_data.fit_transform(self.__data)
+
+		else:
+			print("[?] please specify a correct plotting method.")
+			sys.exit(1)
 
 
 		results = pd.DataFrame(reductioned_data, columns=['component_1','component_2'])
