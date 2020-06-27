@@ -92,22 +92,20 @@ from core.position_classification.model import trainer as position_classificatio
 
 
 
-
 app = typer.Typer(help="uniXerr CLI user manager.")
 labeled_csv_path = os.path.dirname(os.path.abspath(__file__)) + '/server/dataset/pc_features_labeled.csv'
 
 
 
 
-
 @app.command()
-def cluster_positions(training: str = typer.Option('offline', help="Training algorithm. offline or online"),
+def cluster_positions(training: str = typer.Option('offline', help="Training algorithm. offline or online; offline uses a csv file and online uses a streamer for training."),
 			 generate_fake_samples: bool = typer.Option(False, "--generate-fake-samples", help="Generating fake samples for training."),
 			 epoch: int = typer.Option(3, help="Number of epoch for training VAE.", min=3, max=40),
 			 batch_size: int = typer.Option(8, help="Number of batch size for training VAE.", min=4),
 			 device: str = typer.Option('cpu', help="Training device. cpu or cuda"),
 			 num_workers: int = typer.Option(4, help="Number of workers for pytroch dataloader object.", min=4),
-			 latent_dim: int = typer.Option(2, help="Latent dimension of VAE.", min=2, max=10), 
+			 latent_dim: int = typer.Option(2, help="Dimension of VAE latent space.", min=2, max=10), 
 			 ddo: bool = typer.Option(False, "--ddo", help="Force deletion with confirmation for dataloader object."),
 			 dpm: bool = typer.Option(False, "--dpm", help="Force deletion with confirmation for pre-trained VAE model."),
 			 cluster_on_latent: bool = typer.Option(True, "--cluster-on-raw-data", help="Clustering on pc_features dataset."),
@@ -116,6 +114,7 @@ def cluster_positions(training: str = typer.Option('offline', help="Training alg
 		 ):
 	
 	if training == 'offline':
+
 
 		if device != 'cuda' and device != 'cpu':
 			typer.echo("Please specify a correct device.")
@@ -207,17 +206,6 @@ def cluster_positions(training: str = typer.Option('offline', help="Training alg
 
 
 
-
-		# 			for hdbscan method
-		# cluster_sample_label = cluster_[23][0]
-		# cluster_sample_label_score = cluster_[23][1]
-		# typer.echo(f"\t---position for 23th sample of dataset and its score is : \
-		# 		{cluster_.get_position(cluster=cluster_sample_label)} - ,\
-		# 		{cluster_sample_label_score}\n")
-
-
-
-
 	elif training == 'online':
 		# TODO : 
 		# 		online training using real time data streaming over kafka
@@ -227,6 +215,7 @@ def cluster_positions(training: str = typer.Option('offline', help="Training alg
 		typer.echo("Not Implemented.")
 		raise typer.Abort()
 
+
 	else:
 		typer.echo("Please specify a training method")
 		typer.Exit(1)
@@ -235,9 +224,8 @@ def cluster_positions(training: str = typer.Option('offline', help="Training alg
 
 
 @app.command()
-def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, 
-				   help="Path to labeled pc_features csv dataset.", 
-				   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True)
+def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Path to labeled pc_features csv dataset.", 
+				   	   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True)
 				   ):
 	position_classification_trainer(csv_path=csv_path) # load the pc_features_labeled.csv for classification process
 	# TODO : continue with position_classification section
