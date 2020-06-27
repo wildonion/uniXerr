@@ -92,7 +92,7 @@ from core.position_classification.model import trainer as position_classificatio
 
 
 
-app = typer.Typer(help="uniXerr CLI user manager.")
+app = typer.Typer(help="|> uniXerr CLI controller <|")
 labeled_csv_path = os.path.dirname(os.path.abspath(__file__)) + '/server/dataset/pc_features_labeled.csv'
 
 
