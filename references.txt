@@ -16,6 +16,7 @@ ____________________________________________
 ____________________________________________
 
 
+https://github.com/hunkim/PyTorchZeroToAll
 https://www.deepideas.net/deep-learning-from-scratch-i-computational-graphs/
 https://github.com/tejaslodaya/timeseries-clustering-vae/
 https://towardsdatascience.com/how-to-save-and-load-a-model-in-pytorch-with-a-complete-example-c2920e617dee
