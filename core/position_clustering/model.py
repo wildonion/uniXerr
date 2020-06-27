@@ -57,8 +57,10 @@ class trainer():
 		if data is not None and type(data) is torch.utils.data.dataloader.DataLoader:
 			self.dataloader_ = data
 		else:
-			raise ValueError("[?] please specify a training pytorch dataloader object for training VAE model.") 
-		
+			print("[?] please specify a training pytorch dataloader object for training VAE model.") 
+			sys.exit(1)
+
+
 		self.epoch = epoch
 		self.loss_tracker = []
 		self.loss = 0.0
@@ -81,7 +83,8 @@ class trainer():
 
 
 				if self.epoch > 40:
-					raise ValueError("[?] please specify an epoch < 40 or at most 40.")
+					print("[?] please specify an epoch < 40 or at most 40.")
+					sys.exit(1)
 				else:
 					self.vae_model = VAE(pc_features=self.__show_a_sample().shape[1], latent_dim=latent_dim).to(self.__device)
 					self.__train(log_interval=500)
@@ -94,10 +97,12 @@ class trainer():
 				# -------------------------------------------------
 				# TODO : online training algorithm
 				# ...
-				raise NotImplementedError
+				print("Not Implemented.")
+				sys.exit(1)
 
 			else:
-				raise ValueError("[?] please specify a training method.")
+				print("[?] please specify a training method.")
+				sys.exit(1)
 
 
 	def __train(self, log_interval):

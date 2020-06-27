@@ -32,7 +32,7 @@
 
 '''
 
-
+import sys
 import torch
 from ._hdb import hdb
 from ._kmeans import kmeans
@@ -52,21 +52,25 @@ class labels:
 
 
 
-		if cluster_method is 'hdbscan':
+		if cluster_method == 'hdbscan':
 			# param_kwargs = {'min_cluster_size':45, 'min_samples':5}
 			# self.__model = hdb(data=data, param_kwargs=param_kwargs)
-			raise NotImplementedError
+			print("[?] Not Implemented.")
+			sys.exit(1)
 
 
-		elif cluster_method is 'kmeans':
+		elif cluster_method == 'kmeans':
 			if data is not None or type(data).__module__ == np.__name__:
 				self.__model = kmeans(data=data)
 			else:
-				raise ValueError("[?] please specify a numpyndarray data for clustering.")
+				print("[?] please specify a numpyndarray data for clustering.")
+				sys.exit(1)
 
 
 		else:
-			raise ValueError("[?] please specify a clustering method.")
+			print("[?] please specify a correct clustering method.")
+			sys.exit(1)
+			
 
 	def plot(self, method):
 		self.__model.plot_clusters(method=method)
