@@ -32,6 +32,7 @@
 
 '''
 
+import sys
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -100,7 +101,7 @@ class pipeline(Dataset):
 			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_pc_beforeClustering_StandardScaler.png'}\n")
 
 
-		if plot_method == 'tsne':
+		elif plot_method == 'tsne':
 			tsne_pc_bn = TSNE(n_components=2)
 			tsnecomponents_pc_bn = tsne_pc_bn.fit_transform(normalized_data_frame)
 			tsne_pc_Df_bn = pd.DataFrame(data=tsnecomponents_pc_bn, columns=['tsne_component_1', 'tsne_component_2'])
@@ -113,3 +114,7 @@ class pipeline(Dataset):
 			plt.scatter(tsne_pc_Df_bn.tsne_component_1, tsne_pc_Df_bn.tsne_component_2, alpha=0.25)
 			plt.savefig(os.path.dirname(os.path.abspath(__file__))+'/dataset/tsne_pc_beforeClustering.png')
 			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))}+'/dataset/tsne_pc_beforeClustering_StandardScaler.png'\n")
+
+		else:
+			print("[?] please specify a correct plotting method.")
+			sys.exit(1)
