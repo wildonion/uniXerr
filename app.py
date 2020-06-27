@@ -32,16 +32,16 @@ def deploy(build: bool = typer.Option(False, "--build", help="Building for produ
 
 
 @app.command()
-def develop(workers: int = typer.Option(4, help="Number of workers", min=4),
+def develop(workers: int = typer.Option(4, help="Number of workers.", min=4),
 			asgi_server: str = typer.Option('gunicorn', help="ASGI server. uvicorn or gunicorn")):
 
 	typer.echo("\n________Running in development________\n")
 	
 	if asgi_server == 'uvicorn':
-		uvicorn.run('app:api', host="127.0.0.1", port=8000, reload=True, workers=4)
+		uvicorn.run('app:api', host="127.0.0.1", port=8000, reload=True, workers=workers)
 	
 	else: # linux only
-		cmd = "gunicorn app:api -w 4 -k uvicorn.workers.UvicornWorker"
+		cmd = f"gunicorn app:api -w {workers} -k uvicorn.workers.UvicornWorker"
 		subprocess.run([cmd], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
 
