@@ -55,7 +55,8 @@ Options:
   --dpm                        Force deletion with confirmation for pre-
                                trained VAE model.
 
-  --cluster-on-raw-data        Clustering on pc_features dataset.
+  --cluster-on-raw-data        Clustering on pc_features dataset, default is
+                               set to VAE latent space
   --cluster-method TEXT        Clustering method. kmeans or hdbscan; hdbscan
                                is not suitable for latent space of VAE and has
                                some drawbacks for new dataset.
