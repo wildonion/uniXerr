@@ -28,7 +28,7 @@ from server.api import api
 def deploy(build: bool = typer.Option(False, "--build", help="Building for production.")):
 	typer.echo("\n________Production process________\n")
 	if build:
-		typer.echo("\t---building\n")
+		typer.echo("\t---building with docker\n")
 
 
 @app.command()
