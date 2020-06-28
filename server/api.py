@@ -1,8 +1,6 @@
 
 
 
-
-
 # coding: utf-8
 
 '''
@@ -14,6 +12,10 @@
 ░█░ █ ░█ ░██░▒██░    ░▓█▄   ▌▒██   ██░▓██▒  ▐▌██▒░██░▒██   ██░▓██▒  ▐▌██▒
 ░░██▒██▓ ░██░░██████▒░▒████▓ ░ ████▓▒░▒██░   ▓██░░██░░ ████▓▒░▒██░   ▓██
 
+
+
+TODO : create a csv of all students features from database 
+		and save it in dataset folder as pc_features.csv 
 
 '''
 
