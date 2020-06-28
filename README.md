@@ -80,6 +80,7 @@ Usage: app.py deploy [OPTIONS]
 
 Options:
   --build  Building for production.
+  --kafka  Streamer processor for online training.
   --help   Show this message and exit.
 
 $ python app.py develop --help
@@ -87,20 +88,19 @@ Usage: app.py develop [OPTIONS]
 
 Options:
   --workers INTEGER RANGE  Number of workers
-  --asgi-server TEXT       ASGI server.
   --help                   Show this message and exit.
 ```
 
 > Running in development mode:
 
 ```console
-$ python app.py develop --asgi-server uvicorn --workers 4
+$ python app.py develop --workers 10
 ```
 
-> Running in production mode:
+> Running in production mode streaming over kafka:
 
 ```console
-$ python app.py deploy --build
+$ python app.py deploy --build --kafka
 ```
 
 ---
@@ -123,8 +123,6 @@ $ python app.py deploy --build
     <img src="https://github.com/wildonion/uniXerr/blob/master/server/dataset/tsne_pc_beforeClustering.png"
 </p>
     
-#### 
-
 [Clustered Dataset](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled.csv)
 
 [VAE Pre-Trained Model](https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model.pth)
