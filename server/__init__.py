@@ -14,5 +14,6 @@
 
 '''
 
-from .loader import DatasetLoader
-from ._pipeline import pipeline
+from ._pipeline import *
+from .loader import *
+from .streamer import *
