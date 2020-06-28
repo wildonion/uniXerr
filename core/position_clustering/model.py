@@ -48,7 +48,7 @@ MODEL_PATH = os.path.dirname(os.path.abspath(__file__)) + '/utils/pc_model.pth'
 
 class trainer():
 
-	def __init__(self, data, device, latent_dim=2, epoch=30, training='offline'):
+	def __init__(self, data, device, latent_dim=2, epoch=30):
 		
 		cuda = torch.cuda.is_available() if device is 'cuda' else None
 		self.__device = torch.device("cuda" if cuda else "cpu")
@@ -74,35 +74,20 @@ class trainer():
 
 
 		else:
-			if training == 'offline':
-				# -------------------------------------------------
-				#  training offline - Variational Autoencoder Model
-				# -------------------------------------------------
-				print("\n________found no existing pre-trained model________\n")
-				print(f"\t---training on latent space using VAE on {self.__device}\n")
+			# -------------------------------------------------
+			#  training Variational Autoencoder Model
+			# -------------------------------------------------
+			print("\n________found no existing pre-trained model________\n")
+			print(f"\t---training on latent space using VAE on {self.__device}\n")
 
 
-				if self.epoch > 40:
-					print("[?] please specify an epoch < 40 or at most 40.")
-					sys.exit(1)
-				else:
-					self.vae_model = VAE(pc_features=self.__show_a_sample().shape[1], latent_dim=latent_dim).to(self.__device)
-					self.__train(log_interval=500)
-
-
-
-			elif training == 'online':
-				# -------------------------------------------------
-				#  training online - Variational Autoencoder Model
-				# -------------------------------------------------
-				# TODO : online training algorithm
-				# ...
-				print("Not Implemented.")
+			if self.epoch > 40:
+				print("[?] please specify an epoch < 40 or at most 40.")
 				sys.exit(1)
-
 			else:
-				print("[?] please specify a training method.")
-				sys.exit(1)
+				self.vae_model = VAE(pc_features=self.__show_a_sample().shape[1], latent_dim=latent_dim).to(self.__device)
+				self.__train(log_interval=500)
+
 
 
 	def __train(self, log_interval):
