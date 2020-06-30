@@ -41,13 +41,18 @@ import numpy as np
 
 
 class hdb():
-	def __init__(self, data, param_kwargs):
+	def __init__(self, data, data_type, param_kwargs):
 		
-		if torch.is_tensor(data):
+		if data_type == 'latent':
 			self.__data = data
-		else:
+			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tPDF : normal'
+		elif data_type == 'raw':
 			scaler = StandardScaler()
 			self.__data = scaler.fit_transform(data)
+			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tStandard : scaler\n\tPDF : standard normal'
+		else:
+			print("[?] please specify a data type")
+			sys.exit(1)
 
 		self.positions = {-1:'ooup', 0:'A', 1:'B', 2:'C', 3:'D', 4:'E'}
 
@@ -62,6 +67,9 @@ class hdb():
 		print(f"\t---total unique labels found : {np.unique(self.__clusterer_labels).max() + 1}")
 		print(f"\t---all unique label : {np.unique(self.__clusterer_labels)}")
 
+
+	def __repr__(self):
+		return self.__ds_info
 
 
 	def __getitem__(self, sample_idx):

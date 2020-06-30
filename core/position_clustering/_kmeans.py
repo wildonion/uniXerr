@@ -40,7 +40,7 @@ import pandas as pd
 
 
 class kmeans():
-	def __init__(self, data):
+	def __init__(self, data, data_type):
 		'''
 			we don't need scale our data to fit into the kmeans, pca and tsne algorithm
 			cause the data is the latent space of VAE model and has a
@@ -58,12 +58,17 @@ class kmeans():
 			but it is a useful preprocessing step for a secondary clustering step.
 		'''		
 
-		if torch.is_tensor(data):
+		if data_type == 'latent':
 			self.__data = data
-		else:
+			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tPDF : normal'
+		elif data_type == 'raw':
 			scaler = StandardScaler()
 			self.__data = scaler.fit_transform(data)
-		
+			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tStandard : scaler\n\tPDF : standard normal'
+		else:
+			print("[?] please specify a data type")
+			sys.exit(1)
+
 		self.positions = {0:'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F'}
 
 		clusterer = KMeans(n_clusters=6, random_state=10).fit(self.__data)
@@ -76,7 +81,7 @@ class kmeans():
 
 
 	def __repr__(self):
-		return f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tPDF : normal'
+		return self.__ds_info
 
 
 	def __getitem__(self, sample_idx):
