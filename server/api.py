@@ -14,8 +14,10 @@
 
 
 
-TODO : create a csv of all students features from database 
+TODO : create a csv api of all students features from database 
 		and save it in dataset folder as pc_features.csv 
+
+TODO : use mongodb and graphql for req, res ops
 
 '''
 
