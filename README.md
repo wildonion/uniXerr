@@ -4,11 +4,14 @@
 
 ### Setup
 
-* Create the environment from _uniXerr.yml_ file if there isn't any: ```conda env create -f uniXerr.yml```
+* Create the environment with the latest version of python: ```conda create -n uniXerr python=3```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
 * Update the environment using _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 * Export your active environment to _uniXerr.yml_ file: ```conda env export | grep -v "^prefix: " > uniXerr.yml```
 * Install completion for _typer-cli_: ```typer --install-completion```
+
+###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
+###### :information_source: `uniXerr.yml` was exported on Ubuntu Linux 20.04 LTS.
 
 ### Usage
 
@@ -125,7 +128,7 @@ $ python app.py deploy --build --kafka
     
 [Clustered Dataset](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled.csv)
 
-[VAE Pre-Trained Model](https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model.pth)
+[VAE Pre-Trained Model - Normal PDF](https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model.pth)
 
 > Clusters Found by KMeans on Latent Space of Pre-Trained VAE model - Plotted using PCA
 <p align="center">
