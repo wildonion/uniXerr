@@ -189,16 +189,17 @@ def cluster_positions(
 
 	if cluster_on_latent:
 		typer.echo("\n________Clustering on latent space of VAE model________\n")
-		cluster_ = labels(data=latent, cluster_method=cluster_method)
+		cluster_ = labels(data=latent, data_type='latent', cluster_method=cluster_method)
+		print("\n________latent space of VAE information________\n")
 
 	if not cluster_on_latent:
-		typer.echo("\n________Clustering on pc_features dataset________\n")
-		cluster_ = labels(data=dataloader().dataset.get_raw(), cluster_method=cluster_method)
+		typer.echo("\n________Clustering on pc_features raw dataset________\n")
+		cluster_ = labels(data=dataloader().dataset.get_raw(), data_type='raw', cluster_method=cluster_method)
+		print("\n________pc_features raw data information during clustering________\n")
 
+	print(f"{cluster_.dataset_info()}\n") # dataset information during clustering
 	cluster_.set() # export a csv of dataset with their labels
 	cluster_.plot(method=plot_method) # plot the clustered data
-	print("\n________latent space of VAE information________\n")
-	print(f"{cluster_.dataset_info()}\n") # dataset information for clustering
 	cluster_sample_label = cluster_[0] # get the cluster number for 0th sample of the dataset
 	print("\n________credit information________\n")
 	print(f"\t---position for 0th sample of dataset is : {cluster_.get_position(cluster=cluster_sample_label)}\n")
