@@ -40,7 +40,7 @@ import numpy as np
 
 class labels:
 
-	def __init__(self, data, cluster_method='kmeans'):
+	def __init__(self, data, data_type, cluster_method='kmeans'):
 
 		print(f"\n________clustering using {cluster_method} method________\n")
 
@@ -54,14 +54,14 @@ class labels:
 
 		if cluster_method == 'hdbscan':
 			# param_kwargs = {'min_cluster_size':45, 'min_samples':5}
-			# self.__model = hdb(data=data, param_kwargs=param_kwargs)
+			# self.__model = hdb(data=data, data_type=data_type, param_kwargs=param_kwargs)
 			print("[?] Not Implemented.")
 			sys.exit(1)
 
 
 		elif cluster_method == 'kmeans':
 			if data is not None or type(data).__module__ == np.__name__:
-				self.__model = kmeans(data=data)
+				self.__model = kmeans(data=data, data_type=data_type)
 			else:
 				print("[?] please specify a numpyndarray data for clustering.")
 				sys.exit(1)
