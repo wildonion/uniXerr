@@ -65,7 +65,7 @@ class trainer():
 		self.loss_tracker = []
 		self.loss = 0.0
 
-		print("\n________dataset information________\n")
+		print("\n________dataset information during extracting features using VAE________\n")
 		print(f"{self.dataloader_.dataset.__repr__()}\n")
 
 		if os.path.exists(MODEL_PATH):
@@ -158,6 +158,7 @@ class trainer():
 	def __call__(self, data):
 		'''
 			data -> encode -> mu, log_variance -> reparam
+			return : numpyndarray
 		'''
 		data = Variable(torch.from_numpy(data), requires_grad=False)
 		self.vae_model.eval()
@@ -166,6 +167,7 @@ class trainer():
 	def decode(self, latent):
 		'''
 			reparam -> decode
+			return : pytorch tensor 
 		'''
 		latent = Variable(torch.from_numpy(latent), requires_grad=False)
 		rp = self.vae_model.decode(latent.float())
@@ -175,6 +177,7 @@ class trainer():
 		'''
 			data -> encode -> mu, log_variance -> reparam -> decode
 			this method is the combination of decode and __call__ method.
+			return : pytorch tensor
 		'''
 		self.vae_model.eval()
 		data = torch.from_numpy(data)
