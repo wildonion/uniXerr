@@ -29,26 +29,25 @@ from server.api import api
 def deploy(build: bool = typer.Option(False, "--build", help="Building for production."),
 		   streamer: bool = typer.Option(False, "--kafka", help="Streamer processor for online training.")
 		   ):
-	typer.echo("\n________Production process________\n")
+	typer.secho("\n________Production process________\n", fg=typer.colors.MAGENTA, bold=True)
 
 	if build:
-		typer.echo("\t---building with docker\n")
+		typer.secho("\t---building with docker\n", fg=typer.colors.RESET, bold=True)
 		# TODO : build api.py inside server folder using docker and traefik
 		# ...
 
 
 	if streamer:
-		typer.echo("\t---streaming over kafka for online training\n")
+		typer.secho("\t---streaming over kafka for online training\n", fg=typer.colors.RESET, bold=True)
 		# TODO : work on streamer.py inside server folder
 		# ...
 
 
 
 @app.command()
-def develop(workers: int = typer.Option(4, help="Number of workers.", min=4)):
+def develop(workers: int = typer.Option(multiprocessing.cpu_count(), help="Number of workers.", min=4)):
 
-	typer.echo("\n________Running in development________\n")
-	workers = number_of_workers() if workers != 4 else workers
+	typer.secho("\n________Running in development________\n", fg=typer.colors.MAGENTA, bold=True)
 	uvicorn.run('app:api', host="127.0.0.1", port=8000, reload=True, workers=workers)
 
 

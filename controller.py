@@ -116,27 +116,27 @@ def cluster_positions(
 
 
 	if device != 'cuda' and device != 'cpu':
-		typer.echo("Please specify a correct device.")
+		typer.secho("Please specify a correct device.", fg=typer.colors.RED, bold=True)
 		sys.exit(1)
 
 	if ddo:
 		delete = typer.confirm("Are you sure you want to delete dataloader object?")
-		typer.echo("\t---Deleting dataloader object!\n")
+		typer.secho("\t---Deleting dataloader object!\n", fg=typer.colors.YELLOW, bold=True)
 		if delete:
 			try:
 				os.remove(os.path.dirname(os.path.abspath(__file__))+'/server/dataset/pc_dataloader.pth')
 			except:
-				typer.echo("\t---Errot while deleting the file\n")
+				typer.secho("\t---Errot while deleting the file\n", fg=typer.colors.RED, bold=True)
 
 
 	if dpm:
 		delete = typer.confirm("Are you sure you want to delete pre-trained VAE model?")
-		typer.echo("\t---Deleting pre-trained VAE model!\n")
+		typer.secho("\t---Deleting pre-trained VAE model!\n", fg=typer.colors.YELLOW, bold=True)
 		if delete:
 			try:
 				os.remove(os.path.dirname(os.path.abspath(__file__))+'/position_clustering/utils/pc_model.pth')
 			except:
-				typer.echo("\t---Errot while deleting the file\n")
+				typer.secho("\t---Errot while deleting the file\n", fg=typer.colors.RED, bold=True)
 
 
 
@@ -156,53 +156,55 @@ def cluster_positions(
 
 
 
-	print("\n________VAE model state dict________\n")
+	typer.secho("\n________VAE model state dict________\n", fg=typer.colors.MAGENTA, bold=True)
 	for param_tensor in pc_model.vae_model.state_dict():
 		print("\t---",param_tensor, "\t\t", pc_model.vae_model.state_dict()[param_tensor].size())
-	print(f"\n________the model________\n{pc_model.vae_model}")
+	typer.secho(f"\n________the model________\n", fg=typer.colors.MAGENTA, bold=True)
+	typer.secho(f"{pc_model.vae_model}", fg=typer.colors.RESET, bold=True)
 	
 	# print("\n________VAE model optimizer state dict________\n")
 	# for var_name in pc_model.optimizer.state_dict():
 	# 	print(var_name, "\t", pc_model.optimizer.state_dict()[var_name])
-	print(f"\n________the optimizer________\n{pc_model.optimizer}")
+	typer.secho(f"\n________the optimizer________\n", fg=typer.colors.MAGENTA, bold=True)
+	typer.secho(f"{pc_model.optimizer}", fg=typer.colors.RESET, bold=True)
 
-	print("\n________VAE model last epoch saved________\n")
-	print(f"\t---current check point epoch : {pc_model.epoch}")
+	typer.secho("\n________VAE model last epoch saved________\n", fg=typer.colors.MAGENTA, bold=True)
+	typer.secho(f"\t---current check point epoch : {pc_model.epoch}", fg=typer.colors.RESET, bold=True)
 
-	print("\n________VAE model last training loss saved________\n")
-	print("\t---current check point loss : {:.6f}".format(pc_model.loss))
+	typer.secho("\n________VAE model last training loss saved________\n", fg=typer.colors.MAGENTA, bold=True)
+	typer.secho("\t---current check point loss : {:.6f}".format(pc_model.loss), fg=typer.colors.RESET, bold=True)
 	pc_model.plot_loss() # plot training loss
 
 	
-	print("\n________testing VAE model________\n")
+	typer.secho("\n________testing VAE model________\n", fg=typer.colors.MAGENTA, bold=True)
 	sample_zero = dataloader().dataset.data[0]
 	sample_zero_latent = pc_model(sample_zero)
 	sample_zero_recons_decode_m = pc_model.decode(sample_zero_latent).data.numpy()
 	sample_zero_recons_recons_m, mu, log_variance = pc_model.recons(sample_zero)
-	print(f"\t---sample 0 of dataset : {sample_zero}")
-	print(f"\t---getting the latent space of sample 0 : {sample_zero_latent}")
-	print(f"\t---reconstructing the sample 0 from latent space using decode method : {sample_zero_recons_decode_m}")
-	print(f"\t---reconstructing the sample 0 from latent space using recons method : {sample_zero_recons_recons_m.data.numpy()}")
-	print(f"\t---mu : {mu.data.numpy()}") # mu is equals to the latent space cause we are not in training mode, in this case reparam method return mu
-	print(f"\t---log variance : {log_variance.data.numpy()}")
+	typer.secho(f"\t---sample 0 of dataset : {sample_zero}", fg=typer.colors.RESET, bold=True)
+	typer.secho(f"\t---getting the latent space of sample 0 : {sample_zero_latent}", fg=typer.colors.RESET, bold=True)
+	typer.secho(f"\t---reconstructing the sample 0 from latent space using decode method : {sample_zero_recons_decode_m}", fg=typer.colors.RESET, bold=True)
+	typer.secho(f"\t---reconstructing the sample 0 from latent space using recons method : {sample_zero_recons_recons_m.data.numpy()}", fg=typer.colors.RESET, bold=True)
+	typer.secho(f"\t---mu : {mu.data.numpy()}", fg=typer.colors.RESET, bold=True) # mu is equals to the latent space cause we are not in training mode, in this case reparam method return mu
+	typer.secho(f"\t---log variance : {log_variance.data.numpy()}", fg=typer.colors.RESET, bold=True)
 
 
 	if cluster_on_latent:
-		typer.echo("\n________Clustering on latent space of VAE model________\n")
+		typer.secho("\n________Clustering on latent space of VAE model________\n", fg=typer.colors.MAGENTA, bold=True)
 		cluster_ = labels(data=latent, data_type='latent', cluster_method=cluster_method)
-		print("\n________latent space of VAE information________\n")
+		typer.secho("\n________latent space of VAE information________\n", fg=typer.colors.MAGENTA, bold=True)
 
 	if not cluster_on_latent:
-		typer.echo("\n________Clustering on pc_features raw dataset________\n")
+		typer.secho("\n________Clustering on pc_features raw dataset________\n", fg=typer.colors.MAGENTA, bold=True)
 		cluster_ = labels(data=dataloader().dataset.get_raw(), data_type='raw', cluster_method=cluster_method)
-		print("\n________pc_features raw data information during clustering________\n")
+		typer.secho("\n________pc_features raw data information during clustering________\n", fg=typer.colors.MAGENTA, bold=True)
 
-	print(f"{cluster_.dataset_info()}\n") # dataset information during clustering
+	typer.secho(f"{cluster_.dataset_info()}\n", fg=typer.colors.RESET, bold=True) # dataset information during clustering
 	cluster_.set() # export a csv of dataset with their labels
 	cluster_.plot(method=plot_method) # plot the clustered data
 	cluster_sample_label = cluster_[0] # get the cluster number for 0th sample of the dataset
-	print("\n________credit information________\n")
-	print(f"\t---position for 0th sample of dataset is : {cluster_.get_position(cluster=cluster_sample_label)}\n")
+	typer.secho("\n________credit information________\n", fg=typer.colors.MAGENTA, bold=True)
+	typer.secho(f"\t---position for 0th sample of dataset is : {cluster_.get_position(cluster=cluster_sample_label)}\n", fg=typer.colors.RESET, bold=True)
 	
 
 
