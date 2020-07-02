@@ -42,9 +42,8 @@ import pandas as pd
 class kmeans():
 	def __init__(self, data, data_type):
 		'''
-			we don't need scale our data to fit into the kmeans, pca and tsne algorithm
-			cause the data is the latent space of VAE model and has a
-			normal distribution.
+			we don't need scale our data or reduce dimension to fit into the kmeans, pca and tsne algorithm
+			cause the data is the latent space of VAE model and has a normal distribution and 2D dims.
 			
 			the normal distribution stretches from -Infinity to +Infinity. 
 			the mean of the distribution is the location of the value with 
@@ -62,9 +61,10 @@ class kmeans():
 			self.__data = data
 			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tPDF : normal'
 		elif data_type == 'raw':
-			scaler = StandardScaler()
-			self.__data = scaler.fit_transform(data)
-			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tStandard : scaler\n\tPDF : standard normal'
+			pca_pc_bn = PCA(n_components=2) # generally K-means works best for 2 dimensional numerical data, reduce from 4 features to 2.
+			scaler = StandardScaler() # scale data before clustering
+			self.__data = pca_pc_bn.fit_transform(scaler.fit_transform(data))
+			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tStandard : scaler\n\tPDF : standard normal\n\tDRA : PCA'
 		else:
 			print("[?] please specify a data type")
 			sys.exit(1)
