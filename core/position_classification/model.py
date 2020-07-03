@@ -12,6 +12,8 @@
 ░░██▒██▓ ░██░░██████▒░▒████▓ ░ ████▓▒░▒██░   ▓██░░██░░ ████▓▒░▒██░   ▓██
 
 
+implement the k-map problem [[ find the simplest algebraic statement for a given function ]]
+Logic circuit simplification (SOP and POS) and its problems like XOR problem ___ http://www.32x8.com/index.html
 
 n = 5
 A = np.diag(list(range(1, n+1)))
