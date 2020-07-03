@@ -7,7 +7,7 @@
 
 1 - scaffold server folder using one of the template in https://fastapi.tiangolo.com/project-generation/
 2 - use openai api for the core -> https://beta.openai.com/
-3 - build the app using https://typer.tiangolo.com/tutorial/package/
+3 - build the app.py using https://typer.tiangolo.com/tutorial/package/
 
 * before-next-section : raise your level of knowledge by reading gdrive books 
 * next-section        : complete position_classification algo and its api server
