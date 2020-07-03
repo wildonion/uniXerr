@@ -26,6 +26,7 @@
 
 '''
 
+from copy import deepcopy
 import sys
 import pandas as pd
 import numpy as np
@@ -43,6 +44,10 @@ import numpy as np
 class hdb():
 	def __init__(self, data, data_type, param_kwargs):
 		
+
+		self.__data_type = data_type
+		self.__raw_data_for_tsne = deepcopy(data)
+
 		if data_type == 'latent':
 			self.__data = data
 			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tPDF : normal'
@@ -83,7 +88,7 @@ class hdb():
 		print("\n________setting clustered labels on pc_features dataset________\n")
 		curr_dir = os.path.dirname(os.path.abspath(__file__))
 		pc_features = os.path.abspath(curr_dir + "/../../server/pc/dataset/pc_features.csv")
-		pc_features_labeled = os.path.abspath(curr_dir + "/../../server/dataset/pc_features_labeled.csv")
+		pc_features_labeled = os.path.abspath(curr_dir + f"/../../server/dataset/pc_features_labeled-{self.__data_type}.csv")
 		Df = pd.read_csv(pc_features)
 		Df['position'] = np.array(list(self.positions[clus_idx] for clus_idx in self.__clusterer_labels))
 		Df.to_csv(pc_features_labeled, index=False)
@@ -93,20 +98,29 @@ class hdb():
 	def plot_clusters(self, method='pca'):
 		print("\n________plotting after clustering________\n")
 		print(f"\t---extracting components using {method} method")
-		fig_path = os.path.dirname(os.path.abspath(__file__))+f'/utils/clusters-{self.__class__.__name__}-{method}.png'
 		
+		if self.__data_type == 'latent':
+			print(f"\t---no need to use {method} for plotting clustered latent space of VAE, is already 2D\n")
+			fig_path = os.path.dirname(os.path.abspath(__file__))+f'/utils/clusters-{self.__class__.__name__}-{self.__data_type}.png'
+			reductioned_data = self.__data
+		
+		elif self.__data_type == 'raw':
+			print(f"\t---extracting components using {method} method")
+			fig_path = os.path.dirname(os.path.abspath(__file__))+f'/utils/clusters-{self.__class__.__name__}-{method}-{self.__data_type}.png'
+			
+			if method == 'pca':
+				reductioned_data = self.__data
 
-		if method == 'pca':
-			pca_data = PCA(n_components=2)
-			reductioned_data = pca_data.fit_transform(self.__data)
-			np.savetxt(os.path.dirname(os.path.abspath(__file__))+f'/utils/pca_comps_variance_{self.__class__.__name__}.out', pca_data.explained_variance_ratio_, delimiter=',')
+			elif method == 'tsne':
+				tsne_data = TSNE(n_components=2)
+				reductioned_data = tsne_data.fit_transform(self.__raw_data_for_tsne)
 
-		elif method == 'tsne':
-			tsne_data = TSNE(n_components=2)
-			reductioned_data = tsne_data.fit_transform(self.__data)
+			else:
+				print("[?] please specify a correct plotting method.")
+				sys.exit(1)
 
 		else:
-			print("[?] please specify a correct plotting method.")
+			print("[?] argument error!")
 			sys.exit(1)
 		
 
