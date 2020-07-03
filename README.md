@@ -2,6 +2,10 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
+###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
+###### :information_source: `uniXerr.yml` was exported on Ubuntu Linux 20.04 LTS.
+###### :information_source: Both `core` and `server` folders can only be controlled using `controller.py` middleware.
+
 ### Setup
 
 * Create the environment with the latest version of python: ```conda create -n uniXerr python=3```
@@ -9,26 +13,18 @@
 * Update the environment using _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 * Export your active environment to _uniXerr.yml_ file: ```conda env export | grep -v "^prefix: " > uniXerr.yml```
 * Install completion for _typer-cli_: ```typer --install-completion```
-
-###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
-###### :information_source: `uniXerr.yml` was exported on Ubuntu Linux 20.04 LTS.
+* Create a docs file from _uniXerr_ CLI: ```typer app.py utils docs --name uniXerr --output uniXerr-cli.md```
 
 ### Usage
 
-> Both `core` and `server` folders can only be controlled using `controller.py` middleware.
-
 ```console
-$ python app.py
-Usage: app.py [OPTIONS] COMMAND [ARGS]...
+$ typer app.py run
+Usage: typer run [OPTIONS] COMMAND [ARGS]...
 
   |> uniXerr CLI controller <|
 
 Options:
-  --install-completion  Install completion for the current shell.
-  --show-completion     Show completion for the current shell, to copy it or
-                        customize the installation.
-
-  --help                Show this message and exit.
+  --help  Show this message and exit.
 
 Commands:
   classify-positions
@@ -36,7 +32,7 @@ Commands:
   deploy
   develop
 
-$ python app.py cluster-positions --help
+$ typer app.py run cluster-positions --help
 Usage: app.py cluster-positions [OPTIONS]
 
 Options:
@@ -71,23 +67,23 @@ Options:
 
   --help                       Show this message and exit.
 
-$ python app.py classify-positions --help
-Usage: app.py classify-positions [OPTIONS]
+$ typer app.py run classify-positions --help
+Usage: app.py run classify-positions [OPTIONS]
 
 Options:
   --csv-path FILE  Path to labeled pc_features csv dataset.
   --help           Show this message and exit.
 
-$ python app.py deploy --help
-Usage: app.py deploy [OPTIONS]
+$ typer app.py run deploy --help
+Usage: app.py run deploy [OPTIONS]
 
 Options:
   --build  Building for production.
   --kafka  Streamer processor for online training.
   --help   Show this message and exit.
 
-$ python app.py develop --help
-Usage: app.py develop [OPTIONS]
+$ typer app.py run develop --help
+Usage: app.py run develop [OPTIONS]
 
 Options:
   --workers INTEGER RANGE  Number of workers
@@ -97,15 +93,19 @@ Options:
 > Running in development mode:
 
 ```console
-$ python app.py develop --workers 10
+$ typer app.py run develop --workers 10
 ```
 
 > Running in production mode streaming over kafka:
 
 ```console
-$ python app.py deploy --build --kafka
+$ typer app.py run deploy --build --kafka
 ```
+> You can also install uniXerr from pip if you are the commander guy: __ [uniXerr CLI usage](https://github.com/wildonion/uniXerr/blob/master/uniXerr-cli.md)
 
+```console
+pip install uniXerr
+```
 ---
 
 # Results
@@ -126,18 +126,25 @@ $ python app.py deploy --build --kafka
     <img src="https://github.com/wildonion/uniXerr/blob/master/server/dataset/tsne_pc_beforeClustering.png"
 </p>
     
-[Clustered Dataset](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled.csv)
+[Clustered Dataset Based on Latent Space of Pre-Trained VAE model](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled-latent.csv)
+
+[Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled-raw.csv)
 
 [VAE Pre-Trained Model - Normal PDF](https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model.pth)
 
-> Clusters Found by KMeans on Latent Space of Pre-Trained VAE model - Plotted using PCA
+> Clusters Found by KMeans on Latent Space of Pre-Trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-pca.png"
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-latent.png"
 </p>
 
-> Clusters Found by KMeans on Latent Space of Pre-Trained VAE model - Plotted using TSNE
+> Clusters Found by KMeans on Position Clustering Dataset - Plotted using PCA | Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-tsne.png"
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-pca-raw.png"
+</p>
+
+> Clusters Found by KMeans on Position Clustering Dataset - Plotted using TSNE | Standard Scaler
+<p align="center">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-tsne-raw.png"
 </p>
 
 > VAE Model Training Loss 
