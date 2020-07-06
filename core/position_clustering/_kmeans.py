@@ -59,7 +59,7 @@ class kmeans():
 		'''		
 
 		self.__data_type = data_type
-		self.__raw_data_for_tsne = deepcopy(data)
+		self.__standard_scaled_data = StandardScaler().fit_transform(data) # scale data before clustering
 
 		if self.__data_type == 'latent': # no need to reduce dim or scale data for clustering
 			self.__data = data
@@ -67,8 +67,7 @@ class kmeans():
 		
 		elif self.__data_type == 'raw': # we have to reduce dim and scale data for clustering
 			pca_pc_bn = PCA(n_components=2) # generally K-means works best for 2 dimensional numerical data, reduce from 4 features to 2.
-			scaler = StandardScaler() # scale data before clustering
-			self.__data = pca_pc_bn.fit_transform(scaler.fit_transform(data))
+			self.__data = pca_pc_bn.fit_transform(self.__standard_scaled_data)
 			self.__ds_info = f'\tmean : {np.mean(self.__data)}\n\tstd : {np.std(self.__data)}\n\tStandard : scaler\n\tPDF : standard normal\n\tDRA : PCA'
 		
 		else:
@@ -121,8 +120,8 @@ class kmeans():
 				reductioned_data = self.__data
 
 			elif method == 'tsne':
-				tsne_data = TSNE(n_components=2)
-				reductioned_data = tsne_data.fit_transform(self.__raw_data_for_tsne)
+				tsne_data = TSNE(n_components=2, verbose=1, perplexity=3, n_iter=1000, learning_rate=20)
+				reductioned_data = tsne_data.fit_transform(self.__standard_scaled_data)
 
 			else:
 				print("[?] please specify a correct plotting method.")
