@@ -79,18 +79,17 @@ class pipeline(Dataset):
 
 
 	def plot_data_(self, plot_method='pca'):
-		print("\n________plotting before clustering VAE latent space of data________\n")
+		print("\n________plotting before clustering________\n")
 		print(f"\t---normalizing data using StandardScaler")
 		print(f"\t---plotting data using {plot_method} method")
-		std_scaler = preprocessing.StandardScaler()
-		normalized_data_frame = std_scaler.fit_transform(self.get_raw())
+		normalized_data_frame = preprocessing.StandardScaler().fit_transform(self.get_raw())
 
 		if plot_method == 'pca':	
 			pca_pc_bn = PCA(n_components=2)
 			principalComponents_pc_bn = pca_pc_bn.fit_transform(normalized_data_frame)
 			principal_pc_Df_bn = pd.DataFrame(data=principalComponents_pc_bn, columns=['principal_component_1', 'principal_component_2'])
 			np.savetxt(os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_comps_variance.out', pca_pc_bn.explained_variance_ratio_, delimiter=',') # load using np.loadtxt()
-			plt.figure()
+			plt.figure(figsize=(10,5))
 			plt.xticks(fontsize=10)
 			plt.yticks(fontsize=12)
 			plt.xlabel('Principal Component - 1', fontsize=10)
@@ -98,14 +97,14 @@ class pipeline(Dataset):
 			plt.title("Principal Component Analysis of Position Clustering Dataset", fontsize=10)
 			plt.scatter(principal_pc_Df_bn.principal_component_1, principal_pc_Df_bn.principal_component_2, alpha=0.25)
 			plt.savefig(os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_pc_beforeClustering.png')
-			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_pc_beforeClustering_StandardScaler.png'}\n")
+			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_pc_beforeClustering.png'}\n")
 
 
 		elif plot_method == 'tsne':
-			tsne_pc_bn = TSNE(n_components=2)
+			tsne_pc_bn = TSNE(n_components=2, verbose=1, perplexity=3, n_iter=1000, learning_rate=20)
 			tsnecomponents_pc_bn = tsne_pc_bn.fit_transform(normalized_data_frame)
 			tsne_pc_Df_bn = pd.DataFrame(data=tsnecomponents_pc_bn, columns=['tsne_component_1', 'tsne_component_2'])
-			plt.figure()
+			plt.figure(figsize=(10,5))
 			plt.xticks(fontsize=10)
 			plt.yticks(fontsize=12)
 			plt.xlabel('Component - 1', fontsize=10)
@@ -113,7 +112,7 @@ class pipeline(Dataset):
 			plt.title("T-SNE Analysis of Position Clustering Dataset", fontsize=10)
 			plt.scatter(tsne_pc_Df_bn.tsne_component_1, tsne_pc_Df_bn.tsne_component_2, alpha=0.25)
 			plt.savefig(os.path.dirname(os.path.abspath(__file__))+'/dataset/tsne_pc_beforeClustering.png')
-			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))}+'/dataset/tsne_pc_beforeClustering_StandardScaler.png'\n")
+			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))}+'/dataset/tsne_pc_beforeClustering.png'\n")
 
 		else:
 			print("[?] please specify a correct plotting method.")
