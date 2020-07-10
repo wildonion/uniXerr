@@ -10,6 +10,8 @@
 # TODO: binary prespective for solving problems using different data structures and base number and logical operators also think about maze algos and color handling in python
 # TODO: solve all important cs algos using python DS concept like TSP
 # TODO: dna computing using turing machine[encode/decode a dna] also create a woman using dna coding in python to combine ANN with dna
+# TODO: try to extend algorithms using cython, ctypes, cffi or by writing an extension in C++
+
 
 import os
 import timeit

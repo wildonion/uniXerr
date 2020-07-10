@@ -20,7 +20,8 @@
 | __________________________________________________________________________________
 |
 |
-|
+| https://github.com/kkroening/ffmpeg-python
+| https://kafka-python.readthedocs.io/en/master/usage.html
 | https://aroussi.com/post/live-plotting-with-matplotlib-and-python
 | https://medium.com/analytics-vidhya/data-streams-and-online-machine-learning-in-python-a382e9e8d06a
 | https://www.confluent.io/blog/improving-stream-data-quality-with-protobuf-schema-validation/
