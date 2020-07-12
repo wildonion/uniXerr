@@ -16,6 +16,11 @@ ____________________________________________
 ____________________________________________
 
 
+https://www.kaggle.com/ashydv/sales-prediction-simple-linear-regression
+https://stackabuse.com/multiple-linear-regression-with-python/
+https://datatofish.com/multiple-linear-regression-python/
+https://medium.com/@harishreddyp98/linear-regression-in-python-c164149b93ab
+https://machinelearningmastery.com/time-series-forecast-study-python-monthly-sales-french-champagne/
 https://github.com/hunkim/PyTorchZeroToAll
 https://www.deepideas.net/deep-learning-from-scratch-i-computational-graphs/
 https://github.com/tejaslodaya/timeseries-clustering-vae/
