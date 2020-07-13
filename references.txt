@@ -16,6 +16,12 @@ ____________________________________________
 ____________________________________________
 
 
+https://www.databriefing.com/coding/predict-sales-1/
+https://towardsdatascience.com/an-end-to-end-project-on-time-series-analysis-and-forecasting-with-python-4835e6bf050b
+https://www.analyticsvidhya.com/blog/2018/02/time-series-forecasting-methods/
+rsandstroem.github.io/predicting-retail-sales.html
+https://pythonprogramming.net/forecasting-predicting-machine-learning-tutorial/
+https://medium.com/analytics-vidhya/walmart-sales-forecasting-d6bd537e4904
 https://www.kaggle.com/ashydv/sales-prediction-simple-linear-regression
 https://stackabuse.com/multiple-linear-regression-with-python/
 https://datatofish.com/multiple-linear-regression-python/
