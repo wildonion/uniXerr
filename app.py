@@ -27,9 +27,9 @@ path = sys.path.append(os.path.dirname(os.path.expanduser(configfile)))
 
 import uvicorn
 import typer
-import subprocess
 import multiprocessing
 from controller import app
+from server import DatasetStreamer
 from server import api
 
 
