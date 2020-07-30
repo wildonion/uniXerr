@@ -41,7 +41,7 @@ from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 
 
 class pipeline(Dataset):
