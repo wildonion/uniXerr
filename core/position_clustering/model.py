@@ -36,7 +36,6 @@ from ._vae import VAE
 import numpy as np
 import os
 import sys
-import pandas as pd
 import matplotlib.pyplot as plt
 import torch
 from torch import nn
@@ -66,7 +65,7 @@ class trainer():
 		self.loss = 0.0
 
 		print("\n________dataset information during extracting features using VAE________\n")
-		print(f"{self.dataloader_.dataset.__repr__()}\n")
+		print(f"{self.dataloader_.dataset}\n")
 
 		if os.path.exists(MODEL_PATH):
 			print("\n________found existing pre-trained VAE model________\n")
