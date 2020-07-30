@@ -42,7 +42,7 @@
 |		
 |
 | ex : (dataset information)
-|		pc_model.dataloader_.dataset.__repr__()
+|		pc_model.dataloader_.dataset.__repr__() or pc_model.dataloader_.dataset 
 |
 |
 | ex : (pre-trained model object)
@@ -83,17 +83,17 @@ import numpy as np
 import os
 import time
 import sys
-from server.loader import DatasetLoader
-from server.streamer import DatasetStreamer
+from server.loader import ClusteringDatasetLoader, ClassificationDatasetLoader
 from core.position_clustering.model import trainer as position_clustering_trainer
 from core.position_clustering.cluster import labels
 from core.position_classification.model import trainer as position_classification_trainer
+from core.position_classification.classifier import Predictor
 
 
 
 
 app = typer.Typer(help="|> uniXerr CLI controller <|")
-labeled_csv_path = os.path.dirname(os.path.abspath(__file__)) + '/server/dataset/pc_features_labeled.csv'
+labeled_csv_path = os.path.dirname(os.path.abspath(__file__)) + '/server/dataset/pc_features_labeled-latent.csv'
 
 
 
@@ -141,7 +141,7 @@ def cluster_positions(
 
 
 	dataloader_kwargs = {'num_workers': num_workers, 'pin_memory': True} if device is 'cuda' else {}
-	dataloader = DatasetLoader(
+	dataloader = ClusteringDatasetLoader(
 							   batch_size=batch_size, 
 							   generate_fake_samples=generate_fake_samples,
 							   plotting_kwargs=plot_method, 
@@ -210,10 +210,24 @@ def cluster_positions(
 
 
 @app.command()
-def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Path to labeled pc_features csv dataset.", 
-				   	   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True)
+def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Path to labeled pc_features csv dataset, default is latent.", 
+				   	   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True),
+					   epoch: int = typer.Option(200, help="Number of epoch for training classifier.", min=100, max=300),
+					   batch_size: int = typer.Option(64, help="Number of batch size for training classifier.", min=16, max=256),
+					   device: str = typer.Option('cpu', help="Training device. cpu or cuda"),
+					   num_workers: int = typer.Option(4, help="Number of workers for pytroch dataloader object.", min=4),
 				   ):
-	position_classification_trainer(csv_path=csv_path) # load the pc_features_labeled.csv for classification process
-	# TODO : continue with position_classification section
-	# code here
-	# ...
+
+	
+	if device != 'cuda' and device != 'cpu':
+		typer.secho("Please specify a correct device.", fg=typer.colors.RED, bold=True)
+		sys.exit(1)
+
+
+	# dataloader.testing_dataset_.tensors ----> return tensor([x_test], [y_test])
+	# dataloader().dataset.tensors ----> return tensor([x_train], [y_train])
+
+
+	dataloader_kwargs = {'num_workers': num_workers, 'pin_memory': True} if device is 'cuda' else {}
+	dataloader = ClassificationDatasetLoader(csv_path=csv_path, batch_size=batch_size, dataloader_kwargs=dataloader_kwargs)
+	position_classification_trainer(data=dataloader(), device=device, epoch=epoch)
