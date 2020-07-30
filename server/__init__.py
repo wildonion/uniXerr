@@ -14,7 +14,6 @@
 
 '''
 
-from ._pipeline import *
 from .loader import *
 from .streamer import *
 from .api import api
