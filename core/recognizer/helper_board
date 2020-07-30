@@ -5,7 +5,10 @@
                 |image and text <-> speech processing|
             |natural language processing with BERT & GPT|
 
-        
+
+        https://www.youtube.com/watch?v=IcLEJB2pY2Y
+        https://medium.com/speechmatics/how-to-build-a-streaming-dataloader-with-pytorch-a66dd891d9dd
+        https://lilianweng.github.io/lil-log/2019/01/31/generalized-language-models.html#bert
         https://medium.com/analytics-vidhya/search-engine-using-machine-learning-and-nlp-c1ec1e28be7a
         https://towardsdatascience.com/how-we-built-an-ai-powered-search-engine-without-being-google-5ad93e5a8591
         https://towardsdatascience.com/semantic-code-search-3cd6d244a39c

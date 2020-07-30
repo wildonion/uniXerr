@@ -16,6 +16,8 @@ ____________________________________________
 ____________________________________________
 
 
+https://lilianweng.github.io/lil-log/2019/11/10/self-supervised-learning.html
+https://lilianweng.github.io/lil-log/tag/generative-model
 https://www.databriefing.com/coding/predict-sales-1/
 https://towardsdatascience.com/an-end-to-end-project-on-time-series-analysis-and-forecasting-with-python-4835e6bf050b
 https://www.analyticsvidhya.com/blog/2018/02/time-series-forecasting-methods/
