@@ -9,33 +9,42 @@
 # https://codeforces.com/problemset/problem/1374/C
 
 
-import sys
-
-
 min_ops = 0
 open_stack = []
-close_stack = []
 
-
-def move_ith(s):
+def move_ith(s, index):
 	global min_ops
+	if s[index] == ")": # couldn't find the openning bracket for that
+		s = s[index : ] + s[ : index] 
+		index = is_reg(s)
+		if index == -1:
+			return -1
+		else:
+			move_ith(s, index)
+
+	elif s[index] == "(": # couldn't find the closing bracket for that
+		pass
+	else:
+		pass
 
 
 def is_reg(s):
-	global open_stack, close_stack
-	for i in range(1, len(s)):
+	global open_stack
+	for i in range(len(s)):
 		if s[i] == "(":
-			open_stack.append(s[i])
+			if i == len(s)-1:
+				return i
+			else:
+				open_stack.append(s[i])
 		if s[i] == ")":
 			if i == 0:
-				return False
-				break
+				return 0
+			if open_stack:
+				if open_stack[len(open_stack)-1] == "(":
+					open_stack.pop()
 			else:
-				close_stack.append(s[i])
-	if len(open_stack) == len(close_stack):
-		return True
-	else:
-		return False
+				return i
+	return -1
 
 
 test_cases, i = int(input("test cases >>> ")), 0
@@ -44,11 +53,13 @@ while i < test_cases < 2000:
 	s = _input.replace(" ", "")
 	if 2 <= len(s) <= 50:
 		if len(s) % 2 == 0:
-			if not is_reg(s):
-				print("making it reg...")
-				move_ith(s)
+			index = is_reg(s)
+			if index != -1:
+				move_ith(s, index)
+			else:
+				print("no need to make it reg")
 		else:
 			print("the length must be even!")
-			sys.exit(1)
+			break
 	print("=============")
 	i+=1
