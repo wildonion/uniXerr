@@ -16,6 +16,7 @@ ____________________________________________
 ____________________________________________
 
 
+https://www.kdnuggets.com/2018/04/derivation-convolutional-neural-network-fully-connected-step-by-step.html
 https://lilianweng.github.io/lil-log/2019/11/10/self-supervised-learning.html
 https://lilianweng.github.io/lil-log/tag/generative-model
 https://www.databriefing.com/coding/predict-sales-1/
