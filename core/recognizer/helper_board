@@ -5,7 +5,9 @@
                 |image and text <-> speech processing|
             |natural language processing with BERT & GPT|
 
-
+        
+        https://developer.nvidia.com/blog/recursive-neural-networks-pytorch/
+        https://medium.com/dair-ai/deep-learning-for-nlp-an-overview-of-recent-trends-d0d8f40a776d
         https://www.google.com/amp/s/nanonets.com/blog/ocr-with-tesseract/amp/
         https://realpython.com/setting-up-a-simple-ocr-server/
         https://www.pyimagesearch.com/2020/08/03/tesseract-ocr-for-non-english-languages/
