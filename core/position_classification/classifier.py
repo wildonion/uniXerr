@@ -25,6 +25,7 @@
 
 
 # TODO : save predicted positions in a new csv file called pc_classified_positions.csv
+# TODO : log everything in tensorboard
 
 '''
 
