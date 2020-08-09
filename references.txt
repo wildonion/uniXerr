@@ -16,6 +16,8 @@ ____________________________________________
 ____________________________________________
 
 
+https://ai.stackexchange.com/questions/5728/what-is-the-time-complexity-for-training-a-neural-network-using-back-propagation
+http://www.briandolhansky.com/blog/2014/10/30/artificial-neural-networks-matrix-form-part-5
 https://www.kdnuggets.com/2018/04/derivation-convolutional-neural-network-fully-connected-step-by-step.html
 https://lilianweng.github.io/lil-log/2019/11/10/self-supervised-learning.html
 https://lilianweng.github.io/lil-log/tag/generative-model
