@@ -33,6 +33,7 @@ https://datatofish.com/multiple-linear-regression-python/
 https://medium.com/@harishreddyp98/linear-regression-in-python-c164149b93ab
 https://machinelearningmastery.com/time-series-forecast-study-python-monthly-sales-french-champagne/
 https://github.com/hunkim/PyTorchZeroToAll
+https://www.youtube.com/playlist?list=PLlMkM4tgfjnJ3I-dbhO9JTw7gNty6o_2m
 https://www.deepideas.net/deep-learning-from-scratch-i-computational-graphs/
 https://github.com/tejaslodaya/timeseries-clustering-vae/
 https://towardsdatascience.com/how-to-save-and-load-a-model-in-pytorch-with-a-complete-example-c2920e617dee
