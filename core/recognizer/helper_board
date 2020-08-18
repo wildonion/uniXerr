@@ -5,7 +5,8 @@
                 |image and text <-> speech processing|
             |natural language processing with BERT & GPT|
 
-        
+
+        https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
         https://www.google.com/amp/s/blog.floydhub.com/gru-with-pytorch/amp/
         https://pytorch.org/tutorials/beginner/transformer_tutorial.html
         http://jalammar.github.io/illustrated-transformer/
