@@ -6,6 +6,7 @@
             |natural language processing with BERT & GPT|
 
 
+        https://github.com/emadRad/lstm-gru-pytorch/blob/master/lstm_gru.ipynb
         https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
         https://www.google.com/amp/s/blog.floydhub.com/gru-with-pytorch/amp/
         https://pytorch.org/tutorials/beginner/transformer_tutorial.html
