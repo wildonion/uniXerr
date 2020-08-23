@@ -4,7 +4,7 @@
 
 
 
-# STATUS : 
+# STATUS : incomplete
 
 # https://codeforces.com/problemset/problem/1374/C
 
