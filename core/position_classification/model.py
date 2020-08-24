@@ -23,6 +23,7 @@
 |
 | 
 
+https://towardsdatascience.com/linear-regression-with-pytorch-eb6dedead817
 https://www.kaggle.com/leostep/pytorch-dense-network-for-house-pricing-regression
 https://medium.com/@benjamin.phillips22/simple-regression-with-neural-networks-in-pytorch-313f06910379
 https://www.kaggle.com/graymant/breast-cancer-diagnosis-with-pytorch
