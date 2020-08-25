@@ -15,6 +15,7 @@ ____________________________________________
      whole AI references in my bachelor
 ____________________________________________
 
+https://amitness.com/2020/03/python-magic-behind-pytorch/
 https://youtu.be/4Bdc55j80l8
 https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21
 https://jhui.github.io/2017/03/15/RNN-LSTM-GRU/
