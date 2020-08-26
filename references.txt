@@ -730,6 +730,7 @@ _______________________________________________________
 _______________________________________________________
 
 
+https://lucumr.pocoo.org/2015/5/27/rust-for-pythonistas/
 https://www.youtube.com/howCode
 https://www.geeksforgeeks.org/finite-automata-algorithm-for-pattern-searching/
 https://stackoverflow.com/questions/2817264/how-to-get-the-parent-dir-location
