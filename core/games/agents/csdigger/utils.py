@@ -10,7 +10,7 @@
 # TODO: understand all patterns(serach , sort and path finding) in graph , tree(BST and ...) , matrices DS and MDP env (A*, CSP, MDP, MCST..) and basic AI algos for agent creation with all graph formula
 # TODO: binary prespective for solving problems using different data structures and base number and logical operators also think about maze algos and color handling in python
 # TODO: dna computing using turing machine[encode/decode a dna] also create a woman using dna coding in python to combine ANN with dna
-# TODO: try to extend algorithms using cython, ctypes, cffi or by writing an extension in C++ - embedding python in C++ apps
+# TODO: try to extend algorithms using cython, ctypes, cffi or by writing an extension in C++ and rust - embedding python in C++ apps
 
 
 import numpy as np
