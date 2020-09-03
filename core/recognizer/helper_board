@@ -6,6 +6,10 @@
             |natural language processing with BERT & GPT|
 
         
+        https://datascience.stackexchange.com/questions/51065/what-is-the-positional-encoding-in-the-transformer-model
+        https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
+        http://nlp.seas.harvard.edu/2018/04/03/attention.html
+        http://vandergoten.ai/2018-09-18-attention-is-all-you-need/
         https://youtu.be/-NwubHjjzcw
         https://youtu.be/AFkGPmU16QA
         https://github.com/emadRad/lstm-gru-pytorch/blob/master/lstm_gru.ipynb
