@@ -23,6 +23,7 @@
 |
 | 
 
+https://www.kaggle.com/bashkeel/eda-to-ensemble-model-lasso-ridge-xgboost
 https://www.dataquest.io/blog/kaggle-getting-started/
 https://github.com/hunkim/PyTorchZeroToAll
 https://towardsdatascience.com/linear-regression-with-pytorch-eb6dedead817
