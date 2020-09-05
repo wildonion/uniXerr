@@ -23,6 +23,7 @@
 |
 | 
 
+https://www.dataquest.io/blog/kaggle-getting-started/
 https://github.com/hunkim/PyTorchZeroToAll
 https://towardsdatascience.com/linear-regression-with-pytorch-eb6dedead817
 https://www.kaggle.com/leostep/pytorch-dense-network-for-house-pricing-regression
