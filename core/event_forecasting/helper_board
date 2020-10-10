@@ -6,8 +6,12 @@
                                    INFORMATION THEORY
 ----------------------------------------------------------------------------------------------
 
-
-
+        
+        https://towardsdatascience.com/system-failure-prediction-using-log-analysis-8eab84d56d1
+        https://www.kaggle.com/taronzakaryan/stock-prediction-lstm-using-pytorch
+        https://gist.github.com/lizadaly/2b19fd6f758ffd2e8ab9ec7d1f3f4b2c
+        https://www.curiousily.com/posts/time-series-forecasting-with-lstm-for-daily-coronavirus-cases/
+        https://towardsdatascience.com/introducing-pytorch-forecasting-64de99b9ef46
         https://medium.com/@brentbiseda/bitcoin-price-prediction-with-a-rnn-lstm-and-sentiment-analysis-6bc323fa38f9
         https://www.curiousily.com/posts/cryptocurrency-price-prediction-in-tensorflow-2/
         https://dashee87.github.io/deep%20learning/python/predicting-cryptocurrency-prices-with-deep-learning/
@@ -34,13 +38,11 @@
         https://becominghuman.ai/how-to-train-a-neural-network-to-code-by-itself-a432e8a120df
         https://towardsdatascience.com/how-to-build-a-recurrent-neural-network-to-detect-fake-news-35953c19cf0b
         https://machinetalk.org/2019/03/29/neural-machine-translation-with-attention-mechanism/
-        https://blog.exxactcorp.com/getting-started-with-nlp-using-the-tensorflow-and-keras-frameworks/
         https://machinelearningmastery.com/tensorflow-tutorial-deep-learning-with-tf-keras/
         https://colab.research.google.com/drive/1nQYJq1f7f4R0yeZOzQ9rBKgk00AfLoS0#scrollTo=Uw4JkktB9ceM
         https://stackabuse.com/solving-sequence-problems-with-lstm-in-keras/
         https://mc.ai/lstm-with-keras/
         https://adventuresinmachinelearning.com/keras-lstm-tutorial/
-        https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
         https://xiandong79.github.io/seq2seq-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86
         https://galaxyproject.github.io/training-material/topics/statistics/tutorials/age-prediction-with-ml/tutorial.html
         https://arxiv.org/pdf/1708.08744.pdf
