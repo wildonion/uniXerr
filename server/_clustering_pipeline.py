@@ -79,9 +79,9 @@ class pipeline(Dataset):
 
 
 	def plot_data_(self, plot_method='pca'):
-		print("\n________plotting before clustering________\n")
-		print(f"\t---normalizing data using StandardScaler")
-		print(f"\t---plotting data using {plot_method} method")
+		print("\n________plotting before saving dataloader object________\n")
+		print(f"\t➢   normalizing data using StandardScaler")
+		print(f"\t➢   plotting data using {plot_method} method")
 		normalized_data_frame = preprocessing.StandardScaler().fit_transform(self.get_raw())
 
 		if plot_method == 'pca':	
@@ -97,7 +97,7 @@ class pipeline(Dataset):
 			plt.title("Principal Component Analysis of Position Clustering Dataset", fontsize=10)
 			plt.scatter(principal_pc_Df_bn.principal_component_1, principal_pc_Df_bn.principal_component_2, alpha=0.25)
 			plt.savefig(os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_pc_beforeClustering.png')
-			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_pc_beforeClustering.png'}\n")
+			print(f"\t➢   plot saved at {os.path.dirname(os.path.abspath(__file__))+'/dataset/pca_pc_beforeClustering.png'}\n")
 
 
 		elif plot_method == 'tsne':
@@ -112,7 +112,7 @@ class pipeline(Dataset):
 			plt.title("T-SNE Analysis of Position Clustering Dataset", fontsize=10)
 			plt.scatter(tsne_pc_Df_bn.tsne_component_1, tsne_pc_Df_bn.tsne_component_2, alpha=0.25)
 			plt.savefig(os.path.dirname(os.path.abspath(__file__))+'/dataset/tsne_pc_beforeClustering.png')
-			print(f"\t---plot saved at {os.path.dirname(os.path.abspath(__file__))}+'/dataset/tsne_pc_beforeClustering.png'\n")
+			print(f"\t➢   plot saved at {os.path.dirname(os.path.abspath(__file__))}+'/dataset/tsne_pc_beforeClustering.png'\n")
 
 		else:
 			print("[?] please specify a correct plotting method.")
