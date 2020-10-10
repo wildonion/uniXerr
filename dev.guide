@@ -1,0 +1,114 @@
+
+ ------------------------------------------------------------------------------------------
+|
+|
+|                              __POSITION CLUSTERING DEVELOPMENT GUIDE__
+|
+| 
+| [?] accessing dataset pipeline methods and data members
+| 	  like plotting data and fetching a sample, is done
+| 	  through the pc_model.dataloader_.dataset object
+|
+|
+| ex : (plotting data before clustering) 
+|		pc_model.dataloader_.dataset.plot_data_()
+|     
+|			args :
+| 				plotting_method=plot_method
+|
+| ex : (get a sample from the dataset)
+|		pc_model.dataloader_.dataset[2]
+|
+|	
+| ex : (get the scaled data)
+|		pc_model.dataloader_.dataset.data
+|
+|
+| ex : (get the unscaled data)
+|
+|		pc_model.dataloader_.dataset.get_raw()
+|		
+|
+| ex : (dataset information)
+|		pc_model.dataloader_.dataset.__repr__() or pc_model.dataloader_.dataset 
+|
+|
+| ex : (pre-trained model object)
+|		pc_mode.vae_model
+|
+|
+| ex : (plot the whole training loss in an entire epoch)
+|		pc_model.plot_loss()
+|
+|
+| ex : (get latent space of the data)
+|		pc_model(data=dataloader().dataset.data)
+| 
+|
+| ex : (decode the latent space to reconstruct the input point)
+|		pc_model.decode(latent=latent) 
+|
+|
+|
+| [?] if cluster_method is hdbscan to access 
+| 	  sample label and its score do like this :
+|
+| 		cluster_sample_label = cluster_[45][0]
+| 		cluster_sample_label_score = cluster_[45][1]
+|
+|
+| [?] cluster_.set() will export a csv of dataset with their labels
+|
+| [?] cluster_.plot() plot the clustered data with a specified method and clustering algo
+|
+|
+|
+ ------------------------------------------------------------------------------------------
+
+
+ ------------------------------------------------------------------------------------------
+|
+|
+|                              __POSITION CLASSIFICATION DEVELOPMENT GUIDE__
+|
+|
+| ex : (accessing training dataset tensors)
+|		dataloader()[0].dataset.tensors
+|		pc_model.training_dataloader_.dataset.tensors
+|
+|
+| ex : (accessing training dataloader pipeline)
+|		dataloader()[0]
+|		pc_model.dataloader_
+|
+|
+| ex : (accessing testing dataset tensors)
+|		dataloader()[1].dataset.tensors
+|		pc_model.testing_dataloader_.dataset.tensors
+|
+| 
+| ex : (accessing testing dataloader pipeline)
+|		dataloader()[1]
+|		pc_model.testing_dataloader_
+|
+|
+| ex : (accessing classifier model after training)
+|		classifier_.model
+|
+|
+| ex : (classifier loss tracker)
+|		classifier_.loss_tracker
+|
+|
+| ex : (train and test on training and testing data)
+|		pc_model(data=dataloader())
+|
+|
+| ex : (classify either numpyndarray of input data or a csv path of input data)
+|		data = input_data # numpyndarray
+|		data = csv_path_to_input_data
+|		classifier_(data)
+|
+|
+|
+ ------------------------------------------------------------------------------------------
