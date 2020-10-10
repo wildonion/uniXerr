@@ -81,8 +81,8 @@ class kmeans():
 		self.__clusterer_centers = clusterer.cluster_centers_
 		np.savetxt(os.path.dirname(os.path.abspath(__file__))+'/utils/KMEANS-cluster_labels.out', self.__clusterer_labels, delimiter=',')
 		np.savetxt(os.path.dirname(os.path.abspath(__file__))+'/utils/KMEANS-cluster_centers.out', self.__clusterer_centers, delimiter=',') # centeroids are (n_cluster, features)
-		print(f"\t---total labels found : {np.unique(self.__clusterer_labels).max() + 1}")
-		print(f"\t---all unique labels : {np.unique(self.__clusterer_labels)}")
+		print(f"\t➢   total labels found : {np.unique(self.__clusterer_labels).max() + 1}")
+		print(f"\t➢   all unique labels : {np.unique(self.__clusterer_labels)}")
 
 
 	def __repr__(self):
@@ -101,19 +101,19 @@ class kmeans():
 		Df = pd.read_csv(pc_features)
 		Df['position'] = np.array(list(self.positions[clus_idx] for clus_idx in self.__clusterer_labels))
 		Df.to_csv(pc_features_labeled, index=False)
-		print(f"\t---new dataset saved in {pc_features_labeled}\n")
+		print(f"\t➢   new dataset saved in {pc_features_labeled}\n")
 
 
 	def plot_clusters(self, method='pca'):
 		print("\n________plotting after clustering________\n")
 		
 		if self.__data_type == 'latent':
-			print(f"\t---no need to use {method} for plotting clustered latent space of VAE, is already 2D\n")
+			print(f"\t➢   no need to use {method} for plotting clustered latent space of VAE, is already 2D\n")
 			fig_path = os.path.dirname(os.path.abspath(__file__))+f'/utils/clusters-{self.__class__.__name__}-{self.__data_type}.png'
 			reductioned_data = self.__data
 		
 		elif self.__data_type == 'raw':
-			print(f"\t---extracting components using {method} method")
+			print(f"\t➢   extracting components using {method} method")
 			fig_path = os.path.dirname(os.path.abspath(__file__))+f'/utils/clusters-{self.__class__.__name__}-{method}-{self.__data_type}.png'
 			
 			if method == 'pca':
@@ -148,4 +148,4 @@ class kmeans():
 		plt.title('Clusters found by KMeans', fontsize=10)
 		plt.legend(rectangles, pos, loc=4, prop={'size': 6})
 		plt.savefig(fig_path)
-		print(f"\t---plot saved at {fig_path}\n")
+		print(f"\t➢   plot saved at {fig_path}\n")
