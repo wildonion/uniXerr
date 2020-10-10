@@ -13,17 +13,18 @@
 
 
 
- -------------------------
-|  coin generation model
-| ------------------------
-| generate coins based on positions
-| and other features using: 
-| AAE, CVAE, VAE-GAN and GANs
+ ------------------------------------------------
+|  coin generation (credit scoring) model
+| -----------------------------------------------
+| generate score (number of coins) 
+| based on positions and other features
 |
-| minimum number of coins for everyone generated 
+|
+| minimum number of score for everyone generated 
 | by uinXerr protocol is 10, because the minimum 
 | of each feature is 5.
 |
+| https://github.com/PyTorchLightning/pytorch-lightning
 |
 
 '''
