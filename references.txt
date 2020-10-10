@@ -15,12 +15,30 @@ ____________________________________________
      whole AI references in my bachelor
 ____________________________________________
 
+
+https://towardsdatascience.com/train-test-split-and-cross-validation-in-python-80b61beca4b6
+https://towardsdatascience.com/pytorch-tabular-multiclass-classification-9f8211a123ab
+https://www.depends-on-the-definition.com/guide-to-multi-label-classification-with-neural-networks/
+https://gombru.github.io/2018/05/23/cross_entropy_loss/
+https://pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html
+https://www.kaggle.com/ratnesh88/breast-cancer-prediction-using-pytorch
+https://www.kaggle.com/graymant/breast-cancer-diagnosis-with-pytorch
+https://towardsdatascience.com/introducing-deep-learning-and-neural-networks-deep-learning-for-rookies-1-bd68f9cf5883
+https://towardsdatascience.com/building-efficient-custom-datasets-in-pytorch-2563b946fd9f
+https://www.kaggle.com/pinocookie/pytorch-dataset-and-dataloader
+https://medium.com/analytics-vidhya/writing-a-custom-dataloader-for-a-simple-neural-network-in-pytorch-a310bea680af
+https://naadispeaks.wordpress.com/2019/10/08/pytorch-custom-dataset-tips-and-tricks/
+https://stanford.edu/~shervine/blog/pytorch-how-to-generate-data-parallel
+https://debuggercafe.com/custom-dataset-and-dataloader-in-pytorch/
+https://pytorch.org/tutorials/recipes/recipes/custom_dataset_transforms_loader.html
+https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
+https://medium.com/@jonathan_hui
+https://machinelearningmastery.com/calculate-feature-importance-with-python/
 https://amitness.com/2020/03/python-magic-behind-pytorch/
 https://youtu.be/4Bdc55j80l8
 https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21
 https://jhui.github.io/2017/03/15/RNN-LSTM-GRU/
 http://dprogrammer.org/rnn-lstm-gru
-https://ai.stackexchange.com/questions/5728/what-is-the-time-complexity-for-training-a-neural-network-using-back-propagation
 http://www.briandolhansky.com/blog/2014/10/30/artificial-neural-networks-matrix-form-part-5
 https://www.kdnuggets.com/2018/04/derivation-convolutional-neural-network-fully-connected-step-by-step.html
 https://lilianweng.github.io/lil-log/2019/11/10/self-supervised-learning.html
@@ -31,6 +49,11 @@ https://www.analyticsvidhya.com/blog/2018/02/time-series-forecasting-methods/
 rsandstroem.github.io/predicting-retail-sales.html
 https://pythonprogramming.net/forecasting-predicting-machine-learning-tutorial/
 https://medium.com/analytics-vidhya/walmart-sales-forecasting-d6bd537e4904
+https://www.kaggle.com/bashkeel/eda-to-ensemble-model-lasso-ridge-xgboost
+https://www.dataquest.io/blog/kaggle-getting-started/
+https://towardsdatascience.com/linear-regression-with-pytorch-eb6dedead817
+https://www.kaggle.com/leostep/pytorch-dense-network-for-house-pricing-regression
+https://medium.com/@benjamin.phillips22/simple-regression-with-neural-networks-in-pytorch-313f06910379
 https://www.kaggle.com/ashydv/sales-prediction-simple-linear-regression
 https://stackabuse.com/multiple-linear-regression-with-python/
 https://datatofish.com/multiple-linear-regression-python/
@@ -42,7 +65,6 @@ https://www.deepideas.net/deep-learning-from-scratch-i-computational-graphs/
 https://github.com/tejaslodaya/timeseries-clustering-vae/
 https://towardsdatascience.com/how-to-save-and-load-a-model-in-pytorch-with-a-complete-example-c2920e617dee
 https://ermongroup.github.io/cs228-notes/extras/vae/
-https://stanford.edu/~shervine/blog/pytorch-how-to-generate-data-parallel
 https://jovianlin.io/data-visualization-seaborn-part-3/
 https://mlexplained.com/2018/09/14/paper-dissected-visualizing-data-using-t-sne-explained/
 https://blog.paperspace.com/adversarial-autoencoders-with-pytorch/
@@ -110,6 +132,7 @@ https://www.toptal.com/machine-learning/generative-adversarial-networks
 https://researchcode.com/code/1873018888/adversarial-autoencoders/
 https://rubikscode.net/2018/12/10/introduction-to-generative-adversarial-networks-gans/
 https://rubikscode.net/2019/01/14/introduction-to-adversarial-autoencoders/
+https://lionbridge.ai/articles/how-to-generate-anime-faces-using-gans-via-pytorch/
 https://towardsdatascience.com/gan-objective-functions-gans-and-their-variations-ad77340bce3c
 https://rubikscode.net/2018/11/19/introduction-to-autoencoders/
 https://www.datacamp.com/community/tutorials/autoencoder-keras-tutorial
@@ -636,18 +659,19 @@ https://www.youtube.com/channel/UC58v9cLitc8VaCjrcKyAbrw/videos
 https://www.youtube.com/user/bluboy12345/playlists
 https://www.youtube.com/user/shiffman/playlists
 https://www.youtube.com/playlist?list=PLiPvV5TNogxKKwvKb1RKwkq2hm7ZvpHz0
-https://www.udemy.com/course/the-data-science-course-complete-data-science-bootcamp/learn/lecture/10762750#announcements
 https://roberttlange.github.io/posts/2019/08/blog-post-6/
+https://towardsdatascience.com/only-numpy-understanding-back-propagation-for-transpose-convolution-in-multi-layer-cnn-with-c0a07d191981
+https://towardsdatascience.com/back-propagation-the-easy-way-part-3-cc1de33e8397
+https://medium.com/@14prakash/back-propagation-is-very-simple-who-made-it-complicated-97b794c97e5c
+https://ai.stackexchange.com/questions/5728/what-is-the-time-complexity-for-training-a-neural-network-using-back-propagation
 https://ml-cheatsheet.readthedocs.io/en/latest/backpropagation.htm
+https://www.youtube.com/watch?v=i94OvYb6noo&feature=youtu.be&list=PLkt2uSq6rBVctENoVBg1TpCC7OQi31AlC
+https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
+https://www.deepideas.net/deep-learning-from-scratch-iv-gradient-descent-and-backpropagation/
+https://rubikscode.net/2018/01/22/backpropagation-algorithm-in-artificial-neural-networks/
 http://hmkcode.com/ai/backpropagation-step-by-step/
 https://www.youtube.com/watch?v=2s3aJfRr9gE
 https://towardsdatascience.com/understanding-binary-cross-entropy-log-loss-a-visual-explanation-a3ac6025181a
-https://www.deepideas.net/deep-learning-from-scratch-iv-gradient-descent-and-backpropagation/
-https://towardsdatascience.com/only-numpy-understanding-back-propagation-for-transpose-convolution-in-multi-layer-cnn-with-c0a07d191981
-https://towardsdatascience.com/back-propagation-the-easy-way-part-3-cc1de33e8397
-https://rubikscode.net/2018/01/22/backpropagation-algorithm-in-artificial-neural-networks/
-https://medium.com/@14prakash/back-propagation-is-very-simple-who-made-it-complicated-97b794c97e5c
-https://datascience.stackexchange.com/questions/27421/when-are-weights-updated-in-cnn
 https://matrices.io/deep-neural-network-from-scratch/
 https://towardsdatascience.com/lets-code-a-neural-network-in-plain-numpy-ae7e74410795
 https://medium.com/technologymadeeasy/for-dummies-the-introduction-to-neural-networks-we-all-need-c50f6012d5eb
@@ -730,6 +754,9 @@ _______________________________________________________
 _______________________________________________________
 
 
+https://www.journaldev.com/37089/how-to-compare-two-lists-in-python
+https://realpython.com/python-testing/
+https://stackoverflow.com/questions/6725868/generics-templates-in-python
 https://www.youtube.com/watch?v=09_LlHjoEiY
 https://lucumr.pocoo.org/2015/5/27/rust-for-pythonistas/
 https://www.youtube.com/howCode

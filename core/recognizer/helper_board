@@ -1,13 +1,97 @@
 
-------------------------------------------------------------------------------------
-  IMAGE , TEXT , SPEECH PROCESSING , OBJECT DETECTION USING CNN , YOLO & CapsuleNet
-------------------------------------------------------------------------------------
-                |image and text <-> speech processing|
-            |natural language processing with BERT & GPT|
 
-        
+                                          |image and text <-> speech processing|
+                                       |natural language processing with BERT & GPT|
+                                          |deep fakee - lip sync - talking head|
+                                       |image segmentation (semantic and instance)|
+                             |object detection - classification with localization - GAN ops|
+                https://github.com/wildonion/Deep-Learning/tree/master/unsupervised/Generative-Models/notebooks
+                                                   |camenbee project|
+
+
+__________________________ DEEPFAKE __________________________
+        https://faceswap.dev/
+        https://github.com/iperov/DeepFaceLab
+        https://github.com/Oldpan/Faceswap-Deepfake-Pytorch
+        https://github.com/jinfagang/faceswap_pytorch
+        https://github.com/natanielruiz/disrupting-deepfakes
+        https://medium.com/@jonathan_hui/detect-ai-generated-images-deepfakes-part-4-5f9ae1dfeb13
+        https://hanqingguo.github.io/Deepfakes
+        https://arstechnica.com/science/2019/12/how-i-created-a-deepfake-of-mark-zuckerberg-and-star-treks-data/
+        https://github.com/Rudrabha/Wav2Lip
+        https://medium.com/syncedreview/pixelgan-autoencoders-17496632b755
+        https://github.com/eriklindernoren/Keras-GAN/blob/master/aae/aae.py
+        https://medium.com/@jonathan_hui/how-deep-learning-fakes-videos-deepfakes-and-how-to-detect-it-c0b50fbf7cb9
+        https://medium.com/ai%C2%B3-theory-practice-business/war-on-deepfakes-a-new-and-effective-way-of-detecting-forged-images-3ae94df80769
+        https://medium.com/gradientcrescent/deepfaking-nicolas-cage-into-the-mcu-using-autoencoders-an-implementation-in-keras-and-tensorflow-ab47792a042f
+
+___________________________ AAE/VAE ___________________________________
+        https://github.com/1Konny/Beta-VAE
+        https://github.com/Saswatm123/MMD-VAE
+        https://github.com/pratikm141/MMD-Variational-Autoencoder-Pytorch-InfoVAE
+        https://github.com/napsternxg/pytorch-practice/blob/master/Pytorch%20-%20MMD%20VAE.ipynb
+        https://ermongroup.github.io/blog/a-tutorial-on-mmd-variational-autoencoders/
+        https://medium.com/analytics-vidhya/generative-modelling-using-variational-autoencoders-vae-and-beta-vaes-81a56ef0bc9f
+        https://wiseodd.github.io/techblog/2016/12/17/conditional-vae/
+        https://github.com/bfarzin/pytorch_aae
+        https://towardsdatascience.com/a-wizards-guide-to-adversarial-autoencoders-part-4-classify-mnist-using-1000-labels-2ca08071f95
+        https://github.com/rohithreddy024/VAE-GAN-Pytorch
+        https://github.com/a514514772/Pytorch-VAE-GAN
+        https://github.com/lucabergamini/VAEGAN-PYTORCH
+        https://github.com/escuccim/vaegan-pytorch
+        https://www.kaggle.com/moltean/fruits
+        https://github.com/musyoku/adversarial-autoencoder
+        https://blog.paperspace.com/adversarial-autoencoders-with-pytorch/
+        https://modelzoo.co/model/pytorch-gan
+        https://github.com/eriklindernoren/PyTorch-GAN
+        https://developers.google.com/machine-learning/gan
+        https://towardsdatascience.com/gans-vs-autoencoders-comparison-of-deep-generative-models-985cf15936ea
+        https://modelzoo.co/model/stitchfixfauxtograph
+        https://modelzoo.co/model/unit
+        https://medium.com/@venkatakrishna.jonnalagadda/sparse-stacked-and-variational-autoencoder-efe5bfe73b64
+        https://towardsdatascience.com/applied-deep-learning-part-3-autoencoders-1c083af4d798#28b1
+        https://github.com/wiseodd/generative-models/tree/master/VAE
+        https://towardsdatascience.com/understanding-variational-autoencoders-vaes-f70510919f73
+        https://lilianweng.github.io/lil-log/2018/08/12/from-autoencoder-to-beta-vae.html#loss-function-elbo
+        https://hackernoon.com/understanding-a-recurrent-neural-network-for-image-generation-7e2f83wdg
+        https://www.datacamp.com/community/tutorials/autoencoder-keras-tutorial
+        https://www.groundai.com/project/stacked-capsule-autoencoders/1
+        https://www.youtube.com/watch?v=Cc1DEY12r5E
+        https://medium.com/syncedreview/geoffrey-hintons-unsupervised-capsule-networks-achieve-sota-results-on-svhn-ffe05e871249
+        http://akosiorek.github.io/ml/2019/06/23/stacked_capsule_autoencoders.html
+        https://towardsdatascience.com/a-wizards-guide-to-adversarial-autoencoders-part-1-autoencoder-d9a5f8795af4
+        https://zzutk.github.io/Face-Aging-CAAE/
+        https://medium.com/@a.mirzaei69/adversarial-autoencoders-on-mnist-dataset-python-keras-implementation-5eeafd52ab21
+        https://towardsdatascience.com/generating-images-with-autoencoders-77fd3a8dd368
+        https://subscription.packtpub.com/book/big_data_and_business_intelligence/9781788292061/10/ch10lvl1sec82/variational-autoencoder-in-keras
+        https://towardsdatascience.com/vaes-generating-images-with-tensorflow-61de08e82f1f
+        https://www.machinecurve.com/index.php/2019/12/30/how-to-create-a-variational-autoencoder-with-keras/
+        https://www.kaggle.com/vikramtiwari/autoencoders-using-tf-keras-mnist
+        https://medium.com/tensorflow/variational-autoencoders-with-tensorflow-probability-layers-d06c658931b7
+        https://keras.io/examples/variational_autoencoder/
+        https://tiao.io/post/tutorial-on-variational-autoencoders-with-a-concise-keras-implementation/
+        https://www.tensorflow.org/tutorials/generative/cvae
+        https://blog.keras.io/building-autoencoders-in-keras.html
+        https://keras.io/examples/mnist_denoising_autoencoder/
+        https://duvenaud.github.io/learn-discrete/slides/AdversarialAutoencoders.pdf
+        https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
+________________________________________________________________________
+        https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
+        https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
+        https://www.youtube.com/watch?v=wqQKFu41FIw
+        https://github.com/lucidrains/vit-pytorch
+        https://www.learnopencv.com/pytorch-for-beginners-semantic-segmentation-using-torchvision/
+        https://towardsdatascience.com/single-stage-instance-segmentation-a-review-1eeb66e0cc49
+        https://www.jeremyjordan.me/semantic-segmentation/
+        https://www.youtube.com/watch?v=qaDe0qQZ5AQ
+        https://github.com/Rudrabha/Wav2Lip
+        https://towardsdatascience.com/how-i-built-a-face-mask-detector-for-covid-19-using-pytorch-lightning-67eb3752fd61
+        https://luozm.github.io/cv-tasks
+        https://github.com/fastai/fastai
         https://datascience.stackexchange.com/questions/51065/what-is-the-positional-encoding-in-the-transformer-model
         https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
+        https://pytorch.org/tutorials/beginner/transformer_tutorial.html
+        http://jalammar.github.io/illustrated-transformer/
         http://nlp.seas.harvard.edu/2018/04/03/attention.html
         http://vandergoten.ai/2018-09-18-attention-is-all-you-need/
         https://youtu.be/-NwubHjjzcw
@@ -15,14 +99,13 @@
         https://github.com/emadRad/lstm-gru-pytorch/blob/master/lstm_gru.ipynb
         https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
         https://www.google.com/amp/s/blog.floydhub.com/gru-with-pytorch/amp/
-        https://pytorch.org/tutorials/beginner/transformer_tutorial.html
-        http://jalammar.github.io/illustrated-transformer/
-        https://paperswithcode.com/paper/text-based-editing-of-talking-head-video
+        https://medium.com/@vovaprivalov/playing-with-realistic-neural-talking-head-models-13759408c01f
         https://paperswithcode.com/paper/few-shot-adversarial-learning-of-realistic
         https://towardsdatascience.com/building-a-one-shot-learning-network-with-pytorch-d1c3a5fafa4a
         https://www.pyimagesearch.com/category/optical-character-recognition-ocr/
         https://www.pyimagesearch.com/2020/08/10/opencv-sudoku-solver-and-ocr/
         https://www.shanelynn.ie/word-embeddings-in-python-with-spacy-and-gensim/
+        https://blog.exxactcorp.com/getting-started-with-nlp-using-the-tensorflow-and-keras-frameworks/
         https://towardsdatascience.com/deep-learning-for-nlp-with-pytorch-and-torchtext-4f92d69052f
         https://stackabuse.com/python-for-nlp-word-embeddings-for-deep-learning-in-keras/
         https://machinelearningmastery.com/develop-word-embeddings-python-gensim/
@@ -45,7 +128,6 @@
         https://azati.ai/build-an-intelligent-search-engine-from-scratch/
         https://github.com/pytorch/examples/blob/master/vae/main.py
         https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variational%20Autoencoders.ipynb
-        https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
         https://www.youtube.com/watch?v=G3pOvrKkFuk
         https://www.youtube.com/watch?v=OR0wfP2FD3c
         https://www.youtube.com/watch?v=FKlPCK1uFrc&list=PLam9sigHPGwOBuH4_4fr-XvDbe5uneaf6
@@ -139,6 +221,9 @@
         https://adventuresinmachinelearning.com/keras-tutorial-cnn-11-lines/
         https://towardsdatascience.com/building-a-convolutional-neural-network-cnn-in-keras-329fbbadc5f5
         https://dzone.com/articles/malware-detection-with-convolutional-neural-networ
+        https://medium.com/@jonathan_hui/yolov4-c9901eaa8e61
+        https://towardsdatascience.com/yolo-v4-optimal-speed-accuracy-for-object-detection-79896ed47b50
+        https://robocademy.com/2020/05/01/a-gentle-introduction-to-yolo-v4-for-object-detection-in-ubuntu-20-04/
         https://www.learnopencv.com/deep-learning-based-object-detection-using-yolov3-with-opencv-python-c/
         https://medium.com/@ODSC/overview-of-the-yolo-object-detection-algorithm-7b52a745d3e0
         https://towardsdatascience.com/real-time-object-detection-with-yolo-9dc039a2596b
@@ -158,5 +243,4 @@
         https://machinelearningmastery.com/introduction-to-deep-learning-for-face-recognition/
         https://towardsdatascience.com/how-to-build-a-face-detection-and-recognition-system-f5c2cdfbeb8c
         https://towardsdatascience.com/face-recognition-using-artificial-intelligence-fffa3b20ad5f
-
-        EX : login and face aging with face detection.
+        http://drsalbertspijkers.blogspot.com/2018/07/capsule-neural-networks-cnn-better.html
