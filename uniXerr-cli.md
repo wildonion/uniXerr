@@ -1,6 +1,6 @@
 # `uniXerr`
 
-|> uniXerr CLI controller <|
+【  uniXerr CLI controller  】
 
 **Usage**:
 
@@ -18,6 +18,7 @@ $ uniXerr [OPTIONS] COMMAND [ARGS]...
 * `cluster-positions`
 * `deploy`
 * `develop`
+* `migrate`
 
 ## `uniXerr classify-positions`
 
@@ -30,6 +31,13 @@ $ uniXerr classify-positions [OPTIONS]
 **Options**:
 
 * `--csv-path FILE`: Path to labeled pc_features csv dataset.
+* `--input-data-csv-path FILE`: Path to input data csv for classification.
+* `--ddo`: Force deletion with confirmation for dataloader objects.
+* `--dpm`: Force deletion with confirmation for pre-trained classifier model.
+* `--epoch INTEGER RANGE`: Number of epoch for training classifier.
+* `--batch-size INTEGER RANGE`: Number of batch size for training classifier.
+* `--device TEXT`: Training device. cpu or cuda
+* `--num-workers INTEGER RANGE`: Number of workers for pytroch dataloader object.
 * `--help`: Show this message and exit.
 
 ## `uniXerr cluster-positions`
@@ -80,4 +88,16 @@ $ uniXerr develop [OPTIONS]
 **Options**:
 
 * `--workers INTEGER RANGE`: Number of workers.
+* `--help`: Show this message and exit.
+
+## `uniXerr migrate`
+
+**Usage**:
+
+```console
+$ uniXerr migrate [OPTIONS]
+```
+
+**Options**:
+
 * `--help`: Show this message and exit.
