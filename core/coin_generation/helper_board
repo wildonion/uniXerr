@@ -1,26 +1,17 @@
 
 
 
-https://pytorch.org/tutorials/advanced/cpp_extension.html
-https://github.com/1Konny/Beta-VAE
-https://github.com/Saswatm123/MMD-VAE
-https://github.com/pratikm141/MMD-Variational-Autoencoder-Pytorch-InfoVAE
-https://github.com/napsternxg/pytorch-practice/blob/master/Pytorch%20-%20MMD%20VAE.ipynb
-https://ermongroup.github.io/blog/a-tutorial-on-mmd-variational-autoencoders/
-https://medium.com/analytics-vidhya/generative-modelling-using-variational-autoencoders-vae-and-beta-vaes-81a56ef0bc9f
-https://wiseodd.github.io/techblog/2016/12/17/conditional-vae/
-https://medium.com/@amunategui/from-financial-compliance-to-fraud-detection-with-conditional-variational-autoencoders-cvae-and-2f911a2c98cb
-https://github.com/bfarzin/pytorch_aae
-https://towardsdatascience.com/a-wizards-guide-to-adversarial-autoencoders-part-4-classify-mnist-using-1000-labels-2ca08071f95
-https://github.com/rohithreddy024/VAE-GAN-Pytorch
-https://github.com/a514514772/Pytorch-VAE-GAN
-https://github.com/lucabergamini/VAEGAN-PYTORCH
-https://github.com/escuccim/vaegan-pytorch
-https://www.kaggle.com/moltean/fruits
-https://github.com/musyoku/adversarial-autoencoder
-https://blog.paperspace.com/adversarial-autoencoders-with-pytorch/
-https://github.com/wildonion/Deep-Learning/tree/master/unsupervised/Generative-Models/notebooks
-https://modelzoo.co/model/pytorch-gan
-https://github.com/eriklindernoren/PyTorch-GAN
-https://developers.google.com/machine-learning/gan
-https://github.com/PyTorchLightning/pytorch-lightning
+
+
+
+
+
+
+https://medium.com/swlh/how-to-predict-if-someone-would-default-on-their-credit-payment-using-deep-learning-49ee032a8a31
+https://github.com/topics/credit-scoring?l=python
+https://github.com/sqbislam/Credit-Scoring-Model-
+https://towardsdatascience.com/intro-to-credit-scorecard-9afeaaa3725f
+https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
+https://medium.com/datadriveninvestor/credit-score-using-machine-learning-cc1a383808ea
+https://blogs.oracle.com/datascience/using-the-artificial-neural-network-for-credit-risk-management
+https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
