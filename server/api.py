@@ -47,7 +47,12 @@ async def read_root():
 @api.get("/credit-info/{user_id}")
 async def get_position(user_id: int):
 	# TODO : fetch the position from db based on user_id
-	csv_path = os.path.dirname(os.path.abspath(__file__)) + '/dataset/input_data_classified_positions.csv'
-	df = pd.read_csv(csv_path)
-	rec = df.loc[df['user_id'] == user_id]
-	return {"position": rec['position'].values[0]}
+	csv_path_latent = os.path.dirname(os.path.abspath(__file__)) + '/dataset/input_data_classified_positions_using-pre-trained_model_on-latent.csv'
+	df_latent = pd.read_csv(csv_path_latent)
+	rec_latent = df.loc[df['user_id'] == user_id]
+	
+	csv_path_raw = os.path.dirname(os.path.abspath(__file__)) + '/dataset/input_data_classified_positions_using-pre-trained_model_on-raw.csv'
+	df_raw = pd.read_csv(csv_path_raw)
+	rec_raw = df.loc[df['user_id'] == user_id]
+	
+	return {"pre-trained on latent": {"position": rec_latent['position'].values[0]}, "pre-trained on raw": {"position": rec_raw['position'].values[0]}}
