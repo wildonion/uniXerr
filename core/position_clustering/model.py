@@ -38,12 +38,11 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import torch
-from torch import nn
 import torch.optim as optim
 from torch.autograd import Variable
 
 
-MODEL_PATH = os.path.dirname(os.path.abspath(__file__)) + '/utils/pc_model.pth' 
+MODEL_PATH = os.path.dirname(os.path.abspath(__file__)) + '/utils/pc_model_vae.pth' 
 
 class trainer():
 
@@ -77,14 +76,14 @@ class trainer():
 			#  training Variational Autoencoder Model
 			# -------------------------------------------------
 			print("\n________found no existing pre-trained model________\n")
-			print(f"\t---training on latent space using VAE on {self.__device}\n")
+			print(f"\t➢   training on latent space using VAE on {self.__device}\n")
 
 
 			if self.epoch > 40:
 				print("[?] please specify an epoch < 40 or at most 40.")
 				sys.exit(1)
 			else:
-				self.vae_model = VAE(pc_features=self.__show_a_sample().shape[1], latent_dim=latent_dim).to(self.__device)
+				self.vae_model = VAE(pc_features=self.__show_sample().shape[1], latent_dim=latent_dim).to(self.__device)
 				self.__train(log_interval=500)
 
 
@@ -100,8 +99,7 @@ class trainer():
 				self.loss.backward() # calculate the gradient using computational graph for all weights
 				self.optimizer.step() # update weights and other parameters like biases
 				if (i_batch % log_interval == 0) and (e % 10 == 0):
-					print("\t\tEpoch: {} [{}/{}]\tLoss: {:.6f}"
-						.format(e, i_batch, len(self.dataloader_), self.loss.data/len(sample_batch)))
+					print("\t\tEpoch: {} [{}/{}]\tLoss: {:.6f}".format(e, i_batch, len(self.dataloader_), self.loss.data/len(sample_batch)))
 			self.loss_tracker.append(self.loss.data)
 			print(f"\t\t=====> Epoch: {e} done! - Batch shape: {sample_batch.shape}")
 
@@ -116,7 +114,7 @@ class trainer():
 		self.__save(checkpoint=checkpoint)
 
 
-	def __show_a_sample(self):
+	def __show_sample(self):
 		batch_index = torch.randint(len(self.dataloader_), (1,), device=self.__device)[0]
 		for i_batch, sample_batch in enumerate(self.dataloader_):
 			if i_batch == batch_index:
@@ -129,20 +127,20 @@ class trainer():
 		try:
 			print("\n________saving trained VAE model________\n")
 			torch.save(checkpoint, MODEL_PATH)
-			print(f"\t---saved VAE model info at {MODEL_PATH}________\n")
+			print(f"\t➢   saved VAE model info at {MODEL_PATH}________\n")
 		except IOError:
-			print(f"\t---can't save VAE model at : {MODEL_PATH}\n")
+			print(f"\t➢   can't save VAE model at : {MODEL_PATH}\n")
 
 
 	def __load(self, latent_dim):
 		try:
 			checkpoint = torch.load(MODEL_PATH)
-			print(f"\t---loaded pre-trained model from {MODEL_PATH}\n")
+			print(f"\t➢   loaded pre-trained model from {MODEL_PATH}\n")
 		except IOError:
-			print(f"\t---can't load pre-trained model from : {MODEL_PATH}\n")
+			print(f"\t➢   can't load pre-trained model from : {MODEL_PATH}\n")
 
 		
-		self.vae_model = VAE(pc_features=self.__show_a_sample().shape[1], latent_dim=latent_dim)
+		self.vae_model = VAE(pc_features=self.__show_sample().shape[1], latent_dim=latent_dim).to(self.__device)
 		self.vae_model.load_state_dict(checkpoint['model_state_dict'])
 		
 		self.optimizer = optim.Adam(self.vae_model.parameters(), lr=1e-3)
@@ -193,4 +191,4 @@ class trainer():
 		plt.ylabel('loss', fontsize=10)
 		plt.legend()
 		plt.savefig(fig_path)
-		print(f"\t---plot saved at {fig_path}\n")
+		print(f"\t➢   plot saved at {fig_path}\n")
