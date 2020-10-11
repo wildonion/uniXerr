@@ -3,14 +3,14 @@
 
 
 
-0 - scaffold server folder using one of the template in https://fastapi.tiangolo.com/project-generation/
-1 - use openai api for the core -> https://beta.openai.com/
-2 - use static type checking for the core -> https://realpython.com/python-type-checking/
-3 - build the app.py using https://typer.tiangolo.com/tutorial/package/
-4 - complete uPC telebot using rust-lang to run python typer commands from rust using uPC telegram bot commands -> control process using pm2 or systemctl
-5 - build the uniXerr desktop app inside board ui folder using vala -> https://wiki.gnome.org/Projects/Vala/Documentation
-6 - pm2 start run.sh -> run tensorboard and uPC bot commands 
 
 
 
-* next-section : api server, db folder, migrate command and /etc/hosts config
+0 - use openai api for the core -> https://beta.openai.com/
+1 - pm2 start init.sh -> run init.sh on startup
+2 - complete wiki page for project explanation
+
+
+
+* next-section : coin_generation algorithm
+
