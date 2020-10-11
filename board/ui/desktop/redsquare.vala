@@ -1,3 +1,7 @@
+
+
+// https://wiki.gnome.org/Projects/Vala/Documentation
+
 namespace Palelib {
 
     public class RedSquare : Clutter.Actor {
