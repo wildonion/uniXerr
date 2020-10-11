@@ -35,7 +35,8 @@ from server import api
 
 @app.command()
 def migrate():
-	# TODO - db controller 
+	# TODO : db controller like CRUD docs (tables)
+	# TODO : save both dataset/input_data_classified_positions_using-pre-trained_model_on-*.csv files into db | * can be either latent or raw
 	# ...
 	pass
 
@@ -48,7 +49,9 @@ def deploy(build: bool = typer.Option(False, "--build", help="Building for produ
 
 	if build:
 		typer.secho("\t➢   building with docker\n", fg=typer.colors.RESET, bold=True)
-		# TODO : build api.py inside server folder using docker and traefik
+		# TODO : build the app.py using https://typer.tiangolo.com/tutorial/package/
+		# TODO : build api.py inside server folder using docker, traefik and other DevOps tools
+		# TODO : scaffold server folder using one of the template in https://fastapi.tiangolo.com/project-generation/
 		# ...
 
 
@@ -63,7 +66,7 @@ def deploy(build: bool = typer.Option(False, "--build", help="Building for produ
 def develop(workers: int = typer.Option(multiprocessing.cpu_count(), help="Number of workers.", min=4)):
 
 	typer.secho("\n________Running in development________\n", fg=typer.colors.MAGENTA, bold=True)
-	uvicorn.run('app:api', host="127.0.0.1", port=8000, reload=True, workers=workers) # TODO : change the host for production
+	uvicorn.run('app:api', host="api.unixerr.com", port=8000, reload=True, workers=workers)
 
 
 if __name__ == "__main__":
