@@ -35,13 +35,9 @@ Commands:
   migrate
 
 $ typer app.py run cluster-positions --help
-Usage: app.py cluster-positions [OPTIONS]
+Usage: typer run cluster-positions [OPTIONS]
 
 Options:
-  --training TEXT              Training algorithm. offline or online; offline
-                               uses a csv file and online uses a streamer for
-                               training.
-
   --generate-fake-samples      Generating fake samples for training.
   --epoch INTEGER RANGE        Number of epoch for training VAE.
   --batch-size INTEGER RANGE   Number of batch size for training VAE.
@@ -58,6 +54,7 @@ Options:
 
   --cluster-on-raw-data        Clustering on pc_features dataset, default is
                                set to VAE latent space
+
   --cluster-method TEXT        Clustering method. kmeans or hdbscan; hdbscan
                                is not suitable for latent space of VAE and has
                                some drawbacks for new dataset.
