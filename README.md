@@ -119,7 +119,7 @@ $ typer app.py run deploy --build --kafka
 > Running TensorBoard for visualization of training and testing DL models:
 
 ```console
-$ tensorboard --logdir=runs
+$ tensorboard --host=tensorboard.unixerr.com --logdir=runs
 ```
 
 > You can also install uniXerr from pip if you are the commander guy: __ [uniXerr CLI usage](https://github.com/wildonion/uniXerr/blob/master/uniXerr-cli.md)
