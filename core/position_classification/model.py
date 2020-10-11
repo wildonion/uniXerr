@@ -23,7 +23,7 @@
 |
 | access granted for 		   : dataloader_ object and classifier
 | self.training_dataloader_    : tensor([x_train], [y_train])
-| self.testing_dataloader_    : tensor([x_test], [y_test])
+| self.testing_dataloader_     : tensor([x_test], [y_test])
 | self.__classifier  		   : classifier nn model
 | self.__train       		   : train classifier model on training data
 | self.__test        		   : test classifier model on testing data

@@ -49,14 +49,16 @@ from torch.autograd import Variable
 
 
 class predictor:
-	def __init__(self, device, data_type):
-		self.__model_path = os.path.dirname(os.path.abspath(__file__)) + f'/utils/pc_model_classifier-{data_type}.pth'
+	def __init__(self, **model_conf):
+		self.__model_path = model_conf["path"]
+		self.__positions = model_conf["positions"]
+		self.__data_type = model_conf["data_type"]
+		self.__input_features = model_conf["features"]["in"]
+		self.__output_features = model_conf["features"]["out"]
 		self.__input_data = None
-		self.__positions = {0:'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F'}
-		self.__data_type = data_type
 		self.model = None
 
-		cuda = torch.cuda.is_available() if device is 'cuda' else None
+		cuda = torch.cuda.is_available() if model_conf["device"] is 'cuda' else None
 		self.__device = torch.device("cuda" if cuda else "cpu")
 		torch.backends.cudnn.benchmark = True
 
@@ -70,10 +72,6 @@ class predictor:
 
 
 	def __load(self):
-
-		input_features = 4
-		output_features = 6
-
 		try:
 			checkpoint = torch.load(self.__model_path)
 			print(f"\t➢   loaded pre-trained model from {self.__model_path}\n")
@@ -81,7 +79,7 @@ class predictor:
 			print(f"\t➢   can't load pre-trained model from : {self.__model_path}\n")
 
 
-		self.model = Position(input_neurons=input_features, output_neurons=output_features).to(self.__device)
+		self.model = Position(input_neurons=self.__input_features, output_neurons=self.__output_features).to(self.__device)
 		self.model.load_state_dict(checkpoint['model_state_dict'])
 		self.optimizer = torch.optim.SGD(self.model.parameters(), lr=1e-3, momentum=0.9)
 		self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -94,7 +92,7 @@ class predictor:
 
 	def __save(self, predictions):
 		curr_dir = os.path.dirname(os.path.abspath(__file__))
-		input_data = os.path.dirname(os.path.abspath(__file__))+'/utils/input_data.csv'
+		input_data = os.path.abspath(curr_dir + f"/../../server/dataset/input_data.csv")
 		input_data_classified = os.path.abspath(curr_dir + f"/../../server/dataset/input_data_classified_positions_using-pre-trained_model_on-{self.__data_type}.csv")
 		numpy_predictions = predictions.detach().numpy()
 		Df = pd.read_csv(input_data)

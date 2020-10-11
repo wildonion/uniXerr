@@ -37,7 +37,7 @@ app = typer.Typer(help="【  uniXerr CLI controller  】")
 # TODO : send a csv file for input data prediction and the type of labeled data for loading/training classifier model from uPC telegram bot
 data_type = "raw"
 labeled_csv_path = os.path.dirname(os.path.abspath(__file__)) + f'/server/dataset/pc_features_labeled-{data_type}.csv'
-csv_input_data_for_classification = os.path.dirname(os.path.abspath(__file__))+'/core/position_classification/utils/input_data.csv'
+csv_input_data_for_classification = os.path.dirname(os.path.abspath(__file__))+'/server/dataset/input_data.csv'
 
 
 
@@ -156,9 +156,9 @@ def cluster_positions(
 
 @app.command()
 def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Path to labeled pc_features csv dataset.", 
-				   	   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True),
+					   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True),
 					   input_data_csv_path: Path = typer.Option(csv_input_data_for_classification, help="Path to input data csv for classification.", 
-				   	   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True),
+					   exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True),
 					   ddo: bool = typer.Option(False, "--ddo", help="Force deletion with confirmation for dataloader objects."),
 					   dpm: bool = typer.Option(False, "--dpm", help="Force deletion with confirmation for pre-trained classifier model."),
 					   epoch: int = typer.Option(200, help="Number of epoch for training classifier.", min=100, max=300),
@@ -194,11 +194,19 @@ def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Pat
 
 
 	dataloader_kwargs = {'num_workers': num_workers, 'pin_memory': True} if device is 'cuda' else {}
-	# build a dataloader objects for training and testing data if there is no one, otherwise it'll load the saved objects
-	dataloader = ClassificationDatasetLoader(csv_path=csv_path, batch_size=batch_size, dataloader_kwargs=dataloader_kwargs)
+	dataloader = ClassificationDatasetLoader(csv_path=csv_path, batch_size=batch_size, dataloader_kwargs=dataloader_kwargs) # build a dataloader objects for training and testing data if there is no one, otherwise it'll load the saved objects
+	inputs, labels = iter(dataloader()[0]).next()
+	positions = {label_index: chr(label_index+65) for label_index in range(labels.size(1))}
 	pc_model = position_classification_trainer(device=device, epoch=epoch, data_type=data_type) # train and test classifier model if there is no pre-trained one
 	pc_model(data=dataloader()) # dataloader()[0] is training pipeline and dataloader()[1] is testing pipeline
-	classifier_ = predictor(device=device, data_type=data_type) # it'll load the saved model and classify input data using the pre-trained one
+	pc_model_conf = {
+					 "features"  : {"in": inputs.size(1), "out": labels.size(1)},
+					 "positions" : positions,
+					 "path"      : os.path.dirname(os.path.abspath(__file__)) + f'/core/position_classification/utils/pc_model_classifier-{data_type}.pth',
+					 "device"    : device,
+					 "data_type" : data_type
+					 }
+	classifier_ = predictor(**pc_model_conf) # it'll load the saved model and classify input data using the pre-trained one
 	
 
 	typer.secho("\n________classifier model state dict________\n", fg=typer.colors.MAGENTA, bold=True)
@@ -225,6 +233,6 @@ def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Pat
 
 
 	# classify the input data using pre-trained classifier model
-	# input data can be either a valid csv_path or a numpyndarray (online training only)
+	# input data can be either a valid csv_path or a numpyndarray
 	# contains rollcall_score, class_activity, discipline and total_quizzes_avg as features
 	classifier_(input_data_csv_path)
