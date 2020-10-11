@@ -32,9 +32,6 @@
 
 '''
 
-
-from ._clustering_pipeline import pipeline
-from ._classification_pipeline import pipeline
 import os
 
 class DatasetStreamer():

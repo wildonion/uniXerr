@@ -16,9 +16,8 @@
  --------------------------------------------
 |          	     trainer class
 | -------------------------------------------
-| extract the latent space of data using
-| variational autoencoder on both
-| offline and online training method 
+| extract the latent space of training data
+| using variational autoencoder 
 |
 | access granted for : dataloader_ object
 | save				 : save the trained model
