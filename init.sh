@@ -1,4 +1,4 @@
 #!/usr/bin/bash
-tensorboard --logdir=runs
+tensorboard --host=tensorboard.unixerr.com --logdir=runs
 chmod +x upc
 ./upc # uniXerr telegram bot 
