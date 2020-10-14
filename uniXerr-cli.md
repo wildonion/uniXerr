@@ -18,7 +18,6 @@ $ uniXerr [OPTIONS] COMMAND [ARGS]...
 * `cluster-positions`
 * `deploy`
 * `develop`
-* `migrate`
 
 ## `uniXerr classify-positions`
 
@@ -88,16 +87,4 @@ $ uniXerr develop [OPTIONS]
 **Options**:
 
 * `--workers INTEGER RANGE`: Number of workers.
-* `--help`: Show this message and exit.
-
-## `uniXerr migrate`
-
-**Usage**:
-
-```console
-$ uniXerr migrate [OPTIONS]
-```
-
-**Options**:
-
 * `--help`: Show this message and exit.
