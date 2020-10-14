@@ -8,6 +8,7 @@
 
 ### Setup
 
+* Fill out _.env_ file with necessary environment variables
 * Create an environment with the latest version of python: ```conda create -n uniXerr python=3```
 * Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
@@ -32,7 +33,6 @@ Commands:
   cluster-positions
   deploy
   develop
-  migrate
 
 $ typer app.py run cluster-positions --help
 Usage: typer run cluster-positions [OPTIONS]
@@ -231,4 +231,4 @@ pip install uniXerr
 
 [Classification Result on an Arbitrary Input - Classified using Pre-trained Model of Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/dataset/input_data_classified_positions_using-pre-trained_model_on-raw.csv)
 
-[Arbitrary Input](https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/input_data.csv)
+[Arbitrary Input](https://github.com/wildonion/uniXerr/blob/master/server/dataset/input_data.csv)
