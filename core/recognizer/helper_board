@@ -76,6 +76,8 @@ ___________________________ AAE/VAE ___________________________________
         https://duvenaud.github.io/learn-discrete/slides/AdversarialAutoencoders.pdf
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 ________________________________________________________________________
+        https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
+        https://cs231n.github.io/
         https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
         https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
         https://www.youtube.com/watch?v=wqQKFu41FIw
@@ -102,6 +104,7 @@ ________________________________________________________________________
         https://medium.com/@vovaprivalov/playing-with-realistic-neural-talking-head-models-13759408c01f
         https://paperswithcode.com/paper/few-shot-adversarial-learning-of-realistic
         https://towardsdatascience.com/building-a-one-shot-learning-network-with-pytorch-d1c3a5fafa4a
+        https://medium.com/hackernoon/one-shot-learning-with-siamese-networks-in-pytorch-8ddaab10340e
         https://www.pyimagesearch.com/category/optical-character-recognition-ocr/
         https://www.pyimagesearch.com/2020/08/10/opencv-sudoku-solver-and-ocr/
         https://www.shanelynn.ie/word-embeddings-in-python-with-spacy-and-gensim/

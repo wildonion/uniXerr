@@ -699,7 +699,7 @@ https://colinraffel.com/blog/you-don-t-know-jax.html
 https://github.com/google/jax
 https://github.com/pytorch/glow
 https://towardsdatascience.com/creating-adversarial-examples-with-jax-from-the-scratch-bf267757f672
-http://cs231n.github.io/
+https://cs231n.github.io/
 https://skymind.ai/wiki/neural-network
 https://www.deeplearningbook.org/
 https://www.youtube.com/watch?v=dPWYUELwIdM
