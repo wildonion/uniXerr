@@ -33,13 +33,6 @@ from server import DatasetStreamer
 from server import api
 
 
-@app.command()
-def migrate():
-	# TODO : db controller like CRUD docs (tables)
-	# TODO : save both dataset/input_data_classified_positions_using-pre-trained_model_on-*.csv files into db | * can be either latent or raw
-	# ...
-	pass
-
 
 @app.command()
 def deploy(build: bool = typer.Option(False, "--build", help="Building for production."),
