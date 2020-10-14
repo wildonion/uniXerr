@@ -20,6 +20,8 @@
 | __________________________________________________________________________________
 |
 |
+| https://www.confluent.io/blog/using-apache-kafka-drive-cutting-edge-machine-learning/
+| https://faust.readthedocs.io/en/latest/
 | https://github.com/kkroening/ffmpeg-python
 | https://kafka-python.readthedocs.io/en/master/usage.html
 | https://aroussi.com/post/live-plotting-with-matplotlib-and-python
