@@ -6,7 +6,9 @@
                                    INFORMATION THEORY
 ----------------------------------------------------------------------------------------------
 
-        
+
+        https://stackoverflow.com/questions/61632584/understanding-input-shape-to-pytorch-lstm        
+        https://github.com/wcneill/jn-ml-textbook/blob/master/Deep%20Learning/04%20Recurrent%20Networks/pytorch13b_LSTM.ipynb        
         https://towardsdatascience.com/system-failure-prediction-using-log-analysis-8eab84d56d1
         https://www.kaggle.com/taronzakaryan/stock-prediction-lstm-using-pytorch
         https://gist.github.com/lizadaly/2b19fd6f758ffd2e8ab9ec7d1f3f4b2c
