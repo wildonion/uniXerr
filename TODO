@@ -7,9 +7,9 @@
 
 
 0 - use openai api for the core -> https://beta.openai.com/
-1 - pm2 start init.sh -> run init.sh on startup
+1 - pm2 start init.sh -> run init.sh on startup and setup tensorboard.api.unixerr.com on vps
 2 - complete wiki page for project explanation
 
 
 
-* next-section : api server and implement uPC telegram bot using rust
+* next-section : implement uPC telegram bot using rust
