@@ -2,13 +2,14 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
+###### :warning: Change the replication strategy in _env_ file to something like ```{'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2}``` for production.
 ###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
 ###### :information_source: `uniXerr.yml` was exported on Ubuntu Linux 20.04 LTS for the first time.
 ###### :information_source: Both `core` and `server` folders can only be controlled using `controller.py` middleware.
 
 ### Setup
 
-* Fill out _.env_ file with necessary environment variables
+* Start Apache Cassandra and Fill out _.env_ file with necessary environment variables
 * Create an environment with the latest version of python: ```conda create -n uniXerr python=3```
 * Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
@@ -108,6 +109,18 @@ Options:
 
 ```console
 $ typer app.py run develop --workers 10
+```
+
+> Export cassandra table into csv file:
+
+```console
+$ cqlsh api.unixerr.com -u username -p password -e "copy keyspace_name.table_name to 'table_name.csv' with HEADER = true"
+```
+
+> Import exported csv file into cassandra table:
+
+```console
+$ cqlsh api.unixerr.com -u username -p password -e "copy keyspace_name.table_name from 'table_name.csv' with HEADER = true"
 ```
 
 > Running in production mode streaming over kafka:
