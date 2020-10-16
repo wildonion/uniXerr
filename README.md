@@ -2,7 +2,7 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
-###### :warning: Change the replication strategy in _env_ file to something like ```{'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2}``` for production.
+###### :warning: Change the replication strategy in _.env_ file to something like ```{'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2}``` for production.
 ###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
 ###### :information_source: `uniXerr.yml` was exported on Ubuntu Linux 20.04 LTS for the first time.
 ###### :information_source: Both `core` and `server` folders can only be controlled using `controller.py` middleware.
