@@ -43,8 +43,7 @@ def deploy(build: bool = typer.Option(False, "--build", help="Building for produ
 	if build:
 		typer.secho("\t➢   building with docker\n", fg=typer.colors.RESET, bold=True)
 		# TODO : build the app.py using https://typer.tiangolo.com/tutorial/package/
-		# TODO : build api.py inside server folder using docker, traefik and other DevOps tools
-		# TODO : scaffold server folder using one of the template in https://fastapi.tiangolo.com/project-generation/
+		# TODO : build api.py inside server folder using docker, traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/)
 		# ...
 
 
@@ -59,8 +58,7 @@ def deploy(build: bool = typer.Option(False, "--build", help="Building for produ
 def develop(workers: int = typer.Option(multiprocessing.cpu_count(), help="Number of workers.", min=4)):
 
 	typer.secho("\n________Running in development________\n", fg=typer.colors.MAGENTA, bold=True)
-	uvicorn.run('app:api', host="api.unixerr.com", port=8000, reload=True, workers=workers)
-
+	uvicorn.run('app:api', host="api.unixerr.com", port=8000, reload=True, workers=workers, lifespan="on")
 
 if __name__ == "__main__":
 	app()
