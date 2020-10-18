@@ -73,6 +73,25 @@ mat = np.add(np.add(A, B), C)
 
 # =====================================
 
+# convert 1D list into 2D list
+
+def reshape(arr, m, n):
+    if len(arr) % m != 0 and len(arr) % n != 0:
+        return False
+    mat = []
+    for row in range(m):
+        lst = []
+        for mult in range(row*n, (row+1)*n):
+            lst.append(arr[mult])
+        mat.append(lst)
+    print(mat)
+
+
+arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+reshape(arr, 3, 5)
+
+# =====================================
+
 N = int(input("Enter a number "))
 s = []
 while N > 0:
