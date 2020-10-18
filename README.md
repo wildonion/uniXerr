@@ -106,7 +106,7 @@ Options:
   --help                   Show this message and exit.
 ```
 
-> Running in development mode: __ [API docs](api.unixerr.com:8000/docs) 
+> Running in development mode: __ [API docs](http://api.unixerr.com:8000/docs) 
 
 ```console
 $ typer app.py run develop --workers 10
