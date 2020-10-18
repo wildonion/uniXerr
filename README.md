@@ -3,6 +3,7 @@
 </p>
 
 ###### :warning: Change the replication strategy in _.env_ file to something like ```{'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2}``` for production.
+###### :warning: If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.
 ###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
 ###### :information_source: `uniXerr.yml` was exported on Ubuntu Linux 20.04 LTS for the first time.
 ###### :information_source: Both `core` and `server` folders can only be controlled using `controller.py` middleware.
@@ -105,7 +106,7 @@ Options:
   --help                   Show this message and exit.
 ```
 
-> Running in development mode:
+> Running in development mode: __ [API docs](api.unixerr.com:8000/docs) 
 
 ```console
 $ typer app.py run develop --workers 10
@@ -114,13 +115,13 @@ $ typer app.py run develop --workers 10
 > Export cassandra table into csv file:
 
 ```console
-$ cqlsh api.unixerr.com -u username -p password -e "copy keyspace_name.table_name to 'table_name.csv' with HEADER = true"
+$ cqlsh api.unixerr.com -u username -p password -e "copy unixerr.table_name to '/path/to/table_name.csv' with HEADER = true"
 ```
 
 > Import exported csv file into cassandra table:
 
 ```console
-$ cqlsh api.unixerr.com -u username -p password -e "copy keyspace_name.table_name from 'table_name.csv' with HEADER = true"
+$ cqlsh api.unixerr.com -u username -p password -e "copy unixerr.table_name from '/path/to/table_name.csv' with HEADER = true"
 ```
 
 > Running in production mode streaming over kafka:
@@ -243,5 +244,3 @@ pip install uniXerr
 [Classification Result on an Arbitrary Input - Classified using Pre-trained Model of Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/server/dataset/input_data_classified_positions_using-pre-trained_model_on-latent.csv)
 
 [Classification Result on an Arbitrary Input - Classified using Pre-trained Model of Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/dataset/input_data_classified_positions_using-pre-trained_model_on-raw.csv)
-
-[Arbitrary Input](https://github.com/wildonion/uniXerr/blob/master/server/dataset/input_data.csv)
