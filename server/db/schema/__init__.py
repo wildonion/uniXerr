@@ -14,3 +14,4 @@
 '''
 
 from .user import *
+from .position import *
