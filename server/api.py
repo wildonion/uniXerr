@@ -22,6 +22,7 @@ from .db.schema import User, Position
 from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel # you can use this with cassandra UserType in those cases that you don't have schemas!
+from datetime import datetime
 import pandas as pd
 import os
 
@@ -210,34 +211,55 @@ async def get_user_position(user_id: int):
 # #########------------------------------------------------------------------------------------------
 
 
-@api.get("/users/add/info") # add rows of users from csv file into users_info table
+@api.get("/users/add/info") # add rows of users features from csv file into users_info table
 async def add_users_info():
 	futures = []
+	can_we_move = True
 	response = 201
 	input_data = os.path.dirname(os.path.abspath(__file__))+f'/dataset/input_data.csv'
-	df = pd.read_csv(input_data)
-	for i in range(len(df)):
-		try:
-			user = User(id=df.iloc[i].user_id, time=uuid1(), rollcall_score=df.iloc[i].rollcall_score, 
-						class_activity=df.iloc[i].class_activity, discipline=df.iloc[i].discipline, 
-						total_quizzes_avg=df.iloc[i].total_quizzes_avg)
-			user.save()
+	
+	if os.path.exists(input_data):
+		df = pd.read_csv(input_data)
+		for i in range(len(df)):
+			try:
+				user = User(id=df.iloc[i].user_id, time=uuid1(), rollcall_score=df.iloc[i].rollcall_score, 
+							class_activity=df.iloc[i].class_activity, discipline=df.iloc[i].discipline, 
+							total_quizzes_avg=df.iloc[i].total_quizzes_avg)
+				user.save()
 
 
-			# #### --------------------------------------------------------------------------------
-			# #### if you want to use db.query just comment User model to avoid duplicate insertion
-			# #### --------------------------------------------------------------------------------
 
-			# future = db.query("insert into users_info (id, time, rollcall_score, class_activity, discipline, total_quizzes_avg) values (?, ?, ?, ?, ?, ?)", 
-			# 		  	  [df.iloc[i].user_id.astype('int'), uuid1(), df.iloc[i].rollcall_score.astype('int'), 
-			# 		  	   df.iloc[i].class_activity, df.iloc[i].discipline, df.iloc[i].total_quizzes_avg
-			# 		  	 ])
-			# futures.append(future) # do what ever you want with futures like f.result()
-		
+				# #### --------------------------------------------------------------------------------
+				# #### if you want to use db.query just comment User model to avoid duplicate insertion
+				# #### --------------------------------------------------------------------------------
 
-		except Exception as e:
-			print(f"[Exception] ::: {e}")
-			response = 500
+				# future = db.query("insert into users_info (id, time, rollcall_score, class_activity, discipline, total_quizzes_avg) values (?, ?, ?, ?, ?, ?)", 
+				# 		  	  [df.iloc[i].user_id.astype('int'), uuid1(), df.iloc[i].rollcall_score.astype('int'), 
+				# 		  	   df.iloc[i].class_activity, df.iloc[i].discipline, df.iloc[i].total_quizzes_avg
+				# 		  	 ])
+				# futures.append(future) # do what ever you want with futures like f.result()
+				
+
+
+			except Exception as e:
+				print(f"[Exception] ::: {e}")
+				can_we_move = False
+				response = 500
+
+		if can_we_move:
+			imported_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+			csv_must_be_in = os.path.join(os.getcwd()+'/db/_imported/users_info/', imported_time)
+			try:
+				os.makedirs(csv_must_be_in)
+				imported_csv_path = os.path.dirname(os.path.abspath(__file__))+f'/db/_imported/users_info/{imported_time}/input_data.csv' 
+				os.rename(input_data, imported_csv_path)
+			except Exception as e:
+				print(f"[Exception] ::: {e}")
+				response = 500
+
+	else:
+		response = 404 # no classification has done thus we don't have input_data and classified positions csv files
+
 	return {"status": response}
 
 
@@ -249,32 +271,59 @@ async def add_users_info():
 async def add_users_positions():
 	futures = []
 	response = 201
+	can_we_move = True
 	classified_latent = os.path.dirname(os.path.abspath(__file__))+f'/dataset/input_data_classified_positions_using-pre-trained_model_on-latent.csv'
 	classified_raw = os.path.dirname(os.path.abspath(__file__))+f'/dataset/input_data_classified_positions_using-pre-trained_model_on-raw.csv'
-	df_latent = pd.read_csv(classified_latent)
-	df_raw = pd.read_csv(classified_raw)
-	position_latent = df_latent["position"]
-	position_raw = df_raw["position"]
-	user_id = df_raw["user_id"]
-	users_length = len(user_id)
-	for i in range(users_length):
-		try:
-			user_position = Position(user_id=user_id.iloc[i], time=uuid1(), position_latent=position_latent.iloc[i], position_raw=position_raw.iloc[i])
-			user_position.save()
-			
-
-			# #### ------------------------------------------------------------------------------------
-			# #### if you want to use db.query just comment Position model to avoid duplicate insertion
-			# #### ------------------------------------------------------------------------------------
-
-			# future = db.query("insert into users_positions (user_id, time, position_latent, position_raw) values (?, ?, ?, ?)", 
-			# 			  		[user_id.iloc[i], uuid1(), position_latent.iloc[i], position_raw.iloc[i]])
-			# futures.append(future) # do what ever you want with futures like f.result()
+	
+	if os.path.exists(classified_latent) and os.path.exists(classified_raw):
+		df_latent = pd.read_csv(classified_latent)
+		df_raw = pd.read_csv(classified_raw)
+		position_latent = df_latent["position"]
+		position_raw = df_raw["position"]
+		user_id = df_raw["user_id"]
+		users_length = len(user_id)
+		for i in range(users_length):
+			try:
+				user_position = Position(user_id=user_id.iloc[i], time=uuid1(), position_latent=position_latent.iloc[i], position_raw=position_raw.iloc[i])
+				user_position.save()
+				
 
 
-		except Exception as e:
-			print(f"Exception ::: {e}")
-			response = 500
+				# #### ------------------------------------------------------------------------------------
+				# #### if you want to use db.query just comment Position model to avoid duplicate insertion
+				# #### ------------------------------------------------------------------------------------
+
+				# future = db.query("insert into users_positions (user_id, time, position_latent, position_raw) values (?, ?, ?, ?)", 
+				# 			  		[user_id.iloc[i], uuid1(), position_latent.iloc[i], position_raw.iloc[i]])
+				# futures.append(future) # do what ever you want with futures like f.result()
+
+
+
+			except Exception as e:
+				print(f"Exception ::: {e}")
+				can_we_move = False
+				response = 500
+
+		if can_we_move:
+			imported_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+			csv_must_be_in = os.path.join(os.getcwd()+'/db/_imported/users_positions/', imported_time)
+			try:
+				os.makedirs(csv_must_be_in)
+				
+				classified_latent_file_name = 'input_data_classified_positions_using-pre-trained_model_on-latent.csv'
+				imported_classified_latent_csv_path = os.path.dirname(os.path.abspath(__file__))+f'/db/_imported/users_positions/{imported_time}/{classified_latent_file_name}'
+				os.rename(classified_latent, imported_classified_latent_csv_path)
+				
+				classified_raw_file_name = 'input_data_classified_positions_using-pre-trained_model_on-raw.csv'
+				imported_classified_raw_csv_path = os.path.dirname(os.path.abspath(__file__))+f'/db/_imported/users_positions/{imported_time}/{classified_raw_file_name}' 
+				os.rename(classified_raw, imported_classified_raw_csv_path)
+			except Exception as e:
+				print(f"[Exception] ::: {e}")
+				response = 500
+
+	else:
+		response = 404 # no classification has done thus we don't have classified positions csv files
+
 	return {"status": response}
 
 
