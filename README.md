@@ -241,6 +241,4 @@ pip install uniXerr
     <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_loss-raw.png">
 </p>
 
-[Classification Result on an Arbitrary Input - Classified using Pre-trained Model of Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/server/dataset/input_data_classified_positions_using-pre-trained_model_on-latent.csv)
-
-[Classification Result on an Arbitrary Input - Classified using Pre-trained Model of Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/dataset/input_data_classified_positions_using-pre-trained_model_on-raw.csv)
+[Classification Results on Arbitrary Inputs - Classified using Pre-trained Model of Clustered Dataset Based on Latent Space of Pre-trained VAE model and Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/db/_imported/)
