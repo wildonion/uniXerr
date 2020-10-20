@@ -21,9 +21,11 @@ from .db import init
 from .db.schema import User, Position
 from typing import Optional
 from fastapi import FastAPI
-from pydantic import BaseModel # you can use this with cassandra UserType in those cases that you don't have schemas!
+from pydantic import BaseModel
 from datetime import datetime
 import pandas as pd
+import numpy as np
+import pickle
 import os
 
 
@@ -193,8 +195,8 @@ async def get_users_same_positions(latent: str, raw: str):
 # #########------------------------------------------------------------------------------------------
 
 
-@api.get("/user/position/{user_id}") # ::: 'allow filtering' is only for development :::
-async def get_user_position(user_id: int):
+@api.get("/user/positions/{user_id}") # ::: 'allow filtering' is only for development :::
+async def get_user_positions(user_id: int):
 	response = 200
 	try:
 		future = db.query(f"select user_id, toTimestamp(time), position_latent, position_raw from users_positions where user_id = ? allow filtering;", [user_id])
@@ -205,6 +207,48 @@ async def get_user_position(user_id: int):
 		response = 500
 		print(f"[Exception] ::: {e}")
 	return {"db.query()_positions": positions_, "schema_positions": positions, "response": response}
+
+
+# #########------------------------------------------------------------------------------------------
+
+
+class Info(BaseModel):
+    user_id: int = None
+    rollcall_score: int = 0
+    class_activity: float = 0.0
+    discipline: float = 0.0
+    total_quizzes_avg: float = 0.0
+
+
+@api.post('/user/classify/position') # at the time of using this route we don't have input_data.csv and classified csv files
+async def predict_position(info: Info): # classify the position of a single user
+	curr_dir = os.path.dirname(os.path.abspath(__file__))
+	classifier_obj_path = os.path.abspath(curr_dir + f"/../core/position_classification/utils/classifier.obj") 
+	response = 201
+
+	if os.path.exists(classifier_obj_path):
+		try:
+			with open(classifier_obj_path, 'rb') as classifier_file:
+				classifier_ = pickle.load(classifier_file)
+			input_data = np.array([info.rollcall_score, info.class_activity, info.discipline, info.total_quizzes_avg]).reshape(1, -1)
+			result = classifier_(input_data)
+			position, data_type = result[0], result[1]
+			user = User(id=info.user_id, time=uuid1(), rollcall_score=info.rollcall_score, 
+							class_activity=info.class_activity, discipline=info.discipline, 
+							total_quizzes_avg=info.total_quizzes_avg).save()
+
+			data = {"user_id": info.user_id, "time": uuid1(), f"position_{data_type}": position}
+			user_position = Position(**data).save()
+			msg = "now call /user/positions/{user_id} route to see the classification result"
+		except Exception as e:
+			print(f"[Exception] ::: {e}")
+			response = 500
+			msg = "classification error!"
+	else:
+		msg = "pre-trained model has been deleted you must train it first"
+		response = 404 
+	
+	return {"response": response, "msg": msg}
 
 
 
@@ -258,7 +302,7 @@ async def add_users_info():
 				response = 500
 
 	else:
-		response = 404 # no classification has done thus we don't have input_data and classified positions csv files
+		response = 404 # no classification on csv file has done thus we don't have input_data and classified positions csv files
 
 	return {"status": response}
 
@@ -267,7 +311,7 @@ async def add_users_info():
 
 
 
-@api.get("/users/add/positions") # merge classified positions and then add those to positions table
+@api.get("/users/add/positions") # merge classified positions and then add those to users_positions table
 async def add_users_positions():
 	futures = []
 	response = 201
@@ -275,16 +319,14 @@ async def add_users_positions():
 	classified_latent = os.path.dirname(os.path.abspath(__file__))+f'/dataset/input_data_classified_positions_using-pre-trained_model_on-latent.csv'
 	classified_raw = os.path.dirname(os.path.abspath(__file__))+f'/dataset/input_data_classified_positions_using-pre-trained_model_on-raw.csv'
 	
-	if os.path.exists(classified_latent) and os.path.exists(classified_raw):
+	if os.path.exists(classified_latent):
 		df_latent = pd.read_csv(classified_latent)
-		df_raw = pd.read_csv(classified_raw)
 		position_latent = df_latent["position"]
-		position_raw = df_raw["position"]
-		user_id = df_raw["user_id"]
+		user_id = df_latent["user_id"]
 		users_length = len(user_id)
 		for i in range(users_length):
 			try:
-				user_position = Position(user_id=user_id.iloc[i], time=uuid1(), position_latent=position_latent.iloc[i], position_raw=position_raw.iloc[i])
+				user_position = Position(user_id=user_id.iloc[i], time=uuid1(), position_latent=position_latent.iloc[i])
 				user_position.save()
 				
 
@@ -293,8 +335,8 @@ async def add_users_positions():
 				# #### if you want to use db.query just comment Position model to avoid duplicate insertion
 				# #### ------------------------------------------------------------------------------------
 
-				# future = db.query("insert into users_positions (user_id, time, position_latent, position_raw) values (?, ?, ?, ?)", 
-				# 			  		[user_id.iloc[i], uuid1(), position_latent.iloc[i], position_raw.iloc[i]])
+				# future = db.query("insert into users_positions (user_id, time, position_latent) values (?, ?, ?)", 
+				# 			  			[user_id.iloc[i], uuid1(), position_latent.iloc[i]])
 				# futures.append(future) # do what ever you want with futures like f.result()
 
 
@@ -309,11 +351,44 @@ async def add_users_positions():
 			csv_must_be_in = os.path.join(os.getcwd()+'/db/_imported/users_positions/', imported_time)
 			try:
 				os.makedirs(csv_must_be_in)
-				
 				classified_latent_file_name = 'input_data_classified_positions_using-pre-trained_model_on-latent.csv'
 				imported_classified_latent_csv_path = os.path.dirname(os.path.abspath(__file__))+f'/db/_imported/users_positions/{imported_time}/{classified_latent_file_name}'
 				os.rename(classified_latent, imported_classified_latent_csv_path)
+			except Exception as e:
+				print(f"[Exception] ::: {e}")
+				response = 500
+
+	elif os.path.exists(classified_raw):
+		df_raw = pd.read_csv(classified_raw)
+		position_raw = df_raw["position"]
+		users_raw = len(user_id)
+		for i in range(users_length):
+			try:
+				user_position = Position(user_id=user_id.iloc[i], time=uuid1(), position_raw=position_raw.iloc[i])
+				user_position.save()
 				
+
+
+				# #### ------------------------------------------------------------------------------------
+				# #### if you want to use db.query just comment Position model to avoid duplicate insertion
+				# #### ------------------------------------------------------------------------------------
+
+				# future = db.query("insert into users_positions (user_id, time, position_raw) values (?, ?, ?)", 
+				# 			  				[user_id.iloc[i], uuid1(), position_raw.iloc[i]])
+				# futures.append(future) # do what ever you want with futures like f.result()
+
+
+
+			except Exception as e:
+				print(f"Exception ::: {e}")
+				can_we_move = False
+				response = 500
+
+		if can_we_move:
+			imported_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+			csv_must_be_in = os.path.join(os.getcwd()+'/db/_imported/users_positions/', imported_time)
+			try:
+				os.makedirs(csv_must_be_in)				
 				classified_raw_file_name = 'input_data_classified_positions_using-pre-trained_model_on-raw.csv'
 				imported_classified_raw_csv_path = os.path.dirname(os.path.abspath(__file__))+f'/db/_imported/users_positions/{imported_time}/{classified_raw_file_name}' 
 				os.rename(classified_raw, imported_classified_raw_csv_path)
