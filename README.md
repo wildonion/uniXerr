@@ -4,6 +4,7 @@
 
 ###### :warning: Change the replication strategy in _.env_ file to something like ```{'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2}``` for production.
 ###### :warning: If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.
+###### :warning: Remember to call `/users/add/info` and `/users/add/positions` routes of API server after the classification is done on csv file of input data. 
 ###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
 ###### :information_source: `uniXerr.yml` was exported on Ubuntu Linux 20.04 LTS for the first time.
 ###### :information_source: Both `core` and `server` folders can only be controlled using `controller.py` middleware.
