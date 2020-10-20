@@ -41,6 +41,7 @@ from ._nn import Position
 import matplotlib.pyplot as plt
 import sys
 import os
+import pickle
 import pathlib
 import pandas as pd
 import numpy as np
@@ -91,6 +92,7 @@ class predictor:
 
 
 	def __save(self, predictions):
+		classifier_obj_path = os.path.dirname(os.path.abspath(__file__))+f'/utils/classifier.obj'
 		curr_dir = os.path.dirname(os.path.abspath(__file__))
 		input_data = os.path.abspath(curr_dir + f"/../../server/dataset/input_data.csv")
 		input_data_classified = os.path.abspath(curr_dir + f"/../../server/dataset/input_data_classified_positions_using-pre-trained_model_on-{self.__data_type}.csv")
@@ -99,6 +101,9 @@ class predictor:
 		Df['position'] = np.array(list(self.__positions[pred] for pred in numpy_predictions))
 		Df.to_csv(input_data_classified, index=False)
 		print(f"\t➢   new dataset saved in {input_data_classified}\n")
+		with open(classifier_obj_path, "wb") as classifier_file:
+			pickle.dump(self, classifier_file)
+		print(f"\t➢   classifier object saved in {classifier_obj_path}\n")
 
 
 	def __predict(self):
@@ -108,7 +113,11 @@ class predictor:
 			_input = _input.to(self.__device)
 			outputs = self.model(_input.float())
 			predictions = outputs.argmax(dim=1)
-			self.__save(predictions)
+			if len(predictions) == 1: # we just classified only one user which is done through /user/classify/position route and we are returning the result back to the route
+				position = np.array(list(self.__positions[pred] for pred in predictions.detach().numpy()))
+				return position, self.__data_type # we need data type for saving predicted position into its related column
+			else: # we just classified a bunch of input data using a csv file and we just saved the results into a csv file to insert them in db using /users/add/positions
+				self.__save(predictions)
 		else:
 			print(f"[?] can't predict on a None data object.")
 			sys.exit(1)
@@ -122,7 +131,7 @@ class predictor:
 					df.drop('user_id', axis=1, inplace=True)
 					input_data = df.to_numpy()
 					self.__input_data = preprocessing.StandardScaler().fit_transform(input_data)
-					self.__predict()
+					return self.__predict()
 				else:
 					print(f"[?] make sure there is csv file at {arg}.")
 					sys.exit(1)	
@@ -131,7 +140,7 @@ class predictor:
 				sys.exit(1)
 			elif type(arg) is np.ndarray:
 				self.__input_data = preprocessing.StandardScaler().fit_transform(arg)
-				self.__predict()
+				return self.__predict()
 			else:
 				print(f"[?] please specify a numpyndarray data object or a csv path of data for prediction.")
 				sys.exit(1)
