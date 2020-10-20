@@ -34,7 +34,7 @@ app = typer.Typer(help="【  uniXerr CLI controller  】")
 
 
 
-# TODO : send a csv file for input data prediction and the type of labeled data for loading/training classifier model from uPC telegram bot
+# TODO : send a csv file for input data prediction (save it in server/dataset folder) and the type of labeled data for loading/training classifier model from uPC telegram bot
 data_type = "raw"
 labeled_csv_path = os.path.dirname(os.path.abspath(__file__)) + f'/server/dataset/pc_features_labeled-{data_type}.csv'
 csv_input_data_for_classification = os.path.dirname(os.path.abspath(__file__))+'/server/dataset/input_data.csv'
@@ -189,6 +189,7 @@ def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Pat
 			typer.secho("\t➢   Deleting pre-trained classifier model!\n", fg=typer.colors.YELLOW, bold=True)
 			try:
 				os.remove(os.path.dirname(os.path.abspath(__file__))+f'/core/position_classification/utils/pc_model_classifier-{data_type}.pth')
+				os.remove(os.path.dirname(os.path.abspath(__file__))+f'/core/position_classification/utils/classifier.obj')
 			except:
 				typer.secho("\t➢   Errot while deleting the file\n", fg=typer.colors.RED, bold=True)
 
@@ -233,6 +234,9 @@ def classify_positions(csv_path: Path = typer.Option(labeled_csv_path, help="Pat
 
 
 	# classify the input data using pre-trained classifier model
-	# input data can be either a valid csv_path or a numpyndarray
-	# contains rollcall_score, class_activity, discipline and total_quizzes_avg as features
+	# input data can be either a valid csv_path or a numpyndarray containing students' features
+	# NOTE : classification of numpyndarray is only done using the api server through /user/classify/position route
+	# NOTE : when we're doing classification on csv file we have to call both /users/add/info and /users/add/positions routes
+	# TODO : call this function from uPC (rust script) app to classify your csv data in server/dataset folder sent from telegram app
+	# TODO : send classified csv file(s) of input data csv according to the type of data using uPC app to telegram
 	classifier_(input_data_csv_path)
