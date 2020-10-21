@@ -131,7 +131,7 @@ class predictor:
 					df.drop('user_id', axis=1, inplace=True)
 					input_data = df.to_numpy()
 					self.__input_data = preprocessing.StandardScaler().fit_transform(input_data)
-					return self.__predict()
+					self.__predict()
 				else:
 					print(f"[?] make sure there is csv file at {arg}.")
 					sys.exit(1)	
