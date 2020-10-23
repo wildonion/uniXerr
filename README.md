@@ -2,7 +2,6 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
-###### :warning: Change the replication strategy in _.env_ file to something like ```{'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2}``` for production.
 ###### :warning: If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.
 ###### :warning: Remember to call `/users/add/info` and `/users/add/positions` routes of API server after the classification is done on csv file of input data. 
 ###### :warning: You can't create an environment if the environment was exported on a different platform than the target machine.
@@ -11,7 +10,7 @@
 
 ### Setup
 
-* Start Apache Cassandra and Fill out _.env_ file with necessary environment variables
+* Start a Apache Cassandra server and Fill out _.env_ file with necessary environment variables
 * Create an environment with the latest version of python: ```conda create -n uniXerr python=3```
 * Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
