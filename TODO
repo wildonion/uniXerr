@@ -7,8 +7,10 @@
 
 
 0 - use openai api for the core -> https://beta.openai.com/
-1 - pm2 start init.sh -> run init.sh on startup and setup tensorboard.api.unixerr.com on uniXerr vps (not DB vps)
-2 - complete wiki page for project explanation
+1 - pm2 start init.sh -> run init.sh on startup
+2 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
+3 - configure cassandra authentication and cass.sh script on VPS -> db user/pass in .env and AUTH_PROVIDER variable in db/__init__.py
+4 - complete wiki page for project explanation
 
 
 * next-section : implement uPC telegram bot using rust
