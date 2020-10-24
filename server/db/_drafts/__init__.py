@@ -48,7 +48,7 @@ from cassandra.cluster import Cluster
 from cassandra.policies import DCAwareRoundRobinPolicy
 from cassandra.auth import PlainTextAuthProvider
 from dotenv import load_dotenv, find_dotenv
-from .schema import User, Position
+from .schema import User, PositionRaw, PositionLatent
 import os
 import typer
 
@@ -80,7 +80,8 @@ class init:
   
 	def __init__(self):
 		sync_table(User) # create users_info table if not exits
-		sync_table(Position) # create positions table if not exits
+		sync_table(PositionLatent) # create users_position_latent table if not exits
+		sync_table(PositionRaw) # create users_position_raw table if not exits
 		typer.secho("➲   [Database initialized successfully]", fg=typer.colors.WHITE, bold=True)
 
 

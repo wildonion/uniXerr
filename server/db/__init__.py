@@ -47,12 +47,13 @@ from cassandra.cluster import Cluster
 from cassandra.policies import DCAwareRoundRobinPolicy
 from cassandra.auth import PlainTextAuthProvider
 from dotenv import load_dotenv, find_dotenv
-from .schema import User, Position
+from .schema import User, PositionRaw, PositionLatent
 import os
 import typer
 
 
 load_dotenv(find_dotenv())
+KEYSPACE = os.getenv("KEYSPACE")
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 AUTH_PROVIDER = PlainTextAuthProvider(USERNAME, PASSWORD)
@@ -65,6 +66,7 @@ class init:
 			cls.__cluster = Cluster(auth_provider=AUTH_PROVIDER, cloud=CLOUD_CONFIG, load_balancing_policy=DCAwareRoundRobinPolicy(local_dc="dc-1")) # db hosts and port to start clusters
 			cls.__cluster.connection_class = LibevConnection # use libev event loop 
 			cls.__session = cls.__cluster.connect() # connect to hosts - cls is server.db.init
+			cls.__session.execute(f'USE {KEYSPACE}')
 			connection.register_connection('DML', session=cls.__session) # DML cluster for sync_table ops
 			return super(init, cls).__new__(cls, *args, **kwargs)
 		except Exception as e:
@@ -73,7 +75,8 @@ class init:
   
 	def __init__(self):
 		sync_table(User) # create users_info table if not exits
-		sync_table(Position) # create positions table if not exits
+		sync_table(PositionLatent) # create users_position_latent table if not exits
+		sync_table(PositionRaw) # create users_position_raw table if not exits
 		typer.secho("➲   [Database initialized successfully]", fg=typer.colors.WHITE, bold=True)
 
 
