@@ -18,7 +18,7 @@
 from cassandra.util import datetime_from_uuid1
 from uuid import uuid1
 from .db import init
-from .db.schema import User, Position
+from .db.schema import User, PositionRaw, PositionLatent
 from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -72,7 +72,7 @@ async def get_users_info(limit: int):
 	except Exception as e:
 		print(f"[Exception] ::: {e}")
 		response_status = 500
-	return {"db.query()_users": users_list_, "schema_users": users_list, "response_status": response_status}
+	return {"db.query()": users_list_, "schema": users_list, "response_status": response_status}
 
 
 
@@ -90,23 +90,25 @@ async def get_user_info(user_id: int):
 	except Exception as e:
 		print(f"[Exception] ::: {e}")
 		response_status = 500
-	return {"db.query()_user": user_, "schema_user": user, "response_status": response_status}
+		user_ = []
+		user = []
+	return {"db.query()": user_, "schema": user, "response_status": response_status}
 
 
 # #########------------------------------------------------------------------------------------------
 
 
-@api.get("/users/positions/{limit}")
-async def get_users_positions(limit: int):
+@api.get("/users/position/raw/{limit}")
+async def get_all_users_raw_position(limit: int):
 	positions_list_ = []
 	positions_list = []
 	response_status = 200
 	try:
-		future = db.query(f"select user_id, toTimestamp(time), position_latent, position_raw from users_positions limit {limit};", [])
+		future = db.query(f"select user_id, toTimestamp(time), position_raw from users_position_raw limit {limit};", [])
 		positions_ = future.result()
 		for position_ in positions_:
 			positions_list_.append(position_)
-		positions = Position.objects().limit(limit)
+		positions = PositionRaw.objects().limit(limit)
 		for position in positions:
 			position_dict = dict(position)
 			position_dict["time"] = datetime_from_uuid1(position_dict["time"]) # convert uuid1 to datetime
@@ -114,7 +116,32 @@ async def get_users_positions(limit: int):
 	except Exception as e:
 		response_status = 500
 		print(f"[Exception] ::: {e}")
-	return {"db.query()_positions": positions_list_, "schema_positions": positions_list, "response_status": response_status}
+	return {"db.query()": positions_list_, "schema": positions_list, "response_status": response_status}
+
+
+
+# #########------------------------------------------------------------------------------------------
+
+
+@api.get("/users/position/latent/{limit}")
+async def get_all_users_latent_position(limit: int):
+	positions_list_ = []
+	positions_list = []
+	response_status = 200
+	try:
+		future = db.query(f"select user_id, toTimestamp(time), position_latent from users_position_latent limit {limit};", [])
+		positions_ = future.result()
+		for position_ in positions_:
+			positions_list_.append(position_)
+		positions = PositionLatent.objects().limit(limit)
+		for position in positions:
+			position_dict = dict(position)
+			position_dict["time"] = datetime_from_uuid1(position_dict["time"]) # convert uuid1 to datetime
+			positions_list.append(position_dict)
+	except Exception as e:
+		response_status = 500
+		print(f"[Exception] ::: {e}")
+	return {"db.query()": positions_list_, "schema": positions_list, "response_status": response_status}
 
 
 
@@ -127,11 +154,11 @@ async def get_users_position_latent(position: str):
 	positions_latent_list = []
 	response_status = 200
 	try:
-		future = db.query(f"select user_id, toTimestamp(time), position_latent, position_raw from users_positions where position_latent = ? allow filtering;", [position])
+		future = db.query(f"select user_id, toTimestamp(time), position_latent from users_position_latent where position_latent = ? allow filtering;", [position])
 		positions_ = future.result()
 		for position_ in positions_:
 			positions_latent_list_.append(position_)
-		positions = Position.objects.filter(position_latent=position).allow_filtering()
+		positions = PositionLatent.objects.filter(position_latent=position).allow_filtering()
 		for position in positions:
 			position_dict = dict(position)
 			position_dict["time"] = datetime_from_uuid1(position_dict["time"])
@@ -139,7 +166,7 @@ async def get_users_position_latent(position: str):
 	except Exception as e:
 		response_status = 500
 		print(f"[Exception] ::: {e}")
-	return {"db.query()_positions_latent": positions_latent_list_, "schema_positions_latent": positions_latent_list, "response_status": response_status}
+	return {"db.query()": positions_latent_list_, "schema": positions_latent_list, "response_status": response_status}
 
 
 
@@ -152,11 +179,11 @@ async def get_users_position_raw(position: str):
 	positions_raw_list = []
 	response_status = 200
 	try:
-		future = db.query(f"select user_id, toTimestamp(time), position_latent, position_raw from users_positions where position_raw = ? allow filtering;", [position])
+		future = db.query(f"select user_id, toTimestamp(time), position_raw from users_position_raw where position_raw = ? allow filtering;", [position])
 		positions_ = future.result()
 		for position_ in positions_:
 			positions_raw_list_.append(position_)
-		positions = Position.objects.filter(position_raw=position).allow_filtering()
+		positions = PositionRaw.objects.filter(position_raw=position).allow_filtering()
 		for position in positions:
 			position_dict = dict(position)
 			position_dict["time"] = datetime_from_uuid1(position_dict["time"])
@@ -164,50 +191,46 @@ async def get_users_position_raw(position: str):
 	except Exception as e:
 		response_status = 500
 		print(f"[Exception] ::: {e}")
-	return {"db.query()_positions_raw": positions_raw_list_, "schema_positions_raw": positions_raw_list, "response_status": response_status}
+	return {"db.query()": positions_raw_list_, "schema": positions_raw_list, "response_status": response_status}
 
 
 
 # #########------------------------------------------------------------------------------------------
 
 
-@api.get("/users/positions/{latent}/{raw}") # ::: 'allow filtering' is only for development :::
-async def get_users_same_positions(latent: str, raw: str):
-	positions_LandR_list_ = []
-	positions_LandR_list = []
+@api.get("/user/position/latent/{user_id}") # ::: 'allow filtering' is only for development :::
+async def get_user_latent_position(user_id: int):
 	response_status = 200
 	try:
-		future = db.query(f"select user_id, toTimestamp(time), position_latent, position_raw from users_positions where position_latent = ? and position_raw = ? allow filtering;", [latent, raw])
-		positions_ = future.result()
-		for position_ in positions_:
-			positions_LandR_list_.append(position_)
-		positions = Position.objects.filter(position_latent=latent).filter(position_raw=raw).allow_filtering()
-		for position in positions:
-			position_dict = dict(position)
-			position_dict["time"] = datetime_from_uuid1(position_dict["time"])
-			positions_LandR_list.append(position_dict)
+		future = db.query(f"select user_id, toTimestamp(time), position_latent from users_position_latent where user_id = ? allow filtering;", [user_id])
+		position_ = future.result()[0]
+		position = PositionLatent.objects(user_id=user_id).allow_filtering()[0]
+		position.time = datetime_from_uuid1(position.time)
 	except Exception as e:
-		response_status = 500
 		print(f"[Exception] ::: {e}")
-	return {"db.query()_positions_raw": positions_LandR_list_, "schema_positions_raw": positions_LandR_list, "response_status" : response_status}
-
+		response_status = 500
+		position_ = []
+		position = []
+	return {"db.query()": position_, "schema": position, "response_status": response_status}
 
 
 # #########------------------------------------------------------------------------------------------
 
 
-@api.get("/user/positions/{user_id}") # ::: 'allow filtering' is only for development :::
-async def get_user_positions(user_id: int):
+@api.get("/user/position/raw/{user_id}") # ::: 'allow filtering' is only for development :::
+async def get_user_raw_position(user_id: int):
 	response_status = 200
 	try:
-		future = db.query(f"select user_id, toTimestamp(time), position_latent, position_raw from users_positions where user_id = ? allow filtering;", [user_id])
-		positions_ = future.result()[0]
-		positions = Position.objects(user_id=user_id).allow_filtering()[0]
-		positions.time = datetime_from_uuid1(positions.time)
+		future = db.query(f"select user_id, toTimestamp(time), position_raw from users_position_raw where user_id = ? allow filtering;", [user_id])
+		position_ = future.result()[0]
+		position = PositionRaw.objects(user_id=user_id).allow_filtering()[0]
+		position.time = datetime_from_uuid1(position.time)
 	except Exception as e:
-		response_status = 500
 		print(f"[Exception] ::: {e}")
-	return {"db.query()_positions": positions_, "schema_positions": positions, "response_status": response_status}
+		response_status = 500
+		position_ = []
+		position = []
+	return {"db.query()": position_, "schema": position, "response_status": response_status}
 
 
 # #########------------------------------------------------------------------------------------------
@@ -238,9 +261,14 @@ async def predict_position(info: Info): # classify the position of a single user
 							class_activity=info.class_activity, discipline=info.discipline, 
 							total_quizzes_avg=info.total_quizzes_avg).save()
 
-			data = {"user_id": info.user_id, "time": uuid1(), f"position_{data_type}": str(position[0])}
-			user_position = Position(**data).save()
-			msg = "now call /user/positions/{user_id} route to see the classification result"
+			data = {"user_id": info.user_id, "time": uuid1()}
+			if data_type == "latent":
+				data["position_latent"] = str(position[0])
+				user_position = PositionLatent(**data).save()
+			else:
+				data["position_raw"] = str(position[0])
+				user_position = PositionRaw(**data).save()
+			msg = f"now call /user/position/{data_type}/{{user_id}} route to see the classification result"
 		except Exception as e:
 			print(f"[Exception] ::: {e}")
 			response_status = 500
@@ -316,7 +344,7 @@ async def add_users_info():
 
 
 
-@api.get("/users/add/positions") # merge classified positions and then add those to users_positions table
+@api.get("/users/add/positions") # merge classified positions and then add those to users_position_latent and users_position_raw table
 async def add_users_positions():
 	futures = []
 	response_status = 201
@@ -332,16 +360,16 @@ async def add_users_positions():
 		users_length = len(user_id)
 		for i in range(users_length):
 			try:
-				user_position = Position(user_id=user_id.iloc[i], time=uuid1(), position_latent=position_latent.iloc[i])
+				user_position = PositionLatent(user_id=user_id.iloc[i], time=uuid1(), position_latent=position_latent.iloc[i])
 				user_position.save()
 				
 
 
-				# #### ------------------------------------------------------------------------------------
-				# #### if you want to use db.query just comment Position model to avoid duplicate insertion
-				# #### ------------------------------------------------------------------------------------
+				# #### -------------------------------------------------------------------------------------------
+				# #### if you want to use db.query just comment above Position model to avoid duplicate insertion
+				# #### -------------------------------------------------------------------------------------------
 
-				# future = db.query("insert into users_positions (user_id, time, position_latent) values (?, ?, ?)", 
+				# future = db.query("insert into users_position_latent (user_id, time, position_latent) values (?, ?, ?)", 
 				# 			  			[user_id.iloc[i], uuid1(), position_latent.iloc[i]])
 				# futures.append(future) # do what ever you want with futures like f.result()
 
@@ -373,16 +401,16 @@ async def add_users_positions():
 		users_raw = len(user_id)
 		for i in range(users_length):
 			try:
-				user_position = Position(user_id=user_id.iloc[i], time=uuid1(), position_raw=position_raw.iloc[i])
+				user_position = PositionRaw(user_id=user_id.iloc[i], time=uuid1(), position_raw=position_raw.iloc[i])
 				user_position.save()
 				
 
 
-				# #### ------------------------------------------------------------------------------------
-				# #### if you want to use db.query just comment Position model to avoid duplicate insertion
-				# #### ------------------------------------------------------------------------------------
+				# #### ------------------------------------------------------------------------------------------
+				# #### if you want to use db.query just comment above Position model to avoid duplicate insertion
+				# #### ------------------------------------------------------------------------------------------
 
-				# future = db.query("insert into users_positions (user_id, time, position_raw) values (?, ?, ?)", 
+				# future = db.query("insert into users_position_raw (user_id, time, position_raw) values (?, ?, ?)", 
 				# 			  				[user_id.iloc[i], uuid1(), position_raw.iloc[i]])
 				# futures.append(future) # do what ever you want with futures like f.result()
 
