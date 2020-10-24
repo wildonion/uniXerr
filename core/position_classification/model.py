@@ -152,9 +152,9 @@ class trainer:
 
 	def __get_sample(self):
 		batch_index = torch.randint(len(self.training_dataloader_), (1,), device=self.__device)[0]
-		for batch_ndx, sample in enumerate(self.training_dataloader_):
+		for batch_ndx, sample in enumerate(self.training_dataloader_): # total training data = len(self.training_dataloader_) * inputs.size(0)
 			if batch_ndx == batch_index:
-				inputs, labels = sample # sample is a mini-batch list with two elements : inputs and labels 
+				inputs, labels = sample # sample is a mini-batch (a pack of batch No. data) list with two elements : inputs and labels 
 				break
 		return inputs, labels
 
