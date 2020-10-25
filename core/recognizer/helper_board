@@ -77,6 +77,9 @@ ___________________________ AAE/VAE ___________________________________
         https://duvenaud.github.io/learn-discrete/slides/AdversarialAutoencoders.pdf
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 ________________________________________________________________________
+        https://huggingface.co/transformers/
+        https://huggingface.co/gpt2
+        https://towardsdatascience.com/how-to-code-the-transformer-in-pytorch-24db27c8f9ec
         https://www.kaggle.com/pestipeti/pytorch-starter-fasterrcnn-train
         https://modelzoo.co/model/faster-rcnn
         https://towardsdatascience.com/everything-about-fasterrcnn-6d758f5a6d79
