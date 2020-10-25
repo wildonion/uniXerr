@@ -27,6 +27,8 @@ __________________________ DEEPFAKE __________________________
         https://medium.com/@vovaprivalov/playing-with-realistic-neural-talking-head-models-13759408c01f
 
 ___________________________ AAE/VAE ___________________________________
+        https://github.com/pytorch/examples/blob/master/vae/main.py
+        https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variational%20Autoencoders.ipynb
         https://github.com/1Konny/Beta-VAE
         https://github.com/Saswatm123/MMD-VAE
         https://github.com/pratikm141/MMD-Variational-Autoencoder-Pytorch-InfoVAE
@@ -76,26 +78,12 @@ ___________________________ AAE/VAE ___________________________________
         https://keras.io/examples/mnist_denoising_autoencoder/
         https://duvenaud.github.io/learn-discrete/slides/AdversarialAutoencoders.pdf
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
-________________________________________________________________________
+
+___________________________ NLP ___________________________________
         https://allennlp.org/
         https://huggingface.co/transformers/
         https://huggingface.co/gpt2
         https://towardsdatascience.com/how-to-code-the-transformer-in-pytorch-24db27c8f9ec
-        https://www.kaggle.com/pestipeti/pytorch-starter-fasterrcnn-train
-        https://modelzoo.co/model/faster-rcnn
-        https://towardsdatascience.com/everything-about-fasterrcnn-6d758f5a6d79
-        https://medium.com/@fractaldle/guide-to-build-faster-rcnn-in-pytorch-95b10c273439
-        https://github.com/chenyuntc/simple-faster-rcnn-pytorch
-        https://github.com/jwyang/faster-rcnn.pytorch
-        https://mahr.io/tutorials/faster-r-cnn-pytorch-how-to
-        https://medium.com/fullstackai/how-to-train-an-object-detector-with-your-own-coco-dataset-in-pytorch-319e7090da5
-        https://blog.paperspace.com/how-to-implement-a-yolo-object-detector-in-pytorch/
-        https://www.analyticsvidhya.com/blog/2019/10/building-image-classification-models-cnn-pytorch/
-        https://www.mygreatlearning.com/blog/object-detection-in-pytorch/
-        https://debuggercafe.com/faster-rcnn-object-detection-with-pytorch/
-        https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Object-Detection
-        https://towardsdatascience.com/building-your-own-object-detector-pytorch-vs-tensorflow-and-how-to-even-get-started-1d314691d4ae
-        https://www.learnopencv.com/faster-r-cnn-object-detection-with-pytorch/
         https://towardsdatascience.com/comparing-transformer-tokenizers-686307856955
         https://medium.com/swlh/learning-to-write-language-generation-with-gpt-2-2a13fa249024
         https://huggingface.co/blog/how-to-train
@@ -108,59 +96,33 @@ ________________________________________________________________________
         https://docs.aitextgen.io/tutorials/model-from-scratch/
         https://www.twilio.com/blog/ultimate-guide-openai-gpt-3-language-model
         https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
-        https://cs231n.github.io/
-        https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
-        https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
-        https://www.youtube.com/watch?v=wqQKFu41FIw
-        https://github.com/lucidrains/vit-pytorch
-        https://www.learnopencv.com/pytorch-for-beginners-semantic-segmentation-using-torchvision/
-        https://towardsdatascience.com/single-stage-instance-segmentation-a-review-1eeb66e0cc49
-        https://www.jeremyjordan.me/semantic-segmentation/
-        https://www.youtube.com/watch?v=qaDe0qQZ5AQ
-        https://github.com/Rudrabha/Wav2Lip
-        https://towardsdatascience.com/how-i-built-a-face-mask-detector-for-covid-19-using-pytorch-lightning-67eb3752fd61
-        https://luozm.github.io/cv-tasks
-        https://github.com/fastai/fastai
         https://pytorch.org/tutorials/beginner/transformer_tutorial.html
+        http://vandergoten.ai/2018-09-18-attention-is-all-you-need/
         https://www.youtube.com/watch?v=U0s0f995w14
         https://github.com/jadore801120/attention-is-all-you-need-pytorch
         https://github.com/Skumarr53/Attention-is-All-you-Need-PyTorch
         http://nlp.seas.harvard.edu/2018/04/03/attention.html
-        http://vandergoten.ai/2018-09-18-attention-is-all-you-need/
         https://youtu.be/-NwubHjjzcw
         https://youtu.be/AFkGPmU16QA
-        https://github.com/emadRad/lstm-gru-pytorch/blob/master/lstm_gru.ipynb
-        https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
-        https://www.google.com/amp/s/blog.floydhub.com/gru-with-pytorch/amp/
-        https://paperswithcode.com/paper/few-shot-adversarial-learning-of-realistic
-        https://towardsdatascience.com/building-a-one-shot-learning-network-with-pytorch-d1c3a5fafa4a
-        https://medium.com/hackernoon/one-shot-learning-with-siamese-networks-in-pytorch-8ddaab10340e
-        https://www.pyimagesearch.com/category/optical-character-recognition-ocr/
-        https://www.pyimagesearch.com/2020/08/10/opencv-sudoku-solver-and-ocr/
         https://www.shanelynn.ie/word-embeddings-in-python-with-spacy-and-gensim/
         https://blog.exxactcorp.com/getting-started-with-nlp-using-the-tensorflow-and-keras-frameworks/
+        https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
+        https://github.com/emadRad/lstm-gru-pytorch/blob/master/lstm_gru.ipynb
+        https://www.google.com/amp/s/blog.floydhub.com/gru-with-pytorch/amp/
         https://towardsdatascience.com/deep-learning-for-nlp-with-pytorch-and-torchtext-4f92d69052f
         https://stackabuse.com/python-for-nlp-word-embeddings-for-deep-learning-in-keras/
         https://machinelearningmastery.com/develop-word-embeddings-python-gensim/
         https://towardsdatascience.com/creating-word-embeddings-coding-the-word2vec-algorithm-in-python-using-deep-learning-b337d0ba17a8
         https://towardsdatascience.com/word-embeddings-exploration-explanation-and-exploitation-with-code-in-python-5dac99d5d795
-        https://developer.nvidia.com/blog/recursive-neural-networks-pytorch/
         https://medium.com/dair-ai/deep-learning-for-nlp-an-overview-of-recent-trends-d0d8f40a776d
-        https://www.google.com/amp/s/nanonets.com/blog/ocr-with-tesseract/amp/
-        https://realpython.com/setting-up-a-simple-ocr-server/
-        https://www.pyimagesearch.com/2020/08/03/tesseract-ocr-for-non-english-languages/
+        https://developer.nvidia.com/blog/recursive-neural-networks-pytorch/
         https://medium.com/@aelbuni/modeling-topics-in-quran-using-machine-learning-nlp-b88ca23fb44d
-        https://blog.paperspace.com/fighting-coronavirus-with-ai-building-covid-19-classifier/
-        https://www.youtube.com/watch?v=IcLEJB2pY2Y
-        https://medium.com/speechmatics/how-to-build-a-streaming-dataloader-with-pytorch-a66dd891d9dd
         https://lilianweng.github.io/lil-log/2019/01/31/generalized-language-models.html#bert
         https://medium.com/analytics-vidhya/search-engine-using-machine-learning-and-nlp-c1ec1e28be7a
         https://towardsdatascience.com/how-we-built-an-ai-powered-search-engine-without-being-google-5ad93e5a8591
         https://towardsdatascience.com/semantic-code-search-3cd6d244a39c
         https://medium.com/@deangelaneves/how-to-build-a-search-engine-from-scratch-in-python-part-1-96eb240f9ecb
         https://azati.ai/build-an-intelligent-search-engine-from-scratch/
-        https://github.com/pytorch/examples/blob/master/vae/main.py
-        https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variational%20Autoencoders.ipynb
         https://www.youtube.com/watch?v=G3pOvrKkFuk
         https://www.youtube.com/watch?v=OR0wfP2FD3c
         https://www.youtube.com/watch?v=FKlPCK1uFrc&list=PLam9sigHPGwOBuH4_4fr-XvDbe5uneaf6
@@ -194,17 +156,6 @@ ________________________________________________________________________
         https://www.kdnuggets.com/2020/02/intent-recognition-bert-keras-tensorflow.html
         https://colab.research.google.com/github/tensorflow/tpu/blob/master/tools/colab/bert_finetuning_with_cloud_tpus.ipynb
         https://medium.com/@brn.pistone/bert-fine-tuning-for-tensorflow-2-0-with-keras-api-9913fc1348f6
-        https://missinglink.ai/guides/tensorflow/tensorflow-speech-recognition-two-quick-tutorials/
-        https://towardsdatascience.com/speech-recognition-analysis-f03ff9ce78e9
-        https://www.kaggle.com/carlolepelaars/bidirectional-lstm-for-audio-labeling-with-keras
-        https://medium.com/@hasithsura/audio-classification-d37a82d6715
-        https://medium.com/@fortes.arthur/hands-on-speech-recognition-engine-with-keras-and-python-c60488ac53cd
-        https://towardsdatascience.com/you-can-now-speak-using-someone-elses-voice-with-deep-learning-8be24368fa2b
-        https://github.com/israelg99/deepvoice
-        https://arxiv.org/pdf/1806.02146v1.pdf
-        https://pythonawesome.com/a-keras-implementation-of-speach-to-text-architectures/
-        https://github.com/mozilla/TTS
-        https://github.com/r9y9/nnmnkwii
         https://www.analyticsvidhya.com/blog/2019/12/detect-fight-neural-fake-news-nlp/
         https://pathmind.com/wiki/word2vec
         https://www.youtube.com/watch?v=64qSgA66P-8
@@ -215,17 +166,54 @@ ________________________________________________________________________
         https://towardsdatascience.com/natural-language-processing-from-basics-to-using-rnn-and-lstm-ef6779e4ae66
         https://towardsdatascience.com/language-translation-with-rnns-d84d43b40571
         https://medium.com/manash-en-blog/building-a-dead-simple-word-recognition-engine-using-convnet-in-keras-25e72c19c12b
-        https://www.endpoint.com/blog/2019/01/08/speech-recognition-with-tensorflow
-        https://www.analyticsvidhya.com/blog/2019/07/learn-build-first-speech-to-text-model-python/
-        https://github.com/lightsalsa251/Movie-Recommender-System/blob/master/Recommendation%20System.ipynb
+        https://becominghuman.ai/how-to-train-a-neural-network-to-code-by-itself-a432e8a120df
+        https://towardsdatascience.com/how-to-build-a-recurrent-neural-network-to-detect-fake-news-35953c19cf0b
+        https://machinetalk.org/2019/03/29/neural-machine-translation-with-attention-mechanism/
+
+___________________________ IMP ___________________________________
+        https://www.kaggle.com/pestipeti/pytorch-starter-fasterrcnn-train
+        https://modelzoo.co/model/faster-rcnn
+        https://towardsdatascience.com/everything-about-fasterrcnn-6d758f5a6d79
+        https://medium.com/@fractaldle/guide-to-build-faster-rcnn-in-pytorch-95b10c273439
+        https://github.com/chenyuntc/simple-faster-rcnn-pytorch
+        https://github.com/jwyang/faster-rcnn.pytorch
+        https://mahr.io/tutorials/faster-r-cnn-pytorch-how-to
+        https://medium.com/fullstackai/how-to-train-an-object-detector-with-your-own-coco-dataset-in-pytorch-319e7090da5
+        https://blog.paperspace.com/how-to-implement-a-yolo-object-detector-in-pytorch/
+        https://www.analyticsvidhya.com/blog/2019/10/building-image-classification-models-cnn-pytorch/
+        https://www.mygreatlearning.com/blog/object-detection-in-pytorch/
+        https://debuggercafe.com/faster-rcnn-object-detection-with-pytorch/
+        https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Object-Detection
+        https://towardsdatascience.com/building-your-own-object-detector-pytorch-vs-tensorflow-and-how-to-even-get-started-1d314691d4ae
+        https://www.learnopencv.com/faster-r-cnn-object-detection-with-pytorch/
+        https://cs231n.github.io/
+        https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
+        https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
+        https://www.youtube.com/watch?v=wqQKFu41FIw
+        https://github.com/lucidrains/vit-pytorch
+        https://www.learnopencv.com/pytorch-for-beginners-semantic-segmentation-using-torchvision/
+        https://towardsdatascience.com/single-stage-instance-segmentation-a-review-1eeb66e0cc49
+        https://www.jeremyjordan.me/semantic-segmentation/
+        https://www.youtube.com/watch?v=qaDe0qQZ5AQ
+        https://github.com/Rudrabha/Wav2Lip
+        https://towardsdatascience.com/how-i-built-a-face-mask-detector-for-covid-19-using-pytorch-lightning-67eb3752fd61
+        https://luozm.github.io/cv-tasks
+        https://github.com/fastai/fastai
+        https://www.pyimagesearch.com/category/optical-character-recognition-ocr/
+        https://www.pyimagesearch.com/2020/08/10/opencv-sudoku-solver-and-ocr/
+        https://www.google.com/amp/s/nanonets.com/blog/ocr-with-tesseract/amp/
+        https://www.pyimagesearch.com/2020/08/03/tesseract-ocr-for-non-english-languages/
+        https://realpython.com/setting-up-a-simple-ocr-server/
+        https://blog.paperspace.com/fighting-coronavirus-with-ai-building-covid-19-classifier/
+        https://www.youtube.com/watch?v=IcLEJB2pY2Y
         https://www.pyimagesearch.com/2019/04/15/live-video-streaming-over-network-with-opencv-and-imagezmq/
-        https://medium.com/gradientcrescent/urban-sound-classification-using-convolutional-neural-networks-with-keras-theory-and-486e92785df4
-        https://medium.com/@mikesmales/sound-classification-using-deep-learning-8bc2aa1990b7
+        https://paperswithcode.com/paper/few-shot-adversarial-learning-of-realistic
+        https://towardsdatascience.com/building-a-one-shot-learning-network-with-pytorch-d1c3a5fafa4a
+        https://medium.com/hackernoon/one-shot-learning-with-siamese-networks-in-pytorch-8ddaab10340e
         https://github.com/sekwiatkowski/awesome-capsule-networks
         https://cs230.stanford.edu/blog/datapipeline/
         https://towardsdatascience.com/review-xception-with-depthwise-separable-convolution-better-than-inception-v3-image-dc967dd42568
         https://maelfabien.github.io/deeplearning/xception/
-        https://hadrienj.github.io/posts/Preprocessing-for-deep-learning/
         https://www.pyimagesearch.com/2017/03/20/imagenet-vggnet-resnet-inception-xception-keras/
         https://colab.research.google.com/github/sdcubber/keras-training-serving/blob/master/training-and-serving-with-tf-keras.ipynb
         https://jhui.github.io/2017/11/03/Dynamic-Routing-Between-Capsules/
@@ -236,7 +224,6 @@ ________________________________________________________________________
         https://medium.com/ai%C2%B3-theory-practice-business/understanding-hintons-capsule-networks-part-ii-how-capsules-work-153b6ade9f66
         https://keras.io/examples/cifar10_cnn_capsule/
         https://github.com/XifengGuo/CapsNet-Keras
-        https://www.freecodecamp.org/news/understanding-capsule-networks-ais-alluring-new-architecture-bdb228173ddc/
         https://www.freecodecamp.org/news/understanding-capsule-networks-ais-alluring-new-architecture-bdb228173ddc/
         https://software.intel.com/en-us/articles/understanding-capsule-network-architecture
         https://machinelearningmastery.com/pooling-layers-for-convolutional-neural-networks/
@@ -276,3 +263,30 @@ ________________________________________________________________________
         https://towardsdatascience.com/how-to-build-a-face-detection-and-recognition-system-f5c2cdfbeb8c
         https://towardsdatascience.com/face-recognition-using-artificial-intelligence-fffa3b20ad5f
         http://drsalbertspijkers.blogspot.com/2018/07/capsule-neural-networks-cnn-better.html
+
+___________________________ SPEECH ___________________________________
+        https://missinglink.ai/guides/tensorflow/tensorflow-speech-recognition-two-quick-tutorials/
+        https://towardsdatascience.com/speech-recognition-analysis-f03ff9ce78e9
+        https://www.kaggle.com/carlolepelaars/bidirectional-lstm-for-audio-labeling-with-keras
+        https://medium.com/@hasithsura/audio-classification-d37a82d6715
+        https://medium.com/@fortes.arthur/hands-on-speech-recognition-engine-with-keras-and-python-c60488ac53cd
+        https://towardsdatascience.com/you-can-now-speak-using-someone-elses-voice-with-deep-learning-8be24368fa2b
+        https://github.com/israelg99/deepvoice
+        https://arxiv.org/pdf/1806.02146v1.pdf
+        https://pythonawesome.com/a-keras-implementation-of-speach-to-text-architectures/
+        https://github.com/mozilla/TTS
+        https://github.com/r9y9/nnmnkwii
+        https://www.endpoint.com/blog/2019/01/08/speech-recognition-with-tensorflow
+        https://medium.com/gradientcrescent/urban-sound-classification-using-convolutional-neural-networks-with-keras-theory-and-486e92785df4
+        https://medium.com/@mikesmales/sound-classification-using-deep-learning-8bc2aa1990b7
+        https://www.analyticsvidhya.com/blog/2019/07/learn-build-first-speech-to-text-model-python/
+
+
+
+
+        
+
+
+        
+        
+        

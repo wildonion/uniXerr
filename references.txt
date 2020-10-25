@@ -22,6 +22,7 @@ http://jalammar.github.io/illustrated-bert/
 http://jalammar.github.io/illustrated-transformer/
 http://jalammar.github.io/illustrated-gpt2/
 http://jalammar.github.io/how-gpt3-works-visualizations-animations/
+https://hadrienj.github.io/posts/Preprocessing-for-deep-learning/
 https://medium.com/@khashei/writing-persian-poetry-with-gpt-2-0-71b7197317ea
 https://towardsdatascience.com/train-test-split-and-cross-validation-in-python-80b61beca4b6
 https://towardsdatascience.com/pytorch-tabular-multiclass-classification-9f8211a123ab
@@ -33,6 +34,7 @@ https://www.kaggle.com/graymant/breast-cancer-diagnosis-with-pytorch
 https://towardsdatascience.com/introducing-deep-learning-and-neural-networks-deep-learning-for-rookies-1-bd68f9cf5883
 https://towardsdatascience.com/building-efficient-custom-datasets-in-pytorch-2563b946fd9f
 https://www.kaggle.com/pinocookie/pytorch-dataset-and-dataloader
+https://medium.com/speechmatics/how-to-build-a-streaming-dataloader-with-pytorch-a66dd891d9dd
 https://medium.com/analytics-vidhya/writing-a-custom-dataloader-for-a-simple-neural-network-in-pytorch-a310bea680af
 https://naadispeaks.wordpress.com/2019/10/08/pytorch-custom-dataset-tips-and-tricks/
 https://stanford.edu/~shervine/blog/pytorch-how-to-generate-data-parallel
