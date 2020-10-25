@@ -24,6 +24,7 @@ __________________________ DEEPFAKE __________________________
         https://medium.com/@jonathan_hui/how-deep-learning-fakes-videos-deepfakes-and-how-to-detect-it-c0b50fbf7cb9
         https://medium.com/ai%C2%B3-theory-practice-business/war-on-deepfakes-a-new-and-effective-way-of-detecting-forged-images-3ae94df80769
         https://medium.com/gradientcrescent/deepfaking-nicolas-cage-into-the-mcu-using-autoencoders-an-implementation-in-keras-and-tensorflow-ab47792a042f
+        https://medium.com/@vovaprivalov/playing-with-realistic-neural-talking-head-models-13759408c01f
 
 ___________________________ AAE/VAE ___________________________________
         https://github.com/1Konny/Beta-VAE
@@ -76,7 +77,17 @@ ___________________________ AAE/VAE ___________________________________
         https://duvenaud.github.io/learn-discrete/slides/AdversarialAutoencoders.pdf
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 ________________________________________________________________________
-        https://medium.com/@khashei/writing-persian-poetry-with-gpt-2-0-71b7197317ea
+        https://towardsdatascience.com/comparing-transformer-tokenizers-686307856955
+        https://medium.com/swlh/learning-to-write-language-generation-with-gpt-2-2a13fa249024
+        https://huggingface.co/blog/how-to-train
+        https://www.extremetech.com/computing/293785-create-your-own-state-of-the-art-text-generation-system
+        https://towardsdatascience.com/train-gpt-2-in-your-own-language-fc6ad4d60171
+        https://minimaxir.com/2019/09/howto-gpt2/
+        https://cs.brown.edu/courses/csci1460/gpt2.html
+        https://nandeshwar.info/data-science-2/use-openai-gpt-2-to-create-ai-writer/
+        https://mc.ai/train-a-gpt-2-transformer-to-write-harry-potter-books/
+        https://docs.aitextgen.io/tutorials/model-from-scratch/
+        https://www.twilio.com/blog/ultimate-guide-openai-gpt-3-language-model
         https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
         https://cs231n.github.io/
         https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
@@ -91,10 +102,7 @@ ________________________________________________________________________
         https://towardsdatascience.com/how-i-built-a-face-mask-detector-for-covid-19-using-pytorch-lightning-67eb3752fd61
         https://luozm.github.io/cv-tasks
         https://github.com/fastai/fastai
-        https://datascience.stackexchange.com/questions/51065/what-is-the-positional-encoding-in-the-transformer-model
-        https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
         https://pytorch.org/tutorials/beginner/transformer_tutorial.html
-        http://jalammar.github.io/illustrated-transformer/
         https://www.youtube.com/watch?v=U0s0f995w14
         https://github.com/jadore801120/attention-is-all-you-need-pytorch
         https://github.com/Skumarr53/Attention-is-All-you-Need-PyTorch
@@ -105,7 +113,6 @@ ________________________________________________________________________
         https://github.com/emadRad/lstm-gru-pytorch/blob/master/lstm_gru.ipynb
         https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
         https://www.google.com/amp/s/blog.floydhub.com/gru-with-pytorch/amp/
-        https://medium.com/@vovaprivalov/playing-with-realistic-neural-talking-head-models-13759408c01f
         https://paperswithcode.com/paper/few-shot-adversarial-learning-of-realistic
         https://towardsdatascience.com/building-a-one-shot-learning-network-with-pytorch-d1c3a5fafa4a
         https://medium.com/hackernoon/one-shot-learning-with-siamese-networks-in-pytorch-8ddaab10340e
@@ -142,7 +149,6 @@ ________________________________________________________________________
         https://www.youtube.com/watch?v=XaQ0CBlQ4cY
         https://www.youtube.com/watch?v=vvr_f-X_LaI
         https://bert-embedding.readthedocs.io/en/latest/
-        http://jalammar.github.io/illustrated-bert/
         https://www.tensorflow.org/tutorials/text/text_classification_rnn
         https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
         https://towardsdatascience.com/applying-machine-learning-to-classify-an-unsupervised-text-document-e7bb6265f52

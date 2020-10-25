@@ -16,6 +16,13 @@ ____________________________________________
 ____________________________________________
 
 
+https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
+https://datascience.stackexchange.com/questions/51065/what-is-the-positional-encoding-in-the-transformer-model
+http://jalammar.github.io/illustrated-bert/
+http://jalammar.github.io/illustrated-transformer/
+http://jalammar.github.io/illustrated-gpt2/
+http://jalammar.github.io/how-gpt3-works-visualizations-animations/
+https://medium.com/@khashei/writing-persian-poetry-with-gpt-2-0-71b7197317ea
 https://towardsdatascience.com/train-test-split-and-cross-validation-in-python-80b61beca4b6
 https://towardsdatascience.com/pytorch-tabular-multiclass-classification-9f8211a123ab
 https://www.depends-on-the-definition.com/guide-to-multi-label-classification-with-neural-networks/
