@@ -230,16 +230,6 @@ towardsdatascience.com/malware-detection-using-deep-learning-6c95dd235432
 youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A
 towardsdatascience.com/spiking-neural-networks-the-next-generation-of-machine-learning-84e167f4eb2b
 youtube.com/watch?v=z8DY5DndmxI
-appliedmachinelearning.blog/2019/03/04/state-of-the-art-text-classification-using-bert-model-predict-the-happiness-hackerearth-challenge/
-kaggle.com/httpwwwfszyc/bert-keras-with-warmup-and-excluding-wd-parameters
-youtube.com/watch?v=ycXWAtm22-w
-medium.com/predict/creating-a-chatbot-from-scratch-using-keras-and-tensorflow-59e8fc76be79
-towardsdatascience.com/deep-learning-for-nlp-creating-a-chatbot-with-keras-da5ca051e051
-towardsdatascience.com/bert-explained-state-of-the-art-language-model-for-nlp-f8b21a9b6270
-blog.cambridgespark.com/tutorial-build-your-own-embedding-and-use-it-in-a-neural-network-e9cde4a81296
-jjallaire.github.io/deep-learning-with-r-notebooks/notebooks/6.1-using-word-embeddings.nb.html
-analyticsvidhya.com/blog/2017/06/word-embeddings-count-word2veec/
-medium.com/@sabber/classifying-yelp-review-comments-using-cnn-lstm-and-pre-trained-glove-word-embeddings-part-3-53fcea9a17fa
 machinelearningmastery.com/use-different-batch-sizes-training-predicting-python-keras/
 youtube.com/watch?v=1XRahNzA5bE
 youtube.com/watch?v=VO1mCjHvzlo
