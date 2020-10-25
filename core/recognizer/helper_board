@@ -80,6 +80,8 @@ ___________________________ AAE/VAE ___________________________________
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 
 ___________________________ NLP ___________________________________
+        https://spacy.io/universe/project/spacy-stanza/
+        https://stanfordnlp.github.io/stanza/
         https://allennlp.org/
         https://huggingface.co/transformers/
         https://huggingface.co/gpt2
@@ -95,7 +97,6 @@ ___________________________ NLP ___________________________________
         https://mc.ai/train-a-gpt-2-transformer-to-write-harry-potter-books/
         https://docs.aitextgen.io/tutorials/model-from-scratch/
         https://www.twilio.com/blog/ultimate-guide-openai-gpt-3-language-model
-        https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
         https://pytorch.org/tutorials/beginner/transformer_tutorial.html
         http://vandergoten.ai/2018-09-18-attention-is-all-you-need/
         https://www.youtube.com/watch?v=U0s0f995w14
@@ -161,7 +162,6 @@ ___________________________ NLP ___________________________________
         https://www.youtube.com/watch?v=64qSgA66P-8
         https://adventuresinmachinelearning.com/word2vec-keras-tutorial/
         https://towardsdatascience.com/deep-learning-for-natural-language-processing-using-word2vec-keras-d9a240c7bb9d
-        https://spacy.io/universe/project/spacy-stanza/
         https://www.youtube.com/watch?v=xvqsFTUsOmc
         https://towardsdatascience.com/natural-language-processing-from-basics-to-using-rnn-and-lstm-ef6779e4ae66
         https://towardsdatascience.com/language-translation-with-rnns-d84d43b40571
@@ -181,6 +181,7 @@ ___________________________ NLP ___________________________________
         medium.com/@sabber/classifying-yelp-review-comments-using-cnn-lstm-and-pre-trained-glove-word-embeddings-part-3-53fcea9a17fa
 
 ___________________________ IMP ___________________________________
+        https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
         https://www.kaggle.com/pestipeti/pytorch-starter-fasterrcnn-train
         https://modelzoo.co/model/faster-rcnn
         https://towardsdatascience.com/everything-about-fasterrcnn-6d758f5a6d79
