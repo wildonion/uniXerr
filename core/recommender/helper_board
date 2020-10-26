@@ -8,7 +8,8 @@
     |=> after clustering search for all users that match this position then show the result to this user <=| 
 
 
-
+        
+        https://towardsdatascience.com/recommendation-system-series-part-6-the-6-variants-of-autoencoders-for-collaborative-filtering-bd7b9eae2ec7
         https://github.com/lightsalsa251/Movie-Recommender-System/blob/master/Recommendation%20System.ipynb
         https://www.youtube.com/watch?v=uGbZ_E6Rc0Y
         https://towardsdatascience.com/create-music-recommendation-system-using-python-ce5401317159
