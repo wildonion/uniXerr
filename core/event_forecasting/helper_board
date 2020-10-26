@@ -6,6 +6,15 @@
                                    INFORMATION THEORY
 ----------------------------------------------------------------------------------------------
 
+        create a system for collage students those who their state is a 
+        little bit close to conditional situation but they passed all their 
+        courses in that semester; so we can help them by this system in order to 
+        give them either a conditional state or passed state by taking a process 
+        time for investigating and collecting big data about their 
+        manner, behavior, personality, efforts for each semester 
+        and other majors of their past life then mine those data 
+        using AI and let the AI say us what'll happen!
+
 
         https://stackoverflow.com/questions/61632584/understanding-input-shape-to-pytorch-lstm        
         https://github.com/wcneill/jn-ml-textbook/blob/master/Deep%20Learning/04%20Recurrent%20Networks/pytorch13b_LSTM.ipynb        
