@@ -1,3 +1,0 @@
-
-
-# Binary space partitioning structure
