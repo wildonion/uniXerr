@@ -7,7 +7,7 @@
 
 0 - pm2 start init.sh -> run init.sh on startup
 1 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
-2 - complete wiki page for project explanation
+2 - complete wiki page for project explanation and read https://github.com/ritchieng/deep-learning-wizard
 
 
 * next-section : implement uPC telegram bot using rust
