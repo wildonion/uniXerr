@@ -219,6 +219,7 @@ towardsdatascience.com/how-to-build-a-simple-neural-network-from-scratch-with-py
 towardsdatascience.com/one-shot-learning-with-siamese-networks-using-keras-17f34e75bb3d
 towardsdatascience.com/feed-forward-neural-networks-c503faa46620
 towardsdatascience.com/deep-learning-feedforward-neural-network-26a6705dbdc7
+https://www.freecodecamp.org/news/an-introduction-to-q-learning-reinforcement-learning-14ac0b4493cc/
 medium.com/beyond-intelligence/reinforcement-learning-or-evolutionary-strategies-nature-has-a-solution-both-8bc80db539b3
 openai.com/blog/evolution-strategies/
 github.com/harvitronix/neural-network-genetic-algorithm
