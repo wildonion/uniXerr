@@ -9,6 +9,12 @@ NOTE: try to extend algorithms using cython, ctypes, cffi or by writing an exten
 
 =================================================================================================================================================
 
+https://wiki.pathmind.com/deep-reinforcement-learning
+https://towardsdatascience.com/not-so-deep-reinforcement-learning-for-dummies-part-2-854216d1fe0d
+https://towardsdatascience.com/not-so-deep-reinforcement-learning-for-dummies-part-1-c22416a55535
+https://towardsdatascience.com/the-ultimate-beginners-guide-to-reinforcement-learning-588c071af1ec
+https://medium.com/@SmartLabAI/reinforcement-learning-algorithms-an-intuitive-overview-904e2dff5bbc
+https://www.analyticsvidhya.com/blog/2017/01/introduction-to-reinforcement-learning-implementation/
 https://www.deeplearningwizard.com/deep_learning/deep_reinforcement_learning_pytorch/bellman_mdp/
 https://stable-baselines3.readthedocs.io/en/master/
 https://magenta.tensorflow.org/2016/11/09/tuning-recurrent-networks-with-reinforcement-learning
