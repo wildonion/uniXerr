@@ -1,0 +1,11 @@
+
+
+
+
+
+
+============================================================================
+online p2p mobile mafia game using video streaming over zmq, kafka or webrtc
+============================================================================
+
+app for mafia game using AI => it's a bot in which two main roles can randomly choose for the bot : the mafia and the police, if the bot is mafia then it can learn from the behavior of other palyers(mafia, police, nurse and etc...) in first rounds also it can learn the behavior of who are/were mafia too in order to play the best role as a mafia and kill other polices; if it's not mafia the it can learn from the behavior of other polices in couple of last rounds to play the best role as a police and kill the mafia. note: (there is no way to defeat this bot and kill it as a mafia or a police)
