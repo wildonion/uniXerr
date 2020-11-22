@@ -757,6 +757,7 @@ _______________________________________________________
 _______________________________________________________
 
 
+https://towardsdatascience.com/genetic-algorithm-implementation-in-python-5ab67bb124a6
 https://stackoverflow.com/questions/21537028/whats-the-difference-between-greedy-and-heuristic-algorithm
 https://www.journaldev.com/37089/how-to-compare-two-lists-in-python
 https://realpython.com/python-testing/
