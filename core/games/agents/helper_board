@@ -6,6 +6,7 @@
 NOTE: implement the k-map problem [[ find the simplest algebraic statement for a given function ]]
 NOTE: logic circuit simplification (SOP and POS) and its problems like XOR problem ___ http://www.32x8.com/index.html
 NOTE: try to extend algorithms using cython, ctypes, cffi or by writing an extension in C++ and rust - embedding python in C++ apps
+NOTE: read RL books in gdrive
 
 =================================================================================================================================================
 
