@@ -27,6 +27,7 @@ __________________________ DEEPFAKE __________________________
         https://medium.com/@vovaprivalov/playing-with-realistic-neural-talking-head-models-13759408c01f
 
 ___________________________ AAE/VAE ___________________________________
+        https://arxiv.org/pdf/2011.10650v1.pdf
         https://github.com/pytorch/examples/blob/master/vae/main.py
         https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variational%20Autoencoders.ipynb
         https://github.com/1Konny/Beta-VAE
