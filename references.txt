@@ -667,6 +667,7 @@ https://towardsdatascience.com/only-numpy-understanding-back-propagation-for-tra
 https://towardsdatascience.com/back-propagation-the-easy-way-part-3-cc1de33e8397
 https://medium.com/@14prakash/back-propagation-is-very-simple-who-made-it-complicated-97b794c97e5c
 https://ai.stackexchange.com/questions/5728/what-is-the-time-complexity-for-training-a-neural-network-using-back-propagation
+https://www.quora.com/What-is-meant-by-a-local-optima-problem-in-neural-networks
 https://ml-cheatsheet.readthedocs.io/en/latest/backpropagation.htm
 https://www.youtube.com/watch?v=i94OvYb6noo&feature=youtu.be&list=PLkt2uSq6rBVctENoVBg1TpCC7OQi31AlC
 https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
