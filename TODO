@@ -8,7 +8,6 @@
 0 - pm2 start init.sh -> run init.sh on startup
 1 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
 2 - complete wiki page for project explanation
-3 - use federated learning -> https://blog.openmined.org/upgrade-to-federated-learning-in-10-lines/
 
 
 * next-section : implement uPC telegram bot using rust
