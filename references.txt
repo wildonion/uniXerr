@@ -3,11 +3,14 @@
 
 
 ________________________________________
-		   google drive books
+		   must read references
 ________________________________________
 
 
-https://drive.google.com/drive/folders/18yLzjMke-FD_onY-ayqDo03uqxUS-cHc
+https://drive.google.com/drive/folders/18yLzjMke-FD_onY-ayqDo03uqxUS-cHc => Google Drive Books
+https://github.com/atcold/pytorch-Deep-Learning/ => DL tutorial
+https://github.com/ritchieng/deep-learning-wizard => DL tutorial
+https://drive.google.com/drive/folders/1vNTdWOWXI3MetTYlIxnxDuWRK6M5VGZH => Google Drive CSR folder
 
 
 
