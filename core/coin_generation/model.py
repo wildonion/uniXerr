@@ -26,8 +26,8 @@
 |
 |
 |	     COIN GENERATION IDEAS
-| ✅ idea-1: a hybrid evolutionary algorithms
-| ✅ idea-2: an expert system based on fuzzy rules
+| ✅ idea-1: a hybrid evolutionary algorithms like GA
+| ✅ idea-2: an expert system based on neuro fuzzy rules
 |
 |
 | https://github.com/PyTorchLightning/pytorch-lightning
