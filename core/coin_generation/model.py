@@ -20,9 +20,15 @@
 | based on positions and other features
 |
 |
-| minimum number of score for everyone generated 
+| minimum number of score for everyone generated
 | by uinXerr protocol is 10, because the minimum 
 | of each feature is 5.
+|
+|
+|	     COIN GENERATION IDEAS
+| ✅ idea-1: a hybrid evolutionary algorithms
+| ✅ idea-2: an expert system based on fuzzy rules
+|
 |
 | https://github.com/PyTorchLightning/pytorch-lightning
 | https://blog.openmined.org/upgrade-to-federated-learning-in-10-lines/
