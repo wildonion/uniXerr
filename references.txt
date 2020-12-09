@@ -19,6 +19,11 @@ ____________________________________________
 ____________________________________________
 
 
+https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba
+https://www.adeveloperdiary.com/data-science/deep-learning/neural-network-with-softmax-in-python/
+https://www.python-course.eu/softmax.php
+https://themaverickmeerkat.com/2019-10-23-Softmax/
+https://deepnotes.io/softmax-crossentropy
 https://discuss.pytorch.org/t/how-to-normalize-a-tensor-to-0-mean-and-1-variance/18766/19
 https://discuss.pytorch.org/t/understanding-transform-normalize/
 https://discuss.pytorch.org/t/simple-way-to-inverse-transform-normalization
