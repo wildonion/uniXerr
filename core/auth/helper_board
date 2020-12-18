@@ -16,7 +16,12 @@
         |=> hashing/rehashing and compressing/decrypting content using VAE-GAN and lstm <=|
 
 
-
+	
+	https://towardsdatascience.com/deepant-unsupervised-anomaly-detection-for-time-series-97c5308546ea
+	https://curiousily.com/posts/time-series-anomaly-detection-using-lstm-autoencoder-with-pytorch-in-python/
+	https://docs.microsoft.com/en-us/archive/msdn-magazine/2019/april/test-run-neural-anomaly-detection-using-pytorch
+	https://www.kaggle.com/tikedameu/anomaly-detection-with-autoencoder-pytorch
+	    https://benjoe.medium.com/anomaly-detection-using-pytorch-autoencoder-and-mnist-31c5c2186329
         https://github.com/ajayrao80/CreditCardFraudDetection
         https://github.com/chickenbestlover/RNN-Time-series-Anomaly-Detection
         https://www.kaggle.com/dakshmiglani/pytorch-credit-card-fraud-prediction-99-8
