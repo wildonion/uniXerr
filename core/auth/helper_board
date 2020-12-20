@@ -14,9 +14,20 @@
         |=> after the blocks are mined and added to the chain with no problem, predicted coins by epcbm NETWORK will give to each user <=|
         |=> finally we'll store the whole blockchain in a mongo database <=|
         |=> hashing/rehashing and compressing/decrypting content using VAE-GAN and lstm <=|
+	|=> recovering corrupted objects or contents using associative-memory based models like hopfield and BAM <=|
 
 
 	
+	https://ml-jku.github.io/hopfield-layers/
+	https://topic.alibabacloud.com/a/tutorial-on-building-a-hopfield-network-using-python-_python_1_29_20158166.html
+	https://programmersought.com/article/8678739126/
+	https://laptrinhx.com/rnn-lstm-that-learns-passwords-from-a-starting-list-2996491316/
+	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7309056/
+	https://0day.work/using-neural-networks-for-password-cracking/
+	https://github.com/thoppe/5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8
+	http://neupy.com/2015/09/20/discrete_hopfield_network.html
+	http://neupy.com/2015/09/21/password_recovery.html
+	https://github.com/gsurma/password_cracker
 	https://arxiv.org/pdf/1911.03306.pdf
 	https://arxiv.org/pdf/1204.1336.pdf
 	https://towardsdatascience.com/deepant-unsupervised-anomaly-detection-for-time-series-97c5308546ea
