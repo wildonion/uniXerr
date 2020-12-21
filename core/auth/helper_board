@@ -15,6 +15,7 @@
         |=> finally we'll store the whole blockchain in a mongo database <=|
         |=> hashing/rehashing and compressing/decrypting content using VAE-GAN and lstm <=|
 	|=> recovering corrupted objects or contents using associative-memory based models like hopfield and BAM <=|
+	|=> fuzzy string matching for password recovery <=|
 
 
 	
