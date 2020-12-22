@@ -10,7 +10,7 @@
 ### Setup
 
 * Start an _Apache Cassandra_ server and Fill out _.env_ file with necessary environment variables
-* Create an environment: ```conda create -n uniXerr```
+* Create an environment with a specific python version: ```conda create -n uniXerr python=*.*```
 * Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
 * Update the environment using _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
