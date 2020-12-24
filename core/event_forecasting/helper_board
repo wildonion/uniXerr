@@ -16,6 +16,12 @@
         using AI and let the AI say us what'll happen!
 
 
+
+        https://mlexplained.com/2019/02/15/building-an-lstm-from-scratch-in-pytorch-lstms-in-depth-part-1/
+        https://www.deeplearningwizard.com/deep_learning/practical_pytorch/pytorch_lstm_neuralnetwork/
+        https://jamesmccaffrey.wordpress.com/2019/07/15/i-simulate-a-pytorch-lstm-from-scratch/
+        https://github.com/nicklashansen/rnn_lstm_from_scratch
+        https://towardsdatascience.com/building-a-lstm-by-hand-on-pytorch-59c02a4ec091
         https://stackoverflow.com/questions/61632584/understanding-input-shape-to-pytorch-lstm        
         https://github.com/wcneill/jn-ml-textbook/blob/master/Deep%20Learning/04%20Recurrent%20Networks/pytorch13b_LSTM.ipynb        
         https://towardsdatascience.com/system-failure-prediction-using-log-analysis-8eab84d56d1
