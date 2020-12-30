@@ -7,6 +7,9 @@ ________________________________________
 ________________________________________
 
 
+https://pytorch.org/docs/stable/index.html
+https://realpython.com/
+https://www.pyimagesearch.com/
 https://drive.google.com/drive/folders/18yLzjMke-FD_onY-ayqDo03uqxUS-cHc => Google Drive Books
 https://github.com/atcold/pytorch-Deep-Learning/ => DL tutorial
 https://github.com/ritchieng/deep-learning-wizard => DL tutorial
