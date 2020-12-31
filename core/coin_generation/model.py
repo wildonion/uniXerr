@@ -26,8 +26,8 @@
 |
 |
 |	     COIN GENERATION IDEAS
-| ✅ idea-1: a hybrid evolutionary algorithms like GA
-| ✅ idea-2: an expert system based on neuro-fuzzy system like ANFIS
+| ✅ idea-1: a hybrid evolutionary algorithms like GA and FA
+| ✅ idea-2: an expert system based on neuro-fuzzy like ANFIS
 | ✅ idea-3: combination of above ideas
 |
 |
