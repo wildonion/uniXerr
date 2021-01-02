@@ -25,10 +25,9 @@
 | of each feature is 5.
 |
 |
-|	     COIN GENERATION IDEAS
-| ✅ idea-1: an evolutionary algorithm like GA (ES) and FA for best rules selection or membership function creation
-| ✅ idea-2: an expert system based on neuro-fuzzy like ANFIS
-| ✅ idea-3: a hybrid intelligence system like updating neuro-fuzzy parameters using GA (ES) and FA
+|	        COIN GENERATION IDEAS USING FLC
+| ✅ idea-1: combining evolutionary algorithms like GA (ES) and FA for best rules selection or membership function creation of fuzzy logic controller
+| ✅ idea-2: a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy like ANFIS using GA (ES) and FA 
 |
 |
 | https://github.com/PyTorchLightning/pytorch-lightning
