@@ -2,7 +2,7 @@
 
 
 
-
+https://discuss.pytorch.org/t/implement-selected-sparse-connected-neural-network/45517/10 => use for creating neuro-fuzzy (not fully connected network)
 https://www.hindawi.com/journals/afs/2015/378156/
 https://www.researchgate.net/publication/222708434_Optimization_of_fuzzy_rules_design_using_genetic_algorithm
 https://www.researchgate.net/publication/224176949_A_genetic_algorithm_for_tuning_fuzzy_rule-based_classification_systems_with_Interval-Valued_Fuzzy_Sets
