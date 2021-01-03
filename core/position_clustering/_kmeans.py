@@ -43,7 +43,7 @@ import pandas as pd
 class kmeans():
 	def __init__(self, data, data_type):
 		'''
-			we don't need scale our data or reduce dimension to fit into the kmeans, pca and tsne algorithm
+			we don't need scale our data to fit into the kmeans or reduce dimension using pca and tsne algorithm,
 			cause the data is the latent space of VAE model and has a normal distribution and 2D dims.
 			
 			the normal distribution stretches from -Infinity to +Infinity. 
