@@ -1,6 +1,6 @@
 name: uniXerr
 channels:
-  - pytorch
+  - pytorch # conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
