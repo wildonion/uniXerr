@@ -15,6 +15,7 @@
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
 * Update the environment using _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 * Export your active environment to _uniXerr.yml_ file: ```conda env export | grep -v "^prefix: " > uniXerr.yml```
+* Install `pm2`: ```wget -qO- https://getpm2.com/install.sh | bash``` 
 * Install completion for _typer-cli_: ```typer --install-completion```
 * Create a docs file from _uniXerr_ CLI: ```typer app.py utils docs --name uniXerr --output uniXerr-cli.md```
 
