@@ -10,4 +10,5 @@
 2 - complete wiki page for project explanation
 
 
-* next-section : implement uPC telegram bot using rust and try to binding python using cython, ctypes, cffi or by writing an extension in C++ and rust
+* Queue.next-section : implement uPC telegram bot with rust using tokio, tonic, zmq, webassm and grpc (python binding using cython, ctypes, cffi and writing an extension in C++ and rust)
+
