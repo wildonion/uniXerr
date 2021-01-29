@@ -30,8 +30,6 @@
 | ✅ idea-2: a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy like ANFIS using GA (ES) and FA 
 |
 |
-| https://github.com/PyTorchLightning/pytorch-lightning
-| https://blog.openmined.org/upgrade-to-federated-learning-in-10-lines/
 |
 
 '''
