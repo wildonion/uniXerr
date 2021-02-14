@@ -11,5 +11,6 @@
 
 
 * Queue.next-section : implement uPC telegram bot in rust using actix, tokio and zmq
-* Queue.next-section : binding rust and C++ in python using pyo3, cython, ctypes and cffi
+* Queue.next-section : rust and C++ <-binding-> python using pyo3, cython, ctypes and cffi
+* Queue.next-section : rust <-binding-> in C++ and C
 
