@@ -8,6 +8,7 @@
 0 - pm2 start init.sh -> run init.sh on startup
 1 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
 2 - complete wiki page for project explanation
+3 - collecting big data for uniXerr networks' AI
 
 
 * Queue.next-section : implement uPC telegram bot in rust using actix, tokio and zmq
