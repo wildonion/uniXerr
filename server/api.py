@@ -382,7 +382,7 @@ async def add_users_positions():
 				msg = "can't insert data into db, check server!"
 
 		if can_we_move:
-			imported_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+			imported_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')
 			csv_must_be_in = Path(os.path.dirname(os.path.abspath(__file__))+'/db/_imported/users_positions/'+imported_time)
 
 			try:
@@ -423,7 +423,7 @@ async def add_users_positions():
 				msg = "can't insert data into db, check server!"
 
 		if can_we_move:
-			imported_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+			imported_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')
 			csv_must_be_in = Path(os.path.dirname(os.path.abspath(__file__))+'/db/_imported/users_positions/'+imported_time)
 			try:
 				csv_must_be_in.mkdir(parents=True)				
