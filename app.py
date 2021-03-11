@@ -43,7 +43,7 @@ def deploy(build: bool = typer.Option(False, "--build", help="Building for produ
 	if build:
 		typer.secho("\t➢   building with docker\n", fg=typer.colors.RESET, bold=True)
 		# TODO : build the app.py using https://typer.tiangolo.com/tutorial/package/ and docker or github actions for publishing python packages
-		# TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/ and build it using docker, traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/)
+		# TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/ and build it using docker(file), traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/)
 		# TODO : after building, complete README.md guide for installing uniXerr using pip and docker containers
 		# ... 
 
