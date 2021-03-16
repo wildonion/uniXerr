@@ -20,10 +20,11 @@ https://drive.google.com/drive/folders/1vNTdWOWXI3MetTYlIxnxDuWRK6M5VGZH => Goog
 
 
 ____________________________________________
-     whole AI references in my bachelor
+     whole AI references in my bachelor-master
 ____________________________________________
 
 
+https://ai.stackexchange.com/questions/10623/what-is-self-supervised-learning-in-machine-learning
 https://jtsulliv.github.io/perceptron/
 https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba
 https://www.adeveloperdiary.com/data-science/deep-learning/neural-network-with-softmax-in-python/
@@ -772,7 +773,7 @@ https://medium.com/apache-mxnet/transposed-convolutions-explained-with-ms-excel-
 
 
 _______________________________________________________
-	whole algorithm design references in my bachelor
+	whole algorithm design references in my bachelor-master
 _______________________________________________________
 
 
