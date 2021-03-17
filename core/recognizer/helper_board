@@ -9,6 +9,23 @@
                                                    |camenbee project|
 
 
+
+
+__________________________ SSL (Self Supervised Learning) __________________________
+📌 TASKS
+      - predicting missing part of the input 
+      - reconstructing and labeling the input
+      - representation learning
+      - feature learning and extracting
+📌 MODELS
+      - Transformers
+      - SEER (https://arxiv.org/pdf/2103.01988.pdf?fbclid=IwAR2pqhYda6MV9r2b3Afx_0eKUiZhX-Es6Pa_FbLOqH8fglQzO2kY3yKxZE8)
+      - VAE
+📌 TOOLS
+      - VISSL (https://vissl.readthedocs.io/en/v0.1.5/)
+
+
+
 __________________________ DEEPFAKE __________________________
         https://github.com/serengil/deepface
         https://faceswap.dev/
@@ -196,7 +213,6 @@ ___________________________ NLP ___________________________________
         medium.com/@sabber/classifying-yelp-review-comments-using-cnn-lstm-and-pre-trained-glove-word-embeddings-part-3-53fcea9a17fa
 
 ___________________________ IMP ___________________________________
-        https://vissl.readthedocs.io/en/v0.1.5/
         https://towardsdatascience.com/can-we-do-better-than-convolutional-neural-networks-46ed90fed807
         https://www.pyimagesearch.com/2019/07/15/video-classification-with-keras-and-deep-learning/
         https://blogs.nvidia.com/blog/2019/03/18/gaugan-photorealistic-landscapes-nvidia-research/
