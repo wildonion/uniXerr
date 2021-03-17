@@ -45,6 +45,10 @@ __________________________ DEEPFAKE __________________________
         https://medium.com/@vovaprivalov/playing-with-realistic-neural-talking-head-models-13759408c01f
 
 ___________________________ AAE/VAE ___________________________________
+        https://reyhaneaskari.github.io/AE.htm
+        https://www.programmersought.com/article/12404957503/
+        https://debuggercafe.com/autoencoder-neural-network-application-to-image-denoising/
+        https://gist.github.com/bigsnarfdude/dde651f6e06f266b48bc3750ac730f80
         https://www.kaggle.com/schmiddey/variational-autoencoder-with-pytorch-vs-pca
         https://arxiv.org/pdf/2011.10650v1.pdf
         https://github.com/pytorch/examples/blob/master/vae/main.py
