@@ -18,7 +18,7 @@ __________________________ SSL (Self Supervised Learning) ______________________
       - representation learning
       - feature learning and extracting
 📌 MODELS
-      - Transformers
+      - Transformers (https://arxiv.org/abs/2101.12037)
       - SEER (https://arxiv.org/pdf/2103.01988.pdf?fbclid=IwAR2pqhYda6MV9r2b3Afx_0eKUiZhX-Es6Pa_FbLOqH8fglQzO2kY3yKxZE8)
       - VAE
 📌 TOOLS
