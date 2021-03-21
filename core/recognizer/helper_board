@@ -14,13 +14,14 @@
 __________________________ SSL (Self Supervised Learning) __________________________
 📌 TASKS
       - predicting missing part of the input 
-      - reconstructing and labeling the input
+      - reconstructing and labeling the unseen input
       - representation learning
       - feature learning and extracting
 📌 MODELS
       - Transformers (https://arxiv.org/abs/2101.12037)
       - SEER (https://arxiv.org/pdf/2103.01988.pdf?fbclid=IwAR2pqhYda6MV9r2b3Afx_0eKUiZhX-Es6Pa_FbLOqH8fglQzO2kY3yKxZE8)
       - VAE
+      - BART (https://arxiv.org/pdf/1910.13461.pdf)
 📌 TOOLS
       - VISSL (https://vissl.readthedocs.io/en/v0.1.5/)
 
@@ -104,6 +105,10 @@ ___________________________ AAE/VAE ___________________________________
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 
 ___________________________ NLP ___________________________________
+        https://towardsdatascience.com/bart-for-paraphrasing-with-simple-transformers-7c9ea3dfdd8c
+        https://www.aclweb.org/anthology/D19-1322/
+        https://www.aclweb.org/anthology/P19-1601/
+        https://medium.com/agara-labs/the-generative-style-transformer-3564bce04d04
         https://trungtran.io/2019/02/08/text-generation-with-pytorch/
         https://towardsdatascience.com/teaching-gpt-2-a-sense-of-humor-fine-tuning-large-transformer-models-on-a-single-gpu-in-pytorch-59e8cec40912
         https://medium.com/the-dl/transformers-from-scratch-in-pytorch-8777e346ca51
