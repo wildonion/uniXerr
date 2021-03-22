@@ -9,13 +9,14 @@
 
 ### Setup
 
+* Install _docker_ and start a deamon process on boot: ```sudo systemctl start docker```
 * Start an _Apache Cassandra_ server and Fill out _.env_ file with necessary environment variables
 * Create an environment with a specific python version: ```conda create -n uniXerr python=3.8```
 * Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
 * Update the environment using _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
 * Export your active environment to _uniXerr.yml_ file: ```conda env export | grep -v "^prefix: " > uniXerr.yml```
-* Install _pm2_: ```wget -qO- https://getpm2.com/install.sh | bash``` 
+* Install _pm2_: ```wget -qO- https://getpm2.com/install.sh | bash```
 * Install completion for _typer-cli_: ```typer --install-completion```
 * Create a docs file from _uniXerr_ CLI: ```typer app.py utils docs --name uniXerr --output uniXerr-cli.md```
 
