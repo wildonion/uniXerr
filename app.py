@@ -42,7 +42,6 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 
 	if build:
 		typer.secho("\t➢   building with docker for production\n", fg=typer.colors.RESET, bold=True)
-		# TODO : build the app.py using https://typer.tiangolo.com/tutorial/package/ or github actions for publishing python packages
 		# TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/ and build it using docker-compose.yml, traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/) 
                 '''
                          ____________________________
