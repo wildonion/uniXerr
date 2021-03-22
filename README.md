@@ -95,7 +95,7 @@ $ typer app.py run deploy --help
 Usage: app.py run deploy [OPTIONS]
 
 Options:
-  --build  Building for production.
+  --build  Build from docker-compose.yml file.
   --kafka  Streamer processor for online training.
   --help   Show this message and exit.
 
@@ -128,7 +128,13 @@ $ cqlsh api.unixerr.com -u username -p password -e "copy unixerr.table_name from
 > Running in production mode streaming over kafka:
 
 ```console
-$ typer app.py run deploy --build --kafka
+$ typer app.py run deploy --kafka
+```
+
+> Running in production mode building with docker:
+
+```console
+$ typer app.py run deploy --build
 ```
 
 > Running TensorBoard for visualization of training and testing DL models:
