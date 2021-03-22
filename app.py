@@ -42,7 +42,8 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 
 	if build:
 		typer.secho("\t➢   building with docker for production\n", fg=typer.colors.RESET, bold=True)
-		# TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/ and build it using docker-compose.yml, traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/) 
+		# TODO : update README.md with docker-compose commands after building docker containers
+                # TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/ and build it using docker-compose.yml, traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/) 
                 '''
                          ____________________________
                          SOME DOCKER EXAMPLE COMMANDS 
