@@ -72,7 +72,7 @@ $ uniXerr deploy [OPTIONS]
 
 **Options**:
 
-* `--build`: Building for production.
+* `--build`: Build from docker-compose.yml file.
 * `--kafka`: Streamer processor for online training.
 * `--help`: Show this message and exit.
 
