@@ -35,13 +35,13 @@ from server import api
 
 
 @app.command()
-def deploy(build: bool = typer.Option(False, "--build", help="Building for production."),
+def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-compose.yml file."),
 		   streamer: bool = typer.Option(False, "--kafka", help="Streamer processor for online training.")
 		   ):
 	typer.secho("\n________Production process________\n", fg=typer.colors.MAGENTA, bold=True)
 
 	if build:
-		typer.secho("\t➢   building with docker\n", fg=typer.colors.RESET, bold=True)
+		typer.secho("\t➢   building with docker for production\n", fg=typer.colors.RESET, bold=True)
 		# TODO : build the app.py using https://typer.tiangolo.com/tutorial/package/ or github actions for publishing python packages
 		# TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/ and build it using docker-compose.yml, traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/) 
                 '''
