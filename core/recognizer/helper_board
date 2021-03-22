@@ -13,8 +13,8 @@
 
 __________________________ SSL (Self Supervised Learning) __________________________
 📌 TASKS
-      - predicting missing part of the unseen input based on the style of the input
-      - reconstructing and labeling the unseen input based on the style of the input
+      - predicting missing part of the unseen input based on the exact style of the input
+      - reconstructing and labeling the unseen input based on the exact style of the input
       - representation learning
       - feature learning and extracting
 📌 MODELS
