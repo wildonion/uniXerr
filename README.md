@@ -3,6 +3,7 @@
 </p>
 
 ###### ⚠️ If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.
+###### ⚠️ Also add [shekan](https://shecan.ir/) DNS servers to your DNS configuration file for docker builds.
 ###### ⚠️ Remember to call `/users/add/info` and `/users/add/positions` routes of API server after the classification is done on csv file of input data. 
 ###### ⚠️ You can't create an environment if the environment was exported on a different platform than the target machine.
 ###### ❗️ Both `core` and `server` folders can only be controlled using `controller.py` middleware.
