@@ -10,7 +10,7 @@
 ### Setup
 
 * Install _docker_ and start a deamon process on boot: ```sudo systemctl start docker```
-* Start an _Apache Cassandra_ server and Fill out _.env_ file with necessary environment variables
+* Start an _Apache Cassandra_ server and fill out _.env_ file with necessary variables
 * Create an environment with a specific python version: ```conda create -n uniXerr python=3.8```
 * Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
 * Activate _uniXerr_ environment: ```conda activate uniXerr```
