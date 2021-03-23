@@ -1,1 +1,7 @@
-# ...
+
+
+
+# TODOs:
+# add version
+# add commands and entrypoints for fastapi server service
+# add services like cassandra, traefik and fastapi services
