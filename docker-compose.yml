@@ -5,4 +5,4 @@
 # add version
 # add commands and entrypoints for fastapi server service
 # run the fastapi server in development mode in command of fastapi server service
-# add services like cassandra, traefik and fastapi services
+# build services like cassandra, traefik and fastapi from their Dockerfile inside services folder
