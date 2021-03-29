@@ -7,3 +7,4 @@
 # move the whole project into the uniXerr home directory
 # install all necessary dependencies
 # change the owner of the folder containing the source code
+# run the fastapi server in development mode using "typer app.py run develop" command
