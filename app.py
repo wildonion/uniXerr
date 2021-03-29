@@ -53,7 +53,8 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 			sudo docker network ls
 			sudo docker network inspect -f '{{range .Containers}}{{.Name}} {{end}}' <NETWORK_NAME>
 			-------------------------------------------------------------------------------------------------------------
-			sudo docker-compose -f docker-compose.yml build --no-cache && sudo docker-compose up -d --force-recreate
+			sudo docker-compose -f docker-compose.yml build --no-cache
+			sudo docker-compose up -d --force-recreate
 			sudo docker-compose run <SERVICE_NAME_IN_DOCKER_COMPOSE> bash
 			sudo docker-compose restart <SERVICE_NAME_IN_DOCKER_COMPOSE>
 			sudo docker-compose -f docker-compose.yml logs -f
