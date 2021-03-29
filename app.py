@@ -45,9 +45,10 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 		# TODO : update README.md with docker-compose commands after building containers
                 # TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/ and build it using docker-compose.yml, traefik and other DevOps tools (https://fastapi.tiangolo.com/deployment/) 
                 '''
-					 ____________________________
-					 SOME DOCKER EXAMPLE COMMANDS 
-					 ----------------------------
+					 _______________________________________________
+					|	 SOME DOCKER EXAMPLE COMMANDS           |
+					|containers are reachable by their service names|
+					 -----------------------------------------------
                   	sudo docker network connect <NETWORK_NAME> <CONTAINER/IMAGE_NAME/ID>
 			sudo docker network create -o com.docker.network.bridge.enable_icc=true -d bridge <NETWORK_NAME>
 			sudo docker network ls
