@@ -24,6 +24,7 @@ ____________________________________________
 ____________________________________________
 
 
+https://medium.com/dair-ai/an-illustrated-guide-to-graph-neural-networks-d5564a551783
 https://ai.facebook.com/blog/self-supervised-learning-the-dark-matter-of-intelligence/
 https://ai.stackexchange.com/questions/10623/what-is-self-supervised-learning-in-machine-learning
 https://jtsulliv.github.io/perceptron/
