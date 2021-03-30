@@ -14,7 +14,7 @@
         |=> after the blocks are mined and added to the chain with no problem, predicted coins by epcbm NETWORK will give to each user <=|
         |=> finally we'll store the whole blockchain in a database. <=|
 	|=> an authentication system based on fingerprint using VAE <=|
-        |=> hashing/rehashing and compressing/decrypting content using VAE-GAN, lstm and transformers <=|
+        |=> hashing/rehashing and compressing/decrypting content using VAE-GAN, lstm, self supervised learning transformers and graph nn <=|
 	|=> recovering corrupted objects or contents using associative-memory based models like hopfield and BAM <=|
 	|=> fuzzy string matching for password recovery <=|
 
