@@ -5,7 +5,9 @@
 
     |=> use all personal infos inside users phone for mining process like location, mobile model and etc. <=|
     |=> We don’t want the same input and thus we take a sample from latent vector and put into the decoder to give similar output. <=|
-    |=> after clustering search for all users that match this position then show the result to this user <=| 
+    |=> after clustering search for all users that match this position then show the result to this user <=|
+    |=> use graph neural network for content recommendation and node classification to <=|
+    |=> predict if a certain piece of content on uniXerr network can be sent to a specific user using graph neural network <=| 
 
 
         
