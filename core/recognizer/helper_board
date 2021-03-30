@@ -10,6 +10,25 @@
 
 
 
+__________________________ GNN (Graph Neural Network) Example __________________________
+
+class node:
+    # node is the feature vector which has shape of (batch_size, 1).
+    # each node knows about its feature through learning process.
+    def __init__(self, data):
+        self.data = data
+        self.weight = np.random.rand(self.data.T.shape)
+
+
+class gnn:
+    def __init__(self, input):
+        self.input = input
+    
+    def feedforward(self, feature):
+        n = node(input[:,feature])
+        embedded = n.data * n.w
+
+
 
 __________________________ SSL (Self Supervised Learning) __________________________
 📌 TASKS
