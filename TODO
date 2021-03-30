@@ -9,7 +9,7 @@
 1 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
 2 - build uniXerr cli from the app.py using https://typer.tiangolo.com/tutorial/package/ or github actions for publishing python packages
 3 - complete wiki page for project explanation
-4 - collecting big data for uniXerr networks' AI
+4 - collecting big data for uniXerr gnn networks' AI using cassandra, pytorch geometric and dgl.ai 
 
 
 
