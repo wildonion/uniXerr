@@ -36,12 +36,11 @@ __________________________ SSL (Self Supervised Learning) ______________________
       - reconstructing and labeling the unseen input based on the exact style of the input
       - representation learning
       - feature learning and extracting
-📌 MODELS
+📌 MODELS & TOOLS
       - Transformers (https://arxiv.org/abs/2101.12037)
       - SEER (https://arxiv.org/pdf/2103.01988)
       - VAE
       - BART (https://arxiv.org/pdf/1910.13461)
-📌 TOOLS
       - VISSL (https://vissl.readthedocs.io/en/v0.1.5/)
       - GNN (Graph Neural Network)
 
