@@ -1,6 +1,9 @@
 
 
 
+# refs:
+# https://testdriven.io/blog/dockerizing-flask-with-postgres-gunicorn-and-nginx/
+
 # TODOs:
 # add latest version
 # build services like cassandra, traefik or nginx and fastapi from their Dockerfile inside services folder
