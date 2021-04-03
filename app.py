@@ -81,6 +81,7 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 			sudo docker login --username=wildonion --password="password"
 			sudo docker commit <CONTAINER/IMAGE_NAME/ID> uniXerr
 			sudo docker cp /home/wildonion/uniXerr/  e4d47a395d07:/home/wildonion/
+			sudo docker cp 4ba0d2853dd2:/opt/inobi/migrations /home/mehran/utils/
                '''
                # ... 
 
