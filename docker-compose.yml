@@ -6,4 +6,4 @@
 
 # TODOs:
 # add latest version
-# build services like cassandra, traefik or nginx and fastapi from their Dockerfile inside services folder
+# build services like cassandra, traefik or nginx, k8s and fastapi from their Dockerfile inside services folder
