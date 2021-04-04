@@ -63,8 +63,8 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 			sudo docker-compose -f docker-compose.yml up --build
 			sudo docker-compose exec db psql --username=uniXerr --dbname=uniXerr < uniXerr.sql
 			-------------------------------------------------------------------------------------------------------------
-			sudo docker save $(sudo docker images -q) -o docker-utils/inobi.tar
-			sudo docker load -i -o docker-utils/inobi.tar
+			sudo docker save $(sudo docker images -q) -o docker-utils/uniXerr.tar
+			sudo docker load -i -o docker-utils/uniXerr.tar
 			sudo docker ps
 			sudo docker exec <CONTAINER/IMAGE_NAME/ID>_A ping <CONTAINER/IMAGE_NAME/ID>_B -c2
 			sudo docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
@@ -79,12 +79,14 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 			sudo docker stop <CONTAINER/IMAGE_NAME/ID>
 			sudo docker rmi -f <CONTAINER/IMAGE_NAME/ID>
 			sudo docker image prune -a
+			sudo docker system prune -a
+			sudo docker rmi -f $(sudo docker images -a -q)
 			sudo docker rmi -f $(sudo docker images -f "dangling=true" -q)
 			sudo docker rm -f $(sudo docker ps -aq)
 			sudo docker login --username=wildonion --password="password"
 			sudo docker commit <CONTAINER/IMAGE_NAME/ID> uniXerr
 			sudo docker cp /home/wildonion/uniXerr/  e4d47a395d07:/home/wildonion/
-			sudo docker cp 4ba0d2853dd2:/opt/inobi/migrations /home/mehran/utils/
+			sudo docker cp 4ba0d2853dd2:/opt/uniXerr/migrations /home/mehran/utils/
                '''
                # ... 
 
