@@ -26,7 +26,7 @@ class gnn:
     
     def feedforward(self, feature):
         n = node(input[:,feature])
-        embedded = n.data * n.w
+        embedded = n.data * n.w # representing features in a form of adjacency matrix using embedded result
 
 
 
