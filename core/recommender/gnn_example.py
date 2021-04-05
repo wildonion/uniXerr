@@ -1,6 +1,13 @@
 
 
 
+
+'''
+note that the adj_mat can be built using one the existing feature engineering and selection techniques like genetic algorithm
+'''
+
+
+
 import numpy as np
 
 class node:
