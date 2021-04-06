@@ -8,3 +8,4 @@
 # install all necessary dependencies like installing from requirements.txt or form uniXerr.yml file in conda env
 # change the owner of the folder containing the source code
 # run the fastapi server in development mode using "typer app.py run develop" command
+# run the tensorboard server using "tensorboard --host=tensorboard.api.unixerr.com --logdir=runs" command
