@@ -5,4 +5,5 @@ services
 docker-compose.yml
 references.txt
 uniXerr-cli.md
-
+TODO
+.gitignore
