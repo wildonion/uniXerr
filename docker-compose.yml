@@ -7,4 +7,6 @@
 
 # TODOs:
 # add latest version
-# build microservices like rust for telegram bot, cassandra, traefik or nginx, k8s and fastapi from their Dockerfile inside services folder
+# root project as the context for each services, because of .dockerignore file
+# add services from services folder
+
