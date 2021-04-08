@@ -7,4 +7,4 @@
 
 # TODOs:
 # add latest version
-# build services like rust for telegram bot, cassandra, traefik or nginx, k8s and fastapi from their Dockerfile inside services folder
+# build microservices like rust for telegram bot, cassandra, traefik or nginx, k8s and fastapi from their Dockerfile inside services folder
