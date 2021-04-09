@@ -47,7 +47,7 @@ dependencies:
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.5=h9ceee32_0
-  - pip: # pip install pandas numpy matplotlib uvloop Pillow fastapi uvicorn[standard] pydantic typer typer-cli pyzmq cassandra-driver scikit-learn tensorboard
+  - pip: # pip install docker-compose pandas numpy matplotlib uvloop Pillow fastapi uvicorn[standard] pydantic typer typer-cli pyzmq cassandra-driver scikit-learn tensorboard
     - absl-py==0.11.0
     - cachetools==4.2.0
     - cassandra-driver==3.24.0

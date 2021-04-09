@@ -11,6 +11,7 @@
 ### Setup
 
 * Install _docker_ and start a deamon process on boot: ```sudo systemctl start docker```
+* Install _docker-compose_ using _pip_: ```pip install docker-compose```
 * Start an _Apache Cassandra_ server and fill out _.env_ file with necessary variables
 * Create an environment with a specific python version: ```conda create -n uniXerr python=3.8```
 * Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
