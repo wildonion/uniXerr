@@ -43,7 +43,6 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 	if build:
 		typer.secho("\t➢   building with docker for production\n", fg=typer.colors.RESET, bold=True)
 		# TODO : run launch.sh script in here using subprocess lib
-                # TODO : secure api.py inside server folder using https://fastapi.tiangolo.com/tutorial/security/
                 # ... 
 
 
