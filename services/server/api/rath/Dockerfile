@@ -11,7 +11,7 @@ RUN rm src/*.rs
 
 ADD . ./
 
-RUN rm ./target/x86_64-unknown-linux-musl/release/deps/actix_web_docker_example*
+RUN rm ./target/x86_64-unknown-linux-musl/release/deps/core*
 RUN cargo build --bin core --release
 
 
@@ -31,7 +31,7 @@ RUN apk update \
     && apk add --no-cache ca-certificates tzdata \
     && rm -rf /var/cache/apk/*
 
-COPY --from=builder /home/rust/src/actix-web-docker-example/target/x86_64-unknown-linux-musl/release/actix-web-docker-example ${APP}/actix-web-docker-example
+COPY --from=builder /home/rust/src/core/target/x86_64-unknown-linux-musl/release/core ${APP}/core
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
 
