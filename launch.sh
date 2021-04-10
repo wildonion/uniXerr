@@ -16,7 +16,7 @@
 # -------------------------------------------------------------------------------------------------------------
 # sudo docker-compose -f docker-compose.yml build --no-cache
 # sudo docker-compose up -d --force-recreate
-# sudo docker-compose -f docker-compose.yml logs
+# sudo docker-compose -f docker-compose.yml logs -f
 # sudo docker-compose run -u aranobi <SERVICE_NAME_IN_DOCKER_COMPOSE> bash
 # sudo docker-compose restart <SERVICE_NAME_IN_DOCKER_COMPOSE>
 # sudo docker-compose down -v
