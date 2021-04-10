@@ -1,0 +1,14 @@
+[package]
+name = "freewifi"
+version = "0.1.0"
+authors = ["user29 <erfan@araglobal.ir>"]
+
+
+
+[dependencies]
+actix-web = "3"
+
+
+[[bin]]
+name = "freewifi"
+path = "src/main.rs"
