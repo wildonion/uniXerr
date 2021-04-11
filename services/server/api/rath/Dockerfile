@@ -7,6 +7,7 @@ WORKDIR ./core
 COPY ./Cargo.toml ./Cargo.toml
 RUN cargo build --bin core --release
 RUN rm src/*.rs
+RUN rm docker.cmd
 
 ADD . ./
 
