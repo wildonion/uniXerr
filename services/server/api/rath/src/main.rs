@@ -4,7 +4,7 @@
 
 
 
-// TODO : serve pre-trained core AI models with rust using tch, actix, rocket, hyper, gotham, docker and k8s
+// TODO : serve pre-trained core AI models with rust using tch, actix, rocket, hyper, docker and k8s
 
 
 
