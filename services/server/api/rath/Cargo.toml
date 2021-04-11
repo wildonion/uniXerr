@@ -1,0 +1,18 @@
+[package]
+name = "rath-core-bot"
+version = "0.1.0"
+authors = ["wildonion <marefimoghaddam@unixerr.com>"]
+edition = "2018"
+
+
+
+[dependencies]
+actix-web = "3"
+tokio = { version = "1", features = ["full"] }
+hyper = "0.14"
+rocket = "0.4.7"
+
+
+[[bin]]
+name = "rath-core-bot"
+path = "src/main.rs"
