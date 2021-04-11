@@ -4,7 +4,7 @@
 
 version: '3.3'
 services:
-  web:
+  core:
     build:
       context: ./
       dockerfile: ./services/server/api/core/Dockerfile
@@ -13,7 +13,7 @@ services:
     expose:
       - 8587
     networks:
-      - app-net      
+      - app-net    
 networks:
   app-net:
     driver: bridge
