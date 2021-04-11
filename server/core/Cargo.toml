@@ -1,0 +1,24 @@
+[package]
+name = "rath-core-bot"
+version = "0.1.0"
+authors = ["wildonion <marefimoghaddam@unixerr.com>"]
+edition = "2018"
+
+
+
+[dependencies]
+actix-web = "3"
+tokio = { version = "1.4", features = ["full"] }
+hyper = "0.14"
+rocket = "0.4.7"
+telegram-bot = "0.7"
+teloxide = { version = "0.4", features = ["auto-send"] }
+log = "0.4.8"
+pretty_env_logger = "0.4.0"
+zeromq = { version = "*", default-features = false, features = ["async-std-runtime", "all-transport"] }
+
+
+
+[[bin]]
+name = "rath-core-bot"
+path = "src/main.rs"
