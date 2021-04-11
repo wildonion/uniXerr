@@ -1,10 +1,21 @@
 
 
+# TODOs : complete below structure for other services, network and volumes for services folder based on their Dockerfiles
 
-
-
-# TODOs:
-# add latest version
-# root project as the context for each services (context: ./), because of .dockerignore file
-# add services from services folder
-
+version: '3.3'
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: ./services/server/api/core/Dockerfile
+    volumes:
+      - core-servers:/usr/src/app
+    expose:
+      - 8587
+    networks:
+      - app-net      
+networks:
+  app-net:
+    driver: bridge
+volumes:
+  core-servers:
