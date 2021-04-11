@@ -3,11 +3,8 @@
 
 
 
-// https://www.rust-lang.org/learn
-// https://dzone.com/articles/creating-a-rest-api-in-rust-using-rocket-and-diese
-// https://auth0.com/blog/build-an-api-in-rust-with-jwt-authentication-using-actix-web/
-// https://fdeantoni.medium.com/rust-actix-diesel-sqlite-d67a1c3ef0e
-// serve pre-trained core AI models with rust using tch, actix, rocket, hyper, gotham, docker and k8s
+
+// TODO : serve pre-trained core AI models with rust using tch, actix, rocket, hyper, gotham, docker and k8s
 
 
 
