@@ -9,7 +9,8 @@
 1 - build uniXerr cli from the app.py using https://typer.tiangolo.com/tutorial/package/ or github actions for publishing python packages
 2 - complete wiki page for project explanation
 3 - collecting big data for uniXerr gnn networks' AI using cassandra, pytorch geometric and dgl.ai 
-4 - remove the source code from VPS after building the docker microservices
+4 - write docker micro services by completing docker-compose file and using https://drive.google.com/drive/folders/1LaCepVp8mzslwq7qUC864Y_7fT9d0a2E (ARA projects)
+5 - remove the source code from VPS after building the docker microservices
 
 
 
