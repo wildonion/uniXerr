@@ -5,6 +5,6 @@
 
 # TODOs:
 # add latest version
-# root project as the context for each services, because of .dockerignore file
+# root project as the context for each services (context: ./), because of .dockerignore file
 # add services from services folder
 
