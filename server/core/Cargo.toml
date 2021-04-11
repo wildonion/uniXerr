@@ -1,5 +1,5 @@
 [package]
-name = "rath-core-bot"
+name = "core"
 version = "0.1.0"
 authors = ["wildonion <marefimoghaddam@unixerr.com>"]
 edition = "2018"
@@ -20,5 +20,5 @@ zeromq = { version = "*", default-features = false, features = ["async-std-runti
 
 
 [[bin]]
-name = "rath-core-bot"
+name = "core"
 path = "src/main.rs"
