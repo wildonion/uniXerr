@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 actix-web = "3"
+actix-rt = "2.2.0"
 tokio = { version = "1.4", features = ["full"] }
 hyper = "0.14"
 rocket = "0.4.7"
