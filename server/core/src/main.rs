@@ -7,7 +7,7 @@
 
 // server for:
 // pre-trained core AI models
-// uPC telegram bot in rust
+// uPC telegram bot
 
 // tools:
 // tch, tokio, actix, rocket, hyper, zmq, docker and k8s based on streaming async paradigm
