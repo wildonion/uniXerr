@@ -26,7 +26,7 @@
 # ✅ sudo docker-compose down -v && sudo docker-compose up --force-recreate --------------------------------> remove and rebuild all containers, you will lose the old ones data
 # ✅ sudo docker-compose up -d --force-recreate                             --------------------------------> omit the --force-recreate if you don't want to recreate all the containers
 # ✅ sudo docker-compose -f docker-compose.yml logs                         --------------------------------> see the docker containers logs
-# ✅ sudo docker-compose run -u uniXerr web bash                            --------------------------------> accessing bash shell of we service
+# ✅ sudo docker-compose run -u <SERVICE_NAME> web bash                     --------------------------------> accessing bash shell of a service
 
 
 
