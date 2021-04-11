@@ -20,7 +20,7 @@ on changing build
 ✅ sudo docker-compose down -v && sudo docker-compose up --force-recreate --------------------------------> remove and rebuild all containers, you will lose the old ones data
 ✅ sudo docker-compose up -d --force-recreate                             --------------------------------> omit the --force-recreate if you don't want to recreate all the containers
 ✅ sudo docker-compose -f docker-compose.yml logs                         --------------------------------> see the docker containers logs
-✅ sudo docker-compose run -u aranobi web bash                            --------------------------------> accessing bash shell of we service
+✅ sudo docker-compose run -u rath web bash                               --------------------------------> accessing bash shell of we service
 
 
 
@@ -28,5 +28,5 @@ on changing build
 ========================================
 saving and loading images on other hosts
 ========================================
-✅ sudo docker save $(sudo docker images -q) | gzip > inobi.tar.gz
-✅ sudo docker load -i -o inobi.tar
+✅ sudo docker save $(sudo docker images -q) | gzip > rath.tar.gz
+✅ sudo docker load -i -o rath.tar
