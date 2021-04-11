@@ -4,7 +4,6 @@ FROM ekidd/rust-musl-builder:stable as builder
 
 RUN USER=root cargo new --bin core
 WORKDIR ./core
-# COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 RUN cargo build --bin core --release
 RUN rm src/*.rs
