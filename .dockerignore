@@ -1,5 +1,7 @@
 
 
+server/core/target
+server/core/Cargo.lock
 board
 runs
 dev.guide
