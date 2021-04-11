@@ -2,6 +2,7 @@
 
 server/core/target
 server/core/Cargo.lock
+server/core/.gitignore
 board
 runs
 dev.guide
