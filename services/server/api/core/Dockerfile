@@ -12,7 +12,9 @@ FROM alpine:latest
 ARG APP=/usr/src/app
 
 ENV TZ=Etc/UTC \
-    APP_USER=core
+    APP_USER=core \
+    HOST=0.0.0.0 \
+    PORT=8945
 
 RUN addgroup -S $APP_USER \
     && adduser -S -g $APP_USER $APP_USER
