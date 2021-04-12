@@ -19,6 +19,8 @@ tch, tokio, actix, rocket, hyper, zmq, docker and k8s based on streaming async p
 
 
 commands info : 
+cargo new core --bin
+cargo run core
 cargo build --bin core --release
 
 
