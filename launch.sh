@@ -12,7 +12,7 @@
 # ==============
 # ✅ sudo docker stop $(sudo docker ps -a -q) && sudo docker-compose down -v && sudo docker system prune -af --volumes
 # ✅ sudo docker-compose -f docker-compose.yml build --no-cache && sudo docker-compose up -d --force-recreate
-# ✅ sudo docker-compose -f docker-compose.yml logs
+# ✅ sudo docker-compose -f docker-compose.yml logs -f
 
 
 
@@ -26,6 +26,7 @@
 # ✅ sudo docker-compose up -d --force-recreate                             --------------------------------> omit the --force-recreate if you don't want to recreate all the containers
 # ✅ sudo docker-compose -f docker-compose.yml logs                         --------------------------------> see the docker containers logs
 # ✅ sudo docker-compose run -u <SERVICE_NAME> web bash                     --------------------------------> accessing bash shell of a service
+# ✅ sudo docker-compose exec db psql --username=uniXerr --dbname=uniXerr   --------------------------------> accessing inside the db shell
 
 
 
