@@ -2,8 +2,7 @@
 
 
 
-# 📌 CMD and ENTRYPOINT in Dockerfile will execute the command first and then stop the container with exit code 0 (no error)
-# 📌 we can't have multiple CMD or ENTRYPOINT in our Dockerfile 
+# 📌 CMD and ENTRYPOINT directive execute the command first and then stop the container with exit code 0 (no error)
 # 📌 containers are reachable by their service names
 
 
@@ -94,7 +93,7 @@ echo "⌛ Building images with --no-cache enabled..."
 sudo docker-compose -f docker-compose.yml build --no-cache
 echo "⌛ Running all containers from built images with --force-recreate enabled..."
 sudo docker-compose up -d --force-recreate
-echo "⌛ Showing containers log..."
+echo "⌛ Following containers log..."
 sudo docker-compose -f docker-compose.yml logs -f
 
 
