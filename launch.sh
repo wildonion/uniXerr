@@ -33,7 +33,7 @@
 # ========================================
 # saving and loading images on other hosts
 # ========================================
-# ✅ sudo docker save $(sudo docker images -q) | gzip > uniXerr.tar.gz
+# ✅ sudo docker save $(sudo docker images -a -q) | gzip > uniXerr.tar.gz
 # ✅ sudo docker load -i -o uniXerr.tar
 
 
