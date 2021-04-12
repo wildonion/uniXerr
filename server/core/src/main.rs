@@ -19,9 +19,12 @@ tch, tokio, actix, rocket, hyper, zmq, docker and k8s based on streaming async p
 
 
 commands info : 
+cargo install systemfd cargo-watch
+systemfd --no-pid -s http::8587 -- cargo watch -x run
 cargo new core --bin
 cargo run core
 cargo build --bin core --release
+cargo watch -x run
 
 
 */
