@@ -5,7 +5,7 @@ FROM ekidd/rust-musl-builder:stable as builder
 RUN USER=root cargo new --bin core
 WORKDIR ./core
 ADD ../../../../server/core/ ./
-ENV HOST=0.0.0.0 \
+ENV HOST=localhost \
     PORT=8945
 RUN cargo build --bin core --release --target x86_64-unknown-linux-musl
 
