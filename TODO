@@ -9,7 +9,7 @@
 1 - build uniXerr cli from the app.py using https://typer.tiangolo.com/tutorial/package/ or github actions for publishing python packages
 2 - complete wiki page for project explanation
 3 - collecting big data for uniXerr gnn networks' AI using cassandra, graphql, gRPC, kafka, pytorch geometric and dgl.ai 
-4 - docker microservices by completing docker-compose file, services folder Dockerfile, afw and inobi (gdrive backup) repo
+4 - docker microservices by completing docker-compose file, services folder Dockerfile and getting help from afw and inobi (gdrive backup) repo
 5 - remove the source code from VPS after building the docker microservices
 
 
