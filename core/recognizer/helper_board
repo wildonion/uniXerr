@@ -2,6 +2,7 @@
 
                                           |image and text <-> speech processing|
                                     |natural language processing with BERT & GPT & BART|
+                                   |spaCy - stanza - pytorch lightning - plotly - sklearn|
                                           |deep fakee - lip sync - talking head|
                                        |image segmentation (semantic and instance)|
                              |object detection - classification with localization - GAN ops|
@@ -106,6 +107,13 @@ ___________________________ AAE/VAE ___________________________________
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 
 ___________________________ NLP ___________________________________
+        https://blog.xrds.acm.org/2017/10/introduction-n-grams-need/
+        https://www.datasciencecentral.com/profiles/blogs/top-nlp-algorithms-amp-concepts
+        https://towardsdatascience.com/evolution-of-language-models-n-grams-word-embeddings-attention-transformers-a688151825d2
+        https://realpython.com/sentiment-analysis-python/
+        https://towardsdatascience.com/sentiment-analysis-a-how-to-guide-with-movie-reviews-9ae335e6bcb2
+        https://machinelearningmastery.com/prepare-movie-review-data-sentiment-analysis/
+        https://medium.com/analytics-vidhya/text-preprocessing-for-nlp-natural-language-processing-beginners-to-master-fd82dfecf95
         https://thegradient.pub/transformers-are-graph-neural-networks/
         https://sshleifer.github.io/blog_v2/jupyter/2020/03/12/bart.html#:~:text=Bert%20vs.,-GPT2&text=As%20the%20BART%20authors%20write,to%20make%20a%20good%20guess.
         https://towardsdatascience.com/bart-for-paraphrasing-with-simple-transformers-7c9ea3dfdd8c
