@@ -28,6 +28,31 @@ __________________________ SSL (Self Supervised Learning) ______________________
 
 
 
+__________________________ NLP TOOLS & CONCEPTS __________________________
+📌 PREPROCESSING
+      - tokenization
+      - stemming
+      - lemmatization
+      - Lowercasing 
+      - stop-word removal
+      - normalization 
+      - padding
+📌 WORD EMBEDDING OR VECTORIZATION OR FEATURE EXTRACTION
+      - TF-IDF
+      - BOW
+      - CBOW
+      - Word2Vec
+      - GloVe
+      - Vector Similarity Algos
+📌 MODELS
+      - SVM
+      - Naive Bayesian
+      - Random Forest
+      - LSTM
+      - Transformers and Attentions
+
+
+
 __________________________ DEEPFAKE __________________________
         https://github.com/serengil/deepface
         https://faceswap.dev/
@@ -107,6 +132,7 @@ ___________________________ AAE/VAE ___________________________________
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 
 ___________________________ NLP ___________________________________
+        https://www.lexalytics.com/lexablog/machine-learning-natural-language-processing
         https://blog.xrds.acm.org/2017/10/introduction-n-grams-need/
         https://www.datasciencecentral.com/profiles/blogs/top-nlp-algorithms-amp-concepts
         https://towardsdatascience.com/evolution-of-language-models-n-grams-word-embeddings-attention-transformers-a688151825d2
