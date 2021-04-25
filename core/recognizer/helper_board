@@ -47,7 +47,7 @@ __________________________ NLP TOOLS, CONCEPTS & PROCESSES _____________________
       - Vector Similarity Algos
 📌 MODELS & STATISTICAL RESULT
       - ML models like SVM, Naive Bayesian, Random Forest and Logistic Regression
-      - DL models like LSTM(MLP&CNN), Transformers and Attentions
+      - DL models like LSTM(MLP+CNN), Transformers and Attentions
       - classification confusion matrix
 
 
