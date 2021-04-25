@@ -35,9 +35,10 @@ __________________________ NLP TOOLS & CONCEPTS __________________________
       - lemmatization
       - Lowercasing 
       - stop-word removal
-      - normalization 
+      - normalization
       - padding
 📌 WORD EMBEDDING OR VECTORIZATION OR FEATURE EXTRACTION
+      - Ngram
       - TF-IDF
       - BOW
       - CBOW
@@ -45,11 +46,8 @@ __________________________ NLP TOOLS & CONCEPTS __________________________
       - GloVe
       - Vector Similarity Algos
 📌 MODELS
-      - SVM
-      - Naive Bayesian
-      - Random Forest
-      - LSTM
-      - Transformers and Attentions
+      - ML algos like SVM, Naive Bayesian, Random Forest and Logistic Regression
+      - DL algos like LSTM, Transformers and Attentions
 
 
 
