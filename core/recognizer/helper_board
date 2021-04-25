@@ -46,8 +46,8 @@ __________________________ NLP TOOLS & CONCEPTS __________________________
       - GloVe
       - Vector Similarity Algos
 📌 MODELS
-      - ML algos like SVM, Naive Bayesian, Random Forest and Logistic Regression
-      - DL algos like LSTM, Transformers and Attentions
+      - ML models like SVM, Naive Bayesian, Random Forest and Logistic Regression
+      - DL models like LSTM(MLP&CNN), Transformers and Attentions
 
 
 
