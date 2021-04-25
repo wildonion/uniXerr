@@ -28,12 +28,12 @@ __________________________ SSL (Self Supervised Learning) ______________________
 
 
 
-__________________________ NLP TOOLS & CONCEPTS __________________________
+__________________________ NLP TOOLS, CONCEPTS & PROCESS __________________________
 📌 PREPROCESSING
       - tokenization
       - stemming
       - lemmatization
-      - Lowercasing 
+      - lowercasing 
       - stop-word removal
       - normalization
       - padding
@@ -45,9 +45,10 @@ __________________________ NLP TOOLS & CONCEPTS __________________________
       - Word2Vec
       - GloVe
       - Vector Similarity Algos
-📌 MODELS
+📌 MODELS & STATISTICAL RESULT
       - ML models like SVM, Naive Bayesian, Random Forest and Logistic Regression
       - DL models like LSTM(MLP&CNN), Transformers and Attentions
+      - classification confusion matrix
 
 
 
