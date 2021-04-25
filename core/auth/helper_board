@@ -17,6 +17,7 @@
         |=> hashing/rehashing and compressing/decrypting content using VAE-GAN, lstm and self supervised learning transformers <=|
 	|=> recovering corrupted objects or contents using associative-memory based models like hopfield and BAM <=|
 	|=> fuzzy string matching for password recovery <=|
+	|=> image dimensionality reduction using GA and VAE <=|
 
 
 	
