@@ -2,8 +2,8 @@
 ----------------------------------------------------------------------------------------------
                      PREDICT THE POSITIONS , SEMESTER STATUS & EVENTS
                      FOR uniXerr USERS BASED ON THEIR PAST EVENTS AND 
-                           CLUSTERS USING RNNs (LSTM/GRU/LSTM) AND
-                                   INFORMATION THEORY
+                      CLUSTERS USING RNNs (LSTM/GRU/Transformers) , 
+                        SEQUENTIAL ANALYSIS AND INFORMATION THEORY
 ----------------------------------------------------------------------------------------------
 
         create a system for collage students those who their state is a 
@@ -12,7 +12,7 @@
         give them either a conditional state or passed state by taking a process 
         time for investigating and collecting big data about their 
         manner, behavior, personality, efforts for each semester 
-        and other majors of their past life then mine those data 
+        and other majors of their past life then mine those data
         using AI and let the AI say us what'll happen!
 
 
