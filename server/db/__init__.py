@@ -19,7 +19,7 @@ Explanations:
 
     A primary key uniquely identifies a row, composed of partition key(s) [and optional clustering keys(or columns)]
     A composite key is a key formed from multiple columns.
-    A partition key is the primary lookup to find a set of rows, i.e. a partition. The hash value of Partition key is used to determine the specific node in a cluster to store the data
+    A partition key is the primary lookup to find a set of rows, i.e. a partition. The hash value of Partition key is used to determine the specific node in a cluster to store the data [multiple nodes are within a cluster or datacenter]
     A clustering key is the part of the primary key that isn't the partition key (and defines the ordering within a partition or responsible node and it's replicas).
 
 Examples:
