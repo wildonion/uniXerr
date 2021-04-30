@@ -31,20 +31,17 @@ __________________________ SSL (Self Supervised Learning) ______________________
 __________________________ NLP TOOLS, CONCEPTS & PROCESSES __________________________
 📌 PREPROCESSING
       - tokenization
-      - stemming
-      - lemmatization
-      - lowercasing 
-      - stop-word removal
-      - normalization
+      - Lexicon Normalization(stemming & lemmatization)
+      - lowercasing
+      - stopwwords removal
       - padding
-📌 WORD EMBEDDING OR VECTORIZATION OR FEATURE EXTRACTION
-      - Ngram
-      - TF-IDF
-      - BOW
-      - CBOW
-      - Word2Vec
+📌 VOCABULARY BUILDING OR WORD EMBEDDING OR VECTORIZATION OR FEATURE EXTRACTION 
+      - BOW(ngram based with TF-IDF normalization)
+      - Word2Vec(skip-gram & CBOW based)
       - GloVe
-      - Vector Similarity Algos
+      - GPT
+      - BERT
+      - BART
 📌 MODELS & STATISTICAL RESULT
       - ML models like SVM, Naive Bayesian, Random Forest and Logistic Regression
       - DL models like LSTM(MLP+CNN), Transformers and Attentions
@@ -131,6 +128,8 @@ ___________________________ AAE/VAE ___________________________________
         https://rubikscode.net/2019/01/21/generating-images-using-adversarial-autoencoders-and-python/
 
 ___________________________ NLP ___________________________________
+        https://towardsdatascience.com/text-classification-with-nlp-tf-idf-vs-word2vec-vs-bert-41ff868d1794
+        https://towardsdatascience.com/nlp-101-word2vec-skip-gram-and-cbow-93512ee24314
         https://www.dataquest.io/blog/tutorial-text-classification-in-python-using-spacy/
         https://www.kaggle.com/homayoonkhadivi/covid-19-tweets-eda-wordcloud-sentiment-analysis
         https://www.lexalytics.com/lexablog/machine-learning-natural-language-processing
