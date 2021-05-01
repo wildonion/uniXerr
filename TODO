@@ -8,7 +8,7 @@
 0 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
 1 - build uniXerr cli from the app.py using https://typer.tiangolo.com/tutorial/package/ or github actions for publishing python packages
 2 - complete wiki page for project explanation
-3 - collecting big data for uniXerr gnn networks' AI using cassandra, graphql, gRPC, kafka, pytorch geometric and dgl.ai 
+3 - collecting big data for uniXerr gnn networks' AI using cassandra, graphql, gRPC, kafka, pytorch geometric and dgl.ai => aravl repo 
 4 - docker microservices by completing docker-compose file, services folder Dockerfile and getting help from afw-api, aravl and inobi repos (gdrive backups)
 5 - remove the source code from VPS after building the docker microservices
 
