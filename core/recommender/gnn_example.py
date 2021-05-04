@@ -3,7 +3,8 @@
 
 
 '''
-note that the adj_mat can be built using one the existing feature engineering and selection techniques like genetic algorithm
+note that the adj_mat (the relationship between nodes edges) can be built using one the existing feature engineering and selection techniques like genetic algorithm
+https://github.com/wildonion/MLutionary
 '''
 
 
