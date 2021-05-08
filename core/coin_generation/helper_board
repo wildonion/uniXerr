@@ -24,9 +24,10 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
 
 
 
-NOTE : fuzzy generative multi-task classification is the same as multi class classification but with softmax in the last layer
-NOTE : simple fuzzy is used for regression like our coin generation ideas
-
+✅ fuzzy generative multi-task classification is the same as multi class classification but with softmax in the last layer
+✅ simple fuzzy is used for regression like our following coin generation ideas 
+✅ combining evolutionary algorithms like GA (ES) and FA for best rules selection or membership function creation of fuzzy logic controller
+✅ a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy like ANFIS using GA (ES) and FA 
 
 
 
