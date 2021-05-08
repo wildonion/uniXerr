@@ -25,10 +25,6 @@
 | of each feature is 5.
 |
 |
-|	        COIN GENERATION IDEAS USING FLC
-| ✅ idea-1: combining evolutionary algorithms like GA (ES) and FA for best rules selection or membership function creation of fuzzy logic controller
-| ✅ idea-2: a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy like ANFIS using GA (ES) and FA 
-|
 |
 |
 
