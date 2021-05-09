@@ -25,6 +25,7 @@ ____________________________________________
 ____________________________________________
 
 
+https://www.ritchieng.com/machine-learning-multinomial-naive-bayes-vectorization/
 https://machinelearningmastery.com/how-to-calculate-precision-recall-f1-and-more-for-deep-learning-models/
 https://medium.com/dair-ai/an-illustrated-guide-to-graph-neural-networks-d5564a551783
 https://ai.facebook.com/blog/self-supervised-learning-the-dark-matter-of-intelligence/
