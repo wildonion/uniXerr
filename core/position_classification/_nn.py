@@ -44,7 +44,7 @@ class Position(nn.Module):
 		self.i_l = nn.Linear(input_neurons, 16) # i_l.weight  : torch.Size([16, 4]), is transposed because of back-propagation algorithm
 		self.o_l = nn.Linear(16, output_neurons) # o_l.weight : torch.Size([6, 16]), is transposed because of back-propagation algorithm
 		self.relu = nn.ReLU()
-		self.softmax = nn.Softmax(dim=1) # dim=1, sum of each rows will be 1 : p_a + p_b + p_c + p_d + p_e + p_f
+		self.softmax = nn.Softmax(dim=1) # in fuzzy or multi-class classification sum of each rows will be 1 : p_a + p_b + p_c + p_d + p_e + p_f
 
 	def forward(self, x):
 		output = self.relu(self.i_l(x))
