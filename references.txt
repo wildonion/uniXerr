@@ -25,6 +25,9 @@ ____________________________________________
 ____________________________________________
 
 
+https://medium.com/all-things-ai/in-depth-parameter-tuning-for-svc-758215394769
+https://jakevdp.github.io/PythonDataScienceHandbook/05.07-support-vector-machines.html
+https://medium.com/analytics-vidhya/implementing-svm-for-performing-classification-and-finding-accuracy-in-python-using-datasets-wine-e4fef8e804b4
 https://www.ritchieng.com/machine-learning-multinomial-naive-bayes-vectorization/
 https://machinelearningmastery.com/how-to-calculate-precision-recall-f1-and-more-for-deep-learning-models/
 https://medium.com/dair-ai/an-illustrated-guide-to-graph-neural-networks-d5564a551783
