@@ -25,12 +25,23 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
 
 
 
-✅ fuzzy generative multi-task classification is the same as multi class classification with softmax in the last layer
+✅ fuzzy generative multi-task classification is the same as multi-class classification with softmax in the last layer
 ✅ simple fuzzy is used for regression like our following coin generation ideas 
 ✅ combining evolutionary algorithms like GA (ES) and FA for best rules selection or membership function creation of fuzzy logic controller
 ✅ a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy classifier like ANFIS using GA (ES) and FA 
-
-
+✅ if classes are mutually exclusive, then the sum of the fuzzy membership degrees for these classes should typically be equal to 1.
+✅ The classes are mutually exclusive when there is not intersection between them: every input object belongs only to ONE class. 
+   When the (mutually exclusive) classes are only two, you have a binary classification problem, while if the classes are more than two, 
+   you have a multi-class classification problem. When the classes are not mutually exclusive, i.e. every object can have multiple labels, 
+   you have a multi-label classification problem. You can use NNs for both types of problem (this makes the claim in your answer false). 
+   For multi-class classification, one typically uses a softmax output layer with cross-entropy loss (a softmax classifier).
+   A multi-label classifier can be seen as a stack of “independent” binary classifiers. So, if you want to implement a multi-label NN classifier, 
+   all you need to do is replacing the softmax classifier at the end of your net with C logistic units (where C is the number of classes), 
+   each working as a binary classifier responsible for one single label.
+✅ example of different classification tasks
+   Fuzzy or multi-class classification: [0.5, 0.2, 0.3, 0, 0]
+   Single-label classification:         [1,   0,   0,   0, 0]
+   Multi-label classification:          [1,   0,   1,   0, 0]
 
 
 
