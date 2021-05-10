@@ -42,7 +42,14 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
    Fuzzy or multi-class classification: [0.5, 0.2, 0.3, 0, 0]
    Single-label classification:         [1,   0,   0,   0, 0]
    Multi-label classification:          [1,   0,   1,   0, 0]
-
+✅ Mutually Exclusive Classes:
+   Fuzzy Classification
+   Multi-class Classification on Neural Network Classifier with softmax at the last layer
+   Sum of fuzzy membership degrees for the classes are equal to 1
+✅ Not Mutually Exclusive Classes:
+   Binary or single-label Classification
+   Multi-label Classification on Neural Network Classifier with sigmoid at the last layer
+   Sum of fuzzy membership degrees for the classes are not equal to 1
 
 
 
