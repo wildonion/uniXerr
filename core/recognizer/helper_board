@@ -16,8 +16,8 @@ __________________________ SSL (Self Supervised Learning) ______________________
 📌 TASKS
       - predicting missing part of the unseen input based on the exact style of the input
       - reconstructing and labeling the unseen input based on the exact style of the input
+      - feature learning, extracting and selection from dimensionality reduction
       - representation learning
-      - feature learning and extracting
 📌 MODELS & TOOLS
       - Transformers (https://arxiv.org/abs/2101.12037)
       - SEER (https://arxiv.org/pdf/2103.01988)
