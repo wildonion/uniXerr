@@ -18,7 +18,9 @@ __________________________ SSL (Self Supervised Learning) ______________________
       - reconstructing and labeling the unseen input based on the exact style of the input
       - feature learning and extracting
       - feature selection from dimensionality reduction
-      - representation learning
+      - representation learning from the data itself
+      - anomaly detection, one shot and meta learning
+      - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture and LSTM based
 📌 MODELS & TOOLS
       - Transformers (https://arxiv.org/abs/2101.12037)
       - SEER (https://arxiv.org/pdf/2103.01988)
@@ -26,7 +28,7 @@ __________________________ SSL (Self Supervised Learning) ______________________
       - BART (https://arxiv.org/pdf/1910.13461)
       - VISSL (https://vissl.readthedocs.io/en/v0.1.5/)
       - GNN (Graph Neural Network)
-
+      - MemTransformer (https://arxiv.org/pdf/2006.11527.pdf)
 
 
 __________________________ NLP TOOLS, CONCEPTS & PROCESSES __________________________
