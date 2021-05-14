@@ -20,7 +20,7 @@ __________________________ SSL (Self Supervised Learning) ______________________
       - feature selection from dimensionality reduction
       - representation learning from the data itself
       - anomaly detection, one shot and meta learning
-      - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture and LSTM based
+      - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture LSTM based
 📌 MODELS & TOOLS
       - Transformers (https://arxiv.org/abs/2101.12037)
       - SEER (https://arxiv.org/pdf/2103.01988)
