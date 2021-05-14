@@ -4,48 +4,7 @@
 
 /**
 
-=============================
-borrowing and ownership rules
-=============================
-return reference inside func
-accessing byte indices of a list is done using a reference to the list like so: &args_list[1] 
-all number values are stored in stack plus the address of the heap pointer of other data structure than numbers like String and Box 
-&String is &str and is a reference to String which is a value allocated some where in the heap
-&str or str is a string slices or literal some where in the stack and String is a heap growable structure allocated some where in the heap
-bypass cyclic references using Weak<T> 
-refs, derefs, Box (heap allocator) str and String
-multiple mutable references to the same variable is not ok: because any one who is just reading the data has the ability to affect anyone else’s reading of the data.
-multiple immutable references to the same variable is ok: because no one who is just reading the data has the ability to affect anyone else’s reading of the data.
-keep track of multiple immutable borrowers or owners or references for a value
-keep track of multiple immutable borrowers or one mutable borrow or owners or references at any point in time at runtime
-keep track of multiple immutable and mutable borrows or owners or references at the same time using Rc<T> and RefCell<T>
-due to the ownership and borrow rules we can use Rc<T> to count the references or borrowers or owners of a value whcih the new variable is pointing to the value
-due to the lack of changing the immutable references at runtime we can use RefCell<T> to mutate an immutable value at any point in runtime
-due to the lack of having multiple mutable references to a value and changing that value at runtime and the same time we can use RefCell<Rc<T>> pattern
 
-
-
-
-
-
-=============================
-use tokio for following techs
-=============================
-async/none-blocking : running multiple tasks or functions in a single thread independently - none-blocking execution between functions.
-multithreading      : running multiple tasks or functions of multiple threads or code files at the same time in a single core simultaneously.
-		      job is our code or tasks, worker is our thread and threadpool is a pool of threads or workers,
-		      their communicate inside the pool through the messaging channel using multiple producers
-		      (means multiple workers own the receiver) and single consumer (means only one worker get the job at a time from the receiver) algorithm.
-multiprocessing     : running multiple processes of multiple cores simultaneously
-
-
-
-
-
-
-==============
-references
-==============
 https://cheats.rs/#behind-the-scenes
 https://users.rust-lang.org/t/2018-modules-again/23169
 https://rust-lang.github.io/rustup/index.html
@@ -62,7 +21,6 @@ https://lib.rs/crates/tch
 https://doc.rust-lang.org/book/ch19-00-advanced-features.html
 https://doc.rust-lang.org/book/ch16-00-concurrency.html
 https://doc.rust-lang.org/book/ch17-00-oop.html
-https://doc.rust-lang.org/book/ch20-02-multithreaded.html
 
 
 **/
