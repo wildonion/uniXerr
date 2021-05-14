@@ -61,6 +61,8 @@ https://lib.rs/crates/tch
 https://doc.rust-lang.org/book/ch19-00-advanced-features.html
 https://doc.rust-lang.org/book/ch16-00-concurrency.html
 https://doc.rust-lang.org/book/ch17-00-oop.html
+https://doc.rust-lang.org/book/ch20-01-single-threaded.html
+
 
 **/
 
