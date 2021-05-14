@@ -14,6 +14,4 @@
 
 
 
-* Queue.next-section : rust and C++ <-binding-> python using pyo3, cython, ctypes and cffi for AI models inside  core folder
-* Queue.next-section : rust <-binding-> in C++ and C using bindgen for AI models inside core folder
-
+* Queue.next-section : complete servers for core AI models inside core folder => start coding inside server/core folder 
