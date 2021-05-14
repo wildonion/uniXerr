@@ -31,11 +31,12 @@ due to the lack of having multiple mutable references to a value and changing th
 =============================
 use tokio for following techs
 =============================
-async/none-blocking : running multiple tasks or functions in a single thread independently - none-blocking execution between functions
-multithreading      : running multiple tasks or functions of multiple threads or code files at the same time in a single core simultaneously
+async/none-blocking : running multiple tasks or functions in a single thread independently - none-blocking execution between functions.
+multithreading      : running multiple tasks or functions of multiple threads or code files at the same time in a single core simultaneously.
+		      job is our code or tasks, worker is our thread and threadpool is a pool of threads or workers,
+		      their communicate inside the pool through the messaging channel using multiple producers
+		      (means multiple workers own the receiver) and single consumer (means only one worker get the job at a time from the receiver) algorithm.
 multiprocessing     : running multiple processes of multiple cores simultaneously
-
-
 
 
 
@@ -61,7 +62,7 @@ https://lib.rs/crates/tch
 https://doc.rust-lang.org/book/ch19-00-advanced-features.html
 https://doc.rust-lang.org/book/ch16-00-concurrency.html
 https://doc.rust-lang.org/book/ch17-00-oop.html
-https://doc.rust-lang.org/book/ch20-01-single-threaded.html
+https://doc.rust-lang.org/book/ch20-02-multithreaded.html
 
 
 **/
