@@ -5,12 +5,14 @@ https://github.com/wildonion/aravl
 
 
 server for :
-pre-trained core AI models
+pre-trained AI models inside core folder
 DL and ML algorithms from scratch like GNN and transformers
 uPC telegram bot
 
+
 tools :
 tch, tokio, actix, rocket, hyper, zmq, docker and k8s based on streaming async paradigm
+rust and C++ <-binding-> python using pyo3, cython, ctypes and cffi
 
 
 commands info : 
