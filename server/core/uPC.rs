@@ -19,7 +19,7 @@ https://rust-lang.github.io/async-book
 https://stackoverflow.com/questions/28800121/what-do-i-have-to-do-to-solve-a-use-of-moved-value-error
 https://lib.rs/crates/tch
 https://doc.rust-lang.org/book/ch19-00-advanced-features.html
-https://doc.rust-lang.org/book/ch16-00-concurrency.html
+https://doc.rust-lang.org/book/ch20-03-graceful-shutdown-and-cleanup.html
 https://doc.rust-lang.org/book/ch17-00-oop.html
 
 
