@@ -2,31 +2,6 @@
 
 
 
-/**
-
-
-https://cheats.rs/#behind-the-scenes
-https://users.rust-lang.org/t/2018-modules-again/23169
-https://rust-lang.github.io/rustup/index.html
-https://os.phil-opp.com/
-https://learning-rust.github.io/docs/a1.why_rust.html
-https://www.rust-lang.org/learn
-https://doc.rust-lang.org/reference/items/use-declarations.html
-https://rust-lang-nursery.github.io/rust-cookbook/
-https://rust-lang.github.io/rustup/
-https://bryce.fisher-fleig.org/strategies-for-returning-references-in-rust/
-https://rust-lang.github.io/async-book
-https://stackoverflow.com/questions/28800121/what-do-i-have-to-do-to-solve-a-use-of-moved-value-error
-https://lib.rs/crates/tch
-https://doc.rust-lang.org/book/ch19-00-advanced-features.html
-https://doc.rust-lang.org/book/ch20-03-graceful-shutdown-and-cleanup.html
-https://doc.rust-lang.org/book/ch17-00-oop.html
-
-
-**/
-
-
-
 
 
 use std::str;
