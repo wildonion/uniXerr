@@ -23,7 +23,7 @@ https://doc.rust-lang.org/book/ch17-00-oop.html
 rust server for :
 pre-trained AI models inside core folder
 DL and ML algorithms from scratch like GNN and transformers
-multithreading and multiprocessing from scratch based on tokio runtime for its async funcs
+multithreading and multiprocessing from scratch based on tokio::spawn and thread::spawn runtime for its async funcs
 uPC telegram bot
 
 
