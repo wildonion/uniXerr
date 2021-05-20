@@ -25,7 +25,8 @@ pre-trained AI models inside core folder
 DL and ML algorithms from scratch like GNN and transformers
 streaming using multithreading and async futures with messaging channel protocols
 multithreading and multiprocessing from scratch based on tokio and rust thread lib
-asyn programming in rust using futures::join! macro and tokio runtime
+asyn programming in rust using futures::join! macro or .await call and tokio runtime
+async multithreading DL and ML from scratch and using tokio
 uPC telegram bot
 
 
