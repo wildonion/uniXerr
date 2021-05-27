@@ -32,7 +32,7 @@ multithreading async event or task streaming using tokio and kafka channel queue
 
 
 tools :
-tch, tokio, thread::spawn, kafka, docker and k8s based on streaming async paradigm
+tch, tokio, actix, thread::spawn, kafka, docker and k8s based on streaming async paradigm
 
 
 bindings :
