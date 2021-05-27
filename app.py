@@ -48,7 +48,7 @@ def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-
 
 	if streamer:
 		typer.secho("\t➢   streaming over kafka for online training\n", fg=typer.colors.RESET, bold=True)
-		# TODO : work on streamer.py inside server folder
+		# TODO : work on streamer.rs inside server/core folder
 		# ...
 
 
