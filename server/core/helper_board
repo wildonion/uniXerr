@@ -28,10 +28,11 @@ training DL and ML algorithms from scratch like GNN and transformers using multh
 using :
 uPC telegram bot
 multithreading sockets async tasks queue and messaging channel protocols
+multithreading async event or task streaming using tokio and kafka channel queue for training AI cores in realtime manner
 
 
 tools :
-tch, tokio, thread::spawn, actix, zmq, docker and k8s based on streaming async paradigm
+tch, tokio, thread::spawn, kafka, docker and k8s based on streaming async paradigm
 
 
 bindings :
