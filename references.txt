@@ -7,6 +7,7 @@ ________________________________________
 ________________________________________
 
 
+https://github.com/jason718/awesome-self-supervised-learning
 https://www.paperswithcode.com/
 https://github.com/lucidrains
 https://pytorch.org/docs/stable/index.html
