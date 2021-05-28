@@ -12,7 +12,7 @@
 
 
 
-__________________________ SSL (Self Supervised Learning) __________________________
+__________________________ SSL (Self Supervised Learning) - TREND AI __________________________
 📌 TASKS
       - predicting missing part of the unseen input based on the exact style of the input
       - reconstructing and labeling the unseen input based on the exact style of the input
@@ -24,7 +24,7 @@ __________________________ SSL (Self Supervised Learning) ______________________
 📌 MODELS & TOOLS
       - Transformers (https://arxiv.org/abs/2101.12037)
       - SEER (https://arxiv.org/pdf/2103.01988)
-      - VAE
+      - VAE & GAN
       - BART (https://arxiv.org/pdf/1910.13461)
       - VISSL (https://vissl.readthedocs.io/en/v0.1.5/)
       - GNN (Graph Neural Network)
@@ -267,6 +267,7 @@ ___________________________ NLP ___________________________________
         medium.com/@sabber/classifying-yelp-review-comments-using-cnn-lstm-and-pre-trained-glove-word-embeddings-part-3-53fcea9a17fa
 
 ___________________________ IMP ___________________________________
+        https://lilianweng.github.io/lil-log/2019/11/10/self-supervised-learning.html
         https://towardsdatascience.com/image-clustering-implementation-with-pytorch-587af1d14123
         https://nvlabs.github.io/face-vid2vid/ (https://arxiv.org/pdf/2011.15126)
         https://towardsdatascience.com/can-we-do-better-than-convolutional-neural-networks-46ed90fed807
