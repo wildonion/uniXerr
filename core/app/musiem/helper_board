@@ -8,3 +8,4 @@
 ==========
 musiem app
 ==========
+realtime AI training based on self-supervised learning tools from scratch using thread::spawn and tokio channel queue job, cassandra and kafka
