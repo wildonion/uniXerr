@@ -10,4 +10,5 @@ musiem app
 ==========
 realtime AI training based on self-supervised learning tools from scratch using thread::spawn and tokio channel queue job, cassandra and kafka
 spotify uses cnn for audio analysis and nlp models to get all posts about the specific song across the web
-spotify create a vector for each song with thousand of features like number of the song played and region for each user
+spotify creates a vector for each song with thousand of features like number of the song played and region for each user
+spotify broadcasts what you're playing right now to your friend and connects to different device using kafka 
