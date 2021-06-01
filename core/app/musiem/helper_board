@@ -5,9 +5,11 @@
 
 
 
-==========
-musiem app
-==========
+=====================
+musiem app using rust
+=====================
+kafka     => brokers(servers) <-has-> topics <-has-> partitions <-has-> buck of events inside each partition
+cassandra => cluster(datacenter) <-has-> nodes(multiple instances of cassandra db server) <-has-> partition replicas <-has-> rows  
 realtime AI training and streaming based on self-supervised learning tools from scratch using thread::spawn and tokio channel queue job, cassandra and kafka
 spotify uses cnn for audio analysis and nlp models to get all posts about the specific song across the web
 spotify creates a vector for each song with thousand of features like number of the song played and region for each user
