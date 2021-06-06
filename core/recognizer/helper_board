@@ -18,6 +18,7 @@ __________________________ SSL (Self Supervised Learning) - TREND AI ___________
       - reconstructing and labeling the unseen input based on the exact style of the input
       - feature learning and extracting
       - feature selection from dimensionality reduction
+      - autoregressive based sequence modeling
       - representation learning from the data itself
       - anomaly detection, one shot and meta learning
       - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture LSTM based
@@ -29,6 +30,7 @@ __________________________ SSL (Self Supervised Learning) - TREND AI ___________
       - VISSL (https://vissl.readthedocs.io/en/v0.1.5/)
       - GNN (Graph Neural Network)
       - MemTransformer (https://arxiv.org/pdf/2006.11527.pdf)
+      - Decision Transformer (https://arxiv.org/pdf/2106.01345v1.pdf)
 
 
 __________________________ NLP TOOLS, CONCEPTS & PROCESSES __________________________
