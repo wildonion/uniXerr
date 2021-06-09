@@ -26,6 +26,7 @@ ____________________________________________
 ____________________________________________
 
 
+https://towardsdatascience.com/understanding-the-bias-variance-tradeoff-165e6942b229
 https://medium.com/all-things-ai/in-depth-parameter-tuning-for-svc-758215394769
 https://jakevdp.github.io/PythonDataScienceHandbook/05.07-support-vector-machines.html
 https://medium.com/analytics-vidhya/implementing-svm-for-performing-classification-and-finding-accuracy-in-python-using-datasets-wine-e4fef8e804b4
