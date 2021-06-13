@@ -19,6 +19,12 @@ https://doc.rust-lang.org/book/ch19-00-advanced-features.html
 https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html
 https://doc.rust-lang.org/book/ch17-00-oop.html
 https://cetra3.github.io/blog/implementing-a-jobq/
+https://github.com/wildonion/aravl
+https://github.com/telegram-rs/telegram-bot
+https://github.com/teloxide/teloxide
+https://github.com/PyO3/pyo3
+https://github.com/wildonion/stomegranate
+https://github.com/v1s1t0r1sh3r3/airgeddon
 
 
 
@@ -29,6 +35,8 @@ kafka consumers to subscribe published events (training data) from its related t
 the uPC telegram bot for pre-trained AI models inside core folder 
 training DL and ML algorithms from scratch like GNN and transformers using event streaming, realtime processing, multhreading and multiprocessing protocols
 implementation of multithreaded async job queue channel server from scratch 
+something like laZagne and mimikatz
+build a network monitoring handler like openwrt using tokio, a reverse proxy like ngrok and evil twins like airgeddon
 
 
 using :
