@@ -40,7 +40,7 @@ build a network monitoring handler like openwrt using tokio, a reverse proxy lik
 
 
 using :
-multithreading sockets async event or task streaming using tokio and kafka channel queue
+async task and messaging for multithreading socket event streaming with job queue mpsc channel using tokio and kafka by awaiting and joining on futures and threads and sharing large amounts of data using dataloader batches.
 
 
 tools :
