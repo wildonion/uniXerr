@@ -69,6 +69,54 @@ fn generate_workout(intensity: u32, random_number: u32) {
 
 
 fn main(){
+// 	::::::::::iterator for struct::::::::::
+	struct Alternate {
+	    state: i32,
+	}
+
+	impl Iterator for Alternate {
+	    type Item = i32;
+
+	    fn next(&mut self) -> Option<i32> {
+		let val = self.state;
+		self.state = self.state + 1;
+
+		// if it's even, Some(i32), else None
+		if val % 2 == 0 {
+		    Some(val)
+		} else {
+		    None
+		}
+	    }
+	}
+
+	let mut iter = Alternate { state: 0 };
+
+	// we can see our iterator going back and forth
+	assert_eq!(iter.next(), Some(0));
+	assert_eq!(iter.next(), None);
+	assert_eq!(iter.next(), Some(2));
+	assert_eq!(iter.next(), None);
+
+
+
+// 	::::::::::async future example::::::::::
+	async fn blocks() {
+	    let my_string = "foo".to_string();
+
+	    let future_one = async {
+		// ...
+		println!("{}", my_string);
+	    };
+
+	    let future_two = async {
+		// ...
+		println!("{}", my_string);
+	    };
+
+	    // Run both futures to completion, printing "foo" twice:
+	    let ((), ()) = futures::join!(future_one, future_two);
+	}
     // =============================================================================================================================
         let first_name = "Pascal"; // str - &str is a reference to String some where in the heap
         let last_name = "Precht".to_string(); // turn to String
