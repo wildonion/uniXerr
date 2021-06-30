@@ -29,8 +29,8 @@ https://github.com/v1s1t0r1sh3r3/airgeddon
 
 
 rust server for :
-kafka     => brokers(servers) <-has-> topics <-has-> partitions <-has-> buck of events inside each partition
-cassandra => cluster(datacenter) <-has-> nodes(multiple instances of cassandra db server) <-has-> partition replicas <-has-> rows  
+kafka     => cluster(datacenter or VPS) <-has-> nodes(multiple instances of kafka brokers or servers) <-has-> topics <-has-> partitions <-has-> buck of events inside each partition
+cassandra => cluster(datacenter or VPS) <-has-> nodes(multiple instances of cassandra db server) <-has-> partition replicas <-has-> rows  
 kafka consumers to subscribe published events (training data) from its related topic partitions through the channel queue coming from producers inside brokers (servers) 
 the uPC telegram bot for pre-trained AI models inside core folder 
 training DL and ML algorithms from scratch like GNN and transformers using event streaming, realtime processing, multhreading and multiprocessing protocols
