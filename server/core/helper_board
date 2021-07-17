@@ -19,9 +19,6 @@ https://doc.rust-lang.org/book/ch19-00-advanced-features.html
 https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html
 https://doc.rust-lang.org/book/ch17-00-oop.html
 https://cetra3.github.io/blog/implementing-a-jobq/
-https://github.com/wildonion/aravl
-https://github.com/telegram-rs/telegram-bot
-https://github.com/teloxide/teloxide
 https://github.com/PyO3/pyo3
 https://github.com/wildonion/stomegranate
 https://github.com/v1s1t0r1sh3r3/airgeddon
@@ -51,10 +48,3 @@ bindings :
 bind this server like its .so file in python using PyO3
 
 
-helper commands : 
-cargo install systemfd cargo-watch
-systemfd --no-pid -s http::8587 -- cargo watch -x run
-cargo new core --bin
-cargo run core
-cargo build --bin core --release
-cargo watch -x run
