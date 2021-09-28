@@ -8,7 +8,7 @@
 0 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
 1 - complete wiki page for project explanation
 2 - collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder
-3 - put all microservices in https://github.com/BAATEN/supapp-backend project inside server/skeleton folder
+3 - put https://github.com/BAATEN/supapp-backend project inside server/skeleton folder
 
 
 
