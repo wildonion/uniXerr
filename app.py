@@ -35,16 +35,8 @@ from server import api
 
 
 @app.command()
-def deploy(build: bool = typer.Option(False, "--build", help="Build from docker-compose.yml file."),
-		   streamer: bool = typer.Option(False, "--kafka", help="Streamer processor for online training.")
-		   ):
+def deploy(streamer: bool = typer.Option(False, "--kafka", help="Streamer processor for online training.")):
 	typer.secho("\n________Production process________\n", fg=typer.colors.MAGENTA, bold=True)
-
-	if build:
-		typer.secho("\t➢   building with docker for production\n", fg=typer.colors.RESET, bold=True)
-		# TODO : run launch.sh script in here using subprocess lib
-                # ... 
-
 
 	if streamer:
 		typer.secho("\t➢   streaming over kafka for online training\n", fg=typer.colors.RESET, bold=True)

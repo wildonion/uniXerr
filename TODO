@@ -6,12 +6,10 @@
 
 
 0 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
-1 - build uniXerr cli from the app.py using https://typer.tiangolo.com/tutorial/package/ or github actions for publishing python packages
-2 - complete wiki page for project explanation
-3 - collecting big data for uniXerr gnn networks' AI using cassandra, graphql, gRPC, kafka, pytorch geometric and dgl.ai => aravl repo 
-4 - docker microservices by completing docker-compose file, services folder Dockerfile and getting help from aravl and inobi repos (gdrive backups)
-5 - remove the source code from VPS after building the docker microservices
+1 - complete wiki page for project explanation
+2 - collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder
+3 - put all microservices in https://github.com/BAATEN/supapp-backend project inside server/skeleton folder
 
 
 
-* Queue.next-section : complete servers for core AI models inside core folder => start coding inside server/core folder 
+* Queue.next-section : start coding inside server/networks/psychoder folder 
