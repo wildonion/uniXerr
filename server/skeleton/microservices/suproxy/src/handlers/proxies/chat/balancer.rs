@@ -99,7 +99,7 @@ pub struct ChatServer{ //-- ChatServer is an actor and maintains list of connect
 
 impl ChatServer{
 
-    pub fn new(pg_pool: pg::Pool, cass_session: std::sync::Arc<cass::CassSession>) -> ChatServer{
+    pub fn new(pg_pool: pg::Pool, cass_session: Arc<cass::CassSession>) -> ChatServer{
         let mut rooms = HashMap::new();
         rooms.insert("Main".to_owned(), HashSet::new());
         ChatServer{
