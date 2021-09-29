@@ -1,0 +1,40 @@
+[package]
+name = "suproxy"
+version = "0.1.0"
+authors = ["wildonion <marefimoghaddam@unixerr.com>"]
+edition = "2018"
+
+
+
+[dependencies]
+serde = {version = "1.0.125", features = ["derive"] }
+reqwest = { version = "0.11", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde_json = "1.0.64"
+actix-web = "3"
+actix-web-actors = "3"
+actix = "0.10"
+cdrs = "2"
+cdrs_helpers_derive = "0.1.0"
+uuid = { version = "0.8.2", features = ["serde", "v4"] }
+chrono = { version = "0.4.19", features = ["serde"] }
+log = "0.4.14"
+dotenv = "0.15.0"
+env_logger = "0.8.3"
+r2d2 = "0.8.9"
+r2d2_postgres = "0.18.0"
+listenfd = "0.3.3"
+futures = "0.3.17"
+rand = "0.8.4"
+bcrypt = "0.10"
+rust-argon2 = "0.8.3"
+
+
+
+[lib]
+name = "helerium"
+path = "src/lib.rs"
+
+
+[[bin]]
+name = "suproxy"
+path = "src/main.rs"

@@ -13,7 +13,7 @@ https://www.researchgate.net/publication/222708434_Optimization_of_fuzzy_rules_d
 https://www.researchgate.net/publication/224176949_A_genetic_algorithm_for_tuning_fuzzy_rule-based_classification_systems_with_Interval-Valued_Fuzzy_Sets
 http://www.cs.osakafu-u.ac.jp/ci/Papers/pdf_file/fuzzy/Fuzzy_Rule_Selection.pdf
 https://ieeexplore.ieee.org/document/413232
-https://github.com/wiqaaas/youtube/tree/master/Machine_Learning_from_Scratch/Adaptive_Neuro_Fuzzy_Inference_System => ANFIS using GA (coing generation idea number 3)
+https://github.com/wiqaaas/youtube/tree/master/Machine_Learning_from_Scratch/Adaptive_Neuro_Fuzzy_Inference_System => ANFIS using GA
 https://medium.com/swlh/how-to-predict-if-someone-would-default-on-their-credit-payment-using-deep-learning-49ee032a8a31
 https://github.com/topics/credit-scoring?l=python
 https://github.com/sqbislam/Credit-Scoring-Model-
@@ -25,10 +25,12 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
 
 
 
+
+
+
+
+✅ SSL models like transformers for coin generation using psychoder models 
 ✅ fuzzy generative multi-task classification is the same as multi-class classification with softmax in the last layer
-✅ simple fuzzy is used for regression like our following coin generation ideas 
-✅ combining evolutionary algorithms like GA (ES) and FA for best rules selection or rules learning or membership function creation of fuzzy logic controller
-✅ a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy classifier like ANFIS using GA (ES) and FA 
 ✅ if classes are mutually exclusive, then the sum of the fuzzy membership degrees for these classes should typically be equal to 1.
 ✅ The classes are mutually exclusive when there is not intersection between them: every input object belongs only to ONE class. 
    When the (mutually exclusive) classes are only two, you have a binary classification problem, while if the classes are more than two, 
@@ -69,6 +71,8 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
 ➤ use openai gym or create your own env from scratch using pygame, matplotlib or other gui lib and put them in envs folder
 ➤ train and optimize pytorch nn params using FAG algorithm (initialize the population of genetic algorithm using firefly algorithm)
 ➤ use ES(GA) as an alternative to RL algos(gradient descent) to update agent brain(nn) params
+➤ combining evolutionary algorithms like GA (ES) and FA (Firefly Algorithm) for best rules selection or rules learning or membership function creation of fuzzy logic controller
+➤ a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy classifier like ANFIS using GA (ES) and FA
 
 
 

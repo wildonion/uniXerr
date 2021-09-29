@@ -1,0 +1,127 @@
+
+
+
+version: '3.6'
+
+
+services:
+  # ============================================== CASSANDRA ==============================================
+  cassandra-node1:
+    image: bitnami/cassandra:latest
+    restart: always
+    ports:
+      - 7000:7000 # node communication port
+      - 9044:9042 # cqlsh port
+    networks:
+      - skeleton-net
+    volumes:
+      - bitcass-node1:/bitnami
+    env_file: microservices/.env
+  cassandra-node2:
+    image: bitnami/cassandra:latest
+    restart: always
+    ports:
+      - 7001:7000 # node communication port
+      - 9045:9042 # cqlsh port
+    networks:
+      - skeleton-net
+    volumes:
+      - bitcass-node2:/bitnami
+    env_file: microservices/.env
+  cassandra-node3:
+    image: bitnami/cassandra:latest
+    restart: always
+    ports:
+      - 7002:7000 # node communication port
+      - 9046:9042 # cqlsh port
+    networks:
+      - skeleton-net
+    volumes:
+      - bitcass-node3:/bitnami
+    env_file: microservices/.env
+  # ============================================== KAFKA ==============================================
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    ports:
+      - 2181:2181
+    networks:
+      - skeleton-net
+    env_file: microservices/.env 
+  kafka-node1:
+    volumes:
+      - bitkaf-node1:/bitnami
+    image: bitnami/kafka:latest
+    restart: always
+    ports:
+      - 9092
+      - 9097:9097
+    networks:
+      - skeleton-net
+    env_file: microservices/.env
+    depends_on:
+      - zookeeper
+  kafka-node2:
+    volumes:
+      - bitkaf-node2:/bitnami
+    image: bitnami/kafka:latest
+    restart: always
+    ports:
+      - 9092
+      - 9098:9098
+    networks:
+      - skeleton-net
+    env_file: microservices/.env
+    depends_on:
+      - zookeeper
+  kafka-node3:
+    volumes:
+      - bitkaf-node3:/bitnami
+    image: bitnami/kafka:latest
+    restart: always
+    ports:
+      - 9092
+      - 9099:9099
+    networks:
+      - skeleton-net
+    env_file: microservices/.env
+    depends_on:
+      - zookeeper
+  ============================================== POSTGRES ==============================================
+  postgres:
+    image: postgres
+    env_file: microservices/.env
+    networks:
+      - skeleton-net
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    restart: always
+    ports:
+      - 5432:5432
+  ============================================== ADMINER ==============================================
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 3257:8080
+    networks:
+      - skeleton-net
+
+
+networks:
+  skeleton-net:
+    driver: bridge
+volumes:
+  pgdata:
+    driver: local
+  bitcass-node1:
+    driver: local
+  bitcass-node2:
+    driver: local
+  bitcass-node3:
+    driver: local
+  bitkaf-node1:
+    driver: local
+  bitkaf-node2:
+    driver: local
+  bitkaf-node3:
+    driver: local

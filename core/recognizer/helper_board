@@ -7,7 +7,7 @@
                                        |image segmentation (semantic and instance)|
                              |object detection - classification with localization - GAN ops|
                 https://github.com/wildonion/Deep-Learning/tree/master/unsupervised/Generative-Models/notebooks
-                                                   |camenbee project|
+
 
 
 
@@ -270,6 +270,7 @@ ___________________________ NLP ___________________________________
 
 ___________________________ IMP ___________________________________
         https://github.com/ultralytics/yolov5
+        https://towardsdatascience.com/self-supervised-learning-methods-for-computer-vision-c25ec10a91bd
         https://lilianweng.github.io/lil-log/2019/11/10/self-supervised-learning.html
         https://towardsdatascience.com/image-clustering-implementation-with-pytorch-587af1d14123
         https://nvlabs.github.io/face-vid2vid/ (https://arxiv.org/pdf/2011.15126)
