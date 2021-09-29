@@ -13,8 +13,8 @@ Sugar Rules:
     [+] Future is an asynchronous version of Result and is solved by awaiting on them
     [+] Stream is an asynchronous version of Iterator and is solved using while let Ok(Some(data)) = payload.next().await
     [+] web::Payload in actix is used to extract the streaming of binary data from the request
-    [+] ptr, len, capacity of the String are stored on the stack and the data will be stored on the heap which is a buffer related to str data
-    [+] &String is a pointer to the whole String and &str is a pointer to that part of the String on the heap buffer
+    [+] ptr, len, capacity of the String are stored on the stack and the data will be stored on the heap which is a buffer allocate in the binary to the str data
+    [+] &String is a pointer to the whole String and &str is a pointer to that part of the String (which is a str) on the heap buffer
     [+] String is a growable, ownable heap-allocated data structure that owns the actual full str buffer on the heap it manages and it can be coerced to a &str
     [+] &str substrings (a slice of String) are just fat pointers to that buffer (allocated by String) on the heap
     [+] a String wraps and manages a dynamically allocated str as backing storage since str cannot be resized, String will dynamically allocate/deallocate memory
@@ -23,6 +23,7 @@ Sugar Rules:
     [+] it was str at first and because of its unknown size, String was created to store the str on the heap and &str is a reference to that heap
     [+] passing heap variables like String to function require to be clonned in order to use them later on cause by passing them through the function their lifetime gets dropped
     [+] returning references need lifetime like returning &'static [u8] in function signature cause once functions are executed, they are popped off the execution stack and resources are de-allocated
+    [+] the only place that we can return a reference from the function is inside the struct method using &self to return a field owned by the struct not the method itself like returning &self.name
     [+] returning a refernce to a variable like x which is owned by the function or the scope is not safe because that variable will be dropped at the end of the block and the reference &x will be pointing to some garbage data which is a dangling pointer
     [+] we aren't allowed to use a reference beyond how long the referred-to value is valid at its current memory location, means can't return a reference to a variable owned by the function cause the variable the reference is beyond the variable lifetime at its current memory location
     [+] once the program is ran there are limited size of the memory is allocated for the code called buffer and for each variable definition the stack will pop the old one after it's done with its lifetime and push the new one in the location of the old one, in order the value of that variable doesn't move or be a pointable value by a pointer such as Box we need to pin it into the stack or the heap

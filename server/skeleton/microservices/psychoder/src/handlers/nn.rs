@@ -13,7 +13,7 @@ pub mod lstm;
 
 
 // TODO - impl Send (for traits and types) and Sync (for references) for all sub types of the struct to move it between threads like db connections and AI models
-// TODO - codec called psychodec for streaming of binary data like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice
+// TODO - codec called psychodec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice
 // TODO - training inputs using streaming concept like: while let Some(input_data) = batches.next().await{}
 // TODO - train the models based on job queue channel protocols and multithreading concepts like: tokio::spawn(async move{model.train().await})
 // TODO - write proc macros for all nn variants

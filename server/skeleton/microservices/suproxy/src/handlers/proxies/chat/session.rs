@@ -196,8 +196,29 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
     let mut actor: Option<UserChatSession> = None;
     match helerium::authenticity!(token){ //-- check authenticity of the token to get the user_id
         Ok(user_id) => {
+            /*
+            
+                EXAMPLE - 
+                    user wildonion wants to chat with user psychoder :
+                        ws://localhost:7368/chat/wildonion/3/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzI5MzcyNjMsImV4cCI6MTY2NDQ3MzI2MywidXNlciI6IndpbGRvbmlvbiIsImlkIjoxLCJhY2Nlc3NfbGV2ZWwiOjIsImFjY2Vzc190b2tlbiI6ImNjYzhiYmRiNDIzNjQwM2E5OGE2M2Q5ZmNlMmMyZWU2In0.rW0Po_okA4AyxKlWZcR4LigdrFlr2j5L925wRfFN67bD1LpV_D5Fv3_gsaIAXYzdNYdlW03Odpq034AHcsntEg
+                    user psychoder wants to chat with user wildonion :
+                        ws://localhost:7368/chat/psychoder/1/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzI5MzcwODgsImV4cCI6MTY2NDQ3MzA4OCwidXNlciI6InBzeWNob2RlciIsImlkIjozLCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6IjA3N2M5NjcwZjU3YjQ5MjZhYTkwYThjNTg2YjBlOWJjIn0.01PGxy-Ylb6VQZ-EyxsHj5R61tLVUFVKnY1LADfux-vYu6LwcIG-R92mF4uCYMEEuXTik2DsYwJ2BFvKQZxhLg
+                
+                NOTE - room name is not the same in each connection from our sessions cause :
+                    session 1 connected to our server with user_id : 1, friend_id : 2 and token : his/her token
+                    session 2 connected to our server with user_id : 2, friend_id : 1 and token : his/her token
+                    in order to create the room name we must make a unique name based on the hash of the user_id and friend_id
+                    since the hash of those values are different in each session connected to our server (cause the hash of "1&2" is different from "2&1")
+                    thus the best idea for hashing is to hash their sorted utf-8 bytes which is &[u8]
+                
+                ALERT - as_bytes_mut() is an unsafe method thus we need to use unsafe block
+
+            */
+            let mut secret_to_hash = format!("{}&{}", &user_id.to_string(), &friend_id.to_string());
+            let mut secret_bytes = unsafe{secret_to_hash.as_bytes_mut().to_owned()}; //-- in order to sort the utf-8 bytes of the secret phrase we have to convert it into a mutable bytes then cast it from &[u8] to Vec<u8> using to_owned() method which convert &self into self 
+            secret_bytes.sort(); //-- sorting the utf-8 of our secret which is "user_id&friend_id" for hashing
+            let sorted_secret_u8_bytes = secret_bytes.as_slice(); //-- converting Vec<u8> into &[u8] using as_slice() method
             let salt = env::var("SECRET_KEY").expect("⚠️ please set secret key in .env");
-            let secret_to_hash = format!("{}&{}", &user_id.to_string(), &friend_id.to_string());
             let argon2_config = Config{
                 variant: Variant::Argon2i,
                 version: Version::Version13,
@@ -207,9 +228,9 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
                 thread_mode: ThreadMode::Parallel,
                 secret: &[],
                 ad: &[],
-                hash_length: 32
+                hash_length: 6 // from 4 to (2^32 - 1) bytes or 0xFFFF_FFFF - pack of three digits in binary is an oct number and a pack of four digits in binary is a hex number
             };
-            let room_name = argon2::hash_encoded(secret_to_hash.as_bytes(), salt.as_bytes(), &argon2_config).unwrap();
+            let room_name = argon2::hash_encoded(sorted_secret_u8_bytes, salt.as_bytes(), &argon2_config).unwrap(); //-- the secret phrase and the salt are in utf-8 bytes format
             actor = Some(UserChatSession{ //-- do websocket handshake and start UserChatSession actor
                     id: 0, //-- socket, client session or actor id
                     hb: Instant::now(), //-- heartbeat starting time
