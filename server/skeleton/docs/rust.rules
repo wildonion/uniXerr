@@ -1,4 +1,5 @@
-Borrowing and Ownership Rules:
+Sugar Rules:
+    [+] usize gives you the guarantee to be always big enough to hold any pointer or any offset in a data structure, while u32 can be too small on some architectures and its size is depended on how much size it takes to reference any location in memory, on a 32 bit target usize is 4 bytes and on a 64 bit target usize is 8 bytes
     [+] macros are expanded before the compiler interprets the meaning of the code, so a macro can, for example, implement a trait on a given type
     [+] function gets called at runtime and a trait needs to be implemented at compile time
     [+] for those types specially concrete types like traits which don't have size at compile time means they are not bounded to Sized trait, we have to point them using a pointer like Box<dyn Trait> or &dyn Trait
@@ -12,11 +13,13 @@ Borrowing and Ownership Rules:
     [+] Future is an asynchronous version of Result and is solved by awaiting on them
     [+] Stream is an asynchronous version of Iterator and is solved using while let Ok(Some(data)) = payload.next().await
     [+] web::Payload in actix is used to extract the streaming of binary data from the request
+    [+] ptr, len, capacity of the String are stored on the stack and the data will be stored on the heap which is a buffer related to str data
+    [+] &String is a pointer to the whole String and &str is a pointer to that part of the String on the heap buffer
     [+] String is a growable, ownable heap-allocated data structure that owns the actual full str buffer on the heap it manages and it can be coerced to a &str
     [+] &str substrings (a slice of String) are just fat pointers to that buffer (allocated by String) on the heap
     [+] a String wraps and manages a dynamically allocated str as backing storage since str cannot be resized, String will dynamically allocate/deallocate memory
     [+] a &str is thus a reference directly into the backing storage of the String, while &String is a reference to the “wrapper” object
-    [+] &str can be used for substrings, i.e. they are slices, a &String references always the whole string (a reference to the whole wrapper object)
+    [+] &str can be used for substrings, i.e. they are slices, a &String references always the whole string (a reference to the whole “wrapper” object)
     [+] it was str at first and because of its unknown size, String was created to store the str on the heap and &str is a reference to that heap
     [+] passing heap variables like String to function require to be clonned in order to use them later on cause by passing them through the function their lifetime gets dropped
     [+] returning references need lifetime like returning &'static [u8] in function signature cause once functions are executed, they are popped off the execution stack and resources are de-allocated
@@ -29,7 +32,7 @@ Borrowing and Ownership Rules:
     [+] Fn, FnMut, and FnOnce can be bounded an object safe trait bounds to closure arguments
     [+] Fn trait is an object safe trait, because of unknown size at compile time it needs to be inside the Box<dyn Trait_Name>
     [+] &T and &mut T will be coerced into raw pointers *const T or *mut T respectively
-    [+] Vec<u8> is coerced to &u8 and String is coerced to &str cause of unknown size for both of them at compile time a reference will be taken from them which contains a pointer to the location of the data inside heap saved on stack along with capacity and len.
+    [+] Vec<u8> is coerced to &u8 and String is coerced to &str cause of unknown size for both of them at compile time a reference will be taken from them which contains a pointer to the location of the data inside heap saved on stack along with capacity and len.   
     [+] we take a reference from a variable using & which is called smart pointer, by doing this we're borrowing the value of the variable instead of taking its ownership and the reference that just has taken from the variable contains a pointer stored on the stack which is a hex address to the memory location of the data stored on heap or stack.
     [+] a pointer contains a reference to the location address of the data on the heap or stack and we can pin its value in place using Pin to prevent the value from being moved 
     [+] trait Sized is implemented for all types that their size are known at compile time like &str and String but it's not bounded to str cause str has no fixed size at compile time
@@ -84,7 +87,7 @@ Borrowing and Ownership Rules:
     [+] trait objects must be inside <Box dyn Trait> which is a smart pointer to a memory location on the heap, cause this trait doesn't have any known fixed size at compile time and we don't know for what type we're implementing this trait for thus we have to use the dyn keyword which is called dynamic dispatch in rust and has runtime overhead.
     [+] some of the types in rust are not known at compile time like str, u8 and traits which their size are not known for the compiler until runtime information catch by the compiler and due to this reason we put them inside Box or take a reference from them like &[u8] to get a smart pointer to their memory location and where their data are put in at compile time.
     [+] trait Clone is implemented for those types that their data are on the heap and trait Copy is implemented for those types that their data are on the stack
-    [+] object safe traits don't return the type that we're implementing the trait for in their methods, means if a trait returns the Self in one of their methods' return type that trait is not object safe trait.
+    [+] object safe traits don't return the type that we're implementing the trait for in their methods, means if a trait returns the Self in one of their methods' return type that trait is not object safe trait and also traits with associated methods are not object safe trait
     [+] trait object have runtime overhead due to their implementation on various types at runtime; Sync and Send are unsafe object traits and we have to use unsafe keyword to implement these traits for the type.
     [+] use 'static lifetime to have a valid lifetime across .await (before and after solving the future), cause futures are pinned to memory in order to be solved later thus all variables before and after them must be a variable with a valid lifetime
     [+] closures and object safe traits are not bounded to trait Sized thus their size are unknown at compile and need runtime information to get their own size at runtime so they can't be pinned into the memory thus we can't use them as a future object by putting the async before them cause futures need to be pinned somewhere in ram to be solved later

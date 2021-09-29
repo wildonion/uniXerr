@@ -55,4 +55,12 @@ pub mod lstm;
 
 
 
-
+struct Neuron; //-- unit like struct
+trait Synapse{
+    fn communicate() -> Self;
+}
+impl Synapse for Neuron{ //-- it's like implementing a behaviour for a raw object without any meta data
+    fn communicate() -> Self{ //-- this is not object safe trait cause it's returning an associated type which is Self
+        Neuron
+    }
+}
