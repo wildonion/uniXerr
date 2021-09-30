@@ -10,6 +10,7 @@
 
 <!-- skeleton TODOs -->
 
+complete all microservices TODOs
 change all microservices edition to 2021
 postgres adminer backup issue and tls for cassandra and postgres: https://github.com/bitnami/bitnami-docker-cassandra#tls-encryption
 setup multiple cassandra datacenters and nodes for production using NetworkTopologyStrategy: https://docs.datastax.com/en/cql-oss/3.3/cql/cql_reference/cqlCreateKeyspace.html
