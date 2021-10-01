@@ -8,7 +8,7 @@ use crate::utils::ResponseBody;
 use crate::constants;
 use crate::handlers::error::SKELETON;
 use serde_json::json;
-use super::model::{InsertableUser, QueryableUser, UpdatableUser, PasswordFields, UploadFile, UserData}; //-- load from the root of the current crate
+use super::model::{InsertableUser, QueryableUser, UpdatableUser, PasswordFields, UploadFile, UserData, DeliveredCoins}; //-- load from the root of the current crate
 use actix_multipart::Multipart;
 use std::fs;
 use futures::{StreamExt, TryStreamExt};
@@ -18,8 +18,8 @@ use std::path::Path;
 
 
 
-// TODO - invitation api
-// ...
+
+
 
 
 #[get("/skeleton/api/auth/users")]
@@ -177,13 +177,48 @@ async fn update(req: HttpRequest, id: web::Path<i32>, user: web::Json<UpdatableU
 
 
 #[post("/skeleton/api/auth/user/edit/password/{id}")] //-- required fields : current_password + password
-async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<PasswordFields>) -> Result<HttpResponse, SKELETON>{
+async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<PasswordFields>) -> Result<HttpResponse, SKELETON>{ //-- on Err result the error_message field of the SKELETON struct inside an actix http response as a json will return
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
             if access_level == 1 || access_level == 2{ // NOTE - only admin and regular user can edit a user password
                 let user = QueryableUser::update_password(id.into_inner(), user.into_inner()).await.unwrap(); // can't solve error with `?` when the error is of type String and update_password() method will return String 
                 Ok(HttpResponse::Ok().json(ResponseBody::new(constants::MESSAGE_UPDATE_SUCCESS, constants::EMPTY)))
+            } else{
+                Ok(HttpResponse::Forbidden()
+                    .json(ResponseBody::new(
+                        constants::MESSAGE_ACCESS_DENIED,
+                        constants::EMPTY,
+                    ))
+                    .into_body(),
+                )
+            }
+        },
+        Err(_) => {
+            Ok(
+                HttpResponse::Unauthorized()
+                    .json(ResponseBody::new(
+                        constants::MESSAGE_INVALID_TOKEN,
+                        constants::EMPTY,
+                    ))
+                    .into_body(),
+            )
+        }
+    }
+}
+
+
+
+
+
+#[post("/skeleton/api/auth/user/{id}/loan/{coins}/{friend_id}")]
+async fn loan_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i32>, coins: web::Path<i32>) -> Result<HttpResponse, SKELETON>{ //-- on Err result the error_message field of the SKELETON struct inside an actix http response as a json will return
+    match pass(req){
+        Ok(user_data_inside_token) => {
+            let access_level = user_data_inside_token.unwrap().claims.access_level;
+            if access_level == 1 || access_level == 2{ // NOTE - only admin and regular user can borrow coins
+                let loan_borrow_coins_status = QueryableUser::update_coins(id.into_inner(), friend_id.into_inner(), coins.into_inner()).await.unwrap(); 
+                Ok(HttpResponse::Ok().json(loan_borrow_coins_status))
             } else{
                 Ok(HttpResponse::Forbidden()
                     .json(ResponseBody::new(
@@ -351,6 +386,7 @@ pub fn user_init_service(config: &mut web::ServiceConfig){
     config.service(add);
     config.service(update);
     config.service(update_pwd);
+    config.service(loan_coins);
     config.service(update_prof);
     config.service(download_prof);
     config.service(delete);

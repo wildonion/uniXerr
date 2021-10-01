@@ -33,7 +33,7 @@ Sugar Rules:
     [+] Fn, FnMut, and FnOnce can be bounded an object safe trait bounds to closure arguments
     [+] Fn trait is an object safe trait, because of unknown size at compile time it needs to be inside the Box<dyn Trait_Name>
     [+] &T and &mut T will be coerced into raw pointers *const T or *mut T respectively
-    [+] Vec<u8> is coerced to &u8 and String is coerced to &str cause of unknown size for both of them at compile time a reference will be taken from them which contains a pointer to the location of the data inside heap saved on stack along with capacity and len.   
+    [+] Vec<u8> is coerced to &u8 and String is coerced to &str cause of unknown size for both of them at compile time a reference will be taken from them which contains a pointer saved on stack along with capacity and len to the location of the data inside heap   
     [+] we take a reference from a variable using & which is called smart pointer, by doing this we're borrowing the value of the variable instead of taking its ownership and the reference that just has taken from the variable contains a pointer stored on the stack which is a hex address to the memory location of the data stored on heap or stack.
     [+] a pointer contains a reference to the location address of the data on the heap or stack and we can pin its value in place using Pin to prevent the value from being moved 
     [+] trait Sized is implemented for all types that their size are known at compile time like &str and String but it's not bounded to str cause str has no fixed size at compile time

@@ -35,8 +35,7 @@
 // https://gist.github.com/wildonion/4f1956d9908e348a74b4381458e474e1#file-garbage-rs
 
 
-use crate::handlers::db::cass::schemas::player::Chat;
-use crate::handlers::db::cass::establish as cass;
+use crate::schemas::player::MetaData;
 use std::time::SystemTime;
 use log::{error, info};
 use rdkafka::config::ClientConfig;
@@ -49,8 +48,6 @@ pub async fn produce(brokers: &str){
 
 
     
-    // NOTE - cloning db connections using Arc cause trait Copy and Clone is not implemented for them and they are not Sync and Send and safe to move between threads thus Arc do these things for us
-    let cass_session = cass::connection().await.expect("⚠️ can't establish cassandra connection!"); //-- making cassandra pool of connections for selected node
     let producer: &FutureProducer = &ClientConfig::new()
             .set("bootstrap.servers", brokers)
             .set("message.timeout.ms", "5000")
@@ -60,17 +57,14 @@ pub async fn produce(brokers: &str){
     
     
     
-
-    let cass_session = cass_session.clone(); //-- cloning the immutable cassandra session so we can share its ownership between multiple threads
-    Chat::init(cass_session.clone()).await; //-- it'll create player_data column family if there is not any
     let producer = producer.clone(); //-- we're clonning the producer cause we want to move it between tokio::spawn() threads thus according to rust ownership we have to take a reference to the producer using clone() cause trait Copy is not imeplemented for that
     tokio::spawn(async move{ //-- tokio::spawn() takes a task of type future and shares it between multiple threads using its job queue channel protocol, so every type in the task must be Send + Sync and cloneable
         let mut i = 0_usize; // it's the default size of integer in rust which is i32
         loop {
-            let player_event = Chat::last(cass_session.clone()).await; //-- getting the last data inserted into cassandra player_data column family
+            let player_event = MetaData::default(); //-- getting the last data inserted into cassandra player_data column family
             let topic = player_event.id.to_string(); //-- getting its imei to set it as the topic for this event
             let player_event_json = serde_json::to_string_pretty(&player_event).expect("⚠️ failed to serialize player event"); //-- serializing the struct into json
-            let player_data: Chat = serde_json::from_str(&player_event_json).expect("⚠️ failed to deserialize player json"); //-- deserializing the json into struct
+            let player_data: MetaData = serde_json::from_str(&player_event_json).expect("⚠️ failed to deserialize player json"); //-- deserializing the json into struct
             let key = &i.to_string(); //-- setting the key for this event
             let devlivery_status = producer.send_result( //-- we're using FutureRecord for sending the message or the event asynchoronously to all consumers cause send_result() method takes a FutureRecord to send a message
             FutureRecord::to(&topic)

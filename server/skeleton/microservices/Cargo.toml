@@ -4,13 +4,9 @@
 
 members = [
     "auth",
-    "coiniXerr",
-    "fearless",
-    "musiem",
-    "neura",
-    "psychoder",
     "suproxy",
-    "wolfia",
+    "coiniXerr",
+    "psychoder",
 ]
 
 
@@ -27,26 +23,6 @@ opt-level = 3
 [profile.dev.package.psychoder]
 opt-level = 0
 [profile.release.package.psychoder]
-opt-level = 3
-
-[profile.dev.package.neura]
-opt-level = 0
-[profile.release.package.neura]
-opt-level = 3
-
-[profile.dev.package.musiem]
-opt-level = 0
-[profile.release.package.musiem]
-opt-level = 3
-
-[profile.dev.package.fearless]
-opt-level = 0
-[profile.release.package.fearless]
-opt-level = 3
-
-[profile.dev.package.wolfia]
-opt-level = 0
-[profile.release.package.wolfia]
 opt-level = 3
 
 [profile.dev.package.coiniXerr]

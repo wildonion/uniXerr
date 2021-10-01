@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 
 
 
@@ -13,7 +15,7 @@ pub mod lstm;
 
 
 // TODO - impl Send (for traits and types) and Sync (for references) for all sub types of the struct to move it between threads like db connections and AI models
-// TODO - codec called psychodec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice
+// TODO - codec called psychodec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes
 // TODO - training inputs using streaming concept like: while let Some(input_data) = batches.next().await{}
 // TODO - train the models based on job queue channel protocols and multithreading concepts like: tokio::spawn(async move{model.train().await})
 // TODO - write proc macros for all nn variants
@@ -23,6 +25,7 @@ pub mod lstm;
 
 
 
+// https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
 // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
 // https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
 // https://github.com/zupzup/warp-websockets-example
@@ -63,4 +66,16 @@ impl Synapse for Neuron{ //-- it's like implementing a behaviour for a raw objec
     fn communicate() -> Self{ //-- this is not object safe trait cause it's returning an associated type which is Self
         Neuron
     }
+}
+impl Default for Neuron{
+    fn default() -> Self{
+        todo!()
+    }
+}
+
+
+
+pub struct MetaData{
+    pub id: Uuid,
+    pub neuron_name: String,
 }

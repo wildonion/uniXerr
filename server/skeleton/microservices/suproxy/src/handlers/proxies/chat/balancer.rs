@@ -97,6 +97,13 @@ pub struct ChatServer{ //-- ChatServer is an actor and maintains list of connect
     cass_session: Arc<cass::CassSession>,
 }
 
+
+impl Default for ChatServer{
+    fn default() -> Self{
+        todo!()
+    }
+}
+
 impl ChatServer{
 
     pub fn new(pg_pool: pg::Pool, cass_session: Arc<cass::CassSession>) -> ChatServer{
@@ -168,12 +175,12 @@ impl Handler<Disconnect> for ChatServer{
         if self.sessions.remove(&msg.id).is_some(){ //-- removing a session with a specific id
             for (name, sessions) in &mut self.rooms{ //-- iterating through all rooms
                 if sessions.remove(&msg.id){ //-- if a session was found with this id inside this room remove it from the hash set list of all session in hash map rooms 
-                    rooms_for_this_session.push(name.to_owned()); //-- push this room into rooms_for_this_session
+                    rooms_for_this_session.push(name.to_owned()); //-- push this room into rooms_for_this_session - to_owned() converts &self to self means &String to String
                 }
             }
         }
         for room in rooms_for_this_session{
-            self.send_message(&room, &format!("user {} is offline", msg.username.clone().unwrap()), 0); //-- notify all users in those rooms that this id was there 
+            self.send_message(&room, &format!("user {} is offline", msg.username.clone().unwrap()), 0); //-- notify all users in those rooms that this id was there and this user is offline now
         }
     }
 }

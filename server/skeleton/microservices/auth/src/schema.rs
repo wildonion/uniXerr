@@ -17,18 +17,6 @@ table! {
 }
 
 table! {
-    user_match (id, match_id, match_type) {
-        id -> Int4,
-        user_id -> Int4,
-        entrance_coins -> Int4,
-        reward_coins -> Int4,
-        match_id -> Int4,
-        match_type -> Varchar,
-        status -> Int2,
-    }
-}
-
-table! {
     users (id) {
         id -> Int4,
         username -> Varchar,
@@ -53,6 +41,5 @@ joinable!(login_history -> users (user_id));
 allow_tables_to_appear_in_same_query!(
     login_history,
     user_friend,
-    user_match,
     users,
 );

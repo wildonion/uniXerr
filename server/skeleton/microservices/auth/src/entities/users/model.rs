@@ -56,6 +56,13 @@ pub struct PasswordFields{
 
 #[derive(Deserialize, Insertable, AsChangeset)]
 #[table_name="users"]
+pub struct UpdateCoins{
+    pub coins: i32,
+    pub updated_at: Option<chrono::NaiveDateTime>,
+}
+
+#[derive(Deserialize, Insertable, AsChangeset)]
+#[table_name="users"]
 pub struct UpdatePassword{
     pub password: String,
     pub updated_at: Option<chrono::NaiveDateTime>,
@@ -96,6 +103,16 @@ pub struct UserData{
     pub coins: i32,
     pub sex: String,
     pub age: i16,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DeliveredCoins{
+    pub user_id: i32,
+    pub friend_id: i32,
+    pub user_coins_after_loan: i32,
+    pub friend_coins_after_borrowed: i32,
+    pub send_time: Option<chrono::NaiveDateTime>,
+    pub delivery_time: Option<chrono::NaiveDateTime>,
 }
 
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
@@ -273,6 +290,34 @@ impl QueryableUser{
         }
     }
 
+    pub async fn update_coins(id: i32, friend_id: i32, coins: i32) -> Result<DeliveredCoins, String>{ // NOTE - `?` couldn't convert the error to `std::string::String` thus we can't use `?` to solve the error, instead we have to use unwrap()
+        let conn = pg::connection().await.unwrap();
+        let current_user = Self::find_by_id(id).await.unwrap(); // current_user contains all columns data inside the table
+        let current_user_friend = Self::find_by_id(friend_id).await.unwrap(); // current_user_friend contains all columns data inside the table
+        if current_user.coins != 0 && current_user.coins > 0{
+            let updated_user_coins = UpdateCoins{
+                coins: current_user.coins - coins,
+                updated_at: Some(chrono::Local::now().naive_local()),
+            };
+            let updated_user_friend_coins = UpdateCoins{
+                coins: current_user_friend.coins + coins,
+                updated_at: Some(chrono::Local::now().naive_local()),
+            };
+            let current_user_with_updated_coins = diesel::update(users::table.filter(users::id.eq(id))).set(updated_user_coins).get_result::<QueryableUser>(&conn).unwrap();
+            let current_user_friend_with_updated_coins = diesel::update(users::table.filter(users::id.eq(friend_id))).set(updated_user_friend_coins).get_result::<QueryableUser>(&conn).unwrap();
+            let loan_borrow_coins_status = DeliveredCoins{
+                user_id: current_user_with_updated_coins.id,
+                friend_id: current_user_friend_with_updated_coins.id,
+                user_coins_after_loan: current_user_with_updated_coins.coins,
+                friend_coins_after_borrowed: current_user_friend_with_updated_coins.coins,
+                send_time: Some(current_user_with_updated_coins.updated_at), //-- the time that the user sent his/her coins
+                delivery_time: Some(current_user_friend_with_updated_coins.updated_at), //-- the time that the friend borrowed coins
+            };
+            Ok(loan_borrow_coins_status)
+        } else{
+            Err(constants::MESSAGE_NOT_ENOUGH_COINS.to_string())
+        }
+    }
 
     pub async fn update_prof_img(id: i32, f: UploadFile) -> Result<Self, SKELETON>{
         let conn = pg::connection().await.unwrap();
@@ -283,8 +328,6 @@ impl QueryableUser{
         let user_with_updated_profile_img = diesel::update(users::table.filter(users::id.eq(id))).set(user_prof).get_result(&conn).unwrap();
         Ok(user_with_updated_profile_img)
     }
-
-
 
     pub async fn delete(id: i32) -> Result<usize, SKELETON>{
         let conn = pg::connection().await.unwrap();

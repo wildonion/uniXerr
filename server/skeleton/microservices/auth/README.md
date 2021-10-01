@@ -30,6 +30,8 @@
 
 * **Get a User Profile Image with Access Level 1 or 2:** ```GET - /skeleton/api/auth/user/profile/{id}```
 
+* **Loan Coins with Access Level 1 or 2:** ```POST - /skeleton/api/auth/user/{id}/loan/{coins}/{friend_id}```
+
 * **Delete a User with Access Level 1 or 2:** ```POST - /skeleton/api/auth/user/delete/{id}```
 
 * **Register a New User:** ```POST - /skeleton/api/auth/register```

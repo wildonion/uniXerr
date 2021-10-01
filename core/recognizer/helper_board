@@ -1,6 +1,7 @@
 
 
                                           |image and text <-> speech processing|
+                                                     |text <-> image|
                                     |natural language processing with BERT & GPT & BART|
                                    |spaCy - stanza - pytorch lightning - plotly - sklearn|
                                           |deep fakee - lip sync - talking head|

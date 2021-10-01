@@ -14,11 +14,7 @@ sudo docker save $(sudo docker images -a -q) | gzip > $HOME/skeleton.tar.gz && s
 # cargo build --bin auth --release --manifest-path microservices/Cargo.toml
 # cargo build --bin suproxy --release --manifest-path microservices/Cargo.toml
 # cargo build --bin psychoder --release --manifest-path microservices/Cargo.toml
-# cargo build --bin neura --release --manifest-path microservices/Cargo.toml
-# cargo build --bin musiem --release --manifest-path microservices/Cargo.toml
-# cargo build --bin fearless --release --manifest-path microservices/Cargo.toml
 # cargo build --bin coiniXerr --release --manifest-path microservices/Cargo.toml
-# cargo build --bin wolfia --release --manifest-path microservices/Cargo.toml
 
 
 
@@ -30,18 +26,10 @@ chown -R $USER:$USER . && cargo build --bins --release --manifest-path Cargo.tom
 sudo mv target/release/auth $HONE
 sudo mv target/release/suproxy $HONE
 sudo mv target/release/psychoder $HONE
-sudo mv target/release/neura $HONE
-sudo mv target/release/musiem $HONE
-sudo mv target/release/fearless $HONE
 sudo mv target/release/coiniXerr $HONE
-sudo mv target/release/wolfia $HONE
 cd $HOME
 pm2 start auth
 pm2 start suproxy
 pm2 start psychoder
-pm2 start neura
-pm2 start musiem
-pm2 start fearless
 pm2 start coiniXerr
-pm2 start wolfia 
 pm2 startup

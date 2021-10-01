@@ -9,3 +9,5 @@ An asynchronous 🪢 and multithreading🧵 CLI backend supports various deep le
 # Production Setup
 
 * **Build _psychoder_ service:** ```cargo build --bin psychoder --release```
+
+# CLI API Docs

@@ -570,19 +570,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
-name = "bb8"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e9f4fa9768efd269499d8fba693260cfc670891cf6de3adc935588447a77cc8"
-dependencies = [
- "async-trait",
- "futures-channel",
- "futures-util",
- "parking_lot",
- "tokio 1.12.0",
-]
-
-[[package]]
 name = "bcrypt"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -716,41 +703,9 @@ dependencies = [
  "lz4-compress",
  "r2d2",
  "rand 0.4.6",
- "snap 0.2.5",
+ "snap",
  "time 0.1.44",
  "uuid",
-]
-
-[[package]]
-name = "cdrs-tokio"
-version = "5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "059a725d6113e20970129450993a4f4cd79750639c18e646b3f198502c1e0e47"
-dependencies = [
- "async-trait",
- "bb8",
- "byteorder 1.4.3",
- "chrono",
- "float_eq",
- "fxhash",
- "log",
- "lz4_flex",
- "rand 0.8.4",
- "snap 1.0.5",
- "time 0.2.27",
- "tokio 1.12.0",
- "uuid",
-]
-
-[[package]]
-name = "cdrs-tokio-helpers-derive"
-version = "3.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7001c5d687a28ccb59bca480f58c40c368d95e834ae00f9bcb5dba71123892f"
-dependencies = [
- "proc-macro2 1.0.29",
- "quote 1.0.9",
- "syn 1.0.76",
 ]
 
 [[package]]
@@ -1090,27 +1045,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
 
 [[package]]
-name = "fearless"
-version = "0.1.0"
-dependencies = [
- "cdrs-tokio",
- "cdrs-tokio-helpers-derive",
- "chrono",
- "dotenv",
- "env_logger 0.8.4",
- "futures",
- "hex",
- "log",
- "rdkafka",
- "reqwest",
- "serde",
- "serde_json",
- "tokio 1.12.0",
- "uuid",
- "warp",
-]
-
-[[package]]
 name = "flate2"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1121,12 +1055,6 @@ dependencies = [
  "libc",
  "miniz_oxide",
 ]
-
-[[package]]
-name = "float_eq"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa334a728fecaf0922f5735ede5f27c08fefc7c4e5b04c5efe02a3861b512f2e"
 
 [[package]]
 name = "fnv"
@@ -1713,15 +1641,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lz4_flex"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5827b976d911b5d2e42b2ccfc7c0d2461a1414e8280436885218762fc529b3f8"
-dependencies = [
- "twox-hash",
-]
-
-[[package]]
 name = "match_cfg"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1865,27 +1784,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "musiem"
-version = "0.1.0"
-dependencies = [
- "cdrs-tokio",
- "cdrs-tokio-helpers-derive",
- "chrono",
- "dotenv",
- "env_logger 0.8.4",
- "futures",
- "hex",
- "log",
- "rdkafka",
- "reqwest",
- "serde",
- "serde_json",
- "tokio 1.12.0",
- "uuid",
- "warp",
-]
-
-[[package]]
 name = "net2"
 version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1894,27 +1792,6 @@ dependencies = [
  "cfg-if 0.1.10",
  "libc",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "neura"
-version = "0.1.0"
-dependencies = [
- "cdrs-tokio",
- "cdrs-tokio-helpers-derive",
- "chrono",
- "dotenv",
- "env_logger 0.8.4",
- "futures",
- "hex",
- "log",
- "rdkafka",
- "reqwest",
- "serde",
- "serde_json",
- "tokio 1.12.0",
- "uuid",
- "warp",
 ]
 
 [[package]]
@@ -2256,8 +2133,6 @@ dependencies = [
 name = "psychoder"
 version = "0.1.0"
 dependencies = [
- "cdrs-tokio",
- "cdrs-tokio-helpers-derive",
  "chrono",
  "dotenv",
  "env_logger 0.8.4",
@@ -2812,12 +2687,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "snap"
-version = "1.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45456094d1983e2ee2a18fdfebce3189fa451699d0502cb8e3b49dba5ba41451"
-
-[[package]]
 name = "socket2"
 version = "0.3.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2852,12 +2721,6 @@ checksum = "e113fb6f3de07a243d434a56ec6f186dfd51cb08448239fe7bcae73f87ff28ff"
 dependencies = [
  "version_check",
 ]
-
-[[package]]
-name = "static_assertions"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stdweb"
@@ -3366,16 +3229,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "twox-hash"
-version = "1.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f559b464de2e2bdabcac6a210d12e9b5a5973c251e102c44c585c71d51bd78e"
-dependencies = [
- "cfg-if 1.0.0",
- "static_assertions",
-]
-
-[[package]]
 name = "typenum"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3710,27 +3563,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0120db82e8a1e0b9fb3345a539c478767c0048d842860994d96113d5b667bd69"
 dependencies = [
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "wolfia"
-version = "0.1.0"
-dependencies = [
- "cdrs-tokio",
- "cdrs-tokio-helpers-derive",
- "chrono",
- "dotenv",
- "env_logger 0.8.4",
- "futures",
- "hex",
- "log",
- "rdkafka",
- "reqwest",
- "serde",
- "serde_json",
- "tokio 1.12.0",
- "uuid",
- "warp",
 ]
 
 [[package]]

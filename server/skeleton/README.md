@@ -62,9 +62,12 @@ ALTER USER skeleton WITH SUPERUSER;
     * ```systemfd --no-pid -s http::7366 -- cargo watch -C microservices/auth -x run```
     * ```cargo watch -C microservices/auth -x run```
 
-* **Run _suproxy_ microservice:**
+* **Run _suproxy_ load balancer using one the following commands:**
     * ```systemfd --no-pid -s http::7368 -- cargo watch -C microservices/suproxy -x run```
     * ```cargo watch -C microservices/suproxy -x run```
+
+* **Run _coiniXerr_ network:**
+    * ```cargo watch -C microservices/coiniXerr -x run```
 
 # SKELETON Production Setup
 
