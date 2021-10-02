@@ -58,10 +58,24 @@ pub mod lstm;
 
 
 
-struct Neuron; //-- unit like struct
-trait Synapse{
+
+pub trait Synapse{
     fn communicate() -> Self;
 }
+
+pub trait Model{}
+
+
+
+pub struct MetaData{
+    pub id: Uuid,
+    pub neuron_name: String,
+}
+struct Neuron; //-- unit like struct
+
+
+
+
 impl Synapse for Neuron{ //-- it's like implementing a behaviour for a raw object without any meta data
     fn communicate() -> Self{ //-- this is not object safe trait cause it's returning an associated type which is Self
         Neuron
@@ -74,8 +88,3 @@ impl Default for Neuron{
 }
 
 
-
-pub struct MetaData{
-    pub id: Uuid,
-    pub neuron_name: String,
-}

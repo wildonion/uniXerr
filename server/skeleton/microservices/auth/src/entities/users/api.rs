@@ -6,7 +6,7 @@ use actix_web::{Error, HttpRequest, HttpResponse, Result, get, post, web};
 use crate::middlewares::auth::pass;
 use crate::utils::ResponseBody;
 use crate::constants;
-use crate::handlers::error::SKELETON;
+use crate::handlers::error::uniXerr;
 use serde_json::json;
 use super::model::{InsertableUser, QueryableUser, UpdatableUser, PasswordFields, UploadFile, UserData, DeliveredCoins}; //-- load from the root of the current crate
 use actix_multipart::Multipart;
@@ -22,8 +22,8 @@ use std::path::Path;
 
 
 
-#[get("/skeleton/api/auth/users")]
-async fn find_all(req: HttpRequest) -> Result<HttpResponse, SKELETON>{
+#[get("/uniXerr/api/auth/users")]
+async fn find_all(req: HttpRequest) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -56,8 +56,8 @@ async fn find_all(req: HttpRequest) -> Result<HttpResponse, SKELETON>{
 
 
 
-#[get("/skeleton/api/auth/user/get/{id}")]
-async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKELETON>{
+#[get("/uniXerr/api/auth/user/get/{id}")]
+async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -100,8 +100,8 @@ async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKEL
 
 
 
-#[post("/skeleton/api/auth/user/add")] //-- required fields : username + email + password + phone_number + device_id 
-async fn add(req: HttpRequest, user: web::Json<InsertableUser>) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user/add")] //-- required fields : username + email + password + phone_number + device_id 
+async fn add(req: HttpRequest, user: web::Json<InsertableUser>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -134,8 +134,8 @@ async fn add(req: HttpRequest, user: web::Json<InsertableUser>) -> Result<HttpRe
 
 
 
-#[post("/skeleton/api/auth/user/edit/{id}")] //-- required fields : username + phone_number + sex + age + email
-async fn update(req: HttpRequest, id: web::Path<i32>, user: web::Json<UpdatableUser>) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user/edit/{id}")] //-- required fields : username + phone_number + sex + age + email
+async fn update(req: HttpRequest, id: web::Path<i32>, user: web::Json<UpdatableUser>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -176,8 +176,8 @@ async fn update(req: HttpRequest, id: web::Path<i32>, user: web::Json<UpdatableU
 
 
 
-#[post("/skeleton/api/auth/user/edit/password/{id}")] //-- required fields : current_password + password
-async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<PasswordFields>) -> Result<HttpResponse, SKELETON>{ //-- on Err result the error_message field of the SKELETON struct inside an actix http response as a json will return
+#[post("/uniXerr/api/auth/user/edit/password/{id}")] //-- required fields : current_password + password
+async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<PasswordFields>) -> Result<HttpResponse, uniXerr>{ //-- on Err result the error_message field of the uniXerr struct inside an actix http response as a json will return
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -211,8 +211,8 @@ async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<Passwo
 
 
 
-#[post("/skeleton/api/auth/user/{id}/loan/{coins}/{friend_id}")]
-async fn loan_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i32>, coins: web::Path<i32>) -> Result<HttpResponse, SKELETON>{ //-- on Err result the error_message field of the SKELETON struct inside an actix http response as a json will return
+#[post("/uniXerr/api/auth/user/{id}/loan/{coins}/{friend_id}")]
+async fn loan_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i32>, coins: web::Path<i32>) -> Result<HttpResponse, uniXerr>{ //-- on Err result the error_message field of the uniXerr struct inside an actix http response as a json will return
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -247,7 +247,7 @@ async fn loan_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i
 
 
 // NOTE - extracting binary data from request
-#[post("/skeleton/api/auth/user/edit/profile/{id}")]
+#[post("/uniXerr/api/auth/user/edit/profile/{id}")]
 async fn update_prof(req: HttpRequest, id: web::Path<i32>, mut prof_img: Multipart) -> Result<HttpResponse, Error>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -298,8 +298,8 @@ async fn update_prof(req: HttpRequest, id: web::Path<i32>, mut prof_img: Multipa
 
 
 
-#[get("/skeleton/api/auth/user/profile/{id}")]
-async fn download_prof(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKELETON>{
+#[get("/uniXerr/api/auth/user/profile/{id}")]
+async fn download_prof(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -345,8 +345,8 @@ async fn download_prof(req: HttpRequest, id: web::Path<i32>) -> Result<HttpRespo
 
 
 
-#[post("/skeleton/api/auth/user/delete/{id}")]
-async fn delete(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user/delete/{id}")]
+async fn delete(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;

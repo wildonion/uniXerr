@@ -4,7 +4,7 @@
 
 use cdrs::authenticators::StaticPasswordAuthenticator;
 use cdrs::cluster::session::Session;
-use cdrs::cluster::session::new_lz4 as SKELETONClusterSession;
+use cdrs::cluster::session::new_lz4 as uniXerrClusterSession;
 use cdrs::cluster::{ClusterTcpConfig, TcpConnectionPool, NodeTcpConfigBuilder};
 use cdrs::load_balancing::RoundRobinSync;
 use cdrs::query::*;
@@ -17,7 +17,7 @@ pub type CassSession = Session<RoundRobinSync<TcpConnectionPool<StaticPasswordAu
 
 //-- we have to clone the session every time we want to pass it between threads or function calls cause we put it inside the Arc in order to be shareable
 //-- we've used Box to save a pointer on stack from the allocated heap for the trait object, also we've used Box<dyn Trait> 
-//-- cause we don't know what type of object Error trait is implemented for, for example it might be for SKELETONClusterSession object.
+//-- cause we don't know what type of object Error trait is implemented for, for example it might be for uniXerrClusterSession object.
 //-- the successful return type of this function is an Arc<CassSession> for sharing the ownership of session between tokio threads.
 //-- due to having no mutatation of the session at runtime inside a thread we didn't put the CassSession type inside a Mutex.     
 pub async fn connection() -> Result<Arc<CassSession>, Box<dyn std::error::Error>>{
@@ -62,10 +62,13 @@ pub async fn connection() -> Result<Arc<CassSession>, Box<dyn std::error::Error>
 
 
     let load_balancer = RoundRobinSync::new();
-    let cluster_config = ClusterTcpConfig(vec![node1, node2, node3]); //-- putting node servers inside the(this) cluster(datacenter)
-    let session = SKELETONClusterSession(&cluster_config, load_balancer).expect("⚠️ can't create session"); //-- SKELETONClusterSession returns an error Result so we can call expect() on it 
-    let create_ks: &'static str = "CREATE KEYSPACE IF NOT EXISTS skeleton WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};";
-    session.query(create_ks).expect("⚠️ skeleton keyspace create error");
+    let cluster_config = ClusterTcpConfig(vec![node1
+                                                                                    //   node2, 
+                                                                                    //   node3
+                                                                                      ]); //-- putting node servers inside the(this) cluster(datacenter)
+    let session = uniXerrClusterSession(&cluster_config, load_balancer).expect("⚠️ can't create session"); //-- uniXerrClusterSession returns an error Result so we can call expect() on it 
+    let create_ks: &'static str = "CREATE KEYSPACE IF NOT EXISTS uniXerr WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};";
+    session.query(create_ks).expect("⚠️ uniXerr keyspace create error");
     Ok(Arc::new(session)) //-- putting the(this) cluster(datacenter) and its nodes balanced with RoundRobin inside a compressed lz4 session
 
 

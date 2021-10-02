@@ -7,7 +7,7 @@
 use crate::constants;
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, AsChangeset};
-use crate::handlers::error::SKELETON;
+use crate::handlers::error::uniXerr;
 use crate::schema::users;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use crate::utils::jwt::user_token::UserToken;
@@ -232,19 +232,19 @@ impl QueryableUser{
         }
     }
     
-    pub async fn find_all() -> Result<Vec<Self>, SKELETON>{
+    pub async fn find_all() -> Result<Vec<Self>, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let users = users::table.load::<QueryableUser>(&conn)?;
         Ok(users)
     }
 
-    pub async fn find_by_id(id: i32) -> Result<Self, SKELETON>{
+    pub async fn find_by_id(id: i32) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let user = users::table.filter(users::id.eq(id)).first::<QueryableUser>(&conn)?;
         Ok(user)
     }
 
-    pub async fn add(user: InsertableUser) -> Result<Self, SKELETON>{
+    pub async fn add(user: InsertableUser) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
         let user = InsertableUser{
@@ -260,7 +260,7 @@ impl QueryableUser{
         Ok(user)
     }
 
-    pub async fn update(id: i32, user: UpdatableUser) -> Result<Self, SKELETON>{ //-- Self refers to the User type
+    pub async fn update(id: i32, user: UpdatableUser) -> Result<Self, uniXerr>{ //-- Self refers to the User type
         let conn = pg::connection().await.unwrap();
         let user = UpdatableUser{
             username: user.username,
@@ -319,7 +319,7 @@ impl QueryableUser{
         }
     }
 
-    pub async fn update_prof_img(id: i32, f: UploadFile) -> Result<Self, SKELETON>{
+    pub async fn update_prof_img(id: i32, f: UploadFile) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let user_prof = UpdateProfImg{
             prof_img: f.name,
@@ -329,7 +329,7 @@ impl QueryableUser{
         Ok(user_with_updated_profile_img)
     }
 
-    pub async fn delete(id: i32) -> Result<usize, SKELETON>{
+    pub async fn delete(id: i32) -> Result<usize, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let response = diesel::delete(users::table.filter(users::id.eq(id))).execute(&conn)?; //-- usize is the size of allocated bytes in memory to take a reference from any type like on i32 is 4 bytes
         Ok(response)

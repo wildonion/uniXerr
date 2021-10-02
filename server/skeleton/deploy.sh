@@ -3,9 +3,9 @@
 
 
 
-sudo docker stop $(sudo docker ps -a -q) && sudo docker-compose down -v && sudo docker system prune -af --volumes
-sudo docker-compose -f docker-compose.yml build --no-cache && sudo docker-compose up -d --force-recreate --remove-orphans
-sudo docker save $(sudo docker images -a -q) | gzip > $HOME/skeleton.tar.gz && sudo docker load -i $HOME/skeleton.tar.gz
+
+
+
 
 
 

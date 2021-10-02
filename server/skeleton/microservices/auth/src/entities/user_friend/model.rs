@@ -5,7 +5,7 @@
 
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, AsChangeset};
-use crate::handlers::error::SKELETON;
+use crate::handlers::error::uniXerr;
 use crate::schema::user_friend;
 use serde::{Deserialize, Serialize}; // NOTE - Deserialize from json to struct to insert into db, Serialize from struct to json to send the response 
 use crate::handlers::db::pg::establish as pg;
@@ -36,7 +36,7 @@ pub struct QueryableUserFriend{
 
 impl QueryableUserFriend{
 
-    pub async fn accept_request(user_id: i32, friend_id: i32) -> Result<Self, SKELETON>{
+    pub async fn accept_request(user_id: i32, friend_id: i32) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let updated_status_user_friend = diesel::update(user_friend::table
                                                                                                 .filter(user_friend::from_user_id.eq(user_id)))
@@ -46,7 +46,7 @@ impl QueryableUserFriend{
         Ok(updated_status_user_friend)
     }
 
-    pub async fn reject_request(user_id: i32, friend_id: i32) -> Result<Self, SKELETON>{
+    pub async fn reject_request(user_id: i32, friend_id: i32) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let updated_status_user_friend = diesel::update(user_friend::table
                                                                                                 .filter(user_friend::from_user_id.eq(user_id)))
@@ -57,7 +57,7 @@ impl QueryableUserFriend{
 
     }
     
-    pub async fn send_request(user_friend: InsertableUserFriend) -> Result<Self, SKELETON>{
+    pub async fn send_request(user_friend: InsertableUserFriend) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let new_request = InsertableUserFriend{
             from_user_id: user_friend.from_user_id,
@@ -68,13 +68,13 @@ impl QueryableUserFriend{
         Ok(inserted_new_user_friend)
     }
 
-    pub async fn find_all_user_friends(user_id: i32) -> Result<Vec<Self>, SKELETON>{
+    pub async fn find_all_user_friends(user_id: i32) -> Result<Vec<Self>, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let friends_for_a_user = user_friend::table.filter(user_friend::from_user_id.eq(user_id)).get_results::<QueryableUserFriend>(&conn)?;
         Ok(friends_for_a_user)
     }
 
-    pub async fn delete(id: i32) -> Result<usize, SKELETON>{
+    pub async fn delete(id: i32) -> Result<usize, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let response = diesel::delete(user_friend::table.filter(user_friend::id.eq(id))).execute(&conn)?; //-- usize is the size of the allocated bytes in memory like an i32 which is 4 bytes
         Ok(response)

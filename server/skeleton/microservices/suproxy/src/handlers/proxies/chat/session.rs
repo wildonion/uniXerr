@@ -83,6 +83,7 @@ impl Actor for UserChatSession {
             .send(balancer::Connect { //-- sending asynchronous Connect event to ChatServer actor and waits for a response
                 addr: addr.recipient(), //-- address of the UserChatSession actor for Message event inside the Connect event
                 room: self.room.clone(),
+                username: self.name.clone(),
                 user_id: self.user_id,
                 friend_id: self.friend_id,  
             })
@@ -134,7 +135,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for UserChatSession {
                 return;
             }
         };
-        match msg{
+        match msg{ //-- check all variants of incoming message
             ws::Message::Ping(msg) => {
                 self.hb = Instant::now(); //-- beating the heart of the client
                 ctx.pong(&msg); //-- getting the pong message from the client
@@ -200,10 +201,9 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
             
                 EXAMPLE - 
                     user wildonion wants to chat with user psychoder :
-                        ws://localhost:7368/chat/wildonion/3/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzI5MzcyNjMsImV4cCI6MTY2NDQ3MzI2MywidXNlciI6IndpbGRvbmlvbiIsImlkIjoxLCJhY2Nlc3NfbGV2ZWwiOjIsImFjY2Vzc190b2tlbiI6ImNjYzhiYmRiNDIzNjQwM2E5OGE2M2Q5ZmNlMmMyZWU2In0.rW0Po_okA4AyxKlWZcR4LigdrFlr2j5L925wRfFN67bD1LpV_D5Fv3_gsaIAXYzdNYdlW03Odpq034AHcsntEg
+                        ws://192.168.1.133:7368/chat/wildonion/4/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjg0MTgsImV4cCI6MTY2NDcwNDQxOCwidXNlciI6IndpbGRvbmlvbiIsImlkIjozLCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6ImVjNDc1NjE2ZjdhYzRmOTNiNzE5NDA5ZDY4NDUyOTFkIn0.mrcdenhjdM6xAuI6B1RLpr0VxsRs5b-AH5pC29HTQaPIi6ziIGvrU-lTa-TyeSmjckoMI0OQ7K89aYCl-ijEgQ
                     user psychoder wants to chat with user wildonion :
-                        ws://localhost:7368/chat/psychoder/1/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzI5MzcwODgsImV4cCI6MTY2NDQ3MzA4OCwidXNlciI6InBzeWNob2RlciIsImlkIjozLCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6IjA3N2M5NjcwZjU3YjQ5MjZhYTkwYThjNTg2YjBlOWJjIn0.01PGxy-Ylb6VQZ-EyxsHj5R61tLVUFVKnY1LADfux-vYu6LwcIG-R92mF4uCYMEEuXTik2DsYwJ2BFvKQZxhLg
-                
+                        ws://192.168.1.133:7368/chat/psychoder/3/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjkzODQsImV4cCI6MTY2NDcwNTM4NCwidXNlciI6InBzeWNob2RlciIsImlkIjo0LCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6IjgyOWFkNmVkYzZkYjQzNmNhYzQwZmZhYTlkNmY4NjkyIn0.prVcOhA9Pc5h0iApXpeISw8DyAL1LOW1sI1nG2udH0XgvZNxPp3hTPlFUioNo_uq8ev-aPpiZRHeh8XE_eLMeQ
                 NOTE - room name is not the same in each connection from our sessions cause :
                     session 1 connected to our server with user_id : 1, friend_id : 2 and token : his/her token
                     session 2 connected to our server with user_id : 2, friend_id : 1 and token : his/her token

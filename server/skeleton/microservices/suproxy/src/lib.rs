@@ -34,13 +34,13 @@ macro_rules! authenticity {
 
 
             #[derive(Debug, Serialize, Deserialize)]
-            struct ResponseBody<UserId>{
+            struct ResponseBody{
                 pub message: String,
                 pub data: UserId, // NOTE - this is a string pretty json and we have to deserialize it into UserId struct
             }
 
 
-            #[derive(Serialize, Deserialize)]
+            #[derive(Serialize, Deserialize, Debug)]
             struct UserId{
                 pub user_id: i32,
             }
@@ -48,11 +48,11 @@ macro_rules! authenticity {
 
             let client = reqwest::blocking::Client::new();
             match client
-                    .post("http://localhost:7366/skeleton/api/auth/check-token")
+                    .post("http://localhost:7366/uniXerr/api/auth/check-token")
                     .bearer_auth($token) // NOTE - it'll attach the Bearer token in request header
                     .send(){
                         Ok(res) => {
-                            match res.json::<ResponseBody<UserId>>(){
+                            match res.json::<ResponseBody>(){
                                 Ok(resp) => {
                                     println!("[+] CURRENT SERVER TIME : {:?} | RESPONSE MESSAGE FROM AUTH MICROSERVICE SERVER : {:?}", chrono::Local::now().naive_local(), resp.message);
                                     println!("[+] CURRENT SERVER TIME : {:?} | USER ID FROM THE AUTH MICROSERVICE SERVER : {:?}", chrono::Local::now().naive_local(), resp.data.user_id);

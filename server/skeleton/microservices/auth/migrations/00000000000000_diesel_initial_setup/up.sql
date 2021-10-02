@@ -37,5 +37,5 @@ $$ LANGUAGE plpgsql;
 
 
 -- CREATE extension "uuid-ossp";
-GRANT ALL PRIVILEGES ON DATABASE skeleton TO skeleton;
-ALTER ROLE skeleton superuser;
+GRANT ALL PRIVILEGES ON DATABASE uniXerr TO uniXerr;
+ALTER ROLE uniXerr superuser;

@@ -35,15 +35,15 @@ impl ServiceError {
 ///////////// ==========================================================================================================================
 
 #[derive(Debug, Deserialize)] //-- deserialize the structure
-pub struct SKELETON{
+pub struct uniXerr{
     pub error_status_code: u16,
     pub error_message: String,
 }
 
 
-impl SKELETON{
-    pub fn new(error_status_code: u16, error_message: String) -> SKELETON{ //-- constructor
-        SKELETON{
+impl uniXerr{
+    pub fn new(error_status_code: u16, error_message: String) -> uniXerr{ //-- constructor
+        uniXerr{
             error_status_code,
             error_message,
         }
@@ -51,25 +51,25 @@ impl SKELETON{
 }
 
 
-impl fmt::Display for SKELETON{
+impl fmt::Display for uniXerr{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result{
         f.write_str(self.error_message.as_str())
     }
 }
 
-impl From<DieselError> for SKELETON{
-    fn from(error: DieselError) -> SKELETON{
+impl From<DieselError> for uniXerr{
+    fn from(error: DieselError) -> uniXerr{
         match error{
-            DieselError::DatabaseError(_, err) => SKELETON::new(409, err.message().to_string()), //-- this error will occure because of bad insert or update operation
+            DieselError::DatabaseError(_, err) => uniXerr::new(409, err.message().to_string()), //-- this error will occure because of bad insert or update operation
             DieselError::NotFound => {
-                SKELETON::new(404, "⚠️ not found".to_string())
+                uniXerr::new(404, "⚠️ not found".to_string())
             }
-            err => SKELETON::new(500, format!("⚠️ unknown diesel error: {}", err)),
+            err => uniXerr::new(500, format!("⚠️ unknown diesel error: {}", err)),
         }
     }
 }
 
-impl ResponseError for SKELETON{
+impl ResponseError for uniXerr{
     fn error_response(&self) -> HttpResponse{ //-- return a http response object
         // let status_code = StatusCode::from_u16(self.error_status_code).unwrap();
         let status_code = match StatusCode::from_u16(self.error_status_code){

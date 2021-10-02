@@ -7,7 +7,7 @@ use actix_web::{HttpRequest, HttpResponse, Result, post, web};
 use crate::middlewares::auth::pass;
 use crate::utils::ResponseBody;
 use crate::constants;
-use crate::handlers::error::SKELETON;
+use crate::handlers::error::uniXerr;
 use serde_json::json;
 use super::model::{InsertableUserFriend, QueryableUserFriend};
 
@@ -25,8 +25,8 @@ use super::model::{InsertableUserFriend, QueryableUserFriend};
 
 
 
-#[post("/skeleton/api/auth/user/{user_id}/friend/{friend_id}/follow")] //-- required fields : from_user_id + to_friend_id
-async fn follow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<i32>,) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user/{user_id}/friend/{friend_id}/follow")] //-- required fields : from_user_id + to_friend_id
+async fn follow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<i32>,) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -60,8 +60,8 @@ async fn follow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<
 
 
 
-#[post("/skeleton/api/auth/user/{user_id}/friend/{friend_id}/unfollow")] //-- required fields : from_user_id + to_friend_id
-async fn unfollow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<i32>,) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user/{user_id}/friend/{friend_id}/unfollow")] //-- required fields : from_user_id + to_friend_id
+async fn unfollow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<i32>,) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -95,8 +95,8 @@ async fn unfollow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Pat
 
 
 
-#[post("/skeleton/api/auth/user/send-request")] //-- required fields : from_user_id + to_friend_id
-async fn send_request_to_friend(req: HttpRequest, user_friend: web::Json<InsertableUserFriend>) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user/send-request")] //-- required fields : from_user_id + to_friend_id
+async fn send_request_to_friend(req: HttpRequest, user_friend: web::Json<InsertableUserFriend>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -129,8 +129,8 @@ async fn send_request_to_friend(req: HttpRequest, user_friend: web::Json<Inserta
 
 
 
-#[post("/skeleton/api/auth/user-friend/delete/{id}")]
-async fn delete_user_friend(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user-friend/delete/{id}")]
+async fn delete_user_friend(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -163,8 +163,8 @@ async fn delete_user_friend(req: HttpRequest, id: web::Path<i32>) -> Result<Http
 
 
 
-#[post("/skeleton/api/auth/user/get/{id}/friends")]
-async fn get_all_friends(req: HttpRequest, user_id: web::Path<i32>) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/user/get/{id}/friends")]
+async fn get_all_friends(req: HttpRequest, user_id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;

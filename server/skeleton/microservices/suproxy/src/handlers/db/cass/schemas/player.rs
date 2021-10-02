@@ -48,7 +48,7 @@ impl Chat{
         //        so in our select query we have to order by chattime and servertime respectively 
         //        where all of our primary keys are equal to the given value took from the function parameters.
         let values = query_values!("user_id" => user_id, "friend_id" => friend_id, "room_name" => room_name);
-        let select_player_chat_data_cql = "SELECT * FROM skeleton.user_chat WHERE user_id = ? AND friend_id = ? AND room_name = ? ORDER BY chattime, servertime";
+        let select_player_chat_data_cql = "SELECT * FROM uniXerr.user_chat WHERE user_id = ? AND friend_id = ? AND room_name = ? ORDER BY chattime, servertime";
         let rows = session.query_with_values(select_player_chat_data_cql, values)
                                       .expect("⚠️ user_chat column family selecting rows error")
                                       .get_body()
@@ -68,14 +68,14 @@ impl Chat{
     }
 
     pub fn init(session: Arc<CassSession>){
-        let create_player_data_table = "CREATE TABLE IF NOT EXISTS skeleton.user_chat (id UUID, user_id int, friend_id int, room_name text, message text, 
+        let create_player_data_table = "CREATE TABLE IF NOT EXISTS uniXerr.user_chat (id UUID, user_id int, friend_id int, room_name text, message text, 
                                              chattime timestamp, servertime timestamp, PRIMARY KEY((id, user_id, friend_id, room_name), chattime, servertime))
                                              WITH CLUSTERING ORDER BY ((chattime, servertime) ASC);";
         session.query(create_player_data_table).expect("⚠️ user_chat table creation error");
     }
 
     pub fn save(&self, session: Arc<CassSession>) -> Uuid{
-        let insert_player_chat_data_cql = "INSERT INTO skeleton.user_chat (id, user_id, friend_id, room_name, message, chattime, servertime) 
+        let insert_player_chat_data_cql = "INSERT INTO uniXerr.user_chat (id, user_id, friend_id, room_name, message, chattime, servertime) 
                                                 VALUES (?, ?, ?, ?, ?, ?, ?, toUnixTimestamp(now()))";
         let values = self.insert();
         let frame = session.query_with_values(insert_player_chat_data_cql, values).expect("⚠️ user_chat column family insertion error");

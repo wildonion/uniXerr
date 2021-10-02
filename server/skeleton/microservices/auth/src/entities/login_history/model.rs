@@ -7,7 +7,7 @@
 
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, AsChangeset};
-use crate::handlers::error::SKELETON;
+use crate::handlers::error::uniXerr;
 use crate::schema::login_history;
 use crate::entities::users::model::QueryableUser;
 use serde::{Deserialize, Serialize}; // NOTE - Deserialize from json to struct to insert into db, Serialize from struct to json to send the response 
@@ -54,25 +54,25 @@ impl QueryableLoginHistory{
         }
     }
     
-    pub async fn add(login_history_record: InsertableLoginHistory) -> Result<Self, SKELETON>{
+    pub async fn add(login_history_record: InsertableLoginHistory) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let history = InsertableLoginHistory::from(login_history_record);
         Ok(diesel::insert_into(login_history::table).values(history).get_result(&conn)?)
     }
     
-    pub async fn find_all() -> Result<Vec<Self>, SKELETON>{
+    pub async fn find_all() -> Result<Vec<Self>, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let histories = login_history::table.load::<QueryableLoginHistory>(&conn)?;
         Ok(histories)
     }
 
-    pub async fn find(id: i32) -> Result<Self, SKELETON>{
+    pub async fn find(id: i32) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let history = login_history::table.filter(login_history::id.eq(id)).first::<QueryableLoginHistory>(&conn)?;
         Ok(history)
     }
 
-    pub async fn delete(id: i32) -> Result<usize, SKELETON>{
+    pub async fn delete(id: i32) -> Result<usize, uniXerr>{
         let conn = pg::connection().await.unwrap();
         let response = diesel::delete(login_history::table.filter(login_history::id.eq(id))).execute(&conn)?; //-- usize is the size of the allocated bytes in memory like an i32 which is 4 bytes
         Ok(response)

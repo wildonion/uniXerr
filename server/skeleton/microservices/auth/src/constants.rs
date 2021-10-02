@@ -23,5 +23,5 @@ pub const MESSAGE_ACCESS_DENIED: &str = "Access Denied";
 pub const MESSAGE_NOT_ENOUGH_COINS: &str = "Not enough coins";
 pub const AUTHORIZATION: &str = "Authorization";
 pub const EMPTY: &str = "";
-pub const IGNORE_ROUTES: [&str; 2] = ["/skeleton/api/auth/signup", "/skeleton/api/auth/login"];
+pub const IGNORE_ROUTES: [&str; 2] = ["/uniXerr/api/auth/signup", "/uniXerr/api/auth/login"];
 pub const UPLOAD_PATH: &str = "assets/images";

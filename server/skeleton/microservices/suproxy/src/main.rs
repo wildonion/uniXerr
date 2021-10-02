@@ -12,7 +12,6 @@ use listenfd::ListenFd;
 use crate::handlers::{
     db::cass::schemas::player::Chat,
     db::cass::establish as cass,
-    db::pg::establish as pg,
     proxies::chat::{balancer as chat_balancer, session::user_chat_sess_init},
 };
 
@@ -37,16 +36,6 @@ async fn main() -> std::io::Result<()> {
     let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
     let host = env::var("HOST").expect("⚠️ please set host in .env");
     let port = env::var("SUPROXY_PORT").expect("⚠️ please set port in .env");
-    
-    
-    
-
-
-
-
-
-
-    let pg_pool = pg::connections().await.expect("⚠️ can't establish pg connections"); //-- making postgres pool of connections before the accepting each socket connection
     let cass_session = cass::connection().await.expect("⚠️ can't establish cassandra connection!"); //-- making cassandra pool of connections for selected node
     Chat::init(cass_session.clone()); //-- it'll create user_chat column family if there is not any
     
@@ -59,7 +48,7 @@ async fn main() -> std::io::Result<()> {
     // NOTE - cloning db connections using Arc cause trait Copy and Clone is not implemented for them and they are not Sync and Send and safe to move between threads thus Arc do these things for us
     // NOTE - in order to start the ChatServer actor we have to define a simple Context for that
     // NOTE - based on orphan rule in order to call the start() method on our ChatServer actor we have to include the Actor trait in here   
-    let chat_server_address = chat_balancer::ChatServer::new(pg_pool.clone(), cass_session.clone()).start(); // start a new asynchronous actor, returning its address.
+    let chat_server_address = chat_balancer::ChatServer::new(cass_session.clone()).start(); // start a new asynchronous actor, returning its address.
     let mut listenfd = ListenFd::from_env();
     let mut server = 
         HttpServer::new(move || {

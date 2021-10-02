@@ -6,7 +6,7 @@
 
 
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Result};
-use crate::handlers::error::SKELETON;
+use crate::handlers::error::uniXerr;
 use crate::utils::ResponseBody;
 use crate::middlewares::auth::pass;
 use crate::constants;
@@ -17,8 +17,8 @@ use super::model::{QueryableLoginHistory}; //-- load from the root of the curren
 
 
 
-#[get("/skeleton/api/auth/login-histories")]
-async fn find_all(req: HttpRequest) -> Result<HttpResponse, SKELETON>{
+#[get("/uniXerr/api/auth/login-histories")]
+async fn find_all(req: HttpRequest) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -55,8 +55,8 @@ async fn find_all(req: HttpRequest) -> Result<HttpResponse, SKELETON>{
 
 
 
-#[get("/skeleton/api/auth/login-history/{id}")]
-async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKELETON>{
+#[get("/uniXerr/api/auth/login-history/{id}")]
+async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -91,8 +91,8 @@ async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKEL
 
 
 
-#[post("/skeleton/api/auth/login-history/delete/{id}")]
-async fn delete(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, SKELETON>{
+#[post("/uniXerr/api/auth/login-history/delete/{id}")]
+async fn delete(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;

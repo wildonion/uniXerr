@@ -10,7 +10,6 @@ use actix::prelude::*;
 use crate::handlers::{
     db::cass::schemas::player::Chat,
     db::cass::establish as cass,
-    db::pg::establish as pg,
 };
 
 
@@ -38,6 +37,7 @@ use crate::handlers::{
 pub struct Connect{
     pub addr: Recipient<Message>, //-- the Recipient type allows to send one specific message to an actor - the addr field is the address of UserChatSession actor
     pub room: String,
+    pub username: Option<String>,
     pub user_id: i32,
     pub friend_id: i32,
 }
@@ -93,7 +93,6 @@ pub struct ChatServer{ //-- ChatServer is an actor and maintains list of connect
     sessions: HashMap<usize, Recipient<Message>>,
     rooms: HashMap<String, HashSet<usize>>,
     rng: ThreadRng,
-    pg_pool: pg::Pool,
     cass_session: Arc<cass::CassSession>,
 }
 
@@ -106,14 +105,13 @@ impl Default for ChatServer{
 
 impl ChatServer{
 
-    pub fn new(pg_pool: pg::Pool, cass_session: Arc<cass::CassSession>) -> ChatServer{
+    pub fn new(cass_session: Arc<cass::CassSession>) -> ChatServer{
         let mut rooms = HashMap::new();
         rooms.insert("Main".to_owned(), HashSet::new());
         ChatServer{
             sessions: HashMap::new(), //-- all sessions are an actor and the sessions field is a hash map contains the id as the key and the address of the session actor as its value
             rooms, //-- rooms contain a name as the key and one or more set of sessions (client session id) as its value
             rng: rand::thread_rng(),
-            pg_pool,
             cass_session,
         }
     }
@@ -155,12 +153,12 @@ impl Handler<Connect> for ChatServer{
     type Result = usize; //-- the response type is usize
 
     fn handle(&mut self, msg: Connect, _: &mut Context<Self>) -> Self::Result{
-        self.send_message(&msg.room.clone(), "Welcome back", 0); //-- notify two peers in their room
+        self.send_message(&msg.room.clone(), &format!("{} is online", msg.username.clone().unwrap()), 0); //-- notify two peers in their room
         let id = self.rng.gen::<usize>(); //-- generating random id for the socket or actor the client session
         self.sessions.insert(id, msg.addr); //-- inserting this session with its id into sessions hash map
         self.rooms.entry(msg.room.clone()).or_insert_with(HashSet::new).insert(id); //-- inserting the id of this session into the room, if the room doesn't exist create it with a new empty hash set - an in memory room checking algorithm
         let all_user_chats = Chat::all(self.cass_session.clone(), msg.user_id, msg.friend_id, msg.room.clone()); //-- fetching all old messages on every connect - TODO
-        id //-- returning the generated id to update the UserChatSession actor id field 
+        id //-- returning the generated id for the socket to update the UserChatSession actor id field 
     }
 }
 
@@ -180,7 +178,7 @@ impl Handler<Disconnect> for ChatServer{
             }
         }
         for room in rooms_for_this_session{
-            self.send_message(&room, &format!("user {} is offline", msg.username.clone().unwrap()), 0); //-- notify all users in those rooms that this id was there and this user is offline now
+            self.send_message(&room, &format!("{} is offline", msg.username.clone().unwrap()), 0); //-- notify all users in those rooms that this id was there and this user is offline now
         }
     }
 }
