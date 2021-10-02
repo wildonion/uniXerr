@@ -12,7 +12,7 @@
 
 ## Updating `auth` Microservice API Acess Level
 
-* **Updating access level to admin access:** ```cd cargo microservices/auth/ && cargo run <USERNAME> <ACCESS_LEVEL>```
+* **Updating access level to admin access:** ```cd microservices/auth/ && cargo run <USERNAME> <ACCESS_LEVEL>```
     * **eg - change access level of user _wildonion_ to admin level:** ```cd microservices/auth/ && cargo run wildonion 2```
 
 ## Running Microservices Commands
