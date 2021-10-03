@@ -27,6 +27,13 @@
 ///////////// every Copy type is also required to be Clone and if T: Copy, x: T, and y: &T, then let x = y.clone(); is equivalent to let x = *y;
 ///////////// when we derive a Copy implementation Clone is also required cause it's a super trait of Copy.
 ///////////// if a type imeplements trait Copy means we can clone it (cause trait Clone is a super trait of Copy) and also assign the variable into another one without losing the ownership of our variable
+/////////////
+/////////////
+///////////// instead of using tokio socket with mpsc job queue channel protocol for live event streaming between threads in our _UI_ apps we've used _kafka_ for heavy long time streaming with load balancing and data repications strategy
+///////////// kafka => multiple cluster (datacenter or VPS) <-has-> nodes(multiple instances of kafka brokers or servers) <-has-> topics <-has-> partition replicas for each topic <-has-> buck of events inside each partition
+///////////// three replicas in kafka means there are three copies of each topics' partitions (buck of events) in each node (kafka broker)
+///////////// kafka partitions are created based on the hash of each event and events with similar hash will be inside a same partition so a topic is divided into one or more partitions
+///////////// the default number of partitions in kafka for each topic is 10.
 ///////////// ===============================================================================================================================================================================================================================================
 
 
@@ -35,8 +42,12 @@
 // https://gist.github.com/wildonion/4f1956d9908e348a74b4381458e474e1#file-garbage-rs
 
 
-use crate::schemas::player::MetaData;
+
+
+use crate::schemas::brain::MetaData;
 use std::time::SystemTime;
+use std::thread;
+use std::sync::mpsc::channel;
 use log::{error, info};
 use rdkafka::config::ClientConfig;
 use rdkafka::message::OwnedHeaders;
@@ -45,6 +56,20 @@ use utilser;
 
 
 pub async fn produce(brokers: &str){
+
+
+
+    let (tx, rx) = channel();
+    let sender = thread::spawn(move || {
+        tx.send("Hello, thread".to_owned()).expect("Unable to send on channel");
+    });
+    let receiver = thread::spawn(move || {
+        let value = rx.recv().expect("Unable to receive from channel");
+        println!("{}", value);
+    });
+    sender.join().expect("The sender thread has panicked");
+    receiver.join().expect("The receiver thread has panicked");
+
 
 
     

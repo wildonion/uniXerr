@@ -1,3 +1,5 @@
 __pycache__
 .vscode
-server/core/target
+.VSCodeCounter
+assets
+target

@@ -19,7 +19,9 @@ pub type CassSession = Session<RoundRobinSync<TcpConnectionPool<StaticPasswordAu
 //-- we've used Box to save a pointer on stack from the allocated heap for the trait object, also we've used Box<dyn Trait> 
 //-- cause we don't know what type of object Error trait is implemented for, for example it might be for uniXerrClusterSession object.
 //-- the successful return type of this function is an Arc<CassSession> for sharing the ownership of session between tokio threads.
-//-- due to having no mutatation of the session at runtime inside a thread we didn't put the CassSession type inside a Mutex.     
+//-- due to having no mutatation of the session at runtime inside a thread we didn't put the CassSession type inside a Mutex.
+//-- cassandra => multiple cluster (datacenter or VPS) <-has-> nodes (multiple instances of cassandra db server) <-has-> partition replicas <-has-> rows
+//-- three replicas in cassandra means there are three copies of each partition(contains rows) in each node(cassandra db server)
 pub async fn connection() -> Result<Arc<CassSession>, Box<dyn std::error::Error>>{
 
     

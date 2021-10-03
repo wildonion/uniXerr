@@ -3,10 +3,10 @@
 [workspace]
 
 members = [
-    "auth",
-    "suproxy",
-    "coiniXerr",
-    "psychoder",
+    "server/skeleton/microservices/auth",
+    "server/skeleton/microservices/suproxy",
+    "server/skeleton/microservices/coiniXerr",
+    "server/skeleton/microservices/psychoder",
 ]
 
 

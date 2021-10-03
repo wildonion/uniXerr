@@ -90,7 +90,7 @@ pub struct UUID(pub Uuid);
 // implementing ChatServer struct to be an actor and a load balancer to communicate with all sessions through their address
 // ========================================================================================================================
 pub struct ChatServer{ //-- ChatServer is an actor and maintains list of connection client session and manages available rooms, peers send messages to other peers in same room through the ChatServer actor
-    sessions: HashMap<usize, Recipient<Message>>,
+    sessions: HashMap<usize, Recipient<Message>>, //-- on a 32 bit target usize is 4 bytes and on a 64 bit target usize is 8 bytes
     rooms: HashMap<String, HashSet<usize>>,
     rng: ThreadRng,
     cass_session: Arc<cass::CassSession>,
@@ -109,7 +109,7 @@ impl ChatServer{
         let mut rooms = HashMap::new();
         rooms.insert("Main".to_owned(), HashSet::new());
         ChatServer{
-            sessions: HashMap::new(), //-- all sessions are an actor and the sessions field is a hash map contains the id as the key and the address of the session actor as its value
+            sessions: HashMap::new(), //-- all sessions are an actor which is of type Addr object, the sessions field is a hash map contains the id as the key and the address of the session actor as its value
             rooms, //-- rooms contain a name as the key and one or more set of sessions (client session id) as its value
             rng: rand::thread_rng(),
             cass_session,
@@ -157,7 +157,7 @@ impl Handler<Connect> for ChatServer{
         let id = self.rng.gen::<usize>(); //-- generating random id for the socket or actor the client session
         self.sessions.insert(id, msg.addr); //-- inserting this session with its id into sessions hash map
         self.rooms.entry(msg.room.clone()).or_insert_with(HashSet::new).insert(id); //-- inserting the id of this session into the room, if the room doesn't exist create it with a new empty hash set - an in memory room checking algorithm
-        let all_user_chats = Chat::all(self.cass_session.clone(), msg.user_id, msg.friend_id, msg.room.clone()); //-- fetching all old messages on every connect - TODO
+        let all_user_chats = Chat::all(self.cass_session.clone(), msg.user_id, msg.friend_id, msg.room.clone()); //-- fetching all old messages inside ram on every connect
         id //-- returning the generated id for the socket to update the UserChatSession actor id field 
     }
 }

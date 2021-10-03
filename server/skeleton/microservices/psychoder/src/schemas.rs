@@ -2,4 +2,4 @@
 
 
 
-pub mod player;
+pub mod brain;

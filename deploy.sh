@@ -11,10 +11,10 @@
 
 # NOTE - building each microservice separately
 # ...
-# cargo build --bin auth --release --manifest-path microservices/Cargo.toml
-# cargo build --bin suproxy --release --manifest-path microservices/Cargo.toml
-# cargo build --bin psychoder --release --manifest-path microservices/Cargo.toml
-# cargo build --bin coiniXerr --release --manifest-path microservices/Cargo.toml
+# cargo build --bin auth --release --manifest-path server/skeleton/microservices/Cargo.toml
+# cargo build --bin suproxy --release --manifest-path server/skeleton/microservices/Cargo.toml
+# cargo build --bin psychoder --release --manifest-path server/skeleton/microservices/Cargo.toml
+# cargo build --bin coiniXerr --release --manifest-path server/skeleton/microservices/Cargo.toml
 
 
 

@@ -2,6 +2,74 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
+# uniXerr Skeleton Development Setup
+
+### Requirements
+
+* **Install _rustup_, _pm2_, _postgres_, _cassandra_ and _kafka_**
+
+* **Install prerequisite packages on Linux:** ```sudo apt install openssl libssl-dev cmake libpq-dev```
+
+* **Install _openssl_ for _diesel_ using ```choco install openssl```, _cmake_ for _rdkafka_ lib using ```choco install cmake``` and _gcc_/_g++_ with _mingw_ using ```choco install mingw``` on Windows** 
+
+* **Put _postgres_ lib and bin path into environment variable on Windows:** ```C:\Program Files\PostgreSQL\13\lib``` and ```C:\Program Files\PostgreSQL\13\bin```
+
+* **Install _cargo_ bullshits:** ```cargo install diesel_cli --no-default-features --features postgres && cargo install systemfd cargo-watch```  
+
+### Updating `auth` Microservice API Acess Level
+
+* **Updating access level to admin access:** ```cd server/skeleton/microservices/auth/ && cargo run <USERNAME> <ACCESS_LEVEL>```
+    * **eg - change access level of user _wildonion_ to admin level:** ```cd server/skeleton/microservices/auth/ && cargo run wildonion 2```
+
+### Running Microservices Commands
+
+* **Run _auth_ microservice using one the following commands:** 
+    * ```systemfd --no-pid -s http::7366 -- cargo watch -C server/skeleton/microservices/auth -x run```
+    * ```cargo watch -C server/skeleton/microservices/auth -x run```
+
+* **Run _suproxy_ load balancer using one the following commands:**
+    * ```systemfd --no-pid -s http::7368 -- cargo watch -C server/skeleton/microservices/suproxy -x run```
+    * ```cargo watch -C server/skeleton/microservices/suproxy -x run```
+
+* **Run _coiniXerr_ network:**
+    * ```cargo watch -C server/skeleton/microservices/coiniXerr -x run```
+
+# uniXerr Skeleton Production Setup
+
+### Setup Postgres DB and User
+
+```
+CREATE DATABASE uniXerr;
+CREATE USER uniXerr WITH ENCRYPTED PASSWORD 'uniXerr';
+GRANT ALL PRIVILEGES ON DATABASE uniXerr TO uniXerr;
+ALTER USER uniXerr WITH SUPERUSER;
+```
+
+* **Build & run each microservice:** ```sudo chmod +x deploy.sh && ./deploy.sh```
+
+### uniXerr Skeleton Postgres Database Setup
+
+* **Generate _migrations_ folder, create uniXerr postgres db, `diesel.toml` file on first run or run existing migrations into the database:** 
+
+    * ```cd server/skeleton/microservices && diesel setup --migration-dir server/skeleton/microservices/auth/migrations/```
+
+* **Generate SQL files for your table operations:** ```diesel migration generate SQL-OPERATION_TABLE-NAME```
+
+    * **eg - create users table for _auth_ microservice:** ```diesel migration generate create_users --migration-dir server/skeleton/microservices/auth/migrations/```
+
+* **Migrate tables into postgres db and generate(update) `schema.rs` file inside _src_ folder:** ```diesel migration run```
+
+    * **eg - migrate all SQL files of operations of _auth_ microservice into the database:** ```diesel migration run --migration-dir server/skeleton/microservices/auth/migrations/```
+    * **note - in order to generate the `schema.rs` in _src_ folder the ```diesel migration run``` command must have a successful result**
+    * **note - you can also create sql files (`up.sql` and `down.sql`) for your table in each migrations folder by hand then run the ```diesel setup``` command to migrate them all into the db at once**
+    * **note - down migration command for each table is: ```diesel migration down```**
+
+* **Check diesel migrations errors:** ```diesel migration list```
+
+    * **eg - check migrations errors for _auth_ microservice:** ```diesel migration list --migration-dir server/skeleton/microservices/auth/migrations/```
+
+# AI Core Development Guide
+
 ###### ⚠️ If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.
 ###### ⚠️ Remember to call `/users/add/info` and `/users/add/positions` routes of API server after the classification is done on csv file of input data. 
 ###### ⚠️ You can't create an environment if the environment was exported on a different platform than the target machine.
