@@ -3,7 +3,7 @@
 
 // NOTE - std::thread::spawn() takes closure as its parameter not an async move || {} cause async closures are not stable cause they don't have fixed size to pin them in memory to be a future object
 // TODO - impl Send (for traits and types) and Sync (for references) for all sub types of the struct to move it between threads like db connections and AI models
-// TODO - codec called psychodec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes
+// TODO - codec with endianness called psychodec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes
 // TODO - training inputs using streaming concept like: while let Some(input_data) = batches.next().await{}
 // TODO - train the models based on job queue channel protocols and multithreading concepts like: tokio::spawn(async move{model.lock.unwrap().train().await;}) or std::thread::spawn(move ||{model.lock.unwrap().train().await;})
 // TODO - train all model's parameters based on multithreading concept using Arc and Mutex to lock the model while athread still using it 
