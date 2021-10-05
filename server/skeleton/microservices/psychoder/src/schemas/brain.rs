@@ -27,22 +27,38 @@
 
 
 use serde::{Serialize, Deserialize};
-use std::sync::Arc;
 use uuid::Uuid;
 
 
+pub trait Synapse{
+    fn communicate() -> Self;
+}
 
 
+
+pub struct Neuron; //-- unit like struct
 
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct MetaData{
     pub id: Uuid,
+    pub neuron_name: String,
     pub time: i64,
 }
 
 
 
+
+impl Synapse for Neuron{ //-- it's like implementing a behaviour for a raw object without any meta data
+    fn communicate() -> Self{ //-- this is not object safe trait cause it's returning an associated type which is Self
+        Neuron
+    }
+}
+impl Default for Neuron{
+    fn default() -> Self{
+        todo!()
+    }
+}
 
 
 
@@ -50,6 +66,7 @@ impl Default for MetaData{
     fn default() -> Self{
         MetaData{
             id: Uuid::new_v4(),
+            neuron_name: "AJG7$%".to_string(),
             time: chrono::Local::now().naive_local().timestamp(),
         }
     }

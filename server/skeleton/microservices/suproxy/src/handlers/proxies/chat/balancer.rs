@@ -157,7 +157,6 @@ impl Handler<Connect> for ChatServer{
         let id = self.rng.gen::<usize>(); //-- generating random id for the socket or actor the client session
         self.sessions.insert(id, msg.addr); //-- inserting this session with its id into sessions hash map
         self.rooms.entry(msg.room.clone()).or_insert_with(HashSet::new).insert(id); //-- inserting the id of this session into the room, if the room doesn't exist create it with a new empty hash set - an in memory room checking algorithm
-        let all_user_chats = Chat::all(self.cass_session.clone(), msg.user_id, msg.friend_id, msg.room.clone()); //-- fetching all old messages inside ram on every connect
         id //-- returning the generated id for the socket to update the UserChatSession actor id field 
     }
 }

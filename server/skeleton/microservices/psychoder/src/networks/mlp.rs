@@ -9,14 +9,18 @@
 
 
 use utilser::Info;
-use crate::handlers::nn::MetaData;
-
+use crate::schemas::brain::{Neuron, MetaData};
 
 
 
 
 impl Info for MetaData {
     fn who(&self) -> String{
-        format!("Neuron {} Has id {}", self.neuron_name.to_string(), self.id.to_string())
+        format!("Neuron [{}] fired at time [{}] with id [{}]", self.time, self.neuron_name.to_string(), self.id.to_string())
     }
+}
+
+
+pub struct Linear{
+    pub neurons: Vec<Neuron>, //-- neurons are features or columns of our input data matrix
 }

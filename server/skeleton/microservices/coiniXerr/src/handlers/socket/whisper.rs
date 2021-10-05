@@ -38,38 +38,21 @@
 
 
 
-// https://gist.github.com/wildonion/4f1956d9908e348a74b4381458e474e1#file-unsafer-rs
-// https://gist.github.com/wildonion/4f1956d9908e348a74b4381458e474e1#file-garbage-rs
 
 
 
 
-use crate::schemas::brain::MetaData;
+
+use crate::schemas::coin::MetaData;
 use std::time::SystemTime;
-use std::thread;
-use std::sync::mpsc::channel;
 use log::{error, info};
 use rdkafka::config::ClientConfig;
 use rdkafka::message::OwnedHeaders;
 use rdkafka::producer::{FutureProducer, FutureRecord};
-use utilser;
+use liby;
 
 
 pub async fn produce(brokers: &str){
-
-
-
-    let (tx, rx) = channel();
-    let sender = thread::spawn(move || {
-        tx.send("Hello, thread".to_owned()).expect("Unable to send on channel");
-    });
-    let receiver = thread::spawn(move || {
-        let value = rx.recv().expect("Unable to receive from channel");
-        println!("{}", value);
-    });
-    sender.join().expect("The sender thread has panicked");
-    receiver.join().expect("The receiver thread has panicked");
-
 
 
     

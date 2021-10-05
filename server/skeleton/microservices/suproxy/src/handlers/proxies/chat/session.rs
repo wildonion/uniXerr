@@ -12,7 +12,10 @@ use actix::prelude::*;
 use actix::{Actor, StreamHandler};
 use actix_web_actors::ws;
 use crate::handlers::proxies::chat::balancer;
-
+use crate::handlers::{
+    db::cass::establish as cass,
+    db::cass::schemas::player::Chat,
+};
 
 
 
@@ -74,7 +77,7 @@ impl UserChatSession {
 // =============================================================================================
 
 impl Actor for UserChatSession {
-    type Context = ws::WebsocketContext<Self>; //-- all actors' lifetime are controlled by the Context or ctx variable
+    type Context = ws::WebsocketContext<Self>; //-- all actors' lifetime are controlled by the Context or ctx variable which is an in memory concept
 
     fn started(&mut self, ctx: &mut Self::Context) {
         self.hb(ctx);
@@ -189,9 +192,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for UserChatSession {
 // ===================================================
 
 #[get("/chat/{username}/{friend_id}/{token}")] //-- route of private messaging between 2 peers
-async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::Data<Addr<balancer::ChatServer>>, 
+async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::Data<Addr<balancer::ChatServer>>, cass_sess: web::Data<cass::CassSession>,
                               web::Path((username, friend_id, token)): web::Path<(String, i32, String)>) -> Result<HttpResponse, Error> {
     
+    let cass_session = cass_sess.into_inner(); //-- into_inner() converts web::Data<cass::CassSession> into Arc<cass::CassSession> - we must clone the cass_session when ever we want to pass it some where cause it's not bounded to Copy trait
     let ip = req.peer_addr().unwrap().ip();
     let port = req.peer_addr().unwrap().port();
     let mut actor: Option<UserChatSession> = None;
@@ -201,15 +205,16 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
             
                 EXAMPLE - 
                     user wildonion wants to chat with user psychoder :
-                        ws://192.168.1.133:7368/chat/wildonion/4/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjg0MTgsImV4cCI6MTY2NDcwNDQxOCwidXNlciI6IndpbGRvbmlvbiIsImlkIjozLCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6ImVjNDc1NjE2ZjdhYzRmOTNiNzE5NDA5ZDY4NDUyOTFkIn0.mrcdenhjdM6xAuI6B1RLpr0VxsRs5b-AH5pC29HTQaPIi6ziIGvrU-lTa-TyeSmjckoMI0OQ7K89aYCl-ijEgQ
+                        ws://localhost:7368/chat/wildonion/3/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjg0MTgsImV4cCI6MTY2NDcwNDQxOCwidXNlciI6IndpbGRvbmlvbiIsImlkIjozLCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6ImVjNDc1NjE2ZjdhYzRmOTNiNzE5NDA5ZDY4NDUyOTFkIn0.mrcdenhjdM6xAuI6B1RLpr0VxsRs5b-AH5pC29HTQaPIi6ziIGvrU-lTa-TyeSmjckoMI0OQ7K89aYCl-ijEgQ
                     user psychoder wants to chat with user wildonion :
-                        ws://192.168.1.133:7368/chat/psychoder/3/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjkzODQsImV4cCI6MTY2NDcwNTM4NCwidXNlciI6InBzeWNob2RlciIsImlkIjo0LCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6IjgyOWFkNmVkYzZkYjQzNmNhYzQwZmZhYTlkNmY4NjkyIn0.prVcOhA9Pc5h0iApXpeISw8DyAL1LOW1sI1nG2udH0XgvZNxPp3hTPlFUioNo_uq8ev-aPpiZRHeh8XE_eLMeQ
+                        ws://localhost:7368/chat/psychoder/1/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjkzODQsImV4cCI6MTY2NDcwNTM4NCwidXNlciI6InBzeWNob2RlciIsImlkIjo0LCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6IjgyOWFkNmVkYzZkYjQzNmNhYzQwZmZhYTlkNmY4NjkyIn0.prVcOhA9Pc5h0iApXpeISw8DyAL1LOW1sI1nG2udH0XgvZNxPp3hTPlFUioNo_uq8ev-aPpiZRHeh8XE_eLMeQ
+                
                 NOTE - room name is not the same in each connection from our sessions cause :
-                    session 1 connected to our server with user_id : 1, friend_id : 2 and token : his/her token
-                    session 2 connected to our server with user_id : 2, friend_id : 1 and token : his/her token
+                    session 1 connected to our server with user_id : 1, friend_id : 2 and token : skjdn3984n
+                    session 2 connected to our server with user_id : 2, friend_id : 1 and token : 36473jdfkm
                     in order to create the room name we must make a unique name based on the hash of the user_id and friend_id
                     since the hash of those values are different in each session connected to our server (cause the hash of "1&2" is different from "2&1")
-                    thus the best idea for hashing is to hash their sorted utf-8 bytes which is &[u8]
+                    thus the best idea is to hash their sorted utf-8 bytes which is &[u8]
                 
                 ALERT - as_bytes_mut() is an unsafe method thus we need to use unsafe block
 
@@ -228,10 +233,11 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
                 thread_mode: ThreadMode::Parallel,
                 secret: &[],
                 ad: &[],
-                hash_length: 6 // from 4 to (2^32 - 1) bytes or 0xFFFF_FFFF - pack of three digits in binary is an oct number and a pack of four digits in binary is a hex number
+                hash_length: 6 //-- pack of three digits in binary is an oct number and a pack of four digits in binary is a hex number
             };
             let room_name = argon2::hash_encoded(sorted_secret_u8_bytes, salt.as_bytes(), &argon2_config).unwrap(); //-- the secret phrase and the salt are in utf-8 bytes format
-            actor = Some(UserChatSession{ //-- do websocket handshake and start UserChatSession actor
+            let old_chats = Chat::all(cass_session.clone(), user_id, friend_id, room_name.clone()); //-- fetching all old messages inside ram to send them back to where this API called
+            actor = Some(UserChatSession{
                     id: 0, //-- socket, client session or actor id
                     hb: Instant::now(), //-- heartbeat starting time
                     ip, //-- the ip address of the client session
@@ -250,9 +256,9 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
         }
     let res = if let Some(ucs_actor) = actor{
         println!("[+] SERVER TIME : {} | NUSHIN REQUEST FROM PEER ::: {}:{} ", chrono::Local::now().naive_local(), ucs_actor.ip, ucs_actor.port);
-        ws::start(ucs_actor, &req, stream) //-- starting the UserChatSession actor for streaming of binary data
+        ws::start(ucs_actor, &req, stream) //-- do websocket handshake and start the UserChatSession actor for streaming of binary data
     } else{
-        Ok(HttpResponse::Ok().json(format!("Server couldn't start the `UserChatSession` actor at time : {}", chrono::Local::now().naive_local())))
+        Ok(HttpResponse::Ok().json(format!("Server couldn't start the `UserChatSession` actor at time : {}", chrono::Local::now().naive_local()))) // NOTE - for sending struct through the json() method the Serialize trait must be implemented for that struct
     };
     println!("{:?}", res);
     res
