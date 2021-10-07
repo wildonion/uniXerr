@@ -25,7 +25,7 @@ use cdrs_helpers_derive::*;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////// https://github.com/AlexPikalov/cdrs/blob/master/type-mapping.md /////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-#[derive(Serialize, Deserialize, Clone, IntoCDRSValue, PartialEq, Debug, TryFromRow)]
+#[derive(Serialize, Deserialize, Clone, IntoCDRSValue, PartialEq, Debug, TryFromRow)] //-- Serialize and Deserialize is required for sedning json in response
 pub struct Chat{
     pub id: Uuid,
     pub user_id: i32,
@@ -48,7 +48,7 @@ impl Chat{
         //        so in our select query we have to order by chattime and servertime respectively 
         //        where all of our primary keys are equal to the given value took from the function parameters.
         let values = query_values!("user_id" => user_id, "friend_id" => friend_id, "room_name" => room_name);
-        let select_player_chat_data_cql = "SELECT * FROM uniXerr.user_chat WHERE user_id = ? AND friend_id = ? AND room_name = ? ORDER BY chattime, servertime";
+        let select_player_chat_data_cql = "SELECT * FROM uniXerr.user_chat WHERE user_id = ? AND friend_id = ? AND room_name = ? ORDER BY chattime, servertime LIMIT 20";
         let rows = session.query_with_values(select_player_chat_data_cql, values)
                                       .expect("⚠️ user_chat column family selecting rows error")
                                       .get_body()

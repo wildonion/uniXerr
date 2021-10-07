@@ -16,32 +16,38 @@ pub struct ThreadPool {
     sender: mpsc::Sender<Message>,
 }
 
-type Job = Box<dyn FnOnce() + Send + 'static>;
 
+
+
+type Job = Box<dyn FnOnce() + Send + 'static>;
 enum Message {
     NewJob(Job),
     Terminate,
 }
 
-impl ThreadPool {
+
+
+
+impl ThreadPool{
+    
     pub fn new(size: usize) -> ThreadPool {
         assert!(size > 0);
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
         let mut workers = Vec::with_capacity(size);
-        for id in 0..size {
+        for id in 0..size { //-- since the receiver is not bounded to trait Clone we must clone it using Arc in each iteration cause we want to share it between multiple threads to get what the sender sent 
             workers.push(Worker::new(id, Arc::clone(&receiver)));
         }
-        ThreadPool { workers, sender }
+        ThreadPool{workers, sender}
     }
 
     pub fn execute<F>(&self, f: F) where F: FnOnce() + Send + 'static {
         let job = Box::new(f);
-        self.sender.send(Message::NewJob(job)).unwrap();
+        self.sender.send(Message::NewJob(job)).unwrap(); //-- by executing the task handler sender will send a job and only one receiver at a time can get that job and solve it by locking on that job inside the choosen thread since thread safe programming is all about this pattern!
     }
 }
 
-impl Drop for ThreadPool {
+impl Drop for ThreadPool{
     fn drop(&mut self) {
         println!("Sending terminate message to all workers.");
         for _ in &self.workers {
@@ -57,29 +63,26 @@ impl Drop for ThreadPool {
     }
 }
 
-struct Worker {
+struct Worker{
     id: usize,
     thread: Option<thread::JoinHandle<()>>,
 }
 
-impl Worker {
+impl Worker{
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let message = receiver.lock().unwrap().recv().unwrap();
+            let message = receiver.lock().unwrap().recv().unwrap(); //-- since other thread shouldn't mutate this message while a thread is mutating we must locking on the message received from the sender  
             match message {
                 Message::NewJob(job) => {
                     println!("Worker {} got a job; executing.", id);
-
                     job();
                 }
                 Message::Terminate => {
                     println!("Worker {} was told to terminate.", id);
-
                     break;
                 }
             }
         });
-
         Worker {
             id,
             thread: Some(thread),

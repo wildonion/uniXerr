@@ -24,3 +24,10 @@ impl Info for MetaData {
 pub struct Linear{
     pub neurons: Vec<Neuron>, //-- neurons are features or columns of our input data matrix
 }
+
+impl Linear{
+    pub async fn forward() -> f64{
+        0.3535
+    }
+    pub async fn backward(loss: f64){}
+}
