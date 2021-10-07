@@ -187,9 +187,52 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for UserChatSession {
 
 
 
-// ===================================================
-// configuring the websocket index for our http server
-// ===================================================
+
+// ===================
+// old chats api index 
+// ===================
+
+#[get("/old-chats/{friend_id}/{token}")] //-- this api should be called on every scroll up in chat ui
+async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession>, 
+                        web::Path((token, friend_id)): web::Path<(String, i32)>) -> Result<HttpResponse, Error>{
+    
+    let cass_session = cass_sess.into_inner();
+    let ip = req.peer_addr().unwrap().ip();
+    let port = req.peer_addr().unwrap().port();
+    let mut old_chats: Option<Vec<Chat>> = None;
+    match helerium::authenticity!(token){
+        Ok(user_id) => {
+            println!("[+] SERVER TIME : {} | NUSHIN REQUEST FROM PEER [{}:{}] WITH ID {} FOR OLD CHATS", chrono::Local::now().naive_local(), ip, port, user_id);
+            let mut secret_to_hash = format!("{}&{}", &user_id.to_string(), &friend_id.to_string());
+            let mut secret_bytes = unsafe{secret_to_hash.as_bytes_mut().to_owned()}; //-- in order to sort the utf-8 bytes of the secret phrase we have to convert it into a mutable bytes then cast it from &[u8] to Vec<u8> using to_owned() method which convert &self into self 
+            secret_bytes.sort(); //-- sorting the utf-8 of our secret which is "user_id&friend_id" for hashing
+            let sorted_secret_u8_bytes = secret_bytes.as_slice(); //-- converting Vec<u8> into &[u8] using as_slice() method
+            let salt = env::var("SECRET_KEY").expect("⚠️ please set secret key in .env");
+            let argon2_config = Config{
+                variant: Variant::Argon2i,
+                version: Version::Version13,
+                mem_cost: 65536, // Kb
+                time_cost: 10,
+                lanes: 4,
+                thread_mode: ThreadMode::Parallel,
+                secret: &[],
+                ad: &[],
+                hash_length: 6 //-- pack of three digits in binary is an oct number and a pack of four digits in binary is a hex number
+            };
+            let room_name = argon2::hash_encoded(sorted_secret_u8_bytes, salt.as_bytes(), &argon2_config).unwrap(); //-- the secret phrase and the salt are in utf-8 bytes format
+            old_chats = Some(Chat::all(cass_session.clone(), user_id, friend_id, room_name.clone())); //-- fetching all old messages inside ram to send them back to where this API called
+        },
+        Err(e) => {
+            println!("[!] SERVER TIME : {} | FAILED TO VERIFY THE TOKEN CAUSE : {} ", chrono::Local::now().naive_local(), e); 
+        }
+    }
+    Ok(HttpResponse::Ok().json(old_chats)) // NOTE - for sending struct through the json() method, the Serialize trait must be implemented for that struct
+}
+
+
+// ===================================
+// websocket index for our http server
+// ===================================
 
 #[get("/chat/{username}/{friend_id}/{token}")] //-- route of private messaging between 2 peers
 async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::Data<Addr<balancer::ChatServer>>, cass_sess: web::Data<cass::CassSession>,
@@ -237,7 +280,7 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
             };
             let room_name = argon2::hash_encoded(sorted_secret_u8_bytes, salt.as_bytes(), &argon2_config).unwrap(); //-- the secret phrase and the salt are in utf-8 bytes format
             let old_chats = Chat::all(cass_session.clone(), user_id, friend_id, room_name.clone()); //-- fetching all old messages inside ram to send them back to where this API called
-            actor = Some(UserChatSession{
+            actor = Some(UserChatSession{ //-- building UserChatSession actor which is an in memory concept
                     id: 0, //-- socket, client session or actor id
                     hb: Instant::now(), //-- heartbeat starting time
                     ip, //-- the ip address of the client session
@@ -267,6 +310,7 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
 
 pub fn user_chat_sess_init(config: &mut web::ServiceConfig){
     config.service(user_chat_sess_index);
+    config.service(all_user_chats);
 }
 
 
