@@ -22,12 +22,6 @@ upgrade deploy.sh script to the latest setup of the whole app
 
 <!-- uniXerr TODOs -->
 
-0 - setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
-1 - complete wiki page for project explanation and update skeleton README.md file with each microservice setup
-2 - collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder
-
-
-
-
-
-* Queue.next-section : start coding with server/skeleton/psychoder microservice 
+setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
+complete wiki page for project explanation and update skeleton README.md file with each microservice setup
+collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder

@@ -2,7 +2,6 @@
 
 
 
-use std::io::prelude::*;
 use std::thread;
 use std::sync::mpsc;
 use std::sync::Arc;
@@ -19,7 +18,7 @@ pub struct ThreadPool {
 
 
 
-type Job = Box<dyn FnOnce() + Send + 'static>;
+type Job = Box<dyn FnOnce() + Send + 'static>; //-- a job is of type closure which must be Send and static across all threads inside a Box on the heap
 enum Message {
     NewJob(Job),
     Terminate,
@@ -34,7 +33,7 @@ impl ThreadPool{
         assert!(size > 0);
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
-        let mut workers = Vec::with_capacity(size);
+        let mut workers = Vec::with_capacity(size); //-- capacity is not always equals to the length and the capacity of this vector is same as the maximum size based on the system arch, on 32 bits arch usize is 4 bytes and on 64 bits arch usize is 8 bytes
         for id in 0..size { //-- since the receiver is not bounded to trait Clone we must clone it using Arc in each iteration cause we want to share it between multiple threads to get what the sender sent 
             workers.push(Worker::new(id, Arc::clone(&receiver)));
         }
@@ -56,7 +55,7 @@ impl Drop for ThreadPool{
         println!("Shutting down all workers.");
         for worker in &mut self.workers {
             println!("Shutting down worker {}", worker.id);
-            if let Some(thread) = worker.thread.take() {
+            if let Some(thread) = worker.thread.take(){ //-- take() takes the value out of the option, leaving a None in its place
                 thread.join().unwrap();
             }
         }

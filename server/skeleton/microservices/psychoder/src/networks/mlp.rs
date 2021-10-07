@@ -9,13 +9,13 @@
 
 
 use utilser::Info;
-use crate::schemas::brain::{Neuron, MetaData};
+use crate::schemas::brain::Neuron;
 
 
 
 
-impl Info for MetaData {
-    fn who(&self) -> String{
+impl Info for Neuron{
+    fn what(&self) -> String{
         format!("Neuron [{}] fired at time [{}] with id [{}]", self.time, self.neuron_name.to_string(), self.id.to_string())
     }
 }
@@ -27,7 +27,8 @@ pub struct Linear{
 
 impl Linear{
     pub async fn forward() -> f64{
-        0.3535
+        let loss = 0.3535;
+        loss
     }
     pub async fn backward(loss: f64){}
 }

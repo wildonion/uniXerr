@@ -11,3 +11,4 @@
 pub mod tensor;
 pub mod shortening;
 pub mod gradient;
+pub mod activations;
