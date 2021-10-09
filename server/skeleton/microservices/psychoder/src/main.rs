@@ -6,8 +6,6 @@ mod schemas;
 mod networks;
 mod mathista;
 mod handlers;
-use std::env;
-use dotenv::dotenv;
 use networks::Model;
 use handlers::trainer::ThreadPool;
 use networks::mlp::Linear;
@@ -25,13 +23,14 @@ async fn main() -> std::io::Result<()>{
 
     let pool = ThreadPool::new(4);
     pool.execute(move || {
-        let model = Model{
+        let model = Model{ // TODO - take model parameters from cli args
                             networks: vec![
                                             Linear{neurons: vec![Neuron::default()]}
                                         ],
                             is_training: true,
                             epochs: 200,
                             batch_size: 64,
+                            device: "cpu".to_string(),
                     };
         model.train();
     });

@@ -16,7 +16,7 @@ use crate::schemas::brain::Neuron;
 
 impl Info for Neuron{
     fn what(&self) -> String{
-        format!("Neuron [{}] fired at time [{}] with id [{}]", self.time, self.neuron_name.to_string(), self.id.to_string())
+        format!("Neuron [{}] fired at time [{}] with id [{}]", self.time, self.name.to_string(), self.id.to_string())
     }
 }
 

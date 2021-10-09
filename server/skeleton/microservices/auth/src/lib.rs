@@ -14,7 +14,7 @@ async fn cls_fn() {
     let cls = return_cls()(32);
     let another_cls = return_cls();
     another_cls(32);
-    function_with_callback(another_cls); // use .await to block the current thread for solving the future
+    function_with_callback(another_cls); // use .await to suspend the execution for solving the future
     
 }
 

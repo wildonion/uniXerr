@@ -6,7 +6,7 @@
 
 
 
-
+// TODO - different kind of arguments passing structure with arbitrary numbers of them using macros 
 // EXAMPLE - let network = model!(mlp_1(20) -> mlp_2(10) -> cnn(3, 16, 2, 5, 1) -> mlp_3(10))
 // https://danielkeep.github.io/practical-intro-to-macros.html
 // https://blog.logrocket.com/macros-in-rust-a-tutorial-with-examples/
@@ -25,10 +25,11 @@ pub mod mlp;
 pub mod graph;
 pub mod transformers;
 pub mod lstm;
+pub mod gan;
+pub mod vae;
 use futures::{executor::block_on, join};
 use std::thread;
-use std::sync::{Arc, mpsc::channel};
-use std::sync::mpsc::Receiver;
+use std::sync::{Arc, mpsc::channel, mpsc::Receiver};
 
 
 
@@ -39,6 +40,7 @@ pub struct Model<N>{
     pub is_training: bool,
     pub epochs: u16,
     pub batch_size: u16,
+    pub device: String,
 }
 
 impl<N> Model<N>{
@@ -52,6 +54,14 @@ impl<N> Model<N>{
     pub fn predict(){}
 }
 
-
-
-
+impl<N> Default for Model<N>{
+    fn default() -> Self{
+        Model{
+            networks: Vec::new(),
+            is_training: false,
+            epochs: 0,
+            batch_size: 0,
+            device: "cpu".to_string(),
+        }
+    }
+}
