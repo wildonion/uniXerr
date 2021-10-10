@@ -260,7 +260,7 @@ impl QueryableUser{
         Ok(user)
     }
 
-    pub async fn update(id: i32, user: UpdatableUser) -> Result<Self, uniXerr>{ //-- Self refers to the User type
+    pub async fn update_info(id: i32, user: UpdatableUser) -> Result<Self, uniXerr>{ //-- Self refers to the User type
         let conn = pg::connection().await.unwrap();
         let user = UpdatableUser{
             username: user.username,

@@ -63,7 +63,7 @@ async fn main() -> std::io::Result<()>{
     let broker2 = format!("{}:{}", host, node2_port);
     let broker3 = format!("{}:{}", host, node3_port);
     let brokers = format!("{},{},{}", broker1, broker2, broker3);
-    handlers::socket::whisper::produce(&brokers).await; //-- passing brokers String by taking a reference to it, by doing this we're coercing it into &str - &String is &str
+    handlers::socket::streamer::produce(&brokers).await; //-- passing brokers String by taking a reference to it, by doing this we're coercing it into &str - &String is &str
 
     
 

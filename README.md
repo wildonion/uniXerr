@@ -6,6 +6,8 @@
 
 ### Requirements
 
+* **Remember that _auth_ all CRUD operations related to _postgres_ (_cassandra_) is done using _auth_ (_suproxy_) microservice**
+
 * **Install _rustup_, _pm2_, _postgres_, _cassandra_ and _kafka_**
 
 * **Install prerequisite packages on Linux:** ```sudo apt install openssl libssl-dev cmake libpq-dev```

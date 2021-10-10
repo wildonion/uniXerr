@@ -15,6 +15,7 @@ pub type CassSession = Session<RoundRobinSync<TcpConnectionPool<StaticPasswordAu
 
 
 
+//-- we've used cdrs without tokio version due to confliction between actix and cdrs tokio version  
 //-- we have to clone the session every time we want to pass it between threads or function calls cause we put it inside the Arc in order to be shareable
 //-- we've used Box to save a pointer on stack from the allocated heap for the trait object, also we've used Box<dyn Trait> 
 //-- cause we don't know what type of object Error trait is implemented for, for example it might be for uniXerrClusterSession object.

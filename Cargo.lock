@@ -3105,6 +3105,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "360dfd1d6d30e05fda32ace2c8c70e9c0a9da713275777f5a4dbb8a1893930c6"
 
 [[package]]
+name = "tracer"
+version = "0.1.0"
+dependencies = [
+ "actix 0.12.0",
+ "actix-multipart",
+ "actix-session",
+ "actix-web",
+ "chrono",
+ "dotenv",
+ "env_logger",
+ "futures",
+ "hex",
+ "log",
+ "rdkafka",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio 1.12.0",
+ "uuid",
+ "warp",
+]
+
+[[package]]
 name = "tracing"
 version = "0.1.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"

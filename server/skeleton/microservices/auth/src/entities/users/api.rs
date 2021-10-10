@@ -140,7 +140,7 @@ async fn update(req: HttpRequest, id: web::Path<i32>, user: web::Json<UpdatableU
         Ok(user_data_inside_token) => {
             let access_level = user_data_inside_token.unwrap().claims.access_level;
             if access_level == 1 || access_level == 2{ // NOTE - only admin and regular user can edit a user data
-                let user = QueryableUser::update(id.into_inner(), user.into_inner()).await?;
+                let user = QueryableUser::update_info(id.into_inner(), user.into_inner()).await?;
                 Ok(HttpResponse::Ok().json(UpdatableUser{
                         username: user.username,
                         phone_number: user.phone_number,
