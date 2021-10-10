@@ -18,7 +18,7 @@
 // https://danielkeep.github.io/tlborm/book/
 // https://cetra3.github.io/blog/implementing-a-jobq/
 // https://cetra3.github.io/blog/implementing-a-jobq-with-tokio/
-// https://docs.rs/tokio/1.7.1/tokio/sync/index.html
+// https://docs.rs/tokio/1.12.0/tokio/sync/index.html
 // https://docs.rs/tokio-stream/0.1.7/tokio_stream/
 // https://doc.rust-lang.org/std/pin/index.html
 // https://doc.rust-lang.org/std/sync/struct.Arc.html
