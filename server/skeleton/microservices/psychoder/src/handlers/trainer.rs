@@ -3,7 +3,7 @@
 
 
 use std::thread;
-use std::sync::mpsc;
+use std::sync::mpsc; //-- to communicate between threads
 use std::sync::Arc;
 use std::sync::Mutex;
 
