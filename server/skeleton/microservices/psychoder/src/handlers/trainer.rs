@@ -3,7 +3,7 @@
 
 
 use std::thread;
-use std::sync::mpsc; //-- to communicate between threads - oth ends of a Rust channel can only be ‘owned’ by one thread at the time, however the “Sender” half can be cloned and through such cloning the conceptual “sender” part of a channel can be shared among threads which is how you do the “multi-producer, single-consumer” part
+use std::sync::mpsc; //-- to communicate between threads - both ends of a Rust channel can only be ‘owned’ by one thread at the time, however the “Sender” half can be cloned and through such cloning the conceptual “sender” part of a channel can be shared among threads which is how you do the “multi-producer, single-consumer” part
 use std::sync::Arc;
 use std::sync::Mutex;
 
