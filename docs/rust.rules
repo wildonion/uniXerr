@@ -1,5 +1,5 @@
 Sugar Rules:
-    [+] rust async feature is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool
+    [+] rust async feature is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join macro, block_on function or .await
     [+] usize gives you the guarantee to be always big enough to hold any pointer or any offset in a data structure  and its size is depended on how much size it takes to reference any location in memory, on a 32 bit target usize is 4 bytes and on a 64 bit target usize is 8 bytes, while u32 can be too small on some architectures
     [+] macros are expanded before the compiler interprets the meaning of the code, so a macro can, for example, implement a trait on a given type
     [+] function gets called at runtime and a trait needs to be implemented at compile time
