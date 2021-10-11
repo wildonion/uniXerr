@@ -26,7 +26,7 @@ use crate::handlers::{
         from an actor to other actor through an Addr object and the Message trait bounded 
         to our event struct defines the result type for that event.
 
-    [+] sending events and messages between actors using their address (Addr object) is done through  
+    [+] sending events and messages between actors' threads using their address (Addr object) is done through  
         something like mpsc job queue channel.
    -------------------------------------------------------------------------------------------------------- */
 // -------------

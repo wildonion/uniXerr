@@ -35,17 +35,6 @@ from server import api
 
 
 @app.command()
-def deploy(streamer: bool = typer.Option(False, "--kafka", help="Streamer processor for online training.")):
-	typer.secho("\n________Production process________\n", fg=typer.colors.MAGENTA, bold=True)
-
-	if streamer:
-		typer.secho("\t➢   streaming over kafka for online training\n", fg=typer.colors.RESET, bold=True)
-		# TODO : work on streamer.rs inside server/core folder
-		# ...
-
-
-
-@app.command()
 def develop(workers: int = typer.Option(multiprocessing.cpu_count(), help="Number of workers.", min=4)):
 
 	typer.secho("\n________Running in development________\n", fg=typer.colors.MAGENTA, bold=True)

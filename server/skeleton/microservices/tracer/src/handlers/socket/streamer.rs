@@ -43,7 +43,7 @@
 
 
 
-use crate::schemas::gsp::MetaData;
+use crate::schemas::gsp::GPSMem;
 use std::time::SystemTime;
 use log::{error, info};
 use rdkafka::config::ClientConfig;
@@ -69,10 +69,10 @@ pub async fn produce(brokers: &str){
     tokio::spawn(async move{ //-- tokio::spawn() takes a task of type future and shares it between multiple threads using its job queue channel protocol, so every type in the task must be Send + Sync and cloneable
         let mut i = 0_usize; // it's the default size of integer in rust which is i32
         loop {
-            let player_event = MetaData::default(); //-- getting the last data inserted into cassandra player_data column family
+            let player_event = GPSMem::default(); //-- getting the last data inserted into cassandra player_data column family
             let topic = player_event.id.to_string(); //-- getting its imei to set it as the topic for this event
             let player_event_json = serde_json::to_string_pretty(&player_event).expect("⚠️ failed to serialize player event"); //-- serializing the struct into json
-            let player_data: MetaData = serde_json::from_str(&player_event_json).expect("⚠️ failed to deserialize player json"); //-- deserializing the json into struct
+            let player_data: GPSMem = serde_json::from_str(&player_event_json).expect("⚠️ failed to deserialize player json"); //-- deserializing the json into struct
             let key = &i.to_string(); //-- setting the key for this event
             let devlivery_status = producer.send_result( //-- we're using FutureRecord for sending the message or the event asynchoronously to all consumers cause send_result() method takes a FutureRecord to send a message
             FutureRecord::to(&topic)

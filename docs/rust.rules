@@ -1,18 +1,48 @@
+Async & Multithreading Rules: 
+    [+] thread::spawn() takes a closure and tokio::spawn() takes a future and share it between multiple threads using mpsc job q channel protocol, thus all the subtypes of the task must be Send + Sync and cloneable
+    [+] use 'static lifetime to have a valid lifetime across .await (before and after solving the future), cause futures are pinned to memory in order to be solved later thus all variables before and after them must be a variable with a valid lifetime
+    [+] threads can communicate through channels using sender and receiver like mpsc and actors through their address (Addr object) using defined events 
+    [+] rust async feature is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join!() macro, block_on function or .await
+    [+] we can't have async function inside a trait cause traits (usually object safe traits) don't have fixed size at compile time thus we can't pin their async function into memory to create a future since futures will be solved later by suspending the execution using .await  
+    [+] closures and object safe traits are not bounded to trait Sized thus their size are unknown at compile and need runtime information to get their own size at runtime so they can't be pinned into the memory thus we can't use them as a future object by putting the async before them cause futures need to be pinned somewhere in ram to be solved later
+    [+] futures do nothing unless we call .await on them or poll them and await can only be used inside an async block of function
+    [+] when we put the async keyword behind a block or function means we're implementing Future<Output = ()> trait for them and turn them into a Future object and the outpute depends on the return type of that function or block
+    [+] block_on will run a future to completion on the current thread and block the thread (execution gets stuck there) until the given future has completed (release the mutex)
+    [+] .awaiting a future will suspend the current function's execution until the executor has run the future to completion means doesn't block the current thread, allowing other tasks to run if the future is currently unable to make progress
+    [+] join!() is like .await but can wait for multiple futures concurrently, completing multiple futures at the same time
+    [+] async codes will not be run immediately, but will only be evaluated when the returned future is .awaited
+    [+] Future is an asynchronous version of Result and is solved by awaiting on them
+    [+] Stream is an asynchronous version of Iterator and is solved using while let Ok(Some(data)) = payload.next().await
+    [+] every type that is bounded to Future trait can be written as: async {} or async move {} async fn some_name(){}
+    [+] we'll pin the pointer of the Future object into memory cause we want to await on it later thus it shouldn't move from the memory by replacing with and pointing to a new value of a new variable
+    [+] communication between threads is done using mpsc channel and end of the channel can only be owned by one thread at the time, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
+    [+] we pinned the pointer of the Future object into memory cause we want to await on it later thus it shouldn't move from the memory by replacing with and pointing to a new value of a new variable
+    [+] type PFuture = Pin<Box<dyn Future<Output = Result<ServiceResponse, Error>>>>; is a wrapper around a kind of pointer which makes that pointer "pin" its value in place(stack or heap), preventing the value referenced by that pointer from being moved unless it implements  
+    [+] running multiple jobs of multiple threads using messaging channel protocol in a single processor at the same time is called multithreading
+    [+] worker or threads are working on a single task or job at a time and in multiple producers and single consumer using mpsc channel to send a value between multiple tokio tasks we can clone the sender per task but only have one receiver. 
+    [+] in multithreading threadpool diagram every worker (thread) inside the pool will communicate through the messaging channel (the sender and the receiver) protocol
+    [+] multiple producers or workers own the receiver (Ac<T>) and single consumer or worker get the job at a time from the receiver (Mutex<T>)
+    [+] for each request comming from the client there is only one thread to do the job (request) at a time
+    [+] there are no two threads handling a same job (request) at a time
+    [+] there is only one thread get the job after it received it from the channel and it'll lock on that job until it's over, in that moment for the new incoming request another thread must handle the job and send the response
+    [+] Arc<T> allows to have multiple ownership of the data by cloning it and Mutex<T> allows to lock the thread on the data to mutate its content in multithreading context
+    [+] none blocking execution between tasks or functions inside a single thread is called async programming
+    [+] to do thread safe ops we can share the ownership across multiple threads using Ac<T> and mutate them using only one thread at a time with Mutex<T>
+    [+] a Mutex<T> does not distinguish between readers or writers that acquire the lock, therefore blocking any threads waiting for the lock to become available. 
+    [+] in order to share the data type (ownership) between threads the Send trait must be implemented for the data type.
+    [+] in order to share multiple references of the data type between threads the Sync trait must be implemented for the data type.
+    [+] Arc<T> and Mutex<T> are used in multithreading context with Send and Sync traits based and RefCell<T> and Rc<T> are used in single threading context without Send and Sync traits
+    [+] trait Send and Sync are not implemented for Rc<T> and RefCell<T> because if you clone an Rc<T> value and try to transfer ownership of the clone to another thread, both threads might update the reference count at the same time cause it can't lock the data type like Mutex<T>
+    [+] Arc<T> will implement Send and Sync as long as the T implements Send and Sync and makes it thread safe to have multiple ownership of the same data
+    [+] we use Arc<RwLock<T>> to share the ownership (clone) of the data type between threads and allow number of threads to read or at most allow one thread to write at any point in time.
+    [+] impl Send (for traits and types) and Sync (for references) for all subtypes of the struct to move it between threads like db connections and AI models
+    [+] Rc<T> allows to have multiple ownership of the data by cloning it and RefCell<T> allows to keeps track of referencing to the data and mutate its content one at a time in a single thread context
 Sugar Rules:
-    [+] rust async feature is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join macro, block_on function or .await
     [+] usize gives you the guarantee to be always big enough to hold any pointer or any offset in a data structure  and its size is depended on how much size it takes to reference any location in memory, on a 32 bit target usize is 4 bytes and on a 64 bit target usize is 8 bytes, while u32 can be too small on some architectures
     [+] macros are expanded before the compiler interprets the meaning of the code, so a macro can, for example, implement a trait on a given type
     [+] function gets called at runtime and a trait needs to be implemented at compile time
     [+] for those types specially concrete types like traits which don't have size at compile time means they are not bounded to Sized trait, we have to point them using a pointer like Box<dyn Trait> or &dyn Trait
-    [+] every type that is bounded to Future trait can be written as: async {} or async move {} async fn some_name(){}
-    [+] futures do nothing unless we call .await on them or poll them and await can only be used inside an async block of function
-    [+] when we put the async keyword behind a block or function means we're implementing Future<Output = ()> trait for them and turn them into a Future object and the outpute depends on the return type of that function or block
-    [+] async codes will not be run immediately, but will only be evaluated when the returned future is .awaited
-    [+] .await suspend execution until the result of a Future is ready and async return a Future instead of blocking the current thread to run it
-    [+] .awaiting a future will suspend the current function's execution until the executor has run the future to completion
     [+] into_something methods consumes self, avoiding clones as much as possible, and to_something takes &self, potentially cloning some data
-    [+] Future is an asynchronous version of Result and is solved by awaiting on them
-    [+] Stream is an asynchronous version of Iterator and is solved using while let Ok(Some(data)) = payload.next().await
     [+] web::Payload in actix is used to extract the streaming of binary data from the request
     [+] ptr, len, capacity of the String are stored on the stack and the data will be stored on the heap which is a buffer allocate in the binary to the str data
     [+] &String is a pointer to the whole String and &str is a pointer to that part of the String (which is a str) on the heap buffer
@@ -42,33 +72,15 @@ Sugar Rules:
     [+] trait Sized is implemented for all types that their size are known at compile time like &str and String but it's not bounded to str cause str has no fixed size at compile time
     [+] dynamically sized types or trait objects which have unknown size at compile time must be inside a Box<dyn Trait> or behind a pointer like &dyn Trait or &str in order the compiler knows the size and the address of them
     [+] if we want to say that T may or may not be Sized we must bound it to ?Sized and pass the variable of that type as a referene cause compiler in this stage can't detect the size so we must take a reference from that variable which the pointer has the length of that type and the address at compile time
-    [+] none blocking execution between tasks or functions inside a single thread is called async programming
-    [+] running multiple jobs of multiple threads using messaging channel protocol in a single processor at the same time is called multithreading
-    [+] worker or threads are working on a single task or job at a time and in multiple producers and single consumer using mpsc channel to send a value between multiple tokio tasks we can clone the sender per task but only have one receiver. 
-    [+] in multithreading threadpool diagram every worker (thread) inside the pool will communicate through the messaging channel (the sender and the receiver) protocol
-    [+] multiple producers or workers own the receiver (Ac<T>) and single consumer or worker get the job at a time from the receiver (Mutex<T>)
-    [+] for each request comming from the client there is only one thread to do the job (request) at a time
-    [+] there are no two threads handling a same job (request) at a time
-    [+] there is only one thread get the job after it received it from the channel and it'll lock on that job until it's over, in that moment for the new incoming request another thread must handle the job and send the response
     [+] all number values are stored in stack plus the address of the heap pointer of other data structure than numbers like String and Box
     [+] multiple mutable references to the same variable is not ok, because any one who is just reading the data has the ability to affect anyone else’s reading of the data.
     [+] multiple immutable references to the same variable is ok, because no one who is just reading the data has the ability to affect anyone else’s reading of the data.
     [+] keep track of multiple immutable and mutable borrows or owners or references at the same time using Rc<T> and RefCell<T>
     [+] due to the ownership and borrowing rules we can use Rc<T> to count the references or borrowers or owners of a value which the other variable is pointing to the value
     [+] due to the lack of changing the immutable references at runtime we can use RefCell<T> to mutate an immutable value at any point in runtime
-    [+] to do thread safe ops we can share the ownership across multiple threads using Ac<T> and mutate them using only one thread at a time with Mutex<T>
     [+] we used RefCell<T> to allow us to mutate contents one in a time inside an Rc<T> using RefCell<Rc<T>> pattern and Mutex<T> to mutate contents inside an Arc<T> using Arc<Mutex<T>> pattern
-    [+] a Mutex<T> does not distinguish between readers or writers that acquire the lock, therefore blocking any threads waiting for the lock to become available. 
-    [+] in order to share the data type (ownership) between threads the Send trait must be implemented for the data type.
-    [+] in order to share multiple references of the data type between threads the Sync trait must be implemented for the data type.
-    [+] Arc<T> and Mutex<T> are used in multithreading context with Send and Sync traits based and RefCell<T> and Rc<T> are used in single threading context without Send and Sync traits
     [+] Arc<T> provides shared ownership of a value of type T, allocated in the heap, invoking clone on Arc produces a new Arc instance, which points to the same allocation on the heap as the source Arc
-    [+] trait Send and Sync are not implemented for Rc<T> and RefCell<T> because if you clone an Rc<T> value and try to transfer ownership of the clone to another thread, both threads might update the reference count at the same time cause it can't lock the data type like Mutex<T>
-    [+] Arc<T> will implement Send and Sync as long as the T implements Send and Sync and makes it thread safe to have multiple ownership of the same data
-    [+] Rc<T> allows to have multiple ownership of the data by cloning it and RefCell<T> allows to keeps track of referencing to the data and mutate its content one at a time in a single thread context
-    [+] Arc<T> allows to have multiple ownership of the data by cloning it and Mutex<T> allows to lock the thread on the data to mutate its content in multithreading context
     [+] a RwLock<T> will allow any number of readers to acquire the lock as long as a writer is not holding the lock.
-    [+] we use Arc<RwLock<T>> to share the ownership (clone) of the data type between threads and allow number of threads to read or at most allow one thread to write at any point in time.
     [+] the downgrade method can be used to create a non-owning Weak pointer. A Weak pointer can be upgraded to an Arc, but this will return None if the value stored in the allocation has already been dropped, in other words, Weak pointers do not keep the value inside the allocation alive; however, they do keep the allocation (the backing store for the value) alive.
     [+] a cycle between Arc pointers will never be deallocated. For this reason, Weak is used to break cycles, for example a tree could have strong Arc pointers from parent nodes to children, and Weak pointers from children back to their parents.
     [+] references (a pointer to parent location on memory) taken from parent by children is strong cause multiple children in a graph have one parent and own a single node and if we remove the parent all its references and owners (children) must be dropped.
@@ -81,7 +93,6 @@ Sugar Rules:
     [+] we can bound some traits to a type in function signature using where clause like where T : Clone + Display
     [+] we can control the behavior of each type using their methods and by implementing traits for them
     [+] a trait method can be override inside the implementation block of the type means two types can use a same method signatures of the trait but with different body implementation inside each
-    [+] we can't have async function inside a trait cause traits (usually object safe traits) don't have fixed size at compile time thus we can't pin their async function into memory to create a future since futures will be solved later by suspending the execution using .await  
     [+] trait Copy is meant to be implemented for "cheap" types, such as u8 in the example. If you write a quite heavyweight type, for which you think a move is more efficient than a copy, make it not impl Copy and impl Clone. Note that in the u8 case, you cannot possibly be more efficient with a move, since under the hood it would probably at least entail a pointer copy -- which is already as expensive as a u8 copy.
     [+] trait Copy is not implemented for &mut T because if we had the Copy trait for them we could have multiple copy of them in every where and they could change the data of what they have borrowed for thus the reference count of each variable would be out of control inside the current thread, those references don't want a copy of data, they want to own and mutate the data inside what they have borrowed thus we can't mutate the variable itself while its mutable pointer is changing the data inside of it
     [+] trait Copy is not implemented for &mut T because we can have only one mutable reference at a time, thus by copying a mutable variable (assuming its on the stack and its size specified on compile time and is bounded to Sized trait) at runtime we'll panic!
@@ -94,10 +105,6 @@ Sugar Rules:
     [+] trait Clone is implemented for those types that their data are on the heap and trait Copy is implemented for those types that their data are on the stack
     [+] object safe traits don't return the type that we're implementing the trait for in their methods, means if a trait returns the Self in one of their methods' return type that trait is not object safe trait and also traits with associated methods are not object safe trait
     [+] trait object have runtime overhead due to their implementation on various types at runtime; Sync and Send are unsafe object traits and we have to use unsafe keyword to implement these traits for the type.
-    [+] use 'static lifetime to have a valid lifetime across .await (before and after solving the future), cause futures are pinned to memory in order to be solved later thus all variables before and after them must be a variable with a valid lifetime
-    [+] closures and object safe traits are not bounded to trait Sized thus their size are unknown at compile and need runtime information to get their own size at runtime so they can't be pinned into the memory thus we can't use them as a future object by putting the async before them cause futures need to be pinned somewhere in ram to be solved later
-    [+] we'll pin the pointer of the Future object into memory cause we want to await on it later thus it shouldn't move from the memory by replacing with and pointing to a new value of a new variable
-    [+] impl Send (for traits and types) and Sync (for references) for all subtypes of the struct to move it between threads like db connections and AI models
     [+] if any method of the trait bounds to a Sized type or have generic type(every types are bounded to Sized trait by default unless we specify the unknown size using ?Sized trait) its methods, that trait is not object safe trait cause trait objects don't know about their implementor type until runtime and also Sized bound is a compile time overhead.
     [+] object safe trait can be implemented for a type using Box<dyn Trait> or &dyn Trait
     [+] when we derive a Copy implementation Clone is also required cause it's a supertrait of Copy.

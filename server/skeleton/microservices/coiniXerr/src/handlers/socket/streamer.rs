@@ -6,7 +6,7 @@
 
 
 ///////////// ===============================================================================================================================================================================================================================================
-///////////// we are pinning the pointer of the Future object into memory cause we want to await on it later thus it shouldn't move from the memory by replacing with and pointing to a new value of a new variable
+///////////// we pinned the pointer of the Future object into memory cause we want to await on it later thus it shouldn't move from the memory by replacing with and pointing to a new value of a new variable
 ///////////// this is a wrapper around a kind of pointer which makes that pointer "pin" its value in place(stack or heap), preventing the value referenced by that pointer from being moved unless it implements Unpin.
 ///////////// EXAMPLE => type PFuture = Pin<Box<dyn Future<Output = Result<ServiceResponse, Error>>>>; 
 /////////////
@@ -29,7 +29,7 @@
 ///////////// if a type imeplements trait Copy means we can clone it (cause trait Clone is a super trait of Copy) and also assign the variable into another one without losing the ownership of our variable
 /////////////
 /////////////
-///////////// instead of using tokio socket with mpsc job queue channel protocol for live event streaming between threads in our _UI_ apps we've used _kafka_ for heavy long time streaming with load balancing and data repications strategy
+///////////// instead of using tokio socket with mpsc job queue channel protocol for live event streaming between threads we've used kafka for heavy long time streaming with load balancing and data repications strategy
 ///////////// kafka => multiple cluster (datacenter or VPS) <-has-> nodes(multiple instances of kafka brokers or servers) <-has-> topics <-has-> partition replicas for each topic <-has-> buck of events inside each partition
 ///////////// three replicas in kafka means there are three copies of each topics' partitions (buck of events) in each node (kafka broker)
 ///////////// kafka partitions are created based on the hash of each event and events with similar hash will be inside a same partition so a topic is divided into one or more partitions
@@ -67,7 +67,7 @@ pub async fn produce(brokers: &str){
     
     let producer = producer.clone(); //-- we're clonning the producer cause we want to move it between tokio::spawn() threads thus according to rust ownership we have to take a reference to the producer using clone() cause trait Copy is not imeplemented for that
     tokio::spawn(async move{ //-- tokio::spawn() takes a task of type future and shares it between multiple threads using its job queue channel protocol, so every type in the task must be Send + Sync and cloneable
-        let mut i = 0_usize; // it's the default size of integer in rust which is i32
+        let mut i = 0_usize;
         loop {
             let player_event = MetaData::default(); //-- getting the last data inserted into cassandra player_data column family
             let topic = player_event.id.to_string(); //-- getting its imei to set it as the topic for this event

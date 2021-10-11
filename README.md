@@ -103,7 +103,6 @@ Options:
 Commands:
   classify-positions
   cluster-positions
-  deploy
   develop
 
 $ typer app.py run cluster-positions --help
@@ -158,15 +157,6 @@ Options:
 
   --help                       Show this message and exit.
 
-
-
-$ typer app.py run deploy --help
-Usage: app.py run deploy [OPTIONS]
-
-Options:
-  --kafka  Streamer processor for online training.
-  --help   Show this message and exit.
-
 $ typer app.py run develop --help
 Usage: app.py run develop [OPTIONS]
 
@@ -191,12 +181,6 @@ $ cqlsh api.unixerr.com -u username -p password -e "copy unixerr.table_name to '
 
 ```console
 $ cqlsh api.unixerr.com -u username -p password -e "copy unixerr.table_name from '/path/to/table_name.csv' with HEADER = true"
-```
-
-> Running in production mode streaming over kafka:
-
-```console
-$ typer app.py run deploy --kafka
 ```
 
 > Running TensorBoard for visualization of training and testing DL models:

@@ -3,7 +3,7 @@
 
 
 use std::thread;
-use std::sync::mpsc; //-- to communicate between threads - both ends of a Rust channel can only be owned by one thread at the time, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
+use std::sync::mpsc; //-- communication between threads is done using mpsc channel and end of the channel can only be owned by one thread at the time, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -19,7 +19,7 @@ pub struct ThreadPool {
 
 
 type Job = Box<dyn FnOnce() + Send + 'static>; //-- a job is of type closure which must be Send and static across all threads inside a Box on the heap
-enum Message {
+enum Message { //-- enum is like and share the same memory location for all its fields and the size of each union depends on the largest size field
     NewJob(Job),
     Terminate,
 }
