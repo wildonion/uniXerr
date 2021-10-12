@@ -14,7 +14,7 @@
 
         [!!!] audio streaming like clubhouse with low latency and bandwidth
         [!!!] voice recognition for judging graph of each game
-        [!!!] credit score generation using position clustering and voice recognition => use core/coin_generation algos 
+        [!!!] credit score generation based on position clustering and voice recognition => use core/coin_generation algos 
         [!!!] player actions and talks inside the game for generating the credit
         [!!!] realtime status diagram inside the game
         [!!!] playing based on the level of each player and mined credit

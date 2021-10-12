@@ -6,4 +6,4 @@
 
 
 
-pub mod gsp;
+pub mod device;

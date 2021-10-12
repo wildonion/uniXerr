@@ -6,7 +6,4 @@
 
 * **Watch _tracer_ service:** ```cargo watch -x run```
 
-# Production Setup
-
-* **Build _tracer_ service:** ```cargo build --bin tracer --release```
-
+# API Docs

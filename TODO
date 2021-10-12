@@ -22,6 +22,7 @@ upgrade deploy.sh script to the latest setup of the whole app
 
 <!-- uniXerr TODOs -->
 
+implement credit score generation algorithm based on position clustering
 setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
 complete wiki page for project explanation and update skeleton README.md file with each microservice setup
 collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder

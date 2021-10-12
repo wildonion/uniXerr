@@ -3117,12 +3117,11 @@ dependencies = [
  "env_logger",
  "futures",
  "hex",
+ "listenfd",
  "log",
- "rdkafka",
  "reqwest",
  "serde",
  "serde_json",
- "tokio 1.12.0",
  "uuid",
  "warp",
 ]

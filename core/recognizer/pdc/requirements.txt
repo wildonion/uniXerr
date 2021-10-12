@@ -1,0 +1,9 @@
+uvloop
+aiohttp[speedups]
+ujson
+matplotlib
+numpy
+pandas
+Pillow
+torch==1.7.1
+torchvision==0.7.0

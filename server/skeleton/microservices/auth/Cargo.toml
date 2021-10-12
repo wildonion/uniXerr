@@ -21,17 +21,13 @@ serde_json = "1.0"
 log = "0.4.14"
 dotenv = "0.15.0"
 env_logger = "0.8.3"
-listenfd = "0.3.3"
+listenfd = "0.3.5"
 r2d2 = "0.8.9"
 r2d2_postgres = "0.18.0"
 futures = "0.3"
 bcrypt = "0.10"
 
 
-
-[lib]
-name = "heleriumer"
-path = "src/lib.rs"
 
 
 [[bin]]

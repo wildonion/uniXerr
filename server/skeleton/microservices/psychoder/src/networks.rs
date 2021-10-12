@@ -27,9 +27,6 @@ pub mod transformers;
 pub mod lstm;
 pub mod gan;
 pub mod vae;
-use futures::{executor::block_on, join};
-use std::thread;
-use std::sync::{Arc, mpsc::channel, mpsc::Receiver};
 
 
 
@@ -45,8 +42,8 @@ pub struct Model<N>{
 
 impl<N> Model<N>{
 
-    pub fn train(&self){ // NOTE - S is sample or mini_bactch generic type and L is labels generic type;
-        // TODO - train the model using tokio::spawn() or mpsc job queue channel from scratch
+    pub fn train(&self){
+        // TODO - train the model using tokio::spawn()
         // ...
     }
     

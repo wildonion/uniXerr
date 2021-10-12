@@ -121,7 +121,7 @@ impl ChatServer{
             for id in sessions{ //-- iterating through all session ids
                 if *id != skip_id{ //-- skip sending message if the id is equals to the skip_id
                     if let Some(addr) = self.sessions.get(id){ //-- getting the address of the session with this id
-                        let _ = addr.do_send(Message(message.to_owned())); //-- sending a message to a specific session or peer using its address (Addr object)
+                        let _ = addr.do_send(Message(message.to_owned())); //-- sending a message to a specific session or peer using its address (Addr object) even if the recipient's mailbox is full
                     }
                 }   
             }

@@ -1,0 +1,5 @@
+__pycache__
+train_x.csv
+train_y.csv
+test_x.csv
+test_y.csv

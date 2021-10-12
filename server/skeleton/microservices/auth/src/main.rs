@@ -23,7 +23,6 @@ use actix_web::middleware::Logger;
 use listenfd::ListenFd;
 use std::env;
 use dotenv::dotenv;
-use heleriumer; // to use lib.rs functions like heleriumer::some_method();
 use self::controllers::adminer::ACL::set_access_level;
 use self::controllers::auth::auth_init_service; // to configure auth apis
 use self::entities::{

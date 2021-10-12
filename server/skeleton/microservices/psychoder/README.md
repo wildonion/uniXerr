@@ -6,7 +6,7 @@ An asynchronous 🪢 and multithreading🧵 CLI backend supports various deep le
 
 * **Watch _psychoder_ service:** ```cargo watch -x run```
 
-# Production Setup
+# Production Setup for CLI Args
 
 * **Build _psychoder_ service:** ```cargo build --bin psychoder --release```
 

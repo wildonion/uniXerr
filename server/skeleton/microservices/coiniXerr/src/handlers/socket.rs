@@ -10,7 +10,6 @@
 // TODO - psychodec, a codec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes
 // TODO - implement tokio channels like mpsc, oneshot, broadcast and watch
 // https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
-// https://github.com/wildonion/aravl/tree/master/microservices/device
 // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
 // https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
 // https://github.com/zupzup/warp-websockets-example
