@@ -6,7 +6,7 @@
 
 ### Requirements
 
-* **Remember that _auth_ all CRUD operations related to _postgres_ (_cassandra_) is done using _auth_ (_suproxy_) microservice**
+* **Remember that _auth_ (_suproxy_) microservice is responsible for handling all CRUD operations related to _postgres_ (_cassandra_)**
 
 * **Install _rustup_, _pm2_, _postgres_, _cassandra_ and _kafka_**
 
