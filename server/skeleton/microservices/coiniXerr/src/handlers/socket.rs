@@ -7,8 +7,9 @@
 
 // NOTE - in order to move all data through the socket or http protocol they must be encoded from struct and converted to &[u8] serde codec serialize 
 // NOTE - in order to get the data from the socket or http protocol they must be decoded from &[u8] to struct using serde codec deserialize
-// TODO - psychodec, a codec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes
+// TODO - a codec for streaming of binary data (like from a source contains training data) like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes
 // TODO - implement tokio channels like mpsc, oneshot, broadcast and watch
+// https://github.com/actix/examples/blob/master/websockets/tcp-chat/src/codec.rs
 // https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
 // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
 // https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
