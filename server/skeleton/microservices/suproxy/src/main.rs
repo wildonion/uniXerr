@@ -15,7 +15,6 @@ use crate::handlers::{
     db::cass::schemas::player::Chat,
     db::cass::establish as cass,
     proxies::chat::{balancer as chat_balancer, session::user_chat_sess_init},
-    proxies::tracer::{balancer as tracer_balancer, session::tracer_balancer_init},
 };
 
 
@@ -60,7 +59,6 @@ async fn main() -> std::io::Result<()> {
                 .data(cass_session.clone()) // NOTE - cloning db connections using Arc cause trait Copy and Clone is not implemented for them and they are not Sync and Send and safe to move between threads thus Arc do these things for us
                 .wrap(middleware::Logger::default())
                 .configure(user_chat_sess_init) // NOTE - websocket route configuration
-                .configure(tracer_balancer_init) // NOTE - tracer routes configuration
         });
     
     
