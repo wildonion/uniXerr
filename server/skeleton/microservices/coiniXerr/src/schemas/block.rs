@@ -26,7 +26,7 @@ union TransactionMem{
 
 
 
-#[derive(Serialize, Deserialize, Clone, Debug, Copy)] //-- Serialize from struct into json and Deserialize from json back to struct
+#[derive(Serialize, Deserialize, Clone, Debug, Copy)]
 pub struct Transaction{
     pub id: Uuid,
     pub timestamp: Option<i64>,
