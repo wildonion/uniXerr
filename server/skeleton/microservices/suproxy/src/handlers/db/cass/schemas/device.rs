@@ -39,11 +39,23 @@ union GPSMem{
 #[derive(Serialize, Deserialize, Clone, IntoCDRSValue, PartialEq, Debug, TryFromRow)] //-- Serialize and Deserialize is required for sedning json in response
 pub struct GPS{
     pub id: Uuid,
-    pub time: i64,
+    pub imei: Option<i16>,
+    pub lat: Option<i32>,
+    pub lon: Option<i32>,
+    pub alt: Option<i16>,
+    pub angle: Option<i16>,
+    pub satellites: Option<u8>,
+    pub speed: Option<i16>,
+    pub timestamp: Option<i64>,
 }
 
 
 
+impl Default for GPS{
+    fn default() -> Self{
+        todo!()
+    }
+}
 
 
 

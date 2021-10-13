@@ -72,3 +72,21 @@ macro_rules! authenticity {
         }
     };
 }
+
+
+
+
+
+pub struct MetaData{}
+pub fn some_method(){}
+
+async fn cls_fn() {
+    fn return_cls() -> Box<dyn FnOnce(i32) -> i32>{ //-- instances of FnOnce can be called, but might not be callable multiple times. Because of this, if the only thing known about a type is that it implements FnOnce, it can only be called once - FnOnce is a supertrait of FnMut
+        Box::new(|x| x + 1)
+    }    
+    function_with_callback(return_cls()); // use .await to suspend the execution for solving the future
+}
+
+async fn function_with_callback(cb: Box<dyn FnOnce(i32) -> i32>){
+    cb(32);
+}

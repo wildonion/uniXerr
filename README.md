@@ -33,10 +33,6 @@
     * ```systemfd --no-pid -s http::7368 -- cargo watch -C server/skeleton/microservices/suproxy -x run```
     * ```cargo watch -C server/skeleton/microservices/suproxy -x run```
 
-* **Run _tracer_ microservice using one the following commands:**
-    * ```systemfd --no-pid -s http::7363 -- cargo watch -C server/skeleton/microservices/tracer -x run```
-    * ```cargo watch -C server/skeleton/microservices/tracer -x run```
-
 * **Run _coiniXerr_ network:**
     * ```cargo watch -C server/skeleton/microservices/coiniXerr -x run```
 

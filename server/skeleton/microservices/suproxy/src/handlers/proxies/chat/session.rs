@@ -3,7 +3,6 @@
 
 
 use std::env;
-use std::net::IpAddr;
 use argon2::{self, Config, ThreadMode, Variant, Version};
 use uuid::Uuid;
 use std::time::{Duration, Instant};
@@ -192,7 +191,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for UserChatSession {
 // old chats api index 
 // ===================
 
-#[get("/old-chats/{friend_id}/{token}")] //-- this api should be called on every scroll up in chat ui to fetch 20 rows of old chats
+#[get("/uniXerr/api/chat/old/{friend_id}/{token}")] //-- this api should be called on every scroll up in chat ui to fetch 20 rows of old chats
 async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession>, 
                         web::Path((token, friend_id)): web::Path<(String, i32)>) -> Result<HttpResponse, Error>{
     
@@ -234,7 +233,7 @@ async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession
 // websocket index for our http server
 // ===================================
 
-#[get("/chat/{username}/{friend_id}/{token}")] //-- route of private messaging between 2 peers
+#[get("/uniXerr/api/chat/new/{username}/{friend_id}/{token}")] //-- route of private messaging between 2 peers
 async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::Data<Addr<balancer::ChatServer>>, cass_sess: web::Data<cass::CassSession>,
                               web::Path((username, friend_id, token)): web::Path<(String, i32, String)>) -> Result<HttpResponse, Error> {
     

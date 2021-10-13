@@ -8,21 +8,9 @@
 
 
 
-<!-- skeleton TODOs -->
-
-complete CLI and API docs for all microservices in their README.md file
-update all microservices packages and their edition to 2021
-setup multiple cassandra datacenters and nodes for production using NetworkTopologyStrategy: https://docs.datastax.com/en/cql-oss/3.3/cql/cql_reference/cqlCreateKeyspace.html
-load balancing devops for rust microservices inside clusters using traefik and k8s based on RoundRobin policy
-upgrade deploy.sh script to the latest setup of the whole app
-
-
-
-
-
-<!-- uniXerr TODOs -->
-
-implement credit score generation algorithm based on position clustering
-setup api.unixerr.com and tensorboard.api.unixerr.com on VPS
-complete wiki page for project explanation and update skeleton README.md file with each microservice setup
-collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder
+> complete, wiki page, CLI and API docs for all microservices in their README.md file and update skeleton README.md file with each microservice setup
+> update all microservices packages and their edition to 2021
+> setup multiple cassandra datacenters and nodes for production using NetworkTopologyStrategy: https://docs.datastax.com/en/cql-oss/3.3/cql/cql_reference/cqlCreateKeyspace.html
+> load balancing devops for rust microservices inside clusters using traefik and k8s based on RoundRobin policy
+> collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder
+> upgrade deploy.sh script to the latest setup of the whole app

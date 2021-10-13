@@ -1,7 +1,7 @@
-Async & Multithreading Rules: 
+Async & Multithreading Rules:
+    [+] actors removes the need for lock-based synchronization or mutext usage inside thread (mutual exclusion) by communicating with each other through messages or events
     [+] thread::spawn() takes a closure and tokio::spawn() takes a future and share it between multiple threads using mpsc job q channel protocol, thus all the subtypes of the task must be Send + Sync and cloneable
     [+] use 'static lifetime to have a valid lifetime across .await (before and after solving the future), cause futures are pinned to memory in order to be solved later thus all variables before and after them must be a variable with a valid lifetime
-    [+] threads can communicate through channels using sender and receiver like mpsc and actors through their address (Addr object) using defined events 
     [+] rust async feature is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join!() macro, block_on function or .await
     [+] we can't have async function inside a trait cause traits (usually object safe traits) don't have fixed size at compile time thus we can't pin their async function into memory to create a future since futures will be solved later by suspending the execution using .await  
     [+] closures and object safe traits are not bounded to trait Sized thus their size are unknown at compile and need runtime information to get their own size at runtime so they can't be pinned into the memory thus we can't use them as a future object by putting the async before them cause futures need to be pinned somewhere in ram to be solved later
@@ -15,6 +15,7 @@ Async & Multithreading Rules:
     [+] Stream is an asynchronous version of Iterator and is solved using while let Ok(Some(data)) = payload.next().await
     [+] every type that is bounded to Future trait can be written as: async {} or async move {} async fn some_name(){}
     [+] we'll pin the pointer of the Future object into memory cause we want to await on it later thus it shouldn't move from the memory by replacing with and pointing to a new value of a new variable
+    [+] threads can communicate through channels using sender and receiver like mpsc and actors through their address (Addr object) using defined events 
     [+] communication between threads is done using mpsc channel and end of the channel can only be owned by one thread at the time, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
     [+] we pinned the pointer of the Future object into memory cause we want to await on it later thus it shouldn't move from the memory by replacing with and pointing to a new value of a new variable
     [+] type PFuture = Pin<Box<dyn Future<Output = Result<ServiceResponse, Error>>>>; is a wrapper around a kind of pointer which makes that pointer "pin" its value in place(stack or heap), preventing the value referenced by that pointer from being moved unless it implements  

@@ -7,7 +7,6 @@ members = [
     "server/skeleton/microservices/suproxy",
     "server/skeleton/microservices/coiniXerr",
     "server/skeleton/microservices/psychoder",
-    "server/skeleton/microservices/tracer",
 ]
 
 
@@ -29,9 +28,4 @@ opt-level = 3
 [profile.dev.package.coiniXerr]
 opt-level = 0
 [profile.release.package.coiniXerr]
-opt-level = 3
-
-[profile.dev.package.tracer]
-opt-level = 0
-[profile.release.package.tracer]
 opt-level = 3
