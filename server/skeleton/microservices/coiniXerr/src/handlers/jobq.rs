@@ -37,7 +37,7 @@ impl ThreadPool{
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
         let mut workers = Vec::with_capacity(size); //-- capacity is not always equals to the length and the capacity of this vector is same as the maximum size based on the system arch, on 32 bits arch usize is 4 bytes and on 64 bits arch usize is 8 bytes
-        for id in 0..size { //-- since the receiver is not bounded to trait Clone we must clone it using Arc in each iteration cause we want to share it between multiple threads to get what the sender sent 
+        for id in 0..size { //-- since the receiver is not bounded to trait Clone we must clone it using Arc in each iteration cause we want to share it between multiple threads to get what the sender has sent 
             workers.push(Worker::new(id, Arc::clone(&receiver)));
         }
         ThreadPool{workers, sender}
