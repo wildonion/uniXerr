@@ -4,7 +4,7 @@
 
 
 
-use actix::prelude::*; //-- loading actix actors and handlers - actors are used for sending messages and events through their address instead of locking the thread for the mutex
+use actix::prelude::*; //-- loading actix actors and handlers
 use std::time::Duration;
 
 

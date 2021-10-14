@@ -1,5 +1,5 @@
 Async & Multithreading Rules:
-    [+] actors removes the need for lock-based synchronization or mutext (mutual exclusion) usage inside thread by communicating with each other through defined messages or events
+    [+] actors removes the need for lock-based synchronization or mutext (mutual exclusion) locking when mutating a data structure by blocking the local thread, instead they communicate with each other through defined messages or events
     [+] thread::spawn() takes a closure and tokio::spawn() takes a future and share it between multiple threads using mpsc job q channel protocol, thus all the subtypes of the task must be Send + Sync and cloneable
     [+] use 'static lifetime to have a valid lifetime across .await (before and after solving the future), cause futures are pinned to memory in order to be solved later thus all variables before and after them must be a variable with a valid lifetime
     [+] rust async feature which is zero cost async programming is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join!() macro, block_on function or .await
@@ -27,7 +27,7 @@ Async & Multithreading Rules:
     [+] there are no two threads handling a same job (request) at a time
     [+] there is only one thread get the job after it received it from the channel and it'll lock on that job until it's over, in that moment for the new incoming request another thread must handle the job and send the response
     [+] Arc<T> allows to have multiple ownership of the data by cloning it and Mutex<T> allows to lock the thread on the data to mutate its content in multithreading context
-    [+] none blocking execution between tasks or functions inside a single thread is called async programming
+    [+] none thread blocking execution between tasks or functions inside a single thread is called async programming
     [+] to do thread safe ops we can share the ownership across multiple threads using Ac<T> and mutate them using only one thread at a time with Mutex<T>
     [+] a Mutex<T> does not distinguish between readers or writers that acquire the lock, therefore blocking any threads waiting for the lock to become available. 
     [+] in order to share the data type (ownership) between threads the Send trait must be implemented for the data type.
@@ -42,7 +42,7 @@ Async & Multithreading Rules:
     [+] generally can't clone a data structure unless the trait Clone is implemented for that otherwise in order to move it between threads we have to clone it using Arc.
     [+] the receiver of tokio mpsc channel is shareable between tokio::spawn() threads so we don’t need to take an atomic reference and put it inside the Mutex.
     [+] multiple producer means multiple threads own the receiver and single consumer means only one of them can mutate and get the job or task from the receiver at a time.
-    [+] we have to take an atomic reference from the receiver using Arc in order to clone it for passing between multiple threads and for mutating it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time. this is done by waiting on the receiver until a job or task becomes available to the down side of the channel then locking on the receiver to acquire the mutex.
+    [+] we have to take an atomic reference from the receiver using Arc in order to clone it for passing between multiple threads and for mutating it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time. this is done by waiting on the receiver until a job or task becomes available to down side of the channel then locking on the receiver to acquire the mutex.
     [+] thread safe coding is about to putting the shareable receiver (cloned with Arc) inside a Mutex in order to lock on the incoming task from the sender to prevent other threads from mutating the task at a time.
 Sugar Rules:
     [+] there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
