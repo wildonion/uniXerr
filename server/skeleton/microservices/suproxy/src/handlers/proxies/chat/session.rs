@@ -8,9 +8,8 @@ use argon2::{self, Config, ThreadMode, Variant, Version};
 use uuid::Uuid;
 use std::time::{Duration, Instant};
 use actix_web::{web, get, Error, HttpRequest, HttpResponse};
-use actix::prelude::*;
-use actix::{Actor, StreamHandler};
 use actix_web_actors::ws;
+use actix::prelude::*; //-- to load requirements for building actors
 use crate::handlers::proxies::chat::balancer;
 use crate::handlers::{
     db::cass::establish as cass,
@@ -196,7 +195,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for UserChatSession {
 async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession>, 
                         web::Path((token, friend_id)): web::Path<(String, i32)>) -> Result<HttpResponse, Error>{
     
-    let cass_session = cass_sess.into_inner();
+    let cass_session = cass_sess.into_inner(); //-- into_inner() converts web::Data<cass::CassSession> into Arc<cass::CassSession> - we must clone the cass_session when ever we want to pass it some where cause it's not bounded to Copy trait
     let ip = req.peer_addr().unwrap().ip();
     let port = req.peer_addr().unwrap().port();
     let mut old_chats: Option<Vec<Chat>> = None;
@@ -226,7 +225,7 @@ async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession
             println!("[!] SERVER TIME : {} | FAILED TO VERIFY THE TOKEN CAUSE : {} ", chrono::Local::now().naive_local(), e); 
         }
     }
-    Ok(HttpResponse::Ok().json(old_chats)) // NOTE - for sending struct through the json() method, the Serialize trait must be implemented for that struct
+    Ok(HttpResponse::Ok().json(old_chats.unwrap())) // NOTE - for sending struct through the json() method, the Serialize trait must be implemented for that struct
 }
 
 
@@ -235,10 +234,9 @@ async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession
 // ===================================
 
 #[get("/uniXerr/api/chat/new/{username}/{friend_id}/{token}")] //-- route of private messaging between 2 peers
-async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::Data<Addr<balancer::ChatServer>>, cass_sess: web::Data<cass::CassSession>,
+async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::Data<Addr<balancer::ChatServer>>,
                               web::Path((username, friend_id, token)): web::Path<(String, i32, String)>) -> Result<HttpResponse, Error> {
     
-    let cass_session = cass_sess.into_inner(); //-- into_inner() converts web::Data<cass::CassSession> into Arc<cass::CassSession> - we must clone the cass_session when ever we want to pass it some where cause it's not bounded to Copy trait
     let ip = req.peer_addr().unwrap().ip();
     let port = req.peer_addr().unwrap().port();
     let mut actor: Option<UserChatSession> = None;
@@ -279,7 +277,6 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
                 hash_length: 6 //-- pack of three digits in binary is an oct number and a pack of four digits in binary is a hex number
             };
             let room_name = argon2::hash_encoded(sorted_secret_u8_bytes, salt.as_bytes(), &argon2_config).unwrap(); //-- the secret phrase and the salt are in utf-8 bytes format
-            let old_chats = Chat::all(cass_session.clone(), user_id, friend_id, room_name.clone()); //-- fetching all old messages inside ram to send them back to where this API called
             actor = Some(UserChatSession{ //-- building UserChatSession actor which is an in memory concept
                     id: 0, //-- socket, client session or actor id
                     hb: Instant::now(), //-- heartbeat starting time

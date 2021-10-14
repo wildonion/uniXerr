@@ -4,8 +4,7 @@
 
 
 
-
-// TODO - all layers or networks in deep learning are an actor which communicate with each other based on messages or events
+// TODO - all layers or networks in deep learning must be an actor which will communicate with each other based on defined messages or events
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros 
 // EXAMPLE - let network = model!(mlp_1(20) -> mlp_2(10) -> cnn(3, 16, 2, 5, 1) -> mlp_3(10))
 // https://github.com/actix/actix
@@ -15,7 +14,6 @@
 // http://gradebot.org/doc/ipur/trait.html
 // https://cheats.rs/#behind-the-scenes
 // https://gist.github.com/wildonion/4f1956d9908e348a74b4381458e474e1
-
 
 
 

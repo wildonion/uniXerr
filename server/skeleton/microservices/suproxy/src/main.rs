@@ -2,9 +2,7 @@
 
 
 
-mod constants;
 mod handlers;
-mod utils;
 use std::env;
 use dotenv::dotenv;
 use actix::*;

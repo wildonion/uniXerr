@@ -19,7 +19,7 @@ pub struct ThreadPool {
 
 
 type Job = Box<dyn FnOnce() + Send + 'static>; //-- a job is of type closure which must be Send and static across all threads inside a Box on the heap
-enum Message { //-- enum is like and share the same memory location for all its fields and the size of each union depends on the largest size field
+enum Message {
     NewJob(Job),
     Terminate,
 }
