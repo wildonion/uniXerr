@@ -10,6 +10,7 @@
 
 use utilser::Info;
 use crate::schemas::brain::Neuron;
+use actix::prelude::*;
 
 
 
@@ -31,4 +32,9 @@ impl Linear{
         loss
     }
     pub async fn backward(loss: f64){}
+}
+
+
+impl Actor for Linear{
+    type Context = Context<Linear>;
 }

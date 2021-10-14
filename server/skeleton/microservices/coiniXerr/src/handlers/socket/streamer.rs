@@ -43,7 +43,7 @@
 
 
 
-use crate::schemas::coin::Transaction;
+use crate::schemas::block::Transaction;
 use std::time::SystemTime;
 use log::{error, info};
 use rdkafka::config::ClientConfig;

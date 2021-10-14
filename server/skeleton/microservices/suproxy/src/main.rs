@@ -58,6 +58,7 @@ async fn main() -> std::io::Result<()> {
                 .data(chat_server_address.clone())
                 .data(cass_session.clone()) // NOTE - cloning db connections using Arc cause trait Copy and Clone is not implemented for them and they are not Sync and Send and safe to move between threads thus Arc do these things for us
                 .wrap(middleware::Logger::default())
+                .wrap(CookieSession::signed(&[0; 32]).secure(false))
                 .configure(user_chat_sess_init) // NOTE - websocket route configuration
         });
     

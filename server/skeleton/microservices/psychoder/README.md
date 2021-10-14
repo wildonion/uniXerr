@@ -1,6 +1,6 @@
 
 
-An asynchronous 🪢 and multithreading🧵 CLI backend supports various deep learning algorithms and networks such as MLP, CNN, LSTM and SSL models like VAE, GAN and Transformers
+An asynchronous 🪢, multithreading🧵 and actor based CLI backend supports various deep learning algorithms and networks such as MLP, CNN, LSTM and SSL models like VAE, GAN and Transformers
 
 # Development Setup
 

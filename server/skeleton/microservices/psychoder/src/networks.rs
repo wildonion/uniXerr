@@ -5,9 +5,10 @@
 
 
 
-
+// TODO - all layers or networks in deep learning are an actor which communicate with each other based on messages or events
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros 
 // EXAMPLE - let network = model!(mlp_1(20) -> mlp_2(10) -> cnn(3, 16, 2, 5, 1) -> mlp_3(10))
+// https://github.com/actix/actix
 // https://danielkeep.github.io/practical-intro-to-macros.html
 // https://blog.logrocket.com/macros-in-rust-a-tutorial-with-examples/
 // https://blog.logrocket.com/procedural-macros-in-rust/
