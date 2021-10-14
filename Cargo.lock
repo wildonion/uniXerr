@@ -767,11 +767,16 @@ dependencies = [
 name = "coiniXerr"
 version = "0.1.0"
 dependencies = [
+ "actix 0.12.0",
+ "actix-session",
+ "actix-web",
+ "bcrypt",
  "chrono",
  "dotenv",
  "env_logger",
  "futures",
  "hex",
+ "listenfd",
  "log",
  "rdkafka",
  "reqwest",
@@ -2690,7 +2695,6 @@ dependencies = [
  "actix-session",
  "actix-web",
  "actix-web-actors",
- "bcrypt",
  "cdrs",
  "cdrs_helpers_derive",
  "chrono",

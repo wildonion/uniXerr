@@ -2,7 +2,7 @@ Async & Multithreading Rules:
     [+] actors removes the need for lock-based synchronization or mutext (mutual exclusion) usage inside thread by communicating with each other through defined messages or events
     [+] thread::spawn() takes a closure and tokio::spawn() takes a future and share it between multiple threads using mpsc job q channel protocol, thus all the subtypes of the task must be Send + Sync and cloneable
     [+] use 'static lifetime to have a valid lifetime across .await (before and after solving the future), cause futures are pinned to memory in order to be solved later thus all variables before and after them must be a variable with a valid lifetime
-    [+] rust async feature is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join!() macro, block_on function or .await
+    [+] rust async feature which is zero cost async programming is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join!() macro, block_on function or .await
     [+] we can't have async function inside a trait cause traits (usually object safe traits) don't have fixed size at compile time thus we can't pin their async function into memory to create a future since futures will be solved later by suspending the execution using .await  
     [+] closures and object safe traits are not bounded to trait Sized thus their size are unknown at compile and need runtime information to get their own size at runtime so they can't be pinned into the memory thus we can't use them as a future object by putting the async before them cause futures need to be pinned somewhere in ram to be solved later
     [+] futures do nothing unless we call .await on them or poll them and await can only be used inside an async block of function
@@ -38,7 +38,16 @@ Async & Multithreading Rules:
     [+] we use Arc<RwLock<T>> to share the ownership (clone) of the data type between threads and allow number of threads to read or at most allow one thread to write at any point in time.
     [+] impl Send (for traits and types) and Sync (for references) for all subtypes of the struct to move it between threads like db connections and AI models
     [+] Rc<T> allows to have multiple ownership of the data by cloning it and RefCell<T> allows to keeps track of referencing to the data and mutate its content one at a time in a single thread context
+    [+] we can’t just pass the receiver between multiple threads cause trait Clone which is a super trait of Copy is not implemented for the receiver thus we can’t clone it cause if a type is Copy its Clone needs to return *self.
+    [+] generally can't clone a data structure unless the trait Clone is implemented for that otherwise in order to move it between threads we have to clone it using Arc.
+    [+] the receiver of tokio mpsc channel is shareable between tokio::spawn() threads so we don’t need to take an atomic reference and put it inside the Mutex.
+    [+] multiple producer means multiple threads own the receiver and single consumer means only one of them can mutate and get the job or task from the receiver at a time.
+    [+] we have to take an atomic reference from the receiver using Arc in order to clone it for passing between multiple threads and for mutating it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time. this is done by waiting on the receiver until a job or task becomes available to the down side of the channel then locking on the receiver to acquire the mutex.
+    [+] thread safe coding is about to putting the shareable receiver (cloned with Arc) inside a Mutex in order to lock on the incoming task from the sender to prevent other threads from mutating the task at a time.
 Sugar Rules:
+    [+] there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
+    [+] enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
+    [+] all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
     [+] usize gives you the guarantee to be always big enough to hold any pointer or any offset in a data structure  and its size is depended on how much size it takes to reference any location in memory, on a 32 bit target usize is 4 bytes and on a 64 bit target usize is 8 bytes, while u32 can be too small on some architectures
     [+] macros are expanded before the compiler interprets the meaning of the code, so a macro can, for example, implement a trait on a given type
     [+] function gets called at runtime and a trait needs to be implemented at compile time
@@ -94,6 +103,10 @@ Sugar Rules:
     [+] we can bound some traits to a type in function signature using where clause like where T : Clone + Display
     [+] we can control the behavior of each type using their methods and by implementing traits for them
     [+] a trait method can be override inside the implementation block of the type means two types can use a same method signatures of the trait but with different body implementation inside each
+    [+] clone data structure if you want to move them between threads so trait Clone must be implemented for them otherwise clone them using Arc.
+    [+] every Copy type is also required to be Clone and if T: Copy, x: T, and y: &T, then let x = y.clone(); is equivalent to let x = *y;
+    [+] when we derive a Copy implementation Clone is also required cause it's a super trait of Copy.
+    [+] if a type imeplements trait Copy means we can clone it (cause trait Clone is a super trait of Copy) and also assign the variable into another one without losing the ownership of our variable
     [+] trait Copy is meant to be implemented for "cheap" types, such as u8 in the example. If you write a quite heavyweight type, for which you think a move is more efficient than a copy, make it not impl Copy and impl Clone. Note that in the u8 case, you cannot possibly be more efficient with a move, since under the hood it would probably at least entail a pointer copy -- which is already as expensive as a u8 copy.
     [+] trait Copy is not implemented for &mut T because if we had the Copy trait for them we could have multiple copy of them in every where and they could change the data of what they have borrowed for thus the reference count of each variable would be out of control inside the current thread, those references don't want a copy of data, they want to own and mutate the data inside what they have borrowed thus we can't mutate the variable itself while its mutable pointer is changing the data inside of it
     [+] trait Copy is not implemented for &mut T because we can have only one mutable reference at a time, thus by copying a mutable variable (assuming its on the stack and its size specified on compile time and is bounded to Sized trait) at runtime we'll panic!

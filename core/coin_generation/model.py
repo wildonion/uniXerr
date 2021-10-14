@@ -16,8 +16,8 @@
  ------------------------------------------------
 |  coin generation (credit scoring) model
 | -----------------------------------------------
-| generate score (number of coins) 
-| based on positions and other features
+| credit score generation (number of coins) 
+| based on position clustering
 |
 |
 | minimum number of score for everyone generated
