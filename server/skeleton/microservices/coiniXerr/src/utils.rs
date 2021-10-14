@@ -1,4 +1,5 @@
 
 
 
-pub fn gen_coin(){}
+
+pub mod response;
