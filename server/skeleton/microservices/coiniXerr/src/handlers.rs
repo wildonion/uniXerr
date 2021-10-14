@@ -38,3 +38,4 @@
 pub mod pos;
 pub mod socket;
 pub mod jobq;
+pub mod actors;

@@ -5,7 +5,6 @@ mod constants;
 mod schemas;
 mod handlers;
 mod utils;
-mod actors;
 use listenfd::ListenFd;
 use std::env;
 use dotenv::dotenv;
