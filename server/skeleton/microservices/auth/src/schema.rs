@@ -21,6 +21,7 @@ table! {
         id -> Int4,
         username -> Varchar,
         password -> Varchar,
+        wallet_address -> Varchar, 
         access_token -> Varchar,
         access_level -> Int2,
         phone_number -> Varchar,

@@ -31,6 +31,7 @@ pub struct LoginInfo {
 #[derive(Deserialize, Insertable, AsChangeset)]
 #[table_name="users"]
 pub struct InsertableUser{
+    pub wallet_address: String,
     pub password: String,
     pub username: String,
     pub phone_number: String,
@@ -100,7 +101,8 @@ pub struct UserData{
     pub username: String,
     pub email: String,
     pub phone_number: String,
-    pub coins: i32,
+    pub wallet_address: String,
+    pub balance: i32,
     pub sex: String,
     pub age: i16,
 }
@@ -121,6 +123,7 @@ pub struct QueryableUser{
     pub id: i32,
     pub username: String,
     pub password: String,
+    pub wallet_address: String,
     pub access_token: String,
     pub access_level: i16,
     pub phone_number: String,
@@ -140,8 +143,10 @@ impl QueryableUser{
     pub async fn signup(user: InsertableUser) -> Result<String, String>{ // it returns error as String
         let conn = pg::connection().await.unwrap();
         if Self::find_user_by_username(&user.username).await.is_err(){ // no user found with this username
+            let wallet_address = "hashMe!".to_string();
             let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
             let user = InsertableUser{
+                wallet_address,
                 password: hashed_pwd,
                 username: user.username,
                 phone_number: user.phone_number,
@@ -246,8 +251,10 @@ impl QueryableUser{
 
     pub async fn add(user: InsertableUser) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
+        let wallet_address = "hashMe!".to_string();
         let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
         let user = InsertableUser{
+            wallet_address,
             password: hashed_pwd,
             username: user.username,
             phone_number: user.phone_number,
@@ -290,7 +297,7 @@ impl QueryableUser{
         }
     }
 
-    pub async fn update_coins(id: i32, friend_id: i32, coins: i32) -> Result<DeliveredCoins, String>{ // NOTE - `?` couldn't convert the error to `std::string::String` thus we can't use `?` to solve the error, instead we have to use unwrap()
+    pub async fn update_coins(id: i32, friend_id: i32, coins: i32) -> Result<DeliveredCoins, String>{ // NOTE - `?` couldn't convert the error to `std::string::String` thus we can't use `?` inside this function to solve the error, instead we have to use unwrap()
         let conn = pg::connection().await.unwrap();
         let current_user = Self::find_by_id(id).await.unwrap(); // current_user contains all columns data inside the table
         let current_user_friend = Self::find_by_id(friend_id).await.unwrap(); // current_user_friend contains all columns data inside the table

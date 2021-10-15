@@ -5,6 +5,7 @@ CREATE TABLE users(
     id SERIAL NOT NULL PRIMARY KEY,
     username VARCHAR NOT NULL,
     password VARCHAR NOT NULL,
+    wallet_address VARCHAR NOT NULL DEFAULT '', 
     access_token VARCHAR NOT NULL DEFAULT '',
     access_level SMALLINT DEFAULT 1 NOT NULL,
     phone_number VARCHAR NOT NULL,

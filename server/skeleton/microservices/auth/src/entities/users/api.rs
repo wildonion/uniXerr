@@ -68,7 +68,8 @@ async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniX
                         username: user.username,
                         email: user.email,
                         phone_number: user.phone_number,
-                        coins: user.coins,
+                        wallet_address: user.wallet_address,
+                        balance: user.coins,
                         sex: user.sex,
                         age: user.age,
                     }
@@ -214,7 +215,7 @@ async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<Passwo
 #[post("/uniXerr/api/auth/user/{id}/loan/{coins}/{friend_id}")]
 async fn loan_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i32>, coins: web::Path<i32>) -> Result<HttpResponse, uniXerr>{ //-- on Err result the error_message field of the uniXerr struct inside an actix http response as a json will return
     match pass(req){
-        Ok(user_data_inside_token) => {
+        Ok(user_data_inside_token) => { //-- updating coins process is based on the user token not the wallet address
             let access_level = user_data_inside_token.unwrap().claims.access_level;
             if access_level == 1 || access_level == 2{ // NOTE - only admin and regular user can borrow coins
                 let loan_borrow_coins_status = QueryableUser::update_coins(id.into_inner(), friend_id.into_inner(), coins.into_inner()).await.unwrap(); 
