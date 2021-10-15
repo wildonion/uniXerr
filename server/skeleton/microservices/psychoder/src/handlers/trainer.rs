@@ -2,11 +2,14 @@
 
 
 
+
+
+
 use std::thread;
 use std::sync::mpsc; //-- communication between threads is done using mpsc channel and end of the channel can only be owned by one thread at the time, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
 use std::sync::Arc;
 use std::sync::Mutex;
-
+use uuid::Uuid;
 
 
 
@@ -34,8 +37,8 @@ impl ThreadPool{
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
         let mut workers = Vec::with_capacity(size); //-- capacity is not always equals to the length and the capacity of this vector is same as the maximum size based on the system arch, on 32 bits arch usize is 4 bytes and on 64 bits arch usize is 8 bytes
-        for id in 0..size { //-- since the receiver is not bounded to trait Clone we must clone it using Arc in each iteration cause we want to share it between multiple threads to get what the sender sent 
-            workers.push(Worker::new(id, Arc::clone(&receiver)));
+        for _ in 0..size { //-- since the receiver is not bounded to trait Clone we must clone it using Arc in each iteration cause we want to share it between multiple threads to get what the sender has sent 
+            workers.push(Worker::new(Uuid::new_v4(), Arc::clone(&receiver)));
         }
         ThreadPool{workers, sender}
     }
@@ -63,14 +66,14 @@ impl Drop for ThreadPool{
 }
 
 struct Worker{
-    id: usize,
+    id: Uuid,
     thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker{
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
+    fn new(id: Uuid, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let message = receiver.lock().unwrap().recv().unwrap(); //-- since other thread shouldn't mutate this message while a thread is mutating we must locking on the message received from the sender  
+            let message = receiver.lock().unwrap().recv().unwrap(); //-- since other thread shouldn't mutate this message while thsi thread is mutating we must do a locking on the message received from the sender to acquire the mutex by blocking the current thread  
             match message {
                 Message::NewJob(job) => {
                     println!("Worker {} got a job; executing.", id);

@@ -4,8 +4,8 @@
 
 
 
-// TODO - all layers or networks in deep learning must be an actor which will communicate with each other based on defined messages or events
-// TODO - different kind of arguments passing structure with arbitrary numbers of them using macros 
+// NOTE - all layers or networks in deep learning must be an actor which will communicate with each other based on defined messages or events like their matrix multiplication from one layer to another layer
+// NOTE - different kind of arguments passing structure with arbitrary numbers of them using macros 
 // EXAMPLE - let network = model!(mlp_1(20) -> mlp_2(10) -> cnn(3, 16, 2, 5, 1) -> mlp_3(10))
 // https://github.com/actix/actix
 // https://danielkeep.github.io/practical-intro-to-macros.html
