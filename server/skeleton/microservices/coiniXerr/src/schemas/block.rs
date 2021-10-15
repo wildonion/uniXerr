@@ -18,6 +18,7 @@ use uuid::Uuid;
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 // NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
+// NOTE - public key is used to generate wallet address and private key is used to sign blockchain based transactions
 
 
 
@@ -40,10 +41,12 @@ pub struct Block{
 
 
 
-#[derive(Serialize, Deserialize, Clone, Debug, Copy)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Transaction{
     pub id: Uuid,
     pub amount: i32,
+    pub from_address: String,
+    pub to_address: String,
     pub timestamp: i64,
 }
 
@@ -58,7 +61,12 @@ impl Default for Transaction{
 
 
 impl Transaction{
-    fn new(buffer: &[u8]) -> Option<&mut Transaction>{
+    
+    fn new() -> Self{
+        todo!()
+    }
+
+    fn map(buffer: &[u8]) -> Option<&mut Transaction>{
         unsafe impl Send for Transaction {} //-- due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads
         unsafe{
             let mut transaction_data: Option<&mut Transaction> = None; //-- in order to prevent from null checking we took a safe rust based reference to Transaction inside the Option (cause rust doesn't have null) cause *mut raw pointer to Transaction inside union is not safe also can't move between thread safely and once the TransactionMem data has dereferenced it might return a null pointer (dangled) due to unsafe manner of C pointers
