@@ -330,7 +330,12 @@ impl QueryableUser{
                 timestamp: chrono::Local::now().naive_local().timestamp(),
                 is_mined: false,
             };
-            let new_transaction_bytes: &[u8] = unsafe { slice::from_raw_parts(&new_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>()) }; //-- converting a const raw pointer of an object and the length into the &[u8], the len argument is the number of elements, not the number of bytes
+            let new_transaction_bytes: &[u8] = unsafe { 
+                //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
+                //-- the total size of the generated &[u8] is the number of elements * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+                //-- here number of elements or the len is the size of the total struct which is mem::size_of::<Transaction>()
+                slice::from_raw_parts(&new_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>()) 
+            }; 
             let transfered_transaction_resp = match liber::send_transaction!(new_transaction_bytes){ //-- sending a binary stream of transaction data (serialized into bytes) to the coiniXerr network for mining and consensus process
                 Ok(transfered_transaction) => {
                     if transfered_transaction.is_mined{ //-- if the transaction was added to the blockchain means it's mined and we can update both user coins
@@ -360,7 +365,7 @@ impl QueryableUser{
                         };
                         Ok(mined_transaction)
                     } else{
-                        Err(constants::MESSAGE_NOT_MINED_TRANSACTION.to_string())
+                        Err(constants::MESSAGE_NOT_MINED_TRANSACTION.to_string()) //-- can't transfer coins
                     }
                 },
                 Err(e) => {
