@@ -4,6 +4,7 @@
 
 
 
+use std::{env, slice, mem};
 use crate::constants;
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, AsChangeset};
@@ -15,6 +16,9 @@ use crate::entities::login_history::model::QueryableLoginHistory;
 use serde::{Deserialize, Serialize}; // NOTE - Deserialize from json to struct to insert into db, Serialize from struct to json to send the response 
 use uuid::Uuid;
 use crate::handlers::db::pg::establish as pg;
+use liber;
+
+
 
 
 
@@ -108,13 +112,29 @@ pub struct UserData{
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct Transaction{
+    pub id: Uuid,
+    pub amount: i32,
+    pub from_address: String,
+    pub to_address: String,
+    pub timestamp: i64,
+    pub is_mined: bool,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct DeliveredCoins{
+    pub id: Uuid,
+    pub amount: i32,
+    pub from_address: String,
+    pub to_address: String,
+    pub transfer_timestamp: i64,
+    pub is_mined: bool,
     pub user_id: i32,
     pub friend_id: i32,
     pub user_coins_after_loan: i32,
     pub friend_coins_after_borrowed: i32,
-    pub send_time: Option<chrono::NaiveDateTime>,
-    pub delivery_time: Option<chrono::NaiveDateTime>,
+    pub send_time: i64,
+    pub delivery_time: i64,
 }
 
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
@@ -302,25 +322,53 @@ impl QueryableUser{
         let current_user = Self::find_by_id(id).await.unwrap(); // current_user contains all columns data inside the table
         let current_user_friend = Self::find_by_id(friend_id).await.unwrap(); // current_user_friend contains all columns data inside the table
         if current_user.coins != 0 && current_user.coins > 0{
-            let updated_user_coins = UpdateCoins{
-                coins: current_user.coins - coins,
-                updated_at: Some(chrono::Local::now().naive_local()),
+            let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain
+                id: Uuid::new_v4(),
+                amount: coins,
+                from_address: current_user.wallet_address,
+                to_address: current_user_friend.wallet_address,
+                timestamp: chrono::Local::now().naive_local().timestamp(),
+                is_mined: false,
             };
-            let updated_user_friend_coins = UpdateCoins{
-                coins: current_user_friend.coins + coins,
-                updated_at: Some(chrono::Local::now().naive_local()),
+            let new_transaction_bytes: &[u8] = unsafe { slice::from_raw_parts(&new_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>()) }; //-- converting a const raw pointer of an object and the length into the &[u8], the len argument is the number of elements, not the number of bytes
+            let transfered_transaction_resp = match liber::send_transaction!(new_transaction_bytes){ //-- sending a binary stream of transaction data (serialized into bytes) to the coiniXerr network for mining and consensus process
+                Ok(transfered_transaction) => {
+                    if transfered_transaction.is_mined{ //-- if the transaction was added to the blockchain means it's mined and we can update both user coins
+                        let updated_user_coins = UpdateCoins{
+                            coins: current_user.coins - coins,
+                            updated_at: Some(chrono::Local::now().naive_local()),
+                        };
+                        let updated_user_friend_coins = UpdateCoins{
+                            coins: current_user_friend.coins + coins,
+                            updated_at: Some(chrono::Local::now().naive_local()),
+                        };
+                        let current_user_with_updated_coins = diesel::update(users::table.filter(users::id.eq(id))).set(updated_user_coins).get_result::<QueryableUser>(&conn).unwrap();
+                        let current_user_friend_with_updated_coins = diesel::update(users::table.filter(users::id.eq(friend_id))).set(updated_user_friend_coins).get_result::<QueryableUser>(&conn).unwrap();
+                        let mined_transaction = DeliveredCoins{
+                            id: transfered_transaction.id,
+                            amount: transfered_transaction.amount,
+                            from_address: transfered_transaction.from_address,
+                            to_address: transfered_transaction.to_address,
+                            transfer_timestamp: transfered_transaction.timestamp,
+                            is_mined: transfered_transaction.is_mined,
+                            user_id: current_user_with_updated_coins.id,
+                            friend_id: current_user_friend_with_updated_coins.id,
+                            user_coins_after_loan: current_user_with_updated_coins.coins,
+                            friend_coins_after_borrowed: current_user_friend_with_updated_coins.coins,
+                            send_time: current_user_with_updated_coins.updated_at.timestamp(), //-- the time that the user sent his/her coins
+                            delivery_time: current_user_friend_with_updated_coins.updated_at.timestamp(), //-- the time that the friend borrowed coins
+                        };
+                        Ok(mined_transaction)
+                    } else{
+                        Err(constants::MESSAGE_NOT_MINED_TRANSACTION.to_string())
+                    }
+                },
+                Err(e) => {
+                    println!("[!] SERVER TIME : {} | FAILED TO SEND TRANSACTION TO THE coiniXerr NETWORK CAUSED BY : {} ", chrono::Local::now().naive_local(), e);
+                    Err(constants::MESSAGE_SEND_TRANSACTION_FAILED.to_string()) 
+                }
             };
-            let current_user_with_updated_coins = diesel::update(users::table.filter(users::id.eq(id))).set(updated_user_coins).get_result::<QueryableUser>(&conn).unwrap();
-            let current_user_friend_with_updated_coins = diesel::update(users::table.filter(users::id.eq(friend_id))).set(updated_user_friend_coins).get_result::<QueryableUser>(&conn).unwrap();
-            let loan_borrow_coins_status = DeliveredCoins{
-                user_id: current_user_with_updated_coins.id,
-                friend_id: current_user_friend_with_updated_coins.id,
-                user_coins_after_loan: current_user_with_updated_coins.coins,
-                friend_coins_after_borrowed: current_user_friend_with_updated_coins.coins,
-                send_time: Some(current_user_with_updated_coins.updated_at), //-- the time that the user sent his/her coins
-                delivery_time: Some(current_user_friend_with_updated_coins.updated_at), //-- the time that the friend borrowed coins
-            };
-            Ok(loan_borrow_coins_status)
+            Ok(transfered_transaction_resp.unwrap())
         } else{
             Err(constants::MESSAGE_NOT_ENOUGH_COINS.to_string())
         }

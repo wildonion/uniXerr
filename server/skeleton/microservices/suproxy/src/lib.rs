@@ -31,8 +31,10 @@ macro_rules! authenticity {
         {
 
             use serde::{Deserialize, Serialize};
+            use std::env;
+            use dotenv::dotenv;
 
-
+            
             #[derive(Debug, Serialize, Deserialize)]
             struct ResponseBody{
                 pub message: String,
@@ -45,10 +47,11 @@ macro_rules! authenticity {
                 pub user_id: i32,
             }
 
-
+            let auth_port = env::var("AUTH_PORT").expect("⚠️ please set auth port in .env");
+            let url = format!("http://localhost:{}/uniXerr/api/auth/check-token", auth_port);
             let client = reqwest::blocking::Client::new();
             match client
-                    .post("http://localhost:7366/uniXerr/api/auth/check-token")
+                    .post(&url)
                     .bearer_auth($token) // NOTE - it'll attach the Bearer token in request header
                     .send(){
                         Ok(res) => {

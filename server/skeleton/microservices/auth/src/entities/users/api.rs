@@ -212,8 +212,8 @@ async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<Passwo
 
 
 
-#[post("/uniXerr/api/auth/user/{id}/loan/{coins}/{friend_id}")]
-async fn loan_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i32>, coins: web::Path<i32>) -> Result<HttpResponse, uniXerr>{ //-- on Err result the error_message field of the uniXerr struct inside an actix http response as a json will return
+#[post("/uniXerr/api/auth/user/{id}/transfer/{coins}/{friend_id}")]
+async fn transfer_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i32>, coins: web::Path<i32>) -> Result<HttpResponse, uniXerr>{ //-- on Err result the error_message field of the uniXerr struct inside an actix http response as a json will return
     match pass(req){
         Ok(user_data_inside_token) => { //-- updating coins process is based on the user token not the wallet address
             let access_level = user_data_inside_token.unwrap().claims.access_level;
@@ -387,7 +387,7 @@ pub fn user_init_service(config: &mut web::ServiceConfig){
     config.service(add);
     config.service(update);
     config.service(update_pwd);
-    config.service(loan_coins);
+    config.service(transfer_coins);
     config.service(update_prof);
     config.service(download_prof);
     config.service(delete);

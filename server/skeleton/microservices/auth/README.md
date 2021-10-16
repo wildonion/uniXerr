@@ -30,7 +30,7 @@
 
 * **Get a User Profile Image with Access Level 1 or 2:** ```GET - /uniXerr/api/auth/user/profile/{id}```
 
-* **Loan Coins with Access Level 1 or 2:** ```POST - /uniXerr/api/auth/user/{id}/loan/{coins}/{friend_id}```
+* **Transfer Coins with Access Level 1 or 2:** ```POST - /uniXerr/api/auth/user/{id}/transfer/{coins}/{friend_id}```
 
 * **Delete a User with Access Level 1 or 2:** ```POST - /uniXerr/api/auth/user/delete/{id}```
 
