@@ -45,6 +45,7 @@ Async & Multithreading Rules:
     [+] we have to take an atomic reference from the receiver using Arc in order to clone it for passing between multiple threads and for mutating it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time. this is done by waiting on the receiver until a job or task becomes available to down side of the channel then locking on the receiver to acquire the mutex.
     [+] thread safe coding is about to putting the shareable receiver (cloned with Arc) inside a Mutex in order to lock on the incoming task from the sender to prevent other threads from mutating the task at a time.
 Sugar Rules:
+    [+] a codec is basically an algorithm which will map or deserialize the buffer filled of utf8 bytes from memory into an object and visa versa
     [+] there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
     [+] enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
     [+] all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
