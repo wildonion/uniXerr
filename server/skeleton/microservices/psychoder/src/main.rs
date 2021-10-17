@@ -9,6 +9,7 @@ mod handlers;
 use networks::Model;
 use handlers::trainer::ThreadPool;
 use networks::mlp::Linear;
+use networks::NetworkType;
 use schemas::brain::Neuron;
 
 
@@ -24,14 +25,15 @@ async fn main() -> std::io::Result<()>{
     let pool = ThreadPool::new(4);
     pool.execute(move || {
         let model = Model{ // TODO - take model parameters from cli args
-                            networks: vec![
-                                            Linear{neurons: vec![Neuron::default()]}
-                                        ],
-                            is_training: true,
-                            epochs: 200,
-                            batch_size: 64,
-                            device: "cpu".to_string(),
-                    };
+                                        networks: vec![
+                                                        NetworkType::Linear(Linear{neural_circuit: vec![Neuron::default()]}),
+                                                        NetworkType::Linear(Linear{neural_circuit: vec![Neuron::default(), Neuron::default()]})
+                                                    ],
+                                        is_training: true,
+                                        epochs: 200,
+                                        batch_size: 64,
+                                        device: "cpu".to_string(),
+                                };
         model.train();
     });
 

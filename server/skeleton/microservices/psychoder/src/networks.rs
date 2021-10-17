@@ -13,7 +13,6 @@
 // https://blog.logrocket.com/procedural-macros-in-rust/
 // http://gradebot.org/doc/ipur/trait.html
 // https://cheats.rs/#behind-the-scenes
-// https://gist.github.com/wildonion/4f1956d9908e348a74b4381458e474e1
 
 
 
@@ -26,31 +25,55 @@ pub mod transformers;
 pub mod lstm;
 pub mod gan;
 pub mod vae;
+use std::ops::Deref;
+
+use crate::networks::mlp::Linear;
+use crate::networks::cnn::Conv2d;
 
 
 
 
+pub enum NetworkType{
+    Linear(Linear),
+    Conv2d(Conv2d),
+}
 
-pub struct Model<N>{
-    pub networks: Vec<N>,
+pub struct Model{
+    pub networks: Vec<NetworkType>,
     pub is_training: bool,
     pub epochs: u16,
     pub batch_size: u16,
     pub device: String,
 }
 
-impl<N> Model<N>{
+impl Model{
 
-    pub fn train(&self){
-        // TODO - train the model using tokio::spawn()
-        // ...
+    pub fn train(self){ //-- `&self` has an anonymous lifetime `'_` because of unknown lifetime of enum networks field which contains multiple different type of networks 
+        for network in self.networks{
+            match network{
+                NetworkType::Linear(linear_net) => {
+                    tokio::spawn(async move{
+                        //-- TODO - training Linear layer
+                        // ...
+                        let loss = linear_net.forward().await;
+                    });
+                },
+                NetworkType::Conv2d(conv2d_net) => {
+                    tokio::spawn(async move{
+                        //-- TODO - training Conv2d layer
+                        // ...
+                        let loss = conv2d_net.forward().await;
+                    });
+                }   
+            }
+        }
     }
     
     
-    pub fn predict(){}
+    pub fn predict(self){}
 }
 
-impl<N> Default for Model<N>{
+impl Default for Model{
     fn default() -> Self{
         Model{
             networks: Vec::new(),
