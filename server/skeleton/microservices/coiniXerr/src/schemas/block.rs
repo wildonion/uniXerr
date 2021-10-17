@@ -64,25 +64,20 @@ impl Default for Transaction{
 }
 
 impl Transaction{
-
-    pub fn new() -> Self{
-        todo!()
-    }
-
-    pub fn from_mem(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{
+    pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{
         unsafe{
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //-- filling the buffer field will also fill the data cause thay have a same memory storage
-            let deserialized_transaction = &mut *transaction.data.clone(); //-- since the data inside the union is a pointer to a mutable Transaction object we have to return a dereferenced of the data which is a mutable object of Transaction
+            let deserialized_transaction = &mut *transaction.data; //-- since the data inside the union is a pointer to a mutable Transaction object we have to return a dereferenced of the data which is a mutable object of Transaction
             Ok(deserialized_transaction)
         }
     }
 }
 
+fn unsafer(){
 
-
-fn test_from_raw(){
     ///// -------------- changing the vaule in runtime using its pointer -------------- /////
     let v = vec![1, 2, 3];
+    // let raw_parts = v.into_raw_parts(); //-- getting the pointer, len and capacity of the vector only in unstable rust! 
     let mut v = std::mem::ManuallyDrop::new(v); // a wrapper to inhibit compiler from automatically calling T’s destructor, this wrapper is 0-cost
     let pointer = v.as_mut_ptr();
     let len = v.len();
@@ -91,11 +86,11 @@ fn test_from_raw(){
         for i in 0..len as isize{
             std::ptr::write(pointer.offset(i), 4 + i);
         }
-
+    
         let rebuilt = Vec::from_raw_parts(pointer, len, cap);
         assert_eq!(rebuilt, [4, 5, 6]);
     }
-
+    
     let mut a = "another_wo".to_string();
     // changing the value of 'a' by changing the offset of its u8 raw pointer
     let new_a = unsafe{
@@ -117,11 +112,69 @@ fn test_from_raw(){
         // String::from_raw_parts(changed_offset, len, cap)
         
     };
-    println!("new `a` is {}", new_a);
-    ///// ------------------------------------------------------------------------ /////
-}
 
-fn test_pointers(){
+    println!("new `a` is {}", new_a);
+    
+    ///// -------------- union, enum and struct -------------- /////
+
+    #[repr(u32)]
+    enum Tag{I, F}
+    #[repr(C)]
+    union U{
+        i: i32,
+        f: f32,
+    }
+
+    #[repr(C)]
+    struct Value{
+        tag: Tag,
+        u: U,
+    }
+
+    fn is_zero(v: Value) -> bool{
+        unsafe{
+            match v{
+                Value{tag: Tag::I, u: U{i: 0}} => true,
+                Value{tag: Tag::F, u: U{f: num}} if num == 0.0 => true,
+                _ => false,
+            }
+        }
+    }
+
+    ///// -------------- casting using raw pointer and transmute -------------- /////
+
+    fn foo() -> i32{
+        0
+    }
+    let pointer_to_func = foo as *const ();
+    let func = unsafe{ // transmute the raw pointer of the function back into the function with i32 signature
+        std::mem::transmute::<*const (), fn() -> i32>(pointer_to_func)
+    };
+    assert_eq!(func(), 0);
+
+
+    let num_ = 10;
+    let num_ptr: *const u8 = &num_; // ptr of num_
+    let num = 10 as *const i32; // turn num into a constant raw pointer 
+    let deref_raw_pointer_num = unsafe{&*num}; // dereferencing the raw pointer
+    
+
+    let mut name_ptr: *const u8;
+    name_ptr = std::ptr::null(); // fill it with null pointer
+    let name: &str = "wildonion";
+    name_ptr = name.as_ptr(); // fill it with name bytes
+
+
+
+    let c_const_pointer = 32 as *const i16;
+    let c_mut_pointer = 64 as *mut i64;
+    let thing1: u8 = 89.0 as u8;
+    assert_eq!('B' as u32, 66);
+    assert_eq!(thing1 as char, 'Y');
+    let thing2: f32 = thing1 as f32 + 10.5;
+    assert_eq!(true as u8 + thing2 as u8, 100);
+
+
     ///// ------------------------------------------------------------------------------- /////
     ///// &T and &mut T will be coerced into raw pointers *const T or *mut T respectively
     ///// ------------------------------------------------------------------------------- /////
@@ -163,7 +216,7 @@ fn test_pointers(){
     println!("value of `a` before changing >>>> {}", a);
     println!("the address of `a` >>>> {:p}", &a);
     let mut c = &mut a as *mut String; // mutable raw pointer to `a` - coercing &mut String into *mut String
-    println!("`c` value >>>> {}", unsafe{&*c}); // `c` has the same value of `a` - we have to take a reference to dereferenced raw pointer cause every &mut will be coerced to *mut and to get the actual data we must take a reference to dereferenced raw pointer
+    println!("`c` value >>>> {}", unsafe{&*c}); // `c` has the same value of `a` - we have to take a reference to dereferenced raw pointer cause *c is of type String which is not bounded to trait Copy thus we have to take a reference to it to move out of unsafe block
     println!("`c` contains the address of `a` >>>> {:p}", c);
     println!("`c` address >>>> {:p}", &c);
     a = String::from("another_wildonion"); // changing `a` will change the `c` value also
@@ -176,6 +229,17 @@ fn test_pointers(){
     println!("value of `a` after changing `c` >>>> {}", a);
     println!("`c` contains the address of `a` after changing its value >>>> {:p}", c);
     println!("`c` address after changing its value >>>> {:p}", &c);
+
+
+
+    
+    let mut a = 32;
+    let mut b = &mut a as *mut i32;
+    println!("`b` value >>>> {}", unsafe{*b});
+    println!("`a` address [{:p}] == `b` address [{:p}]", &a, b);
+    a = 3535; //-- `b` will be changed
+    unsafe{*b = 2435;} //-- `a` will be changed
+
 
 
     
@@ -223,5 +287,115 @@ fn test_pointers(){
     // println!("`b` address after changing `b` value is ===== {:p}", &b);
     // a = 235;
     // println!("`b` value after changing `a` is ===== {}", unsafe{&*b});
+
+
+
+    ///// ------------------------------------------------------------------------ /////
+    
+    #[derive(Debug)]
+    struct Test{
+        a: String,
+        b: *const String,
+    }
+
+    impl Test{
+        fn new(txt: &str) -> Self{
+            Test{
+                a: String::from(txt),
+                b: std::ptr::null(), // b is a const raw pointer to a String
+            }
+        }
+
+        fn init(&mut self){
+            // self.b = &self.a as *const String;
+            let self_ref: *const String = &self.a;
+            self.b = self_ref;
+        }
+
+        fn a(&self) -> &str{
+            &self.a
+        }
+
+        fn b(&self) -> &String{
+            assert!(!self.b.is_null(), "call Test::init first");
+            unsafe{&(*self.b)} // expected `&String` in return signature and because of that we dereferenced the `b` with & - `b` has the address of `a`, in order to get its value we have to dereference it which has the value same as `a`
+        }
+    }
+    
+    
+    let mut test1 = Test::new("test1");
+    println!("\n======== BEFORE INIT ========");
+    println!("test1 `b` null pointer before init {:p}", test1.b);
+    test1.init();
+    let mut test2 = Test::new("test2");
+    println!("test2 `b` null pointer before init {:p}", test2.b);
+    test2.init();
+    println!("\n======== BEFORE SWAP ========");
+    println!("test1 `a` address {:p}", &test1.a);
+    println!("test1 `b` address same as `a` address {:p}", test1.b); // same as `a` address
+    println!("test1 `b` address itself {:p}", &test1.b); // different from `a` address cause this is the b address itself
+    
+    
+    println!("test2 `a` address {:p}", &test2.a);
+    println!("test2 `b` address same as `a` address {:p}", test2.b); // same as `a` address
+    println!("test1 `b` address itself {:p}", &test2.b); // different from `a` address cause this is the b address itself
+    
+    
+    println!("`a` and `b` for test1 - {}, {}", test1.a(), test1.b());
+    println!("`a` and `b` for test2 - {}, {}", test2.a(), test2.b());
+    
+    
+    
+    println!("\n======== CHANGING THE a VALUE OF TEST1 ========");
+    test1.a = "another_test1".to_string(); //  `b` will change cause is a pointer to the location of `a`
+    println!("`a` and `b` for test1 - {}, {}", test1.a(), test1.b());
+    println!("`a` and `b` for test2 - {}, {}", test2.a(), test2.b());
+    
+    
+    
+    std::mem::swap(&mut test1, &mut test2); // move test2 into test1
+    println!("\n======== AFTER SWAP ========");
+    println!("test1 `a` address remain the same {:p}", &test1.a);
+    println!("test1 `b` address same as test2 `b` before swapping  {:p}", test1.b); // same as `a` address
+    println!("test2 `a` address remain the same {:p}", &test2.a);
+    println!("test2 `b` address same as test1 `b` before swapping {:p}", test2.b); // same as `a` address
+    println!("`a` and `b` for test1 - {}, {}", test1.a(), test1.b());
+    println!("`a` and `b` for test2 - {}, {}", test2.a(), test2.b());
+    
+
+
+    
+    // NOTE - both `b` variables' value will remain the same, only their address are changed
+    // test1.a -> 0x7ffd85579fc0 = "test1"    // test1.a -> 0x7ffd85579fc0 = "test2" 
+    // test1.b -> 0x7ffd85579fc0 = "test1"    // test1.b -> 0x7ffd8557a058 = "test1"
+        
+        
+    // test2.a -> 0x7ffd8557a058 = "test2"    // test2.a -> 0x7ffd8557a058 = "test1"
+    // test2.b -> 0x7ffd8557a058 = "test2"    // test2.b -> 0x7ffd85579fc0 = "test2"
+    
+    
+    
+
+    ///// ------------------------------------------------------------------------ /////
+    for i in 0..3{
+        // the address of `a` will remain the same in each iteration
+        // cause the allocated stack for this app inside 
+        // the loop uses the same address or same location for a new variable 
+        // that is built in each iteration.
+        // //////////////////////////////////////////////////////////////////////////
+        // if you want to move the location of a variable to another location  
+        // inside the stack put the value of that variable inside another variable
+        // by doing this the new defined variable has a new location and new address
+        // inside the memory but with a same value as the old variable.
+        let mut a: &i32 = &34;
+        println!("address of a in memory is same as the old => {:p}", &a);
+        a = &242354;
+    }
+    ///// ------------------------------------------------------------------------ /////
+
+
+
+
+
 
 }
