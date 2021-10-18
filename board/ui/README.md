@@ -1,1 +1,1 @@
-> uniXerr GTK and Flutter UI
+> uniXerr Flutter UI
