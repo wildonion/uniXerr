@@ -206,7 +206,7 @@ async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession
             let mut secret_bytes = unsafe{secret_to_hash.as_bytes_mut().to_owned()}; //-- in order to sort the utf-8 bytes of the secret phrase we have to convert it into a mutable bytes then cast it from &[u8] to Vec<u8> using to_owned() method which convert &self into self 
             secret_bytes.sort(); //-- sorting the utf-8 of our secret which is "user_id&friend_id" for hashing
             let sorted_secret_u8_bytes = secret_bytes.as_slice(); //-- converting Vec<u8> into &[u8] using as_slice() method
-            let salt = env::var("SECRET_KEY").expect("⚠️ please set secret key in .env");
+            let salt = env::var("SECRET_KEY").expect("⚠️ please set secret key in .env"); //-- we can also convert the salt into bytes like so : let salt = b"coiniXerrMekly2897&*^&#";
             let argon2_config = Config{
                 variant: Variant::Argon2i,
                 version: Version::Version13,
