@@ -26,6 +26,7 @@ ____________________________________________
 ____________________________________________
 
 
+http://colah.github.io/posts/2015-09-Visual-Information/
 https://towardsdatascience.com/understanding-the-bias-variance-tradeoff-165e6942b229 => a good model has low bias and low variance which doesn't make underfitting or overfitting
 https://medium.com/all-things-ai/in-depth-parameter-tuning-for-svc-758215394769
 https://jakevdp.github.io/PythonDataScienceHandbook/05.07-support-vector-machines.html
