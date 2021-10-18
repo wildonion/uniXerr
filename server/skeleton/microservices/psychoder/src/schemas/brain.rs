@@ -27,7 +27,7 @@ pub trait Synapse{
 pub struct Neuron{
     pub id: Uuid,
     pub name: String,
-    pub time: i64,
+    pub timestamp: i64,
     pub data: Vec<f32>,
 }
 
@@ -38,7 +38,7 @@ impl Synapse for Neuron{
         Neuron{
             id: Uuid::new_v4(),
             name: "Genesis-AJG7$%-12".to_string(),
-            time: chrono::Local::now().naive_local().timestamp(),
+            timestamp: chrono::Local::now().naive_local().timestamp(),
             data: new_neuron_data
         }
     }
@@ -49,7 +49,7 @@ impl Default for Neuron{
         Neuron{
             id: Uuid::new_v4(),
             name: "Genesis-AJG7$%".to_string(),
-            time: chrono::Local::now().naive_local().timestamp(),
+            timestamp: chrono::Local::now().naive_local().timestamp(),
             data: vec![0.0, 0.0]
         }
     }

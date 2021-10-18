@@ -34,10 +34,10 @@ pub struct Linear{
 
 impl Linear{
 
-    pub async fn forward(&self) -> f64{ //-- without &mut self would be an associated function not a method
+    pub async fn forward(&self, x_train: Vec<Vec<f64>>) -> f64{ //-- without &mut self would be an associated function not a method
         let mut linear_neural_circuit = self.neural_circuit.iter();
         linear_neural_circuit.next().unwrap().communicate(linear_neural_circuit.next()); //-- communicate method through synapse trait
-        let mat: Vec<Vec<i32>> = vec![  vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]  ]; 
+        let mat = x_train;
         let NTHREADS = 4; // number of threads inside the pool
         let NJOBS: usize = mat.len(); // number of tasks to share each one between threads inside the pool
         let pool = ThreadPool::new(NTHREADS);

@@ -21,7 +21,10 @@ async fn main() -> std::io::Result<()>{
     
 
 
-
+    let x_train = vec![ vec![0.24, 0.345, 0.23, 0.13], 
+                        vec![0.24, 0.345, 0.23, 0.456], 
+                        vec![0.24, 0.345, 0.25, 0.212]
+                      ] //-- it's a (3 X 4) matrix of input data
     let pool = ThreadPool::new(4);
     pool.execute(move || {
         let model = Model{ // TODO - take model parameters from cli args
@@ -34,7 +37,7 @@ async fn main() -> std::io::Result<()>{
                                         batch_size: 64,
                                         device: "cpu".to_string(),
                                 };
-        model.train();
+        model.train(x_train);
     });
 
 
