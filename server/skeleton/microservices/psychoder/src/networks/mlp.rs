@@ -23,7 +23,7 @@ use crate::schemas::brain::Synapse; //-- based on the orphan rule this should be
 
 impl Info for Neuron{
     fn what(&self) -> String{
-        format!("Neuron [{}] fired at time [{}] with id [{}]", self.time, self.name.to_string(), self.id.to_string())
+        format!("Neuron [{}] fired at time [{}] with id [{}]", self.timestamp, self.name.to_string(), self.id.to_string())
     }
 }
 
@@ -34,7 +34,7 @@ pub struct Linear{
 
 impl Linear{
 
-    pub async fn forward(&self, x_train: Vec<Vec<f64>>) -> f64{ //-- without &mut self would be an associated function not a method
+    pub async fn forward(&self, x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would be an associated function not a method
         let mut linear_neural_circuit = self.neural_circuit.iter();
         linear_neural_circuit.next().unwrap().communicate(linear_neural_circuit.next()); //-- communicate method through synapse trait
         let mat = x_train;
@@ -44,7 +44,7 @@ impl Linear{
         let (sender, receiver) = channel();
         let arc_mat = Arc::new(mat);
         let arc_recv = Arc::new(&receiver); //-- take a reference to the receiver to borrow it for putting it inside an Arc
-        let mut mult_of_all_sum_cols = 1;
+        let mut mult_of_all_sum_cols = 1.0;
         let mut children = Vec::new();
         let future_task = async {
             for i in 0..NJOBS{
@@ -59,7 +59,7 @@ impl Linear{
             }
             // NOTE - recv() will block the current thread if there are no messages available
             // NOTE - receiver can't be cloned cause it's single consumer
-            let ids: Vec<i32> = receiver.iter().take(NJOBS).collect();
+            let ids: Vec<f64> = receiver.iter().take(NJOBS).collect();
             println!("the order that all messages were sent => {:?}", ids);
             ids.into_iter().map(|s_cols| mult_of_all_sum_cols *= s_cols).collect::<Vec<_>>();
             mult_of_all_sum_cols

@@ -129,7 +129,7 @@ pub struct DeliveredCoins{
     pub from_address: String,
     pub to_address: String,
     pub transfer_timestamp: i64,
-    pub is_mined: bool,
+    pub signed: Option<i64>,
     pub user_id: i32,
     pub friend_id: i32,
     pub user_coins_after_loan: i32,
@@ -328,7 +328,7 @@ impl QueryableUser{
                 amount: coins,
                 from_address: current_user.wallet_address,
                 to_address: current_user_friend.wallet_address,
-                issued: Some(chrono::Local::now().naive_local().timestamp()),
+                issued: chrono::Local::now().naive_local().timestamp(),
                 signed: None,
                 hash: "hash of the current transaction".to_string(), // TODO -
             };
@@ -340,7 +340,7 @@ impl QueryableUser{
             }; 
             let transfered_transaction_resp = match liber::send_transaction!(new_transaction_bytes){ //-- sending a binary stream of transaction data (serialized into bytes) to the coiniXerr network for mining and consensus process
                 Ok(transfered_transaction) => {
-                    if transfered_transaction.is_mined{ //-- if the transaction was added to the blockchain means it's mined and we can update both user coins
+                    if let Some(signed_transaction) = transfered_transaction.signed{ //-- if the transaction was added to the blockchain means it's mined and we can update both user coins
                         let updated_user_coins = UpdateCoins{
                             coins: current_user.coins - coins,
                             updated_at: Some(chrono::Local::now().naive_local()),
@@ -356,8 +356,8 @@ impl QueryableUser{
                             amount: transfered_transaction.amount,
                             from_address: transfered_transaction.from_address,
                             to_address: transfered_transaction.to_address,
-                            transfer_timestamp: transfered_transaction.timestamp,
-                            is_mined: transfered_transaction.is_mined,
+                            transfer_timestamp: transfered_transaction.issued,
+                            signed: Some(signed_transaction),
                             user_id: current_user_with_updated_coins.id,
                             friend_id: current_user_friend_with_updated_coins.id,
                             user_coins_after_loan: current_user_with_updated_coins.coins,

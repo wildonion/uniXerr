@@ -7,7 +7,7 @@ mod peer;
 mod consensus;
 mod utils;
 mod apis;
-use crate::schemas::block::{Transaction, Block, Chain};
+use crate::schemas::{Transaction, Block, Chain};
 use listenfd::ListenFd;
 use std::env;
 use dotenv::dotenv;

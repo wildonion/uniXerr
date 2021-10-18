@@ -7,7 +7,7 @@
 
 use crate::constants;
 use crate::utils::response::ResponseBody;
-use crate::schemas::block::Transaction;
+use crate::schemas::Transaction;
 use actix_web::{web, get, post, Error, HttpRequest, HttpResponse};
 use futures::StreamExt;
 use liby;
@@ -35,7 +35,6 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload) -> Result
     // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
     // ...
     des_trans_union.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
-    des_trans_union.is_mined = true; // TODO - this should be changed through the mining process
     Ok(
         HttpResponse::Ok().json(
             ResponseBody::new(

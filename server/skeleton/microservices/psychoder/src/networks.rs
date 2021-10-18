@@ -30,7 +30,7 @@ pub mod transformers;
 pub mod lstm;
 pub mod gan;
 pub mod vae;
-use std::ops::Deref;
+use std::sync::Arc;
 use crate::networks::mlp::Linear;
 use crate::networks::cnn::Conv2d;
 
@@ -53,24 +53,24 @@ pub struct Model{
 impl Model{
 
     pub fn train(self, x_train: Vec<Vec<f64>>){ //-- `&self` has an anonymous lifetime `'_` because of unknown lifetime of enum networks field which contains multiple different type of networks 
-        for network in self.networks{
-            match network{
-                NetworkType::Linear(linear_net) => {
-                    tokio::spawn(async move{
+        let arc_x_train = Arc::new(x_train);
+        tokio::spawn(async move{
+            for network in self.networks{
+                let cloned_x_train = Arc::clone(&arc_x_train);
+                match network{
+                    NetworkType::Linear(linear_net) => {
                         //-- TODO - training Linear layer
                         // ...
-                        let loss = linear_net.forward(x_train).await;
-                    });
-                },
-                NetworkType::Conv2d(conv2d_net) => {
-                    tokio::spawn(async move{
+                        let loss = linear_net.forward(cloned_x_train).await;
+                    },
+                    NetworkType::Conv2d(conv2d_net) => {
                         //-- TODO - training Conv2d layer
                         // ...
-                        let loss = conv2d_net.forward(x_train).await;
-                    });
-                }   
+                        let loss = conv2d_net.forward(cloned_x_train).await;
+                    }   
+                }
             }
-        }
+        });
     }
     
     pub fn predict(self){}
