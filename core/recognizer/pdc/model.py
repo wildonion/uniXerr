@@ -16,6 +16,7 @@ class MLP(nn.Module):
 
 								 ⚠️ image batch size : (batch, C, H, W) ---flattened---> (batch, C*H*W) ⚠️
 						    ⚠️ you can usually prevent over-fitting if you keep your number of neurons below ⚠️
+								     ⚠️ pytorch will transposed the weights in forwarding algorithm ⚠️
 		"""
 		super(MLP, self).__init__()
 		self.learning_rate = learning_rate
@@ -49,11 +50,11 @@ class MLP(nn.Module):
 
 		"""
 
-		self.y1 = self.fc1(batch) # y1 = batch * w1.T
-		self.y2 = F.dropout(self.relu(self.y1), p=0.5, training=self.training) # y2 = relu(y1) - active only on training
-		self.y3 = self.fc2(self.y2) # y3 = y2 * w2.T
-		self.y4 = F.dropout(self.relu(self.y3), p=0.5, training=self.training) # y4 = relu(y3) - active only on training
-		self.y5 = self.fc3(self.y4) # y5 = y4 * w3.T
+		self.y1 = self.fc1(batch) # y1 = batch * w1.T - size : (batch X 512)
+		self.y2 = F.dropout(self.relu(self.y1), p=0.5, training=self.training) # y2 = relu(y1) - active only on training | size : (batch X 512)
+		self.y3 = self.fc2(self.y2) # y3 = y2 * w2.T - size : (batch X 512) * (512 X 256) = (batch X 256)
+		self.y4 = F.dropout(self.relu(self.y3), p=0.5, training=self.training) # y4 = relu(y3) - active only on training | size : (batch X 256)
+		self.y5 = self.fc3(self.y4) # y5 = y4 * w3.T - size : (batch X 256) * (256 X output_neurons) = (batch X output_neurons)
 		return self.y5
 
 
