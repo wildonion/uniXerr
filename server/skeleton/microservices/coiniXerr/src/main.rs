@@ -7,11 +7,11 @@ mod peer;
 mod consensus;
 mod utils;
 mod apis;
-use crate::schemas::block::Transaction;
+use crate::schemas::block::{Transaction, Block, Chain};
 use listenfd::ListenFd;
 use std::env;
-use std::time::SystemTime;
 use dotenv::dotenv;
+use std::time::SystemTime;
 use actix_web::{App, HttpServer, middleware};
 use actix_session::CookieSession;
 use futures::{executor, join};
@@ -20,7 +20,7 @@ use rdkafka::config::ClientConfig;
 use rdkafka::message::OwnedHeaders;
 use rdkafka::producer::{FutureProducer, FutureRecord};
 use apis::wallet::routes as coin_routes;
-
+use uuid::Uuid;
 
 
 
@@ -34,6 +34,18 @@ async fn main() -> std::io::Result<()>{
 
 
     
+    
+    /////////////// ===================================================================== ///////////////
+    /////////////// NOTE - INITIALIZING THE coiniXerr NETWORK BY CREATING A GENESIS BLOCK
+    /////////////// ===================================================================== ///////////////
+    // let blockchain = Chain::new(uuid::new_v4(), "main".to_string(), vec![Block::default()]) //-- creating another branch or fork
+    let blockchain = Chain::default();
+    // blockchain.add(mined_block);
+
+
+
+
+
     
     
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");

@@ -31,9 +31,10 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload) -> Result
     }
     println!("Transaction Body {:?}!", bytes);
     let des_trans_union = Transaction::new(&bytes).unwrap(); //-- deserializing a new transaction bytes into the Transaction struct object using our TransactionMem union
-    let mut des_trans_serde = serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using our serde
+    let mut des_trans_serde = serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using serde from_slice method
     // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
     // ...
+    des_trans_union.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
     des_trans_union.is_mined = true; // TODO - this should be changed through the mining process
     Ok(
         HttpResponse::Ok().json(

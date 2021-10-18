@@ -117,8 +117,9 @@ pub struct Transaction{
     pub amount: i32,
     pub from_address: String,
     pub to_address: String,
-    pub timestamp: i64,
-    pub is_mined: bool,
+    pub issued: i64,
+    pub signed: Option<i64>,
+    pub hash: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -163,7 +164,7 @@ impl QueryableUser{
     pub async fn signup(user: InsertableUser) -> Result<String, String>{ // it returns error as String
         let conn = pg::connection().await.unwrap();
         if Self::find_user_by_username(&user.username).await.is_err(){ // no user found with this username
-            let wallet_address = "hashMe!".to_string();
+            let wallet_address = "a wallet address!".to_string(); // TODO -
             let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
             let user = InsertableUser{
                 wallet_address,
@@ -271,7 +272,7 @@ impl QueryableUser{
 
     pub async fn add(user: InsertableUser) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
-        let wallet_address = "hashMe!".to_string();
+        let wallet_address = "a wallet address!".to_string(); // TODO - 
         let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
         let user = InsertableUser{
             wallet_address,
@@ -327,8 +328,9 @@ impl QueryableUser{
                 amount: coins,
                 from_address: current_user.wallet_address,
                 to_address: current_user_friend.wallet_address,
-                timestamp: chrono::Local::now().naive_local().timestamp(),
-                is_mined: false,
+                issued: Some(chrono::Local::now().naive_local().timestamp()),
+                signed: None,
+                hash: "hash of the current transaction".to_string(), // TODO -
             };
             let new_transaction_bytes: &[u8] = unsafe { 
                 //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes

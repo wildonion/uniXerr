@@ -16,8 +16,9 @@ macro_rules! send_transaction {
                 pub amount: i32,
                 pub from_address: String,
                 pub to_address: String,
-                pub timestamp: i64,
-                pub is_mined: bool,
+                pub issued: i64,
+                pub signed: Option<i64>,
+                pub hash: String,
             }
 
 
