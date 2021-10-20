@@ -7,7 +7,7 @@
 
 use crate::constants;
 use crate::utils::response::ResponseBody;
-use crate::schemas::Transaction;
+use crate::schemas::{Transaction, Block};
 use actix_web::{web, get, post, Error, HttpRequest, HttpResponse};
 use futures::StreamExt;
 use liby;
@@ -30,7 +30,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload) -> Result
         bytes.extend_from_slice(&chunk?); //-- actix automatically decodes chunked encoding, the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed
     }
     println!("Transaction Body {:?}!", bytes);
-    let des_trans_union = Transaction::new(&bytes).unwrap(); //-- deserializing a new transaction bytes into the Transaction struct object using our TransactionMem union
+    let des_trans_union = Transaction::new(&bytes).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using our TransactionMem union
     let mut des_trans_serde = serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using serde from_slice method
     // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
     // ...

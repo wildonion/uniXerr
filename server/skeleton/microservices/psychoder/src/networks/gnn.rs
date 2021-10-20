@@ -70,44 +70,7 @@ fn test_graph(){
 
 
             
-            ////// ========================== GNN AND COLDRICE CODES ==========================
-
-
-            mod PipeLine{
-                struct Dataset{} //-- preprocessing steps for datasets in here like splitting dataset
-                struct DataLoader{} //-- building dataloader object and filling its pipeline with preprcessed dataset
-            
-                impl Dataset{
-                    fn new(){
-                        //...
-                    }
-                }
-
-                impl DataLoader{
-                    fn new(){
-                        //...
-                    }
-                }
-            }
-            
-            mod Model{
-                trait Train{ fn train();}
-                trait Predict{ fn predict();}
-                struct NN{}
-                struct CNN{} //-- feeding dataloader object into the model
-                struct Model{}
-                impl Train for Model{
-                     fn train(){
-                        //...
-                    }
-                }
-                
-                impl Predict for Model{
-                     fn predict(){
-                        //...
-                    }
-                }
-            }
+            ////// ========================== GNN CODES ==========================
 
 
             mod GNN{
@@ -125,5 +88,4 @@ fn test_graph(){
                 }
             }
 
-            ////// ========================== END OF GNN AND COLDRICE CODES ==========================
 }

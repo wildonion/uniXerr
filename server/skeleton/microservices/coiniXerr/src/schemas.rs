@@ -1,6 +1,8 @@
 
 
 
+use std::{cell::RefCell, rc::{Rc, Weak}};
+
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
@@ -32,7 +34,7 @@ impl Chain{
         }
     }
 
-    pub fn add(&mut self, block: Block) -> Self{
+    pub fn add(&mut self, block: Block) -> Self{ //-- the first param is a mutable pointer to every field of the struct
         self.blocks.push(block);
         Chain{
             branch_id: self.branch_id,
@@ -55,6 +57,23 @@ pub struct Block{
     pub is_mined: bool,
 }
 
+impl Block{
+    pub fn push_transaction(&mut self, transaction: Transaction) -> Self{ //-- the first param is a mutable pointer to every field of the struct
+        self.transactions.push(transaction);
+        Block{ //-- don't return &self when constructing the struct cause we'll face lifetime issue for struct fields - &mut T is not bounded to Copy trait due to ownership and borrowing rules which we can't have multiple mutable pointer at the same time
+            id: self.id,
+            is_genesis: self.is_genesis,
+            prev_hash: self.prev_hash.clone(), //-- self.prev_hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
+            hash: self.hash.clone(), //-- self.hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
+            merkle_root: self.merkle_root.clone(), //-- self.merkle_root is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
+            nonce: self.nonce,
+            timestamp: self.timestamp,
+            transactions: self.transactions.clone(), //-- self.transactions is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
+            is_mined: self.is_mined,
+        }
+    }
+}
+
 impl Default for Block{
     fn default() -> Self{
         Block{
@@ -71,11 +90,11 @@ impl Default for Block{
     }
 }
 
-
-
-
-
-
+pub struct Node{
+    pub data: Transaction,
+    pub parent: RefCell<Weak<Node>>, // child -> parent - weak pointer to Node cause deleting the child shouldn't delete the parent node  
+    pub children: RefCell<Vec<Rc<Node>>>, // parent -> child - strong pointer to all Nodes cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
+}
 
 
 

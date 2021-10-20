@@ -19,8 +19,7 @@
 
 
 
-next-tech: substrate blockchain framework with its smart contract language ink! => https://medium.com/block-journal/introducing-substrate-smart-contracts-with-ink-d486289e2b59
-next-coding: design coiniXerr merkle tree structure using smart pointers lik Arc, Rc, Mutex and RwLock  
-next-coding: hash of each transaction, block and merkle root and wallet address algorithm using AI or argon2 or keccak-256 => https://github.com/AleoHQ/wagyu#22b-build-from-cratesio
+next-tech  : substrate blockchain framework with its smart contract language ink! => https://medium.com/block-journal/introducing-substrate-smart-contracts-with-ink-d486289e2b59
+next-coding: hash algorithm of a transaction, block and merkle root and wallet address using AI or argon2 or keccak-256 => https://github.com/AleoHQ/wagyu#22b-build-from-cratesio
 next-coding: credit score coin generation based on position clustering for master thesis
 next-coding: improve auth microservice to detect anomalies login based on SSL models like VAE, GAN and transformers using psychoder

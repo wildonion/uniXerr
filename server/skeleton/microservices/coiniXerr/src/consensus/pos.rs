@@ -2,7 +2,7 @@
 
 
 
-// TODO - build a low cost in time and cheap consensus algorithm based on coiniXerr peers features 
+// TODO - build a low cost in time and cheap consensus algorithm based on coiniXerr peers features like a proof of stake 
 // TODO - to issue a smart contract the consensus algorithm or mining process must be done first
 // TODO - after mining process has completed a smart contract will be issued to sign each transaction
 // TODO - finally each smart contract will be added to the coiniXerr blockchain (add mined transaction to the Block structure then add the block to the Chain tree)
