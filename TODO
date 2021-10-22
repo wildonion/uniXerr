@@ -12,7 +12,6 @@
 > update all microservices packages and their edition to 2021
 > setup multiple cassandra datacenters and nodes for production using NetworkTopologyStrategy: https://docs.datastax.com/en/cql-oss/3.3/cql/cql_reference/cqlCreateKeyspace.html
 > load balancing devops for rust microservices inside clusters using traefik and k8s based on RoundRobin policy
-> collecting big data for uniXerr gnn networks' AI using cassandra, gRPC, kafka, pytorch geometric and dgl.ai with psychoder
 > upgrade deploy.sh script to the latest setup of the whole app
 
 
@@ -21,5 +20,5 @@
 
 next-tech  : substrate blockchain framework with its smart contract language ink! => https://medium.com/block-journal/introducing-substrate-smart-contracts-with-ink-d486289e2b59
 next-coding: hash algorithm of a transaction, block and merkle root and wallet address using AI or argon2 or keccak-256 => https://github.com/AleoHQ/wagyu#22b-build-from-cratesio
-next-coding: credit score coin generation based on position clustering for master thesis
+next-coding: consensus algorithm and credit score coin generation based on position clustering for master thesis
 next-coding: improve auth microservice to detect anomalies login based on SSL models like VAE, GAN and transformers using psychoder

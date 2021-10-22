@@ -2,9 +2,10 @@
 
 
 use std::{cell::RefCell, rc::{Rc, Weak}};
-
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
+
+
 
 
 
@@ -90,17 +91,28 @@ impl Default for Block{
     }
 }
 
+#[derive(Debug)]
 pub struct Node{
+    pub id: Uuid,
     pub data: Transaction,
-    pub parent: RefCell<Weak<Node>>, // child -> parent - weak pointer to Node cause deleting the child shouldn't delete the parent node  
-    pub children: RefCell<Vec<Rc<Node>>>, // parent -> child - strong pointer to all Nodes cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
+    pub parent: Weak<Node>, //-- child -> parent, counting immutable none owning reference to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
+    pub children: Vec<Rc<Node>>, //-- parent -> child, counting immutable reference to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
 }
 
+impl Node{
 
+    pub fn add_child(&mut self, node: Node){
+        self.children.push(Rc::new(node));
+    }
 
-
-
-
+    pub fn children(&mut self, node: Node) -> Result<Vec<Rc<Self>>, String>{
+        if node.children.len() != 0{
+            Ok(node.children)
+        } else{
+            Err(format!("node -{}- has no children", node.id).to_string())
+        }
+    }
+}
 
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
