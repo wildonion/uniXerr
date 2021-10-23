@@ -2,33 +2,45 @@
 
 
 
+// NOTE - task scheduler using multiple threads or workers communication based on mpsc job queue channel protocol
+// NOTE - we'll spawn four threads for every process like socket connection to schedule all its incoming tasks 
+// NOTE - tasks or jobs of a process can be a massive computational data or a bytes of a file from evey connection 
+// NOTE - tasks or jobs of a process can be solved simultaneously using opened threads
+// NOTE - if a thread was busy another thread will be spawned to handle new task or job coming from the process
+// NOTE - to communicate between threads to avoid dead lock, we can either use job q channel or actors
+
+
+
 
 
 
 use std::thread;
-use std::sync::mpsc; //-- communication between threads is done using mpsc channel and end of the channel can only be owned by one thread at the time, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
+use std::sync::mpsc; //-- communication between threads is done using mpsc channel and end of the channel can only be owned by one thread at the time to avoid dead lock, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
 use std::sync::Arc;
 use std::sync::Mutex;
 use uuid::Uuid;
 
 
 
+
+
+
+type Job = Box<dyn FnOnce() + Send + 'static>; //-- a job is of type closure which must be Send and static across all threads inside a Box on the heap
+
+struct Worker{
+    id: Uuid,
+    thread: Option<thread::JoinHandle<()>>,
+}
+
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: mpsc::Sender<Message>,
 }
 
-
-
-
-type Job = Box<dyn FnOnce() + Send + 'static>; //-- a job is of type closure which must be Send and static across all threads inside a Box on the heap
 enum Message {
     NewJob(Job),
     Terminate,
 }
-
-
-
 
 impl ThreadPool{
     
@@ -65,19 +77,14 @@ impl Drop for ThreadPool{
     }
 }
 
-struct Worker{
-    id: Uuid,
-    thread: Option<thread::JoinHandle<()>>,
-}
-
 impl Worker{
     fn new(id: Uuid, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let message = receiver.lock().unwrap().recv().unwrap(); //-- since other thread shouldn't mutate this message while thsi thread is mutating we must do a locking on the message received from the sender to acquire the mutex by blocking the current thread  
+            let message = receiver.lock().unwrap().recv().unwrap(); //-- since other thread shouldn't mutate this message while thsi thread is mutating we must do a locking on the message received from the sender to acquire the mutex by blocking the current thread to avoid being in dead lock situation  
             match message {
                 Message::NewJob(job) => {
                     println!("Worker {} got a job; executing.", id);
-                    job();
+                    job(); //-- this might be a task or job of calling a heavy computational function of a process
                 }
                 Message::Terminate => {
                     println!("Worker {} was told to terminate.", id);

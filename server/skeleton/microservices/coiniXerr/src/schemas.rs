@@ -1,7 +1,7 @@
 
 
 
-use std::{cell::RefCell, rc::{Rc, Weak}};
+use std::rc::{Rc, Weak};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
@@ -27,7 +27,7 @@ impl Chain{
         }
     }
 
-    pub fn new(branch_id: Uuid, branch_name: String, blocks: Vec<Block>) -> Self{
+    pub fn new(branch_id: Uuid, branch_name: String, blocks: Vec<Block>) -> Self{ //-- constructor of Chain struct
         Chain{
             branch_id,
             branch_name,
@@ -131,7 +131,7 @@ pub struct Transaction{
     pub to_address: String,
     pub issued: i64,
     pub signed: Option<i64>,
-    pub hash: String, // TODO -
+    pub hash: String,
 }
 
 impl Default for Transaction{

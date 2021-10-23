@@ -39,7 +39,7 @@ impl Linear{
         linear_neural_circuit.next().unwrap().communicate(linear_neural_circuit.next()); //-- communicate method through synapse trait
         let mat = x_train;
         let NTHREADS = 4; // number of threads inside the pool
-        let NJOBS: usize = mat.len(); // number of tasks to share each one between threads inside the pool
+        let NJOBS: usize = mat.len(); // number of tasks of the process (x_train matrix) to share each one between threads inside the pool
         let pool = ThreadPool::new(NTHREADS);
         let (sender, receiver) = channel();
         let arc_mat = Arc::new(mat);
@@ -47,7 +47,7 @@ impl Linear{
         let mut mult_of_all_sum_cols = 1.0;
         let mut children = Vec::new();
         let future_task = async {
-            for i in 0..NJOBS{
+            for i in 0..NJOBS{ //-- iterating through all the jobs of the process
                 let cloned_receiver = Arc::clone(&arc_recv); // can't clone receiver, in order to move it between threads we have to clone it using Arc
                 let cloned_sender = sender.clone(); // NOTE - sender can be cloned because it's multiple producer
                 let cloned_mat = Arc::clone(&arc_mat);

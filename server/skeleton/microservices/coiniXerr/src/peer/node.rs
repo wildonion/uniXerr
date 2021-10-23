@@ -16,7 +16,7 @@
 
 // NOTE - in order to move all data through the socket or http protocol they must be encoded from struct and converted to &[u8] serde codec serialize 
 // NOTE - in order to get the data from the socket or http protocol they must be decoded from &[u8] to struct using serde codec deserialize
-// TODO - a codec like web::Payload and ws::Message for streaming of binary data like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes
+// TODO - a codec like web::Payload and ws::Message for streaming of binary data like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes based on big or little endian
 // TODO - implement tokio channels like mpsc, oneshot, broadcast and watch
 // TODO - jobq implementation in utils folder
 // https://github.com/actix/examples/blob/master/websockets/tcp-chat/src/codec.rs
