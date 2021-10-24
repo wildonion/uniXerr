@@ -99,7 +99,7 @@ async fn main() -> std::io::Result<()>{
             .create()
             .expect("⚠️ producer creation error");
     let producer = producer.clone(); //-- we're clonning the producer cause we want to move it between tokio::spawn() threads thus according to rust ownership we have to take a reference to the producer using clone() cause trait Copy is not imeplemented for that
-    tokio::spawn(async move{ //-- tokio is based on event loop - tokio::spawn() is an asynchronous multithreaded based task scheduler which takes a task of a process of type future and shares it between multiple threads using its job queue channel protocol, so every type in the task must be Send + Sync + 'static + Future and cloneable
+    tokio::spawn(async move { //-- tokio::spawn() is an asynchronous multithreaded and event loop based task scheduler which takes a task of type future of a process and shares it between multiple threads using its job queue channel protocol, so every type in the task must be Send + Sync + 'static + Future and cloneable
         let mut i = 0_usize;
         let heavy_number = 2;
         let async_block = async move { //-- this is a future object which is bounded to Future trait and it's not like the nodejs event loop

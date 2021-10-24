@@ -7,7 +7,7 @@
 // NOTE - tasks or jobs of a process can be a massive computational data or a bytes of a file from evey connection 
 // NOTE - tasks or jobs of a process can be solved simultaneously using opened threads
 // NOTE - if a thread was busy another thread will be spawned to handle new task or job coming from the process
-// NOTE - to communicate between threads to avoid dead lock, we can either use job q channel or actors
+// NOTE - to communicate between threads to avoid dead lock, we can either use job queue channel or actors
 
 
 

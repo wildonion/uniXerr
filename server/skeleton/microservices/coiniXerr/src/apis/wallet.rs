@@ -18,17 +18,16 @@ use liby;
 
 
 
+                                                            ////////////////////////////////////
+                                                            ///////// TRANSACTION APIs /////////
+                                                            //////////////////////////////////// 
 
-
-////////////////////////////////////
-///////// TRANSACTION APIs /////////
-//////////////////////////////////// 
-
-/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------------------------------------------------------------
     NOTE - a transaction should be sent from auth transfer coin api to the coiniXerr network transaction api which is a stream of binary data 
-           in from of utf8 bytes loaded into the memory, then it'll deserialize or map the binary from memory into the Transaction struct for mining and consensus process,
-           finally if a transaction was added to the blockchain, its is_mined field will become true and then update coins algorithm in auth microservice transfer coin will be processed.
-   --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */    
+           in from of utf8 bytes loaded into the memory, then it'll deserialize or map the binary from memory into 
+           the Transaction struct for mining and consensus process, finally if a transaction was added to the blockchain, 
+           its is_mined field will become true and then update coins algorithm in auth microservice transfer coin will be processed.
+   ------------------------------------------------------------------------------------------------------------------------------------------- */    
 #[post("/uniXerr/api/coiniXerr/transaction")] //-- the route for handling streaming of transactions in form of utf8 binary data 
 async fn transaction(req: HttpRequest, mut body_payload: web::Payload) -> Result<HttpResponse, Error>{
     let ip = req.peer_addr().unwrap().ip();

@@ -1,6 +1,9 @@
 
 
 
+
+
+
 // NOTE - a p2p based network for coiniXerr
 // TODO - use a codec like serde_json::from_slice or Transaction struct (TransactionMem) to map and deserialize utf8 bytes from memory into the defined object
 // ...
@@ -19,6 +22,7 @@
 // TODO - a codec like web::Payload and ws::Message for streaming of binary data like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes based on big or little endian
 // TODO - implement tokio channels like mpsc, oneshot, broadcast and watch
 // TODO - jobq implementation in utils folder
+// https://github.com/wildonion/aravl/tree/master/microservices/device/src
 // https://github.com/actix/examples/blob/master/websockets/tcp-chat/src/codec.rs
 // https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
 // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
@@ -39,3 +43,15 @@
 // https://doc.rust-lang.org/std/cell/struct.RefMut.html
 // https://doc.rust-lang.org/std/cell/struct.RefCell.html
 // https://doc.rust-lang.org/std/rc/struct.Weak.html
+
+
+
+
+use std::net::SocketAddr;
+
+pub struct SocketStruct<'b>{
+    pub id: u32,
+    pub address: SocketAddr,
+    pub buffer: &'b [u8],
+    pub _type: String,
+}
