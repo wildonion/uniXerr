@@ -11,11 +11,13 @@
 // NOTE - we have to clone the receiver for passing between multiple threads and for mutating what's in it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time
 // NOTE - mutex acquisition is done by waiting on the receiver until a job or task becomes available to down side of the channel then locking on the receiver to acquire the mutex
 // NOTE - multiple producers or workers own the receiver (Ac<T>) and single consumer or worker get the job at a time from the receiver (Mutex<T>)
-// NOTE - we'll spawn four threads for every process like socket connection to schedule all its incoming tasks 
+// NOTE - we'll spawn some threads inside a pool like four threads for every process like socket connection to schedule and solve all its incoming tasks 
+// NOTE - a job or a task coming from a process must be solved inside a thread which is selected from the pool based on the availability of threads
 // NOTE - tasks or jobs of a process can be a massive computational data or a bytes of a file from evey connection 
-// NOTE - tasks or jobs of a process can be solved simultaneously using opened threads for each task
+// NOTE - tasks or jobs of a process can be solved simultaneously inside one of the opened threads using a queue channel like mpsc
+// NOTE - tasks or jobs of a process can be sent to multiple threads using sender of mpsc channel and only one thread can solve it at a time using the receiver of mpsc job q channel
 // NOTE - if a thread was busy another thread will be spawned to handle new task or job coming from the process
-// NOTE - task scheduler is done through threads communication using either job queue channel or actors message passing to avoid dead lock and race condition 
+// NOTE - task scheduler is done through threads communication using either job queue channel or actors message passing to avoid dead lock and race condition
 
 
 
