@@ -21,4 +21,4 @@ next-tech  : substrate blockchain framework with its smart contract language ink
 next-coding: hash algorithm of a transaction, block and merkle root and wallet address using AI or argon2 or keccak-256 => https://github.com/AleoHQ/wagyu#22b-build-from-cratesio
 next-coding: consensus algorithm and credit score coin generation based on position clustering for master thesis
 next-coding: improve auth microservice to detect anomalies login based on SSL models like VAE, GAN and transformers using psychoder
-next-coding: complete suproxy microservice into a powerful load balancer => https://github.com/NicolasLM/nucleon and https://github.com/bparli/convey
+next-coding: complete suproxy microservice into a powerful load balancer based on layer4 and layer7 => https://github.com/NicolasLM/nucleon and https://github.com/bparli/convey
