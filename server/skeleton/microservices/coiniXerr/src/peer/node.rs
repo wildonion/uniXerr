@@ -2,26 +2,6 @@
 
 
 
-
-
-// NOTE - a p2p based network for coiniXerr
-// TODO - use a codec like serde_json::from_slice or Transaction struct (TransactionMem) to map and deserialize utf8 bytes from memory into the defined object
-// ...
-
-// a tcp handler to control streaming of incoming future tasks or utf8 binary by awaiting on each of them 
-// while let Some(task) = stream.next().await{}
-
-// or
-
-// a udp handler to control streaming of incoming future tasks or utf8 binary data through job queue channel protocol by awaiting on each of them
-// while let Some((buffer, device_addr)) = receiver.recv().await{}
-
-
-// NOTE - in order to move all data through the socket or http protocol they must be encoded from struct and converted to &[u8] serde codec serialize 
-// NOTE - in order to get the data from the socket or http protocol they must be decoded from &[u8] to struct using serde codec deserialize
-// TODO - a codec like web::Payload and ws::Message for streaming of binary data like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes based on big or little endian
-// TODO - implement tokio channels like mpsc, oneshot, broadcast and watch
-// TODO - jobq implementation in utils folder
 // https://github.com/wildonion/aravl/tree/master/microservices/device/src
 // https://github.com/actix/examples/blob/master/websockets/tcp-chat/src/codec.rs
 // https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
@@ -47,11 +27,83 @@
 
 
 
-use std::net::SocketAddr;
 
-pub struct SocketStruct<'b>{
-    pub id: u32,
-    pub address: SocketAddr,
-    pub buffer: &'b [u8],
-    pub _type: String,
+
+
+use std::net::{TcpStream, Shutdown}; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net 
+use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
+use crate::peer::actor::{Miner, Ping};
+use std::io::{Read, Write}; //-- Read and Write are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method implemented for the object of TcpStream
+use crate::schemas::{MetaData, RuntimeInfo};
+use std::sync::{Arc, Mutex};
+use tokio::sync::mpsc;
+
+
+
+
+
+pub async fn start_miner_actor(mut receiver: mpsc::Receiver::<(TcpStream, Arc<Mutex<RuntimeInfo>>)>){
+    tokio::spawn(async move { //-- spawning a green thread based task of type future in the background on a single thread
+        let mut transaction_buffer_bytes = [0 as u8; 1024];
+        while let Some((mut stream, run_time_info)) = receiver.recv().await{ //-- receiving the stream and the cloned mutex runtime info into down side of channel to start a miner actor - stream must be mutable for reading and writing from and to socket  
+            while match stream.read(&mut transaction_buffer_bytes){ //-- keep socket always open
+                Ok(size) if size == 0 => false, //-- socket closed
+                Ok(size) => {
+                    // ---------------------------------------------------------------------------------------------
+                    // ---------------------------------------------------------------------------------------------
+                    // NOTE - in order to move all data through the socket or http protocol they must be encoded from struct and converted to &[u8] serde codec serialize 
+                    // NOTE - in order to get the data from the socket or http protocol they must be decoded from &[u8] to struct using serde codec deserialize
+                    // TODO - build miner actor with incoming transaction_buffer_bytes
+                    // TODO - a codec like web::Payload and ws::Message for streaming of binary data like mapping incoming utf8 bytes (&[u8]) into a strcut using enum or serde_json::from_slice or mapping struct into &[u8] bytes based on big or little endian
+                    // TODO - use a codec like serde_json::from_slice or Transaction struct (TransactionMem) to map and deserialize utf8 bytes from memory into the defined object
+                    // ...  
+                    stream.write(&transaction_buffer_bytes[0..size]).unwrap();
+                    let miner = Miner::create(|ctx| {
+                        // now we can get an address of the first actor and create the second actor
+                        let addr = ctx.address();
+                        let addr2 = Miner {
+                            counter: 0,
+                            name: String::from("Miner 2"),
+                            recipient: addr.recipient(),
+                        }
+                        .start();
+                        // let's start pings
+                        addr2.do_send(Ping { id: 10 });
+                        // now we can finally create first actor
+                        let miner = Miner {
+                            counter: 0,
+                            name: String::from("Miner 1"),
+                            recipient: addr2.recipient(),
+                        };
+                        miner
+                    });
+                    // ---------------------------------------------------------------------------------------------
+                    // ---------------------------------------------------------------------------------------------
+                    run_time_info.lock().unwrap().add(
+                        MetaData{
+                            address: stream.peer_addr().unwrap(),
+                            buffer: transaction_buffer_bytes[0..size].to_owned(), //-- to_owned() creates owned data from borrowed data, usually by cloning
+                            actor: miner,
+                        }
+                    );
+                    true
+                },
+                Err(e) => {
+                    println!("-> terminating connection with {}", stream.peer_addr().unwrap());
+                    stream.shutdown(Shutdown::Both).unwrap(); //-- both the reading and the writing portions of the TcpStream should be shut down
+                    false
+                }
+            } {} //-- it'll return true on its Ok() arm and false on its Err arm
+        } 
+    }); //-- awaiting on tokio::spawn() will block the current task which is running in the background
+}
+
+
+
+
+
+pub async fn subscribe(){
+    // TODO - stream over incoming transactions from each kafka subscriber to mine and add them to the blockchain using coiniXerr consensus algorithm 
+    // https://github.com/lucrussell/kafka-blockchain
+    // ...
 }

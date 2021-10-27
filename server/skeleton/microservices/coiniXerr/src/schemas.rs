@@ -4,11 +4,44 @@
 use std::rc::{Rc, Weak};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
+use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net 
+use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
+use crate::peer::actor::Miner;
+use std::collections::HashMap;
 
 
 
 
 
+
+#[derive(Debug)] //-- this is required for unwrapping the sender of mpsc channel which takes a stream and a cloned mutex runtime info object
+pub struct RuntimeInfo{
+    pub info_dict: HashMap<Uuid, MetaData>,
+}
+
+impl Default for RuntimeInfo{
+    fn default() -> Self{
+        todo!()
+    }
+}
+
+impl RuntimeInfo{
+
+    pub fn new() -> Self{
+        Self::default()
+    }
+
+    pub fn add(&mut self, meta_data: self::MetaData){ //-- &self means borrowing the ownership of all RuntimeInfo fields
+        self.info_dict.insert(Uuid::new_v4(), meta_data);
+    }
+}
+
+#[derive(Debug)] //-- this is required for unwrapping the sender of mpsc channel which takes a stream and a cloned mutex runtime info
+pub struct MetaData{
+    pub address: SocketAddr,
+    pub buffer: Vec<u8>,
+    pub actor: Addr<Miner>,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Chain{
@@ -27,7 +60,7 @@ impl Chain{
         }
     }
 
-    pub fn new(branch_id: Uuid, branch_name: String, blocks: Vec<Block>) -> Self{ //-- constructor of Chain struct
+    pub fn new(branch_id: Uuid, branch_name: String, blocks: Vec<Block>) -> Self{ //-- constructor of Chain struct - creating another branch or fork
         Chain{
             branch_id,
             branch_name,
@@ -35,7 +68,7 @@ impl Chain{
         }
     }
 
-    pub fn add(&mut self, block: Block) -> Self{ //-- the first param is a mutable pointer to every field of the struct
+    pub fn add(&mut self, block: Block) -> Self{ //-- the first param is a mutable pointer to every field of the struct - self takes a copy of all fields and &mut borrow the ownership of those fields for mutating them
         self.blocks.push(block);
         Chain{
             branch_id: self.branch_id,
@@ -95,8 +128,8 @@ impl Default for Block{
 pub struct Node{
     pub id: Uuid,
     pub data: Transaction,
-    pub parent: Weak<Node>, //-- child -> parent, counting immutable none owning reference to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
-    pub children: Vec<Rc<Node>>, //-- parent -> child, counting immutable reference to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
+    pub parent: Weak<Node>, //-- child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
+    pub children: Vec<Rc<Node>>, //-- parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
 }
 
 impl Node{
@@ -139,8 +172,8 @@ impl Default for Transaction{
         Transaction{
             id: Uuid::new_v4(),
             amount: 100,
-            from_address: "genesis wallet address here".to_string(), // TODO - 
-            to_address: "a lucky user wallet address here".to_string(), // TODO - 
+            from_address: "genesis wallet address here".to_string(), // TODO - the address of the coiniXerr network 
+            to_address: "a lucky user wallet address here".to_string(), // TODO - the address of the wildonion wallet
             issued: chrono::Local::now().naive_local().timestamp(),
             signed: Some(chrono::Local::now().naive_local().timestamp()),
             hash: "hash of the current transaction".to_string(), // TODO -
@@ -149,10 +182,10 @@ impl Default for Transaction{
 }
 
 impl Transaction{
-    pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{
-        unsafe{
+    pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{ //-- self is a copy to all values of the struct; &self is a pointer to those values means by doing this we will borrow ownership of all original values
+        unsafe{ // NOTE - if neither Copy nor Clone is not implemented for the object by moving it into a function we loose the ownership of the value of that object; we can borrow the ownership by taking a pointer to it using &
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //-- filling the buffer field will also fill the data cause thay have a same memory storage
-            let deserialized_transaction = &mut *transaction.data; //-- since the data inside the union is a pointer to a mutable Transaction object we have to return a dereferenced of the data which is a mutable object of Transaction
+            let deserialized_transaction = &mut *transaction.data; //-- since the data inside the union is a raw pointer to a mutable Transaction object we have to dereference it to return a Transaction object; we also want to change the object later so we have to take a mutable pointer or reference (&mut) to the dereferenced object to borrow the ownership of the original object
             Ok(deserialized_transaction)
         }
     }
