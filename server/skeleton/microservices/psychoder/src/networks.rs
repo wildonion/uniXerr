@@ -52,7 +52,7 @@ pub struct Model{
 
 impl Model{
 
-    pub fn train(self, x_train: Vec<Vec<f64>>){ //-- `&self` has an anonymous lifetime `'_` because of unknown lifetime of enum networks field which contains multiple different type of networks 
+    pub async fn train(self, x_train: Vec<Vec<f64>>){ //-- `&self` has an anonymous lifetime `'_` because of unknown lifetime of enum networks field which contains multiple different type of networks 
         let arc_x_train = Arc::new(x_train);
         tokio::spawn(async move{
             for network in self.networks{
@@ -73,7 +73,7 @@ impl Model{
         });
     }
     
-    pub fn predict(self){}
+    pub async fn predict(self){}
 }
 
 impl Default for Model{

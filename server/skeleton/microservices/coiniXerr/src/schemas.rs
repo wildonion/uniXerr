@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net 
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
-use crate::peer::actor::Miner;
+use crate::libs::actors::Miner;
 use std::collections::HashMap;
 
 
@@ -40,7 +40,7 @@ impl RuntimeInfo{
 pub struct MetaData{
     pub address: SocketAddr,
     pub buffer: Vec<u8>,
-    pub actor: Addr<Miner>,
+    pub actor: Addr<Miner>, //-- Miner actor should implement the Debug trait also
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

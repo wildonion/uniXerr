@@ -40,7 +40,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchai
         bytes.extend_from_slice(&chunk?); //-- actix automatically decodes chunked encoding, the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed
     }
     println!("Transaction Body in Bytes {:?}!", bytes);
-    let des_trans_union = Transaction::new(&bytes).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using our TransactionMem union
+    let des_trans_union = Transaction::new(&bytes).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using TransactionMem union
     let mut des_trans_serde = serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using serde from_slice method
     // TODO - store each incoming transaction inside a db
     // TODO - limit transaction inside a block by calculating the size of the block after adding an incoming transaction from the auth microservice
