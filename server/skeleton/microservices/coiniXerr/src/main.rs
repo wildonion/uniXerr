@@ -18,7 +18,7 @@ use tokio::net::{TcpListener, TcpStream}; //-- async tcp listener and stream
 use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method implemented for the object of TcpStream
 use tokio::sync::mpsc; //-- to share values between multiple async tasks spawned by the tokio spawner
 use listenfd::ListenFd;
-use std::env;
+use std::{env, slice, mem};
 use std::sync::{Mutex, Arc};
 use dotenv::dotenv;
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
@@ -101,26 +101,45 @@ async fn main() -> std::io::Result<()>{
             while match stream.read(&mut transaction_buffer_bytes).await{ //-- keep socket always open
                 Ok(size) if size == 0 => false, //-- socket closed
                 Ok(size) => {
-                    stream.write(&transaction_buffer_bytes[0..size]).await.unwrap();
-                    let miner = Miner::create(|ctx| {
-                        // now we can get an address of the first actor and create the second actor
+                    let deserialized_transaction = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
+                    // ----------------------------------------------------------------------
+                    //                              MINING PROCESS
+                    // ----------------------------------------------------------------------
+                    // TODO - limit transaction inside a block by calculating the size of the block after adding an incoming transaction from the auth microservice
+                    // TODO - if the size of the current block was equal to 4 mb then we have to build another block for mining its transaction
+                    // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
+                    // TODO - add mined block to the coiniXerr chain
+                    // blockchain.add(mined_block);
+                    // ...
+                    deserialized_transaction.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
+                    let signed_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction - serializing a new transaction struct into &[u8] bytes
+                        //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
+                        //-- the total size of the generated &[u8] is the number of elements * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+                        //-- here number of elements or the len is the size of the total struct which is mem::size_of::<Transaction>()
+                        slice::from_raw_parts(deserialized_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>()) 
+                    };
+                    // ----------------------------------------------------------------------
+                    //                           STARTING MINER ACTOR
+                    // ----------------------------------------------------------------------
+                    let miner = Miner::create(|ctx| { //-- after passing the consensus algorithm every peer can be a miner  - starting miner actor for this transaction
                         let addr = ctx.address();
                         let addr2 = Miner {
-                            transaction: serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(), //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
+                            transaction: deserialized_transaction.clone(), 
                             name: String::from("Miner 2"),
                             recipient: addr.recipient(),
                         }
                         .start();
-                        // let's start pings
                         addr2.do_send(Ping { id: 10 });
-                        // now we can finally create first actor
                         let miner = Miner {
-                            transaction: serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(), //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
+                            transaction: deserialized_transaction.clone(),
                             name: String::from("Miner 1"),
                             recipient: addr2.recipient(),
                         };
                         miner
                     });
+                    // ----------------------------------------------------------------------
+                    //                           SAVING RUNTIME INFO
+                    // ----------------------------------------------------------------------
                     run_time_info.lock().unwrap().add(
                         MetaData{
                             address: stream.peer_addr().unwrap(),
@@ -128,12 +147,15 @@ async fn main() -> std::io::Result<()>{
                             actor: miner,
                         }
                     );
+                    // ----------------------------------------------------------------------
+                    //               SENDING SIGNED TRANSACTION BACK TO THE USER
+                    // ----------------------------------------------------------------------
+                    stream.write(&signed_transaction_bytes).await.unwrap(); //-- sends the signed transaction back to the user
                     true
                 },
                 Err(e) => {
                     println!("-> terminating connection with {}", stream.peer_addr().unwrap());
                     stream.shutdown().await.unwrap(); //-- shuts down the output stream
-                    // stream.shutdown(Shutdown::Both).await.unwrap(); //-- both the reading and the writing portions of the TcpStream should be shut down
                     false
                 }
             } {} //-- it'll return true on its Ok() arm and false on its Err arm
