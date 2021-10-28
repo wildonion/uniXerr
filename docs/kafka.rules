@@ -1,0 +1,11 @@
+
+
+
+
+
+
+
+kafka => multiple cluster (datacenter or VPS) <-has-> nodes(multiple instances of kafka brokers or servers) <-has-> topics <-has-> partition replicas for each topic <-has-> buck of events inside each partition
+three replicas in kafka means there are three copies of each topics' partitions (buck of events) in each node (kafka broker)
+kafka partitions are created based on the hash of each event and events with similar hash will be inside a same partition so a topic is divided into one or more partitions
+the default number of partitions in kafka for each topic is 10

@@ -6,13 +6,13 @@
 
 ### Requirements
 
-* **Remember that _auth_ (_suproxy_) microservice is responsible for handling all CRUD operations related to _postgres_ (_cassandra_)**
+* **Remember that _auth_/_suproxy_ microservice is responsible for handling all CRUD operations related to _postgres_/_cassandra_**
 
-* **Install _rustup_, _pm2_, _postgres_, _cassandra_ and _kafka_**
+* **Install _rustup_, _pm2_, _postgres_, _cassandra_**
 
 * **Install prerequisite packages on Linux:** ```sudo apt install openssl libssl-dev cmake libpq-dev```
 
-* **Install _openssl_ for _diesel_ using ```choco install openssl```, _cmake_ for _rdkafka_ lib using ```choco install cmake``` and _gcc_/_g++_ with _mingw_ using ```choco install mingw``` on Windows** 
+* **Install _openssl_ for _diesel_ using ```choco install openssl``` and _gcc_/_g++_ with _mingw_ using ```choco install mingw``` on Windows** 
 
 * **Put _postgres_ lib and bin path into environment variable on Windows:** ```C:\Program Files\PostgreSQL\13\lib``` and ```C:\Program Files\PostgreSQL\13\bin```
 

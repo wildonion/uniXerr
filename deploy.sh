@@ -25,7 +25,7 @@ chown -R $USER:$USER . && cargo build --bins --release --manifest-path Cargo.tom
 sudo mv target/release/auth $HONE
 sudo mv target/release/suproxy $HONE
 sudo mv target/release/coiniXerr $HONE
-cd $HOME
+cd $HOME && ./auth wildonion 2 # change the access level of wildonion to 2 (admin)
 pm2 start auth
 pm2 start suproxy
 pm2 start coiniXerr

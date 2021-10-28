@@ -62,19 +62,6 @@ $ uniXerr cluster-positions [OPTIONS]
 * `--plot-method TEXT`: Plotting method for data. pca or tsne; if you want plot data before clustering on different methods just remove the pc_dataloader.pth with --ddo option.
 * `--help`: Show this message and exit.
 
-## `uniXerr deploy`
-
-**Usage**:
-
-```console
-$ uniXerr deploy [OPTIONS]
-```
-
-**Options**:
-
-* `--kafka`: Streamer processor for online training.
-* `--help`: Show this message and exit.
-
 ## `uniXerr develop`
 
 **Usage**:

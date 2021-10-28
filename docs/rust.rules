@@ -22,7 +22,7 @@ Async & Multithreading Rules:
     [+] running multiple jobs of multiple threads using messaging channel protocol in a single processor at the same time is called multithreading
     [+] worker or threads are working on a single task or job at a time and in multiple producers and single consumer using mpsc channel to send a value between multiple tokio tasks we can clone the sender per task but only have one receiver. 
     [+] in multithreading threadpool diagram every worker (thread) inside the pool will communicate through the messaging channel (the sender and the receiver) protocol for task scheduling process
-    [+] multiple producers or workers own the receiver (Ac<T>) and single consumer or worker get the job at a time from the receiver (Mutex<T>)
+    [+] multiple producers or workers own the receiver (Arc<T>) and single consumer or worker get the job at a time from the receiver (Mutex<T>)
     [+] for each request comming from the client there is only one thread to do the job (request) at a time
     [+] there are no two threads handling a same job (request) at a time
     [+] there is only one thread get the job after it received it from the channel and it'll lock on that job until it's over, in that moment for the new incoming request another thread must handle the job and send the response
