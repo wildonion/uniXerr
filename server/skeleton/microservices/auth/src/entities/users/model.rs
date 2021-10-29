@@ -334,8 +334,8 @@ impl QueryableUser{
             };
             let new_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction - serializing a new transaction struct into &[u8] bytes
                 //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
-                //-- the total size of the generated &[u8] is the number of elements * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
-                //-- here number of elements or the len is the size of the total struct which is mem::size_of::<Transaction>()
+                //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+                //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
                 slice::from_raw_parts(&new_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>()) 
             }; 
             let transfered_transaction_resp = match liber::send_transaction!(new_transaction_bytes){ //-- sending a binary stream of transaction data (serialized into bytes) to the coiniXerr network for mining and consensus process

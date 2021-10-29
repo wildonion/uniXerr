@@ -46,12 +46,12 @@ impl Linear{
         let arc_recv = Arc::new(&receiver); //-- take a reference to the receiver to borrow it for putting it inside an Arc
         let mut mult_of_all_sum_cols = 1.0;
         let mut children = Vec::new();
-        let future_task = async {
+        let future_res = async {
             for i in 0..NJOBS{ //-- iterating through all the jobs of the process
                 let cloned_receiver = Arc::clone(&arc_recv); // can't clone receiver, in order to move it between threads we have to clone it using Arc
                 let cloned_sender = sender.clone(); // NOTE - sender can be cloned because it's multiple producer
                 let cloned_mat = Arc::clone(&arc_mat);
-                children.push(pool.execute(move || { // NOTE - pool.execute() will spawn threads or workers
+                children.push(pool.execute(move || { // NOTE - pool.execute() will spawn threads or workers to solve the incoming job inside a free thread
                     let sum_cols = cloned_mat[0][i] + cloned_mat[1][i] + cloned_mat[2][i];
                     cloned_sender.send(sum_cols).unwrap();
                 }));
@@ -64,8 +64,8 @@ impl Linear{
             ids.into_iter().map(|s_cols| mult_of_all_sum_cols *= s_cols).collect::<Vec<_>>();
             mult_of_all_sum_cols
         };
-        let res = block_on(future_task); //-- will block the current thread to run the future to completion
-        // let res = join!(future_task); // NOTE - join! only allowed inside `async` functions and blocks - suspend the function execution to run the future to completion 
+        let res = block_on(future_res); //-- will block the current thread to run the future to completion
+        // let res = join!(future_res); // NOTE - join! only allowed inside `async` functions and blocks - suspend the function execution to run the future to completion 
         println!("multiplication cols sum {:?}", res);
         let loss = 0.3535;
         loss

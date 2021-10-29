@@ -89,7 +89,7 @@ async fn main() -> std::io::Result<()>{
         println!("-> connection stablished from miner [{}]", addr);
         let cloned_mutex_run_time_info_obj = Arc::clone(&arc_mutual_exclusion_run_time_info); //-- cloning mutex runtime info object using Arc cause the mentioned struct doesn't implement the trait Clone since we can't implement for it; Clone is not implemented for Addr<Miner>
         let tx = tx.clone(); //-- each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the semaphore or mutex lock
-        pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (not a blocked one) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
+        pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
             tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a miner actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
                 tx.send((stream, cloned_mutex_run_time_info_obj)).await.unwrap(); //-- sending the stream and the cloned mutex runtime info through the mpsc channel 
             }); //-- awaiting on tokio::spawn() will block the current task which is running in the background
@@ -114,12 +114,12 @@ async fn main() -> std::io::Result<()>{
                     deserialized_transaction.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
                     let signed_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction - serializing a new transaction struct into &[u8] bytes
                         //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
-                        //-- the total size of the generated &[u8] is the number of elements * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
-                        //-- here number of elements or the len is the size of the total struct which is mem::size_of::<Transaction>()
+                        //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+                        //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
                         slice::from_raw_parts(deserialized_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>()) 
                     };
                     // ----------------------------------------------------------------------
-                    //                           STARTING MINER ACTOR
+                    //             STARTING MINER ACTOR WITH A SIGNED TRANSACTION
                     // ----------------------------------------------------------------------
                     let miner = Miner::create(|ctx| { //-- after passing the consensus algorithm every peer can be a miner  - starting miner actor for this transaction
                         let addr = ctx.address();
@@ -143,7 +143,7 @@ async fn main() -> std::io::Result<()>{
                     run_time_info.lock().unwrap().add(
                         MetaData{
                             address: stream.peer_addr().unwrap(),
-                            buffer: transaction_buffer_bytes[0..size].to_owned(), //-- to_owned() creates owned data from borrowed data, usually by cloning - &[u8] to Vec<u8>
+                            buffer: signed_transaction_bytes.to_owned(), //-- to_owned() creates owned data from borrowed data, usually by cloning - &[u8] to Vec<u8>
                             actor: miner,
                         }
                     );

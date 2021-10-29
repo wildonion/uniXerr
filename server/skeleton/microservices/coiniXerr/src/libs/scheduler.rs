@@ -33,7 +33,7 @@
               --------------------------------------------------------------------------------------------------------------
             / --------------------------------------------------------------------------------------------------------------
             | solving all incoming tasks of a process simultaneously inside the thread pool created for 
-            | that process by sending each task into a free thread (one thread for each incoming task)
+            | that process by sending each task into a free thread (a none blocked thread; one thread for each incoming task)
             | is done by using message passing channels like job queue channel protocol.
             |
             |

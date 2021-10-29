@@ -13,7 +13,7 @@ use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads c
 use actix_web::{web, get, post, Error, HttpRequest, HttpResponse};
 use futures::StreamExt;
 use std::sync::{Arc, Mutex};
-
+use std::{slice, mem};
 
 
 
@@ -40,7 +40,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchai
     println!("[+] SERVER TIME : {} | TRANSACTION FROM PEER ::: {}:{} ", chrono::Local::now().naive_local(), ip, port);
     let mut bytes = web::BytesMut::new();
     while let Some(chunk) = body_payload.next().await { //-- extracting binary wallet data or utf8 bytes from incoming request - loading the payload into the memory
-        bytes.extend_from_slice(&chunk?); //-- actix automatically decodes chunked encoding, the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed
+        bytes.extend_from_slice(&chunk?); //-- the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed
     }
     println!("Transaction Body in Bytes {:?}!", bytes);
     let des_trans_union = Transaction::new(&bytes).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using TransactionMem union
@@ -56,7 +56,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchai
     // ...
     des_trans_union.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
     // ----------------------------------------------------------------------
-    //                           STARTING MINER ACTOR
+    //             STARTING MINER ACTOR WITH A SIGNED TRANSACTION
     // ----------------------------------------------------------------------
     let miner = Miner::create(|ctx| { //-- after passing the consensus algorithm every peer can be a miner - starting miner actor for this transaction
         let addr = ctx.address();
@@ -74,13 +74,19 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchai
         };
         miner
     });
+    let signed_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction - serializing a new transaction struct into &[u8] bytes
+        //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
+        //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+        //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
+        slice::from_raw_parts(des_trans_union as *const Transaction as *const u8, mem::size_of::<Transaction>()) 
+    };
     // ----------------------------------------------------------------------
     //                           SAVING RUNTIME INFO
     // ----------------------------------------------------------------------
     run_time_info.lock().unwrap().add(
         MetaData{
             address: req.peer_addr().unwrap(),
-            buffer: bytes.to_vec(), //-- to_vec() copies self into a new Vec - &[u8] to Vec<u8>
+            buffer: signed_transaction_bytes.to_vec(), //-- to_vec() copies self into a new Vec - &[u8] to Vec<u8>
             actor: miner,
         }
     );

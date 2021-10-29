@@ -54,7 +54,7 @@ impl Model{
 
     pub async fn train(self, x_train: Vec<Vec<f64>>){ //-- `&self` has an anonymous lifetime `'_` because of unknown lifetime of enum networks field which contains multiple different type of networks 
         let arc_x_train = Arc::new(x_train);
-        tokio::spawn(async move{
+        tokio::spawn(async move{ //-- spawning an async task in the background on a single thread
             for network in self.networks{
                 let cloned_x_train = Arc::clone(&arc_x_train);
                 match network{
