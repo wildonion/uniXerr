@@ -74,7 +74,7 @@
                     - has its own sender so we can share sender of the mpsc job queue channel between multiple threads by getting a clone from it but this is not the same for the receiver
                     - can be an async task spawned by the tokio spawner
                     - must be solved inside an available thread
-                    - is a mutex which must be acquired once it's arrived to down side of the channel by locking on the receiver side of the channel which blocks current thread            
+                    - is a mutex which must be acquired once it's arrived to down side of the channel by locking on the receiver side of the channel which will block the current thread            
             
             
             
