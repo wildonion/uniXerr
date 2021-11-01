@@ -19,6 +19,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write
 use tokio::sync::mpsc; //-- to share values between multiple async tasks spawned by the tokio spawner
 use listenfd::ListenFd;
 use uuid::Uuid;
+use std::sync::{Arc, Mutex};
 use std::{env, slice, mem};
 use dotenv::dotenv;
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
@@ -49,6 +50,10 @@ async fn main() -> std::io::Result<()>{
     
 
 
+    // NOTE - we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument and needs to mutate a field like run_time_info add() method in which the info_dict field will be update 
+    // NOTE - to solve above issue we have to put that object inside a Mutex to share and protect it between multiple threads and mutate or acquire the mutex by blocking the current thread when calling the lock() method, prevent from being in a dead lock, race condition and shared state situations
+    let mut run_time_info = RuntimeInfo::new();
+    let arc_mutex_runtime_info_object = Arc::new(Mutex::new(run_time_info)); 
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
     dotenv().expect("⚠️ .env file not found");
@@ -57,11 +62,10 @@ async fn main() -> std::io::Result<()>{
     let host = env::var("HOST").expect("⚠️ please set host in .env");
     let coiniXerr_http_port = env::var("COINIXERR_HTTP_PORT").expect("⚠️ please set coiniXerr http port in .env");
     let coiniXerr_tcp_port = env::var("COINIXERR_TCP_PORT").expect("⚠️ please set coiniXerr tcp port in .env");
-    let blockchain = Chain::default(); //-- start the network by building a genesis block and a default transaction from the coiniXerr network wallet to the wildonion wallet
+    let blockchain = Chain::default(); //-- start the network by building a genesis block and a default transaction with 100 coins from the coiniXerr network wallet to the wildonion wallet
     let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
     let pool = scheduler::ThreadPool::new(10);
-    let mut run_time_info = RuntimeInfo::new();
-    let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid)>(buffer_size); //-- mpsc channel to send the incoming stream and the generated uuid of the runtime info object to multiple threads through the channel for each incoming connection from the socket 
+    let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid, Arc<Mutex<RuntimeInfo>>)>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket 
 
 
     
@@ -75,8 +79,6 @@ async fn main() -> std::io::Result<()>{
 
 
 
-    
-    
     
     
     
@@ -86,7 +88,7 @@ async fn main() -> std::io::Result<()>{
     /////// ==============================================================================================================================
     while let Ok((stream, addr)) = listener.accept().await{
         println!("-> connection stablished from miner [{}]", addr);
-        let mut cloned_run_time_info_obj = run_time_info.clone(); //-- cloning runtime info object to prevent from moving in every iteration
+        let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning runtime info object to prevent from moving in every iteration between threads
         let tx = tx.clone(); //-- each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the semaphore or mutex lock
         pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
             tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a miner actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
@@ -103,7 +105,7 @@ async fn main() -> std::io::Result<()>{
                 //                           SAVING RUNTIME INFO
                 // ----------------------------------------------------------------------
                 let meta_data_uuid = {
-                    cloned_run_time_info_obj.add(
+                    cloned_mutex_runtime_info_object.lock().unwrap().add(
                         MetaData{
                             address: stream.peer_addr().unwrap(),
                             actor: miner.clone(), //-- cloning the miner actor will prevent the object from moving
@@ -111,12 +113,11 @@ async fn main() -> std::io::Result<()>{
                     )
                 };
                 miner.start();
-                tx.send((stream, meta_data_uuid)).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid through the mpsc channel 
+                tx.send((stream, meta_data_uuid, cloned_mutex_runtime_info_object)).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid through the mpsc channel 
             }); //-- awaiting on tokio::spawn() will block the current task which is running in the background
         });
     }
-    while let Some((mut stream, generated_uuid)) = rx.recv().await{ //-- waiting for the stream and the generated uuid of the runtime info object to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
-        let mut cloned_run_time_info_obj = run_time_info.clone(); //-- cloning runtime info object to prevent from moving in every iteration
+    while let Some((mut stream, generated_uuid, cloned_mutex_runtime_info_object)) = rx.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
         tokio::spawn(async move { //-- this is an async task related to updating a miner actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
             let mut transaction_buffer_bytes = [0 as u8; 1024];
             while match stream.read(&mut transaction_buffer_bytes).await{ //-- keep socket always open
@@ -142,7 +143,7 @@ async fn main() -> std::io::Result<()>{
                     // ----------------------------------------------------------------------
                     //               UPDATING MINER ACTOR WITH A SIGNED TRANSACTION
                     // ----------------------------------------------------------------------
-                    for (id, md) in cloned_run_time_info_obj.info_dict.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the miner actor transaction of our matched meta_data id with the incoming uuid
+                    for (id, md) in cloned_mutex_runtime_info_object.lock().unwrap().info_dict.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the miner actor transaction of our matched meta_data id with the incoming uuid
                         if id == &generated_uuid{
                             let dese_tra = serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
                             md.update_miner_transaction(Some(dese_tra)); //-- update the miner actor with a signed transaction
