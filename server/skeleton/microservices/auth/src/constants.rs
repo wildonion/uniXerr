@@ -25,5 +25,5 @@ pub const MESSAGE_NOT_MINED_TRANSACTION: &str = "Not mined transaction";
 pub const MESSAGE_SEND_TRANSACTION_FAILED: &str = "Failed to send transaction";
 pub const AUTHORIZATION: &str = "Authorization";
 pub const EMPTY: &str = "";
-pub const IGNORE_ROUTES: [&str; 2] = ["/uniXerr/api/auth/signup", "/uniXerr/api/auth/login"];
+pub const IGNORE_ROUTES: [&str; 2] = ["/auth/signup", "/auth/login"];
 pub const UPLOAD_PATH: &str = "assets/images";

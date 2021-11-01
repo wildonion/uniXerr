@@ -17,7 +17,7 @@ use super::model::{QueryableLoginHistory}; //-- load from the root of the curren
 
 
 
-#[get("/uniXerr/api/auth/login-histories")]
+#[get("/auth/login-histories")]
 async fn find_all(req: HttpRequest) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -55,7 +55,7 @@ async fn find_all(req: HttpRequest) -> Result<HttpResponse, uniXerr>{
 
 
 
-#[get("/uniXerr/api/auth/login-history/{id}")]
+#[get("/auth/login-history/{id}")]
 async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -91,7 +91,7 @@ async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniX
 
 
 
-#[post("/uniXerr/api/auth/login-history/delete/{id}")]
+#[post("/auth/login-history/delete/{id}")]
 async fn delete(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {

@@ -13,34 +13,37 @@ use std::collections::HashMap;
 
 
 
+#[derive(Debug, Clone)]
+pub struct MinerPool(pub Vec<Addr<Miner>>); //-- pool of miners
 
-#[derive(Debug)] //-- this is required for unwrapping the sender of mpsc channel which takes a stream and a cloned mutex runtime info object
+#[derive(Debug, Clone)]
 pub struct RuntimeInfo{
-    pub info_dict: HashMap<Uuid, MetaData>,
-}
-
-impl Default for RuntimeInfo{
-    fn default() -> Self{
-        todo!()
-    }
+    pub info_dict: HashMap<Uuid, MetaData>, //-- MetaData struct should implements the Debug and Clone trait also
 }
 
 impl RuntimeInfo{
 
     pub fn new() -> Self{
-        Self::default()
+        RuntimeInfo{info_dict: HashMap::new()}
     }
 
-    pub fn add(&mut self, meta_data: self::MetaData){ //-- &self means borrowing the ownership of all RuntimeInfo fields
-        self.info_dict.insert(Uuid::new_v4(), meta_data);
+    pub fn add(&mut self, meta_data: self::MetaData) -> Uuid{ //-- &self means borrowing the ownership of all RuntimeInfo fields - it must be mutable cause we want to insert into the info_dict
+        let generated_uuid = Uuid::new_v4();
+        self.info_dict.insert(generated_uuid, meta_data);
+        generated_uuid
     }
 }
 
-#[derive(Debug)] //-- this is required for unwrapping the sender of mpsc channel which takes a stream and a cloned mutex runtime info
+#[derive(Debug, Clone)] 
 pub struct MetaData{
     pub address: SocketAddr,
-    pub buffer: Vec<u8>,
-    pub actor: Addr<Miner>, //-- Miner actor should implement the Debug trait also
+    pub actor: Miner, //-- Miner actor should implements the Debug and Clone trait also
+}
+
+impl MetaData{
+    pub fn update_miner_transaction(&mut self, transaction: Option<Transaction>){ //-- updating the transaction field of the miner actor is done using a mutable borrower (pointer) as the parameter of the update_miner_transaction() method 
+        self.actor.transaction = transaction;
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -185,7 +188,7 @@ impl Transaction{
     pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{ //-- self is a copy to all values of the struct; &self is a pointer to those values means by doing this we will borrow ownership of all original values
         unsafe{ // NOTE - if neither Copy nor Clone is not implemented for the object by moving it into a function we loose the ownership of the value of that object; we can borrow the ownership by taking a pointer to it using &
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //-- filling the buffer field will also fill the data cause thay have a same memory storage
-            let deserialized_transaction = &mut *transaction.data; //-- since the data inside the union is a raw pointer to a mutable Transaction object we have to dereference it to return a Transaction object; we also want to change the object later so we have to take a mutable pointer or reference (&mut) to the dereferenced object to borrow the ownership of the original object
+            let deserialized_transaction = &mut *transaction.data; //-- mutable pointer to the dereferenced transaction data - since the data inside the union is a raw pointer to a mutable Transaction object we have to dereference it to return a Transaction object; we also want to change the object later so we have to take a mutable pointer or reference (&mut) to the dereferenced object to borrow the ownership of the original object for mutation
             Ok(deserialized_transaction)
         }
     }

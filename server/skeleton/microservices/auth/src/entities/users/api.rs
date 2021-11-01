@@ -22,7 +22,7 @@ use std::path::Path;
 
 
 
-#[get("/uniXerr/api/auth/users")]
+#[get("/auth/users")]
 async fn find_all(req: HttpRequest) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -56,7 +56,7 @@ async fn find_all(req: HttpRequest) -> Result<HttpResponse, uniXerr>{
 
 
 
-#[get("/uniXerr/api/auth/user/get/{id}")]
+#[get("/auth/user/get/{id}")]
 async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -101,7 +101,7 @@ async fn find(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniX
 
 
 
-#[post("/uniXerr/api/auth/user/add")] //-- required fields : username + email + password + phone_number + device_id 
+#[post("/auth/user/add")] //-- required fields : username + email + password + phone_number + device_id 
 async fn add(req: HttpRequest, user: web::Json<InsertableUser>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -135,7 +135,7 @@ async fn add(req: HttpRequest, user: web::Json<InsertableUser>) -> Result<HttpRe
 
 
 
-#[post("/uniXerr/api/auth/user/edit/{id}")] //-- required fields : username + phone_number + sex + age + email
+#[post("/auth/user/edit/{id}")] //-- required fields : username + phone_number + sex + age + email
 async fn update(req: HttpRequest, id: web::Path<i32>, user: web::Json<UpdatableUser>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -177,7 +177,7 @@ async fn update(req: HttpRequest, id: web::Path<i32>, user: web::Json<UpdatableU
 
 
 
-#[post("/uniXerr/api/auth/user/edit/password/{id}")] //-- required fields : current_password + password
+#[post("/auth/user/edit/password/{id}")] //-- required fields : current_password + password
 async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<PasswordFields>) -> Result<HttpResponse, uniXerr>{ //-- on Err result the error_message field of the uniXerr struct inside an actix http response as a json will return
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -212,7 +212,7 @@ async fn update_pwd(req: HttpRequest, id: web::Path<i32>, user: web::Json<Passwo
 
 
 
-#[post("/uniXerr/api/auth/user/{id}/transfer/{coins}/{friend_id}")]
+#[post("/auth/user/{id}/transfer/{coins}/{friend_id}")]
 async fn transfer_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Path<i32>, coins: web::Path<i32>) -> Result<HttpResponse, uniXerr>{ //-- on Err result the error_message field of the uniXerr struct inside an actix http response as a json will return
     match pass(req){
         Ok(user_data_inside_token) => { //-- updating coins process is based on the user token not the wallet address
@@ -248,7 +248,7 @@ async fn transfer_coins(req: HttpRequest, id: web::Path<i32>, friend_id: web::Pa
 
 
 // NOTE - extracting binary data from request
-#[post("/uniXerr/api/auth/user/edit/profile/{id}")]
+#[post("/auth/user/edit/profile/{id}")]
 async fn update_prof(req: HttpRequest, id: web::Path<i32>, mut prof_img: Multipart) -> Result<HttpResponse, Error>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -299,7 +299,7 @@ async fn update_prof(req: HttpRequest, id: web::Path<i32>, mut prof_img: Multipa
 
 
 
-#[get("/uniXerr/api/auth/user/profile/{id}")]
+#[get("/auth/user/profile/{id}")]
 async fn download_prof(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -346,7 +346,7 @@ async fn download_prof(req: HttpRequest, id: web::Path<i32>) -> Result<HttpRespo
 
 
 
-#[post("/uniXerr/api/auth/user/delete/{id}")]
+#[post("/auth/user/delete/{id}")]
 async fn delete(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {

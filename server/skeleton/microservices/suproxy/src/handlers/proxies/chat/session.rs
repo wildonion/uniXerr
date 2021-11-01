@@ -191,7 +191,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for UserChatSession {
 // old chats api index 
 // ===================
 
-#[get("/uniXerr/api/chat/old/{friend_id}/{token}")] //-- this api should be called on every scroll up in chat ui to fetch 20 rows of old chats
+#[get("/chat/old/{friend_id}/{token}")] //-- this api should be called on every scroll up in chat ui to fetch 20 rows of old chats
 async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession>, 
                         web::Path((token, friend_id)): web::Path<(String, i32)>) -> Result<HttpResponse, Error>{
     
@@ -233,7 +233,7 @@ async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession
 // websocket index for our http server
 // ===================================
 
-#[get("/uniXerr/api/chat/new/{username}/{friend_id}/{token}")] //-- route of private messaging between 2 peers
+#[get("/chat/new/{username}/{friend_id}/{token}")] //-- route of private messaging between 2 peers
 async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::Data<Addr<balancer::ChatServer>>,
                               web::Path((username, friend_id, token)): web::Path<(String, i32, String)>) -> Result<HttpResponse, Error> {
     
@@ -246,9 +246,9 @@ async fn user_chat_sess_index(req: HttpRequest, stream: web::Payload, srv: web::
             
                 EXAMPLE - 
                     user wildonion wants to chat with user psychoder :
-                        ws://localhost:7368/chat/wildonion/3/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjg0MTgsImV4cCI6MTY2NDcwNDQxOCwidXNlciI6IndpbGRvbmlvbiIsImlkIjozLCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6ImVjNDc1NjE2ZjdhYzRmOTNiNzE5NDA5ZDY4NDUyOTFkIn0.mrcdenhjdM6xAuI6B1RLpr0VxsRs5b-AH5pC29HTQaPIi6ziIGvrU-lTa-TyeSmjckoMI0OQ7K89aYCl-ijEgQ
+                        ws://api.unixerr.com:7368/chat/wildonion/3/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjg0MTgsImV4cCI6MTY2NDcwNDQxOCwidXNlciI6IndpbGRvbmlvbiIsImlkIjozLCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6ImVjNDc1NjE2ZjdhYzRmOTNiNzE5NDA5ZDY4NDUyOTFkIn0.mrcdenhjdM6xAuI6B1RLpr0VxsRs5b-AH5pC29HTQaPIi6ziIGvrU-lTa-TyeSmjckoMI0OQ7K89aYCl-ijEgQ
                     user psychoder wants to chat with user wildonion :
-                        ws://localhost:7368/chat/psychoder/1/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjkzODQsImV4cCI6MTY2NDcwNTM4NCwidXNlciI6InBzeWNob2RlciIsImlkIjo0LCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6IjgyOWFkNmVkYzZkYjQzNmNhYzQwZmZhYTlkNmY4NjkyIn0.prVcOhA9Pc5h0iApXpeISw8DyAL1LOW1sI1nG2udH0XgvZNxPp3hTPlFUioNo_uq8ev-aPpiZRHeh8XE_eLMeQ
+                        ws://api.unixerr.com:7368/chat/psychoder/1/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2MzMxNjkzODQsImV4cCI6MTY2NDcwNTM4NCwidXNlciI6InBzeWNob2RlciIsImlkIjo0LCJhY2Nlc3NfbGV2ZWwiOjEsImFjY2Vzc190b2tlbiI6IjgyOWFkNmVkYzZkYjQzNmNhYzQwZmZhYTlkNmY4NjkyIn0.prVcOhA9Pc5h0iApXpeISw8DyAL1LOW1sI1nG2udH0XgvZNxPp3hTPlFUioNo_uq8ev-aPpiZRHeh8XE_eLMeQ
                 
                 NOTE - room name is not the same in each connection from our sessions cause :
                     session 1 connected to our server with user_id : 1, friend_id : 2 and token : skjdn3984n

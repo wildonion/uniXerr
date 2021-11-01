@@ -25,7 +25,7 @@ use super::model::{InsertableUserFriend, QueryableUserFriend};
 
 
 
-#[post("/uniXerr/api/auth/user/{user_id}/friend/{friend_id}/follow")] //-- required fields : from_user_id + to_friend_id
+#[post("/auth/user/{user_id}/friend/{friend_id}/follow")] //-- required fields : from_user_id + to_friend_id
 async fn follow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<i32>,) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -60,7 +60,7 @@ async fn follow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<
 
 
 
-#[post("/uniXerr/api/auth/user/{user_id}/friend/{friend_id}/unfollow")] //-- required fields : from_user_id + to_friend_id
+#[post("/auth/user/{user_id}/friend/{friend_id}/unfollow")] //-- required fields : from_user_id + to_friend_id
 async fn unfollow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Path<i32>,) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -95,7 +95,7 @@ async fn unfollow(req: HttpRequest, user_id: web::Path<i32>, friend_id: web::Pat
 
 
 
-#[post("/uniXerr/api/auth/user/send-request")] //-- required fields : from_user_id + to_friend_id
+#[post("/auth/user/send-request")] //-- required fields : from_user_id + to_friend_id
 async fn send_request_to_friend(req: HttpRequest, user_friend: web::Json<InsertableUserFriend>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -129,7 +129,7 @@ async fn send_request_to_friend(req: HttpRequest, user_friend: web::Json<Inserta
 
 
 
-#[post("/uniXerr/api/auth/user-friend/delete/{id}")]
+#[post("/auth/user-friend/delete/{id}")]
 async fn delete_user_friend(req: HttpRequest, id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {
@@ -163,7 +163,7 @@ async fn delete_user_friend(req: HttpRequest, id: web::Path<i32>) -> Result<Http
 
 
 
-#[post("/uniXerr/api/auth/user/get/{id}/friends")]
+#[post("/auth/user/get/{id}/friends")]
 async fn get_all_friends(req: HttpRequest, user_id: web::Path<i32>) -> Result<HttpResponse, uniXerr>{
     match pass(req){
         Ok(user_data_inside_token) => {

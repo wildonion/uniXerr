@@ -332,7 +332,7 @@ impl QueryableUser{
                 signed: None,
                 hash: "hash of the current transaction".to_string(), // TODO -
             };
-            let new_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction - serializing a new transaction struct into &[u8] bytes
+            let new_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
                 //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
                 //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
                 //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()

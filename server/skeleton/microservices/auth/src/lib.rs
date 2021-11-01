@@ -23,7 +23,8 @@ macro_rules! send_transaction {
 
 
             let coini_X_err_http_port = env::var("COINIXERR_HTTP_PORT").expect("⚠️ please set auth port in .env");
-            let url = format!("http://localhost:{}/uniXerr/api/coiniXerr/transaction", coini_X_err_http_port);
+            let host = env::var("HOST").expect("⚠️ please set host in .env");
+            let url = format!("http://{}:{}/coiniXerr/transaction", host, coini_X_err_http_port);
             match reqwest::Client::builder().build(){
                 Ok(client) => {
                     match client
@@ -32,7 +33,7 @@ macro_rules! send_transaction {
                         .send()
                         .await{
                             Ok(res) => {
-                                match res.json::<Transaction>().await{
+                                match res.json::<Transaction>().await{ //-- deserializing response utf8 bytes into the Transaction struct
                                     Ok(resp) => {
                                         println!("[+] CURRENT SERVER TIME : {:?} | MINED TRANSACTION FROM THE AUTH MICROSERVICE SERVER : {:?}", chrono::Local::now().naive_local(), resp);
                                         Ok(resp)

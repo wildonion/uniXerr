@@ -2,6 +2,14 @@
 
 
 /*  _________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+                    
+
+
+
+                         -------------------------------------------------------------------------------------------------------------------------------------------
+                        || synchronous task scheduler using multiple threads or workers communication based on messaging channel; mpsc job queue channel protocol ||
+                        -------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -34,7 +42,8 @@
             / --------------------------------------------------------------------------------------------------------------
             | solving all incoming tasks of a process simultaneously inside the thread pool created for 
             | that process by sending each task into a free thread (a none blocked thread; one thread for each incoming task)
-            | is done by using message passing channels like job queue channel protocol.
+            | is done using message passing channels like job mpsc queue channel protocol which is an asynchronous
+            | message passing channel.
             |
             |
             |
@@ -58,7 +67,7 @@
             
             
             NOTE - in actors sending messages are asynchronous means a message sender will not block whether the reader is ready to pull from the mailbox or not, instead the message goes into a queue usually called a mailbox (receiver mailbox like a mpsc job queue channel)
-            NOTE - actix actors are used for sending messages and events through their address (Addr object) using mpsc job queue channel instead of blocking the local thread for mutex acquisition
+            NOTE - actix actors are used for sending messages and events through their address (Addr object) which is based on mpsc job queue channel instead of blocking the local thread for mutex acquisition
             NOTE - all actix actors are on top of tokio in which every future task like actors communication events and messages will be handled by mpsc job queue channel and multithreading patterns
             NOTE - mpsc channel can be used to communicate between threads while we're using a thread pool to mutate a data structure by locking on the data (Mutex<T>) and blocking the local thread to acquire the mutex and prevent other thread from mutating in a shared state and locking it at a same time to avoid being in dead lock situation
             NOTE - the sender of mpsc channel can be owned by multiple threads but the receiver can only be owned by only one thread at a time, that's because it's called multi producer and single consumer (many threads can send simultaneously to one receiver)  
@@ -69,8 +78,8 @@
             NOTE - tokio::spawn() is an asynchronous multithreaded and event loop based task spawner and scheduler which takes a green thread based task of type future of a process and shares it between its threads using its job queue channel protocol so every type in the task must be Send + Sync + 'static and cloneable
             NOTE - task scheduler or handler like tokio::spawn() or actors address (Addr object) and defined events (Messages) is done through threads communication based on message passing channels like mpsc job queue channel to avoid being in dead lock, shared state and race condition situation
             NOTE - we have to clone the receiver for passing between multiple threads and for mutating what's in it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time
-            NOTE - every incoming task or job or message from a process (like every stream coming from a socket connection) :
-                    - has its own sender so we can share sender of the mpsc job queue channel between multiple threads by getting a clone from it but this is not the same for the receiver
+            NOTE - every incoming task or job or message from an opened process (like every stream coming from a socket connection) :
+                    - has its own sender in which all messages will be sent asynchronously and they never block the current thread and we can share sender of the mpsc job queue channel of each between multiple threads by getting a clone from it but this is not the same for the receiver
                     - can be an async task spawned by the tokio spawner
                     - must be solved inside an available thread
                     - is a mutex which must be acquired once it's arrived to down side of the channel by locking on the receiver side of the channel which will block the current thread            
@@ -83,7 +92,7 @@
             
             
 
-// CODE FOR - synchronous task scheduler using multiple threads or workers communication based on mpsc job queue channel protocol
+
 
 
 use std::thread;
@@ -106,7 +115,7 @@ struct Worker{
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
-    sender: mpsc::Sender<Message>,
+    sender: mpsc::Sender<Message>, //-- all sends will be asynchronous and they never block
 }
 
 enum Message {

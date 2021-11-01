@@ -48,14 +48,15 @@ macro_rules! authenticity {
             }
 
             let auth_port = env::var("AUTH_PORT").expect("⚠️ please set auth port in .env");
-            let url = format!("http://localhost:{}/uniXerr/api/auth/check-token", auth_port);
+            let host = env::var("HOST").expect("⚠️ please set host in .env");
+            let url = format!("http://{}:{}/auth/check-token", host, auth_port);
             let client = reqwest::blocking::Client::new();
             match client
                     .post(&url)
                     .bearer_auth($token) // NOTE - it'll attach the Bearer token in request header
                     .send(){
                         Ok(res) => {
-                            match res.json::<ResponseBody>(){
+                            match res.json::<ResponseBody>(){ //-- deserializing response utf8 bytes into the ResponseBody struct
                                 Ok(resp) => {
                                     println!("[+] CURRENT SERVER TIME : {:?} | RESPONSE MESSAGE FROM AUTH MICROSERVICE SERVER : {:?}", chrono::Local::now().naive_local(), resp.message);
                                     println!("[+] CURRENT SERVER TIME : {:?} | USER ID FROM THE AUTH MICROSERVICE SERVER : {:?}", chrono::Local::now().naive_local(), resp.data.user_id);

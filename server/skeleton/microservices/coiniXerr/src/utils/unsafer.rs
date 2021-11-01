@@ -153,7 +153,7 @@ fn unsafer(){
     println!("`c` value after changing `a` >>>> {}", unsafe{&*c});
     println!("`c` contains the address of `a` >>>> {:p}", c);
     println!("`c` address after changing `a` >>>> {:p}", &c);
-    unsafe{*c = String::from("third_wildonion");} // changing `c` will change the `a` value also cause `a` is a mutable variable
+    unsafe{*c = String::from("third_wildonion");} // changing `c` will change the `a` value also cause `a` is a mutable variable and `c` is a pointer to the `a`
     println!("`c` value after changing >>>> {}", a);
     println!("value of `a` after changing `c` >>>> {}", a);
     println!("`c` contains the address of `a` after changing its value >>>> {:p}", c);
@@ -167,7 +167,10 @@ fn unsafer(){
     println!("`b` value >>>> {}", unsafe{*b});
     println!("`a` address [{:p}] == `b` address [{:p}]", &a, b);
     a = 3535; //-- `b` will be changed
+    println!("`b` value >>>> {}", unsafe{*b});
     unsafe{*b = 2435;} //-- `a` will be changed
+    println!("`a` value >>>> {}", a);
+    let deref_pointer = unsafe{&*b}; //-- a pointer to the dereferenced const raw pointer to the `a`
 
 
 

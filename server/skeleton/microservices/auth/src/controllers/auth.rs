@@ -17,7 +17,7 @@ use crate::{
 
 
 
-#[post("/uniXerr/api/auth/register")] // required fields : username + email + password + phone_number + device_id 
+#[post("/auth/register")] // required fields : username + email + password + phone_number + device_id 
 async fn signup(user: web::Json<InsertableUser>) -> Result<HttpResponse> { // signup route doesn't need auth middleware
     match account_service::signup(user.0).await{ // user.0 is the actual data inside the json body which is the user data 
         Ok(message) => Ok(HttpResponse::Ok().json(ResponseBody::new(&message, constants::EMPTY))),
@@ -29,7 +29,7 @@ async fn signup(user: web::Json<InsertableUser>) -> Result<HttpResponse> { // si
 
 
 
-#[post("/uniXerr/api/auth/login")] // required fields : username_or_eamil + password
+#[post("/auth/login")] // required fields : username_or_eamil + password
 async fn login(login: web::Json<Login>) -> Result<HttpResponse> { // login route doesn't need auth middleware
     match account_service::login(login.0).await{ // login.0 is the actual data inside the json body which is the login data 
         Ok(token_res) => Ok(HttpResponse::Ok().json(ResponseBody::new(constants::MESSAGE_LOGIN_SUCCESS, token_res))),
@@ -39,7 +39,7 @@ async fn login(login: web::Json<Login>) -> Result<HttpResponse> { // login route
 
 
 
-#[post("/uniXerr/api/auth/check-token")]
+#[post("/auth/check-token")]
 async fn check_token(req: HttpRequest) -> Result<HttpResponse> {
     if let Some(authen_header) = req.headers().get(constants::AUTHORIZATION) {
         match account_service::check_token(authen_header.clone()).await{
@@ -56,7 +56,7 @@ async fn check_token(req: HttpRequest) -> Result<HttpResponse> {
 
 
 
-#[post("/uniXerr/api/auth/logout")]
+#[post("/auth/logout")]
 async fn logout(req: HttpRequest) -> Result<HttpResponse> { // logout route doesn't need auth middleware cause it has the token inside its request header  
     if let Some(authen_header) = req.headers().get(constants::AUTHORIZATION) {
         account_service::logout(authen_header.clone()).await;

@@ -7,13 +7,13 @@
 
 use crate::constants;
 use crate::utils::response::ResponseBody;
-use crate::libs::actors::{Miner, Ping};
-use crate::schemas::{Block, Chain, Transaction, RuntimeInfo, MetaData};
+use crate::schemas::{Block, Chain, Transaction};
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use actix_web::{web, get, post, Error, HttpRequest, HttpResponse};
 use futures::StreamExt;
 use std::sync::{Arc, Mutex};
 use std::{slice, mem};
+
 
 
 
@@ -31,10 +31,9 @@ use std::{slice, mem};
            the Transaction struct for mining and consensus process, finally if a transaction was added to the blockchain, 
            its is_mined field will become true and then update coins algorithm in auth microservice transfer coin will be processed.
    ------------------------------------------------------------------------------------------------------------------------------------------- */    
-#[post("/uniXerr/api/coiniXerr/transaction")] //-- the route for handling streaming of transactions in form of utf8 binary data 
-async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchain: web::Data<Chain>, run_time_info: web::Data<Arc<Mutex<RuntimeInfo>>>) -> Result<HttpResponse, Error>{
+#[post("/coiniXerr/transaction")] //-- the route for handling streaming of transactions in form of utf8 binary data 
+async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchain: web::Data<Chain>) -> Result<HttpResponse, Error>{
     let blockchain = blockchain.as_ref().clone();
-    let run_time_info = run_time_info.as_ref().clone();
     let ip = req.peer_addr().unwrap().ip();
     let port = req.peer_addr().unwrap().port();
     println!("[+] SERVER TIME : {} | TRANSACTION FROM PEER ::: {}:{} ", chrono::Local::now().naive_local(), ip, port);
@@ -55,41 +54,6 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchai
     // blockchain.add(mined_block);
     // ...
     des_trans_union.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
-    // ----------------------------------------------------------------------
-    //             STARTING MINER ACTOR WITH A SIGNED TRANSACTION
-    // ----------------------------------------------------------------------
-    let miner = Miner::create(|ctx| { //-- after passing the consensus algorithm every peer can be a miner - starting miner actor for this transaction
-        let addr = ctx.address();
-        let addr2 = Miner {
-            transaction: des_trans_union.clone(), //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
-            name: String::from("Miner 2"),
-            recipient: addr.recipient(),
-        }
-        .start();
-        addr2.do_send(Ping { id: 10 });
-        let miner = Miner {
-            transaction: des_trans_union.clone(), //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
-            name: String::from("Miner 1"),
-            recipient: addr2.recipient(),
-        };
-        miner
-    });
-    let signed_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction - serializing a new transaction struct into &[u8] bytes
-        //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
-        //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
-        //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
-        slice::from_raw_parts(des_trans_union as *const Transaction as *const u8, mem::size_of::<Transaction>()) 
-    };
-    // ----------------------------------------------------------------------
-    //                           SAVING RUNTIME INFO
-    // ----------------------------------------------------------------------
-    run_time_info.lock().unwrap().add(
-        MetaData{
-            address: req.peer_addr().unwrap(),
-            buffer: signed_transaction_bytes.to_vec(), //-- to_vec() copies self into a new Vec - &[u8] to Vec<u8>
-            actor: miner,
-        }
-    );
     // ----------------------------------------------------------------------
     //               SENDING SIGNED TRANSACTION BACK TO THE USER
     // ----------------------------------------------------------------------
