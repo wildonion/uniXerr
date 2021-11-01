@@ -8,4 +8,4 @@
 
 # APIs
 
-* **ws://localhost:7368/uniXerr/api/chat/{username}/{friend_id}/{token}**
+* **ws://api.unixerr.com:7368/chat/{username}/{friend_id}/{token}**

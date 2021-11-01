@@ -21,7 +21,7 @@
 |
 |
 | minimum number of score for everyone generated
-| by uinXerr protocol is 10, because the minimum 
+| by uinXerr protocol is 100, because the minimum 
 | of each feature is 5.
 |
 |

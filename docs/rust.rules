@@ -1,5 +1,7 @@
 Async & Multithreading Rules:
-    [+] actors removes the need for lock-based synchronization or mutext (mutual exclusion) locking when mutating a data structure by blocking the local thread, instead they communicate with each other through defined messages or events
+    [+] we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument and needs to mutate a field 
+    [+] to solve the issue we have to put that object inside a Mutex to share and protect it between multiple threads and mutate by blocking the current thread when calling the lock() method, prevent from being in a dead lock, race condition and shared state situations
+    [+] actors removes the need for lock-based synchronization or mutext (mutual exclusion) locking when mutating a data structure by blocking the local thread, instead they communicate with each other through defined messages or events based on message passing protocol like mpsc job queue channel
     [+] thread::spawn() takes a closure and tokio::spawn() takes a future and share it between multiple threads using mpsc job queue channel protocol, thus all the subtypes of the task must be Send + Sync and cloneable
     [+] use 'static lifetime to have a valid lifetime across .await (before and after solving the future), cause futures are Future + Send + 'static and are pinned to memory in order to be solved later thus all variables before and after them must be a variable with a valid lifetime
     [+] rust async feature which is zero cost async programming is not based on event loop or green threads like nodejs, it'll convert async functions and blocks to future object by bounding them to Future trait finally the future can be solved inside a single thread or a thread pool using either join!() macro, block_on function or .await
@@ -26,7 +28,7 @@ Async & Multithreading Rules:
     [+] for each request comming from the client there is only one thread to do the job (request) at a time
     [+] there are no two threads handling a same job (request) at a time
     [+] there is only one thread get the job after it received it from the channel and it'll lock on that job until it's over, in that moment for the new incoming request another thread must handle the job and send the response
-    [+] Arc<T> allows to have multiple ownership of the data by cloning it and Mutex<T> allows to lock the thread on the data to mutate its content in multithreading context
+    [+] Arc<T> allows to have multiple ownership of the data which can't implement the Clone trait by cloning it and Mutex<T> allows to lock the thread on the data to mutate its content in multithreading context
     [+] none thread blocking execution between tasks or functions inside a single thread is called async programming
     [+] to do thread safe ops we can share the ownership across multiple threads using Ac<T> and mutate them using only one thread at a time with Mutex<T>
     [+] a Mutex<T> does not distinguish between readers or writers that acquire the lock, therefore blocking any threads waiting for the lock to become available. 
@@ -56,7 +58,7 @@ Sugar Rules:
     [+] for those types specially concrete types like traits which don't have size at compile time means they are not bounded to Sized trait, we have to point them using a pointer like Box<dyn Trait> or &dyn Trait
     [+] into_something methods consumes self, avoiding clones as much as possible, and to_something takes &self, potentially cloning some data
     [+] web::Payload in actix is used to extract the streaming of binary data from the request
-    [+] ptr, len, capacity of the String are stored on the stack and the data will be stored on the heap which is a buffer allocate in the binary to the str data
+    [+] ptr, len, capacity of the String are stored on the stack and the data will be stored on the heap which is a buffer allocate in the binary to the str data cause String is a wrapper around the str
     [+] &String is a pointer to the whole String and &str is a pointer to that part of the String (which is a str) on the heap buffer
     [+] String is a growable, ownable heap-allocated data structure that owns the actual full str buffer on the heap it manages and it can be coerced to a &str
     [+] &str substrings (a slice of String) are just fat pointers to that buffer (allocated by String) on the heap
@@ -78,7 +80,7 @@ Sugar Rules:
     [+] Fn, FnMut, and FnOnce can be bounded an object safe trait bounds to closure arguments
     [+] Fn trait is an object safe trait, because of unknown size at compile time it needs to be inside the Box<dyn Trait_Name>
     [+] &T and &mut T will be coerced into raw pointers *const T or *mut T respectively
-    [+] Vec<u8> is coerced to &u8 and String is coerced to &str cause of unknown size for both of them at compile time a reference will be taken from them which contains a pointer saved on stack along with capacity and len to the location of the data inside heap   
+    [+] Vec<u8> is coerced to &u8 and String is coerced to &str cause of unknown size (not bounded to Sized trait) for both of them at compile time a reference will be taken from them which contains a pointer to the location of the data inside heap saved on stack along with capacity and len    
     [+] we take a reference from a variable using & which is called smart pointer, by doing this we're borrowing the value of the variable instead of taking its ownership and the reference that just has taken from the variable contains a pointer stored on the stack which is a hex address to the memory location of the data stored on heap or stack.
     [+] a pointer contains a reference to the location address of the data on the heap or stack and we can pin its value in place using Pin to prevent the value from being moved 
     [+] trait Sized is implemented for all types that their size are known at compile time like &str and String but it's not bounded to str cause str has no fixed size at compile time
