@@ -81,8 +81,8 @@
             NOTE - every incoming task or job or message from an opened process (like every stream coming from a socket connection) :
                     - has its own sender in which all messages will be sent asynchronously and they never block the current thread and we can share sender of the mpsc job queue channel of each between multiple threads by getting a clone from it but this is not the same for the receiver
                     - can be an async task spawned by the tokio spawner
-                    - must be solved inside an available thread
-                    - is a mutex which must be acquired once it's arrived to down side of the channel by locking on the receiver side of the channel which will block the current thread            
+                    - must be solved inside an available thread but only one at a time
+                    - is a mutex which must be acquired once it's arrived to down side of the channel by locking on the receiver side of the channel which will block the current thread    
             
             
             

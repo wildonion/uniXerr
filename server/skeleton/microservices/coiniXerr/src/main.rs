@@ -16,7 +16,7 @@ mod utils;
 mod apis;
 use tokio::net::{TcpListener, TcpStream}; //-- async tcp listener and stream
 use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method implemented for the object of TcpStream
-use tokio::sync::mpsc; //-- to share values between multiple async tasks spawned by the tokio spawner
+use tokio::sync::mpsc; //-- to share values between multiple async tasks spawned by the tokio spawner which is based on green threads so shared state can be change only one at a time using a thread 
 use listenfd::ListenFd;
 use uuid::Uuid;
 use std::sync::{Arc, Mutex};
@@ -52,8 +52,8 @@ async fn main() -> std::io::Result<()>{
 
     // NOTE - we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument and needs to mutate a field like run_time_info add() method in which the info_dict field will be update 
     // NOTE - to solve above issue we have to put that object inside a Mutex to share and protect it between multiple threads and mutate or acquire the mutex by blocking the current thread when calling the lock() method, prevent from being in a dead lock, race condition and shared state situations
-    let mut run_time_info = RuntimeInfo::new();
-    let arc_mutex_runtime_info_object = Arc::new(Mutex::new(run_time_info)); 
+    let run_time_info = RuntimeInfo::new();
+    let arc_mutex_runtime_info_object = Arc::new(Mutex::new(run_time_info)); //-- we can clone the run_time_info withou using Arc cause Clone trait is implemented for RuntimeInfo -> MetaData -> Miner actor
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
     dotenv().expect("⚠️ .env file not found");
@@ -89,7 +89,7 @@ async fn main() -> std::io::Result<()>{
     while let Ok((stream, addr)) = listener.accept().await{
         println!("-> connection stablished from miner [{}]", addr);
         let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning runtime info object to prevent from moving in every iteration between threads
-        let tx = tx.clone(); //-- each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the semaphore or mutex lock
+        let tx = tx.clone(); //-- each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
         pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
             tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a miner actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
                 // ----------------------------------------------------------------------
@@ -101,6 +101,7 @@ async fn main() -> std::io::Result<()>{
                     recipient: None, //-- address of another miner - none when we're initializing a miner
                     rewards: None, //-- reward coins after mining transactions - none when we're initializing a miner
                 };
+                miner.clone().start(); //-- cloning the miner actor will prevent the object from moving
                 // ----------------------------------------------------------------------
                 //                           SAVING RUNTIME INFO
                 // ----------------------------------------------------------------------
@@ -112,7 +113,6 @@ async fn main() -> std::io::Result<()>{
                         }
                     )
                 };
-                miner.start();
                 tx.send((stream, meta_data_uuid, cloned_mutex_runtime_info_object)).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid through the mpsc channel 
             }); //-- awaiting on tokio::spawn() will block the current task which is running in the background
         });
