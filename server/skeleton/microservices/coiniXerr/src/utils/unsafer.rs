@@ -161,7 +161,8 @@ fn unsafer(){
 
 
 
-    
+    // NOTE - changing the value of the varibale using its pointer or its shallow copy and both the pointer and the object must be defined mutable
+    // NOTE - making a deep copy from the object is done by cloning the object using clone() method (trait Clone must be implemented) to prevent double free pointer issue from happening
     let mut a = 32;
     let mut b = &mut a as *mut i32;
     println!("`b` value >>>> {}", unsafe{*b});
