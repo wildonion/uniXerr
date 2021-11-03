@@ -18,6 +18,6 @@
 
 
 next-coding: credit score coin generation based on position clustering for master thesis and consensus algorithm 
-next-coding: hash algorithm of a transaction, block and merkle root and wallet address using AI or argon2 or keccak-256 => https://github.com/AleoHQ/wagyu#22b-build-from-cratesio
+next-coding: hash algorithm for a transaction, block and merkle root and wallet address using AI or argon2 or keccak-256 => https://github.com/AleoHQ/wagyu#22b-build-from-cratesio
 next-coding: improve auth microservice to detect anomalies login based on SSL models like VAE, GAN and transformers using psychoder
 next-tech  : substrate blockchain framework with its smart contract language ink! => https://medium.com/block-journal/introducing-substrate-smart-contracts-with-ink-d486289e2b59

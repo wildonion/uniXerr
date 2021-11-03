@@ -88,8 +88,8 @@ async fn main() -> std::io::Result<()>{
     /////// ==============================================================================================================================
     while let Ok((stream, addr)) = listener.accept().await{
         println!("-> connection stablished from miner [{}]", addr);
-        let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning runtime info object to prevent from moving in every iteration between threads
-        let tx = tx.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
+        let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy) runtime info object to prevent from moving in every iteration between threads
+        let tx = tx.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
         pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
             tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a miner actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
                 // ----------------------------------------------------------------------
@@ -101,7 +101,7 @@ async fn main() -> std::io::Result<()>{
                     recipient: None, //-- address of another miner - none when we're initializing a miner
                     rewards: None, //-- reward coins after mining transactions - none when we're initializing a miner
                 };
-                let miner_addr = miner.clone().start(); //-- cloning the miner actor will prevent the object from moving - trait Clone is implemented for Miner actor struct
+                let miner_addr = miner.clone().start(); //-- cloning (making a deep copy) the miner actor will prevent the object from moving - trait Clone is implemented for Miner actor struct
                 // ----------------------------------------------------------------------
                 //                           SAVING RUNTIME INFO
                 // ----------------------------------------------------------------------
@@ -109,7 +109,7 @@ async fn main() -> std::io::Result<()>{
                     cloned_mutex_runtime_info_object.lock().unwrap().add(
                         MetaData{
                             address: stream.peer_addr().unwrap(),
-                            actor: miner.clone(), //-- cloning the miner actor will prevent the object from moving
+                            actor: miner.clone(), //-- cloning (making a deep copy) the miner actor will prevent the object from moving
                         }
                     )
                 };

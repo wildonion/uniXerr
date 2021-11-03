@@ -12,10 +12,13 @@ use std::collections::HashMap;
 
 
 
-
+// ============================================== Miner Pool Schema ==============================================
+// ===============================================================================================================
 #[derive(Debug, Clone)]
 pub struct MinerPool(pub Vec<Addr<Miner>>); //-- pool of miners
 
+// ============================================== RuntimeInfo Schema ==============================================
+// ================================================================================================================
 #[derive(Debug, Clone)]
 pub struct RuntimeInfo{
     pub info_dict: HashMap<Uuid, MetaData>, //-- MetaData struct should implements the Debug and Clone trait also
@@ -34,6 +37,8 @@ impl RuntimeInfo{
     }
 }
 
+// ============================================== MetaData Schema ==============================================
+// =============================================================================================================
 #[derive(Debug, Clone)] 
 pub struct MetaData{
     pub address: SocketAddr,
@@ -46,6 +51,8 @@ impl MetaData{
     }
 }
 
+// ============================================== Chain Schema ==============================================
+// ==========================================================================================================
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Chain{
     pub branch_id: Uuid,
@@ -81,6 +88,8 @@ impl Chain{
     }
 }
 
+// ============================================== Block Schema ==============================================
+// ==========================================================================================================
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Block{
     pub id: Uuid,
@@ -127,6 +136,8 @@ impl Default for Block{
     }
 }
 
+// ============================================== Node Schema ==============================================
+// =========================================================================================================
 #[derive(Debug)]
 pub struct Node{
     pub id: Uuid,
@@ -141,7 +152,7 @@ impl Node{
         self.children.push(Rc::new(node));
     }
 
-    pub fn children(&mut self, node: Node) -> Result<Vec<Rc<Self>>, String>{
+    pub fn children(&mut self, node: Node) -> Result<Vec<Rc<Self>>, String>{ //-- &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
         if node.children.len() != 0{
             Ok(node.children)
         } else{
@@ -150,6 +161,8 @@ impl Node{
     }
 }
 
+// ============================================== Transaction Schema ==============================================
+// ================================================================================================================
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 // NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
