@@ -37,7 +37,7 @@ use crate::schemas::{Transaction, Chain, RuntimeInfo, MetaData};
 
 
 
-
+//-- creating an event loop based Runtime under the hood
 // #[tokio::main]
 #[actix_web::main] //-- await is only allowd inside an async function due to this reason we're using the actix_web as a runtime on top of tokio to make the main() function as an async one
 async fn main() -> std::io::Result<()>{
@@ -121,19 +121,22 @@ async fn main() -> std::io::Result<()>{
     }
     while let Some((mut stream, generated_uuid, cloned_mutex_runtime_info_object, cloned_arc_mutex_miner_addr)) = rx.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
         tokio::spawn(async move { //-- this is an async task related to updating a miner actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
-            let mut transaction_buffer_bytes = [0 as u8; 1024];
+            let mut transaction_buffer_bytes = vec![0 as u8; buffer_size]; //-- using [0 as u8; buffer_size] gives us the error : attempt to use a non-constant value in a constant
             while match stream.read(&mut transaction_buffer_bytes).await{ //-- streaming over the incoming bytes from the socket - reading is the input and writing is the output
                 Ok(size) if size == 0 => false, //-- socket closed
                 Ok(size) => {
                     // ----------------------------------------------------------------------
                     //                              MINING PROCESS
                     // ----------------------------------------------------------------------
+                    // TODO - bytes validation like accept only transaction bytes
                     // TODO - limit transaction inside a block by calculating the size of the block after adding an incoming transaction from the auth microservice
                     // TODO - if the size of the current block was equal to 4 mb then we have to build another block for mining its transaction
                     // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
                     // TODO - add mined block to the coiniXerr chain
                     // blockchain.add(mined_block);
                     // ...
+                    // NOTE - encoding or serializing process is converting struct object into utf8 bytes
+                    // NOTE - decoding or deserializing process is converting utf8 bytes into the struct object
                     let deserialized_transaction = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
                     deserialized_transaction.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
                     let signed_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
