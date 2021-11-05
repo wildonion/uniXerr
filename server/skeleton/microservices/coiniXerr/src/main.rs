@@ -50,8 +50,8 @@ async fn main() -> std::io::Result<()>{
     
 
 
-    // NOTE - we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument and needs to mutate a field like run_time_info add() method in which the info_dict field will be update 
-    // NOTE - to solve above issue we have to put that object inside a Mutex to share and protect it between multiple threads and mutate or acquire the mutex by blocking the current thread when calling the lock() method, prevent from being in a dead lock, race condition and shared state situations
+    // NOTE - we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument and needs to mutate a field like run_time_info add() method in which the info_dict field will be updated 
+    // NOTE - to solve above issue we have to put that object inside a Mutex (&mut) to share (Arc) and protect it between multiple threads and mutating or mutex acquisition is done by blocking the current thread when calling the lock() method, prevent from being in a dead lock, race condition and shared state situations
     let run_time_info = RuntimeInfo::new();
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(run_time_info)); //-- we can clone the run_time_info withou using Arc cause Clone trait is implemented for RuntimeInfo -> MetaData -> Miner actor
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
@@ -65,7 +65,7 @@ async fn main() -> std::io::Result<()>{
     let blockchain = Chain::default(); //-- start the network by building a genesis block and a default transaction with 100 coins from the coiniXerr network wallet to the wildonion wallet
     let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
     let pool = scheduler::ThreadPool::new(10);
-    let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid, Arc<Mutex<RuntimeInfo>>)>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket 
+    let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid, Arc<Mutex<RuntimeInfo>>, Arc<Mutex<Addr<Miner>>>)>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket 
 
 
     
@@ -102,6 +102,8 @@ async fn main() -> std::io::Result<()>{
                     rewards: None, //-- reward coins after mining transactions - none when we're initializing a miner
                 };
                 let miner_addr = miner.clone().start(); //-- cloning (making a deep copy) the miner actor will prevent the object from moving - trait Clone is implemented for Miner actor struct
+                let arc_mutex_miner_addr = Arc::new(Mutex::new(miner_addr)); //-- creating an Arc object which is inside a Mutex cause Miner actor doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the miner_addr object inside a mutex to be updatable between threads
+                let cloned_arc_mutex_miner_addr = Arc::clone(&arc_mutex_miner_addr); //-- we're borrowing the ownership of the Arc-ed and Mutex-ed miner_addr object to move it between threads without loosing the ownership 
                 // ----------------------------------------------------------------------
                 //                           SAVING RUNTIME INFO
                 // ----------------------------------------------------------------------
@@ -113,11 +115,11 @@ async fn main() -> std::io::Result<()>{
                         }
                     )
                 };
-                tx.send((stream, meta_data_uuid, cloned_mutex_runtime_info_object)).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid through the mpsc channel 
+                tx.send((stream, meta_data_uuid, cloned_mutex_runtime_info_object, cloned_arc_mutex_miner_addr)).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid through the mpsc channel 
             }); //-- awaiting on tokio::spawn() will block the current task which is running in the background
         });
     }
-    while let Some((mut stream, generated_uuid, cloned_mutex_runtime_info_object)) = rx.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
+    while let Some((mut stream, generated_uuid, cloned_mutex_runtime_info_object, cloned_arc_mutex_miner_addr)) = rx.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
         tokio::spawn(async move { //-- this is an async task related to updating a miner actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
             let mut transaction_buffer_bytes = [0 as u8; 1024];
             while match stream.read(&mut transaction_buffer_bytes).await{ //-- streaming over the incoming bytes from the socket - reading is the input and writing is the output
