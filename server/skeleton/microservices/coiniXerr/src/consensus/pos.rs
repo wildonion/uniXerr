@@ -14,3 +14,6 @@
 // NOTE - more transactions from a user the network gets per week; more bonus coins he/she gets paied besides his/her own reward
 // NOTE - public key is used to generate wallet address and private key is used to sign blockchain based transactions
 // ...
+
+
+use crate::libs::contract;

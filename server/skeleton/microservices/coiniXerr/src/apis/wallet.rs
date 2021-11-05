@@ -12,7 +12,6 @@ use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads c
 use actix_web::{web, get, post, Error, HttpRequest, HttpResponse};
 use futures::StreamExt;
 use std::sync::{Arc, Mutex};
-use std::{slice, mem};
 
 
 

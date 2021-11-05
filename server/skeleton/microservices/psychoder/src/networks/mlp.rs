@@ -39,7 +39,7 @@ impl Linear{
         linear_neural_circuit.next().unwrap().communicate(linear_neural_circuit.next()); //-- communicate method through synapse trait
         let mat = x_train;
         let NTHREADS = 4; // number of threads inside the pool
-        let NJOBS: usize = mat.len(); // number of tasks of the process (x_train matrix) to share each one between threads inside the pool
+        let NJOBS: usize = mat.len(); // number of tasks of the process (incoming x_train matrix) to share each one between threads inside the pool
         let pool = ThreadPool::new(NTHREADS);
         let (sender, receiver) = channel();
         let arc_mat = Arc::new(mat);

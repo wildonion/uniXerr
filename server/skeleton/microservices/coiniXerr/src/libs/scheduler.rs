@@ -6,9 +6,9 @@
 
 
 
-                         -------------------------------------------------------------------------------------------------------------------------------------------
-                        || synchronous task scheduler using multiple threads or workers communication based on messaging channel; mpsc job queue channel protocol ||
-                        -------------------------------------------------------------------------------------------------------------------------------------------
+                     ---------------------------------------------------------------------------------------------------------------------------------------------
+                    || synchronous task scheduler using multiple OS threads or workers communication based on messaging channel; mpsc job queue channel protocol ||
+                     ---------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -59,7 +59,7 @@
             | so we can solve multiple tasks or multiple processes concurrently and simultaneously inside a single thread 
             | in the background of the app without making a thread pool for each process or task, since tokio::spawn() 
             | itself uses multiprocessing and green thread - threads that are scheduled by a runtime library or 
-            | VM instead of natively by the underlying OS) concepts in its runtime for solving tasks. 
+            | VM instead of natively by the underlying OS - concepts in its runtime for solving tasks. 
             \ --------------------------------------------------------------------------------------------------------------
               --------------------------------------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@
             NOTE - the sender of mpsc channel can be owned by multiple threads but the receiver can only be owned by only one thread at a time, that's because it's called multi producer and single consumer (many threads can send simultaneously to one receiver)  
             NOTE - mutex acquisition is done by waiting on the receiver until a job or task becomes available to down side of the channel then locking on the receiver to acquire the mutex which will block the threads waiting for the lock to becomes available
             NOTE - if a thread was busy another thread will be spawned to handle new task or job coming from the process
-            NOTE - we can send a computation result inside the tokio::spawn() through mpsc job queue channel and let the task inside tokio::spawn() be run in the background
+            NOTE - we can send a computation result inside the tokio::spawn() through a sender of mpsc job queue channel to the receiver side and let the task inside tokio::spawn() be run in the background
             NOTE - we can save each tokio::spawn() inside a variable which of type JoinHandle to await on them later on to block their running background task to get the computation result of their async task            
             NOTE - tokio::spawn() is an asynchronous multithreaded and event loop based task spawner and scheduler which takes a green thread based task of type future of a process and shares it between its threads using its job queue channel protocol so every type in the task must be Send + Sync + 'static and cloneable
             NOTE - task scheduler or handler like tokio::spawn() or actors address (Addr object) and defined events (Messages) is done through threads communication based on message passing channels like mpsc job queue channel to avoid being in dead lock, shared state and race condition situation

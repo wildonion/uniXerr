@@ -17,6 +17,6 @@
 
 
 
-next-coding: credit score coin generation based on position clustering for master thesis and consensus algorithm 
+next-coding: consensus algorithm and credit score coin generation based on position clustering for master thesis
 next-coding: hash algorithm for a transaction, block and merkle root and wallet address using AI or argon2 or keccak-256 => https://github.com/AleoHQ/wagyu#22b-build-from-cratesio
 next-coding: improve auth microservice to detect anomalies login based on SSL models like VAE, GAN and transformers using psychoder

@@ -7,7 +7,7 @@
 
 
 
-
+#[macro_use]
 mod constants;
 mod schemas;
 mod libs;
@@ -16,7 +16,7 @@ mod utils;
 mod apis;
 use tokio::net::{TcpListener, TcpStream}; //-- async tcp listener and stream
 use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method implemented for the object of TcpStream
-use tokio::sync::mpsc; //-- to share values between multiple async tasks spawned by the tokio spawner which is based on green threads so shared state can be change only one at a time using a thread 
+use tokio::sync::mpsc; //-- to share values between multiple async tasks spawned by the tokio spawner which is based on green threads so shared state can be change only one at a time inside a thread 
 use listenfd::ListenFd;
 use uuid::Uuid;
 use std::sync::{Arc, Mutex};
@@ -120,7 +120,7 @@ async fn main() -> std::io::Result<()>{
     while let Some((mut stream, generated_uuid, cloned_mutex_runtime_info_object)) = rx.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
         tokio::spawn(async move { //-- this is an async task related to updating a miner actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
             let mut transaction_buffer_bytes = [0 as u8; 1024];
-            while match stream.read(&mut transaction_buffer_bytes).await{ //-- keep socket always open
+            while match stream.read(&mut transaction_buffer_bytes).await{ //-- streaming over the incoming bytes from the socket - reading is the input and writing is the output
                 Ok(size) if size == 0 => false, //-- socket closed
                 Ok(size) => {
                     // ----------------------------------------------------------------------
@@ -138,7 +138,7 @@ async fn main() -> std::io::Result<()>{
                         //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
                         //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
                         //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
-                        slice::from_raw_parts(deserialized_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>()) 
+                        slice::from_raw_parts(deserialized_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>())
                     };
                     // ----------------------------------------------------------------------
                     //               UPDATING MINER ACTOR WITH A SIGNED TRANSACTION

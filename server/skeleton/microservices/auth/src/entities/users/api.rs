@@ -8,7 +8,7 @@ use crate::utils::ResponseBody;
 use crate::constants;
 use crate::handlers::error::uniXerr;
 use serde_json::json;
-use super::model::{InsertableUser, QueryableUser, UpdatableUser, PasswordFields, UploadFile, UserData, DeliveredCoins}; //-- load from the root of the current crate
+use super::model::{InsertableUser, QueryableUser, UpdatableUser, PasswordFields, UploadFile, UserData}; //-- load from the root of the current crate
 use actix_multipart::Multipart;
 use std::fs;
 use futures::{StreamExt, TryStreamExt};
