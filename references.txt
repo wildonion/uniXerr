@@ -17,7 +17,7 @@ https://drive.google.com/drive/folders/18yLzjMke-FD_onY-ayqDo03uqxUS-cHc => Goog
 https://github.com/atcold/pytorch-Deep-Learning/ => DL tutorial
 https://github.com/ritchieng/deep-learning-wizard => DL tutorial
 https://julienbeaulieu.gitbook.io => DS tutorial
-https://drive.google.com/drive/folders/1vNTdWOWXI3MetTYlIxnxDuWRK6M5VGZH => Google Drive CSR folder + ideas.txt + master_thesis doc for research papers
+https://drive.google.com/drive/folders/1vNTdWOWXI3MetTYlIxnxDuWRK6M5VGZH => Google Drive CSR folder + ideas.txt for research papers
 
 
 

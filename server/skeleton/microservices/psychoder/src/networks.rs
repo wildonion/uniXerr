@@ -26,10 +26,8 @@
 pub mod cnn;
 pub mod mlp;
 pub mod gnn;
-pub mod transformers;
 pub mod lstm;
-pub mod gan;
-pub mod vae;
+pub mod ssl;
 use std::sync::Arc;
 use crate::networks::mlp::Linear;
 use crate::networks::cnn::Conv2d;
