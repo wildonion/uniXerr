@@ -17,7 +17,8 @@
 |  coin generation (credit scoring) model
 | -----------------------------------------------
 | credit score generation (number of coins) 
-| based on position clustering
+| based on position classifying clustered
+| using VAE and Kmeans
 |
 |
 | minimum number of score for everyone generated
