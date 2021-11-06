@@ -4,11 +4,10 @@
 
 
 from django.urls import include, path
-from .views import CustomerCreate, CustomerList, CustomerDetail
+from .views import CustomerCreate, CustomerList
 
 
 urlpatterns = [
-    path('create/', CustomerCreate.as_view(), name='create-customer'),
-    path('', CustomerList.as_view()),
-    path('<int:pk>/', CustomerDetail.as_view(), name='retrieve-customer'),
+    path('create/', CustomerCreate.as_view()),
+    path('data/', CustomerList.as_view()),
 ]

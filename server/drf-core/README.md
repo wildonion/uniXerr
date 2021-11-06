@@ -5,19 +5,33 @@
 
 ### Setup On Windows
 
-```pip install virtualenv && virtualenv envio```
+```console 
+pip install virtualenv && virtualenv envio
+```
 
-```.\envio\Scripts\activate && pip install django djangorestframework psycopg2```
+```console 
+.\envio\Scripts\activate && pip install django djangorestframework psycopg2
+```
 
 ### Setup On Linux
 
-```sudo pip install virtualenv && virtualenv envio```
+```console 
+sudo pip install virtualenv && virtualenv envio
+```
 
-```source envio/bin/activate && pip install django djangorestframework psycopg2```
+```console 
+source envio/bin/activate && pip install django djangorestframework psycopg2
+```
 
 # Run Server
 
-```cd cus_dev && python manage.py runserver```
+```console 
+cd cus_dev
+```
+
+```console 
+python manage.py migrate && python manage.py runserver
+```
 
 [API](http://localhost:8000/envio)
 
