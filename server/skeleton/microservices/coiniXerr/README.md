@@ -1,5 +1,5 @@
 
-💰 uniXerr Blockchain Network Supports issuing CRC20 Token based Smart Contract on top of Actor Desing Pattern
+💰 uniXerr Cryptocurrency Coins and CRC20 Token Smart Contract based on Actor Desing Pattern on top of coiniXerr Blockchain Network
 
 
 [Blockchain Technology](https://drive.google.com/open?id=1bB_d_wIUyWDoKZlY217AODeYeypw2BUj)

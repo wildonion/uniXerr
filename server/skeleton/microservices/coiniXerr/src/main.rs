@@ -11,6 +11,7 @@ mod schemas;
 mod libs;
 mod consensus;
 mod utils;
+mod codec;
 mod apis;
 use tokio::net::{TcpListener, TcpStream}; //-- async tcp listener and stream
 use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method implemented for the object of TcpStream
@@ -24,7 +25,7 @@ use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads c
 use actix_web::{App, HttpServer, middleware};
 use actix_session::CookieSession;
 use apis::wallet::routes as coin_routes;
-use crate::libs::actors::{Miner, Ping};
+use crate::libs::actors::Miner;
 use crate::libs::scheduler;
 use crate::schemas::{Transaction, Chain, RuntimeInfo, MetaData};
 
@@ -86,8 +87,8 @@ async fn main() -> std::io::Result<()>{
     
     
     
-    ////// NOTE - we can save each tokio::spawn() inside a variable which of type JoinHandle (like OS threads) to await on them later on to block their running background task to get the computation result of their async task or we can send their computation results through the mpsc job queue channel between other tasks             
-    ////// NOTE - tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes an async task of type future of a process and shares it between its threads using its job queue channel protocol so every type in the task must be Send + Sync + 'static and cloneable
+    // NOTE - we can save each tokio::spawn() inside a variable which of type JoinHandle (like OS threads) to await on them later on to block their running background task to get the computation result of their async task or we can send their computation results through the mpsc job queue channel between other tasks             
+    // NOTE - tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes an async task of type future of a process and shares it between its threads using its job queue channel protocol so every type in the task must be Send + Sync + 'static and cloneable
     /////// ==============================================================================================================================   
     ///////                         starting miners' actors for incoming transactions' bytes through a tcp stream 
     /////// ==============================================================================================================================
@@ -134,6 +135,8 @@ async fn main() -> std::io::Result<()>{
                     // ----------------------------------------------------------------------
                     //                              MINING PROCESS
                     // ----------------------------------------------------------------------
+                    let deserialized_transaction_union = Transaction::new(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using TransactionMem union
+                    let deserialized_transaction = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
                     // TODO - limit transaction inside a block by calculating the size of the block after adding an incoming transaction from the auth microservice
                     // TODO - if the size of the current block was equal to 4 mb then we have to build another block for mining its transaction
                     // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
@@ -142,8 +145,7 @@ async fn main() -> std::io::Result<()>{
                     // ...
                     // NOTE - encoding or serializing process is converting struct object into utf8 bytes
                     // NOTE - decoding or deserializing process is converting utf8 bytes into the struct object
-                    let deserialized_transaction = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
-                    deserialized_transaction.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
+                    deserialized_transaction_union.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
                     let signed_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
                         //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
                         //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
