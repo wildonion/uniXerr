@@ -1,7 +1,7 @@
 
 
 
-
+from django.db.models.functions import TruncDate
 from django.db.models import query
 from django.db.models.aggregates import Avg, Count
 from django.shortcuts import render
@@ -20,7 +20,6 @@ class CustomerCreate(generics.CreateAPIView):
 
 
 
-# https://stackoverflow.com/questions/34589074/data-between-start-time-stamp-and-end-time-stamp-at-5-minutes-interval-in-postgr
 # retrieving is an aggregated form over time
 class CustomerList(generics.ListAPIView):
     serializer_class = CustomerSerializer
@@ -30,9 +29,8 @@ class CustomerList(generics.ListAPIView):
             start_time = self.request.GET.get('start', None) #-- this is the oldest time in db - inclusive
             end_time = self.request.GET.get('end', None) #-- this is the newest time in db - inclusive
             interval = self.request.GET.get('interval', 5) #-- in minutes - default is 5
-            # reading is aggregated by averaging over time which the default is 5 minutes - reading data and average them every 5 minutes
+            #-- reading is aggregated by averaging over time which the default is 5 minutes - reading data and average them every 5 minutes
             queryset = Customer.objects.filter(timestamp__range=(start_time, end_time)) \
-                                        .extra(select={'timestamp': "FLOOR (EXTRACT (EPOCH FROM timestamp::timestamp without time zone) / '900')"}) \
-                                        .values('timestamp') \
+                                        .extra(select={'timestamp': "FLOOR (EXTRACT (EPOCH FROM timestamp::timestamp without time zone) / '300')"}) \
                                         .annotate(readings=Avg('reading'))
-        return queryset
+        return queryset # we have to serialize this queryset into the json using our Serializer

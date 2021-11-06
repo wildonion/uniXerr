@@ -8,6 +8,6 @@ from .views import CustomerCreate, CustomerList
 
 
 urlpatterns = [
-    path('create/', CustomerCreate.as_view()),
+    path('insert/', CustomerCreate.as_view()),
     path('data/', CustomerList.as_view()),
 ]
