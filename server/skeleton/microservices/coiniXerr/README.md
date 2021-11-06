@@ -1,5 +1,5 @@
 
-💰 uniXerr Cryptocurrency
+💰 uniXerr Blockchain Network Supports issuing CRC20 Token based Smart Contract on top of Actor Desing Pattern
 
 
 [Blockchain Technology](https://drive.google.com/open?id=1bB_d_wIUyWDoKZlY217AODeYeypw2BUj)
