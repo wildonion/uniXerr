@@ -29,8 +29,8 @@ class CustomerList(generics.ListAPIView):
         if self.request.method == 'GET':
             start_time = self.request.GET.get('start', None) #-- this is the oldest time in db - inclusive
             end_time = self.request.GET.get('end', None) #-- this is the newest time in db - inclusive
-            agg_size = self.request.GET.get('agg', 5) #-- in minutes - default is 5
-            # reading is aggregated by averaging over time
+            interval = self.request.GET.get('interval', 5) #-- in minutes - default is 5
+            # reading is aggregated by averaging over time which the default is 5 minutes - reading data and average them every 5 minutes
             queryset = Customer.objects.filter(timestamp__range=(start_time, end_time)) \
                                         .extra(select={'timestamp': "FLOOR (EXTRACT (EPOCH FROM timestamp::timestamp without time zone) / '900')"}) \
                                         .values('timestamp') \
