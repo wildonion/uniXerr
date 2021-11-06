@@ -46,7 +46,7 @@ impl Linear{
         let arc_recv = Arc::new(&receiver); //-- take a reference to the receiver to borrow it for putting it inside an Arc
         let mut mult_of_all_sum_cols = 1.0;
         let mut children = Vec::new();
-        let future_res = async {
+        let future_res = async { //-- we can also use tokio::spawn() to run the async task in the background using tokio event loop and green threads
             for i in 0..NJOBS{ //-- iterating through all the jobs of the process
                 let cloned_receiver = Arc::clone(&arc_recv); // can't clone receiver, in order to move it between threads we have to clone it using Arc
                 let cloned_sender = sender.clone(); // NOTE - sender can be cloned because it's multiple producer
@@ -65,7 +65,8 @@ impl Linear{
             mult_of_all_sum_cols
         };
         let res = block_on(future_res); //-- will block the current thread to run the future to completion
-        // let res = join!(future_res); // NOTE - join! only allowed inside `async` functions and blocks - suspend the function execution to run the future to completion 
+        // let res = future_res.await; //-- .awaiting a future will suspend the current function's execution until the executor has run the future to completion means doesn't block the current thread, allowing other tasks to run if the future is currently unable to make progress
+        // let res = join!(future_res); //-- join! only allowed inside `async` functions and blocks and is like .await but can wait for multiple futures concurrently
         println!("multiplication cols sum {:?}", res);
         let loss = 0.3535;
         loss

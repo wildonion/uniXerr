@@ -5,8 +5,6 @@
 
 
 
-
-
 #[macro_use]
 mod constants;
 mod schemas;
@@ -25,7 +23,6 @@ use dotenv::dotenv;
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use actix_web::{App, HttpServer, middleware};
 use actix_session::CookieSession;
-use futures::{executor, join};
 use apis::wallet::routes as coin_routes;
 use crate::libs::actors::{Miner, Ping};
 use crate::libs::scheduler;
@@ -48,6 +45,10 @@ async fn main() -> std::io::Result<()>{
 
 
     
+
+
+
+
 
 
     // NOTE - we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument and needs to mutate a field like run_time_info add() method in which the info_dict field will be updated 
@@ -79,13 +80,18 @@ async fn main() -> std::io::Result<()>{
 
 
 
+
+
+
     
     
     
-    
+    ////// NOTE - we can save each tokio::spawn() inside a variable which of type JoinHandle (like OS threads) to await on them later on to block their running background task to get the computation result of their async task or we can send their computation results through the mpsc job queue channel between other tasks             
+    ////// NOTE - tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes an async task of type future of a process and shares it between its threads using its job queue channel protocol so every type in the task must be Send + Sync + 'static and cloneable
     /////// ==============================================================================================================================   
     ///////                         starting miners' actors for incoming transactions' bytes through a tcp stream 
     /////// ==============================================================================================================================
+    
     while let Ok((stream, addr)) = listener.accept().await{
         println!("-> connection stablished from miner [{}]", addr);
         let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy) runtime info object to prevent from moving in every iteration between threads
@@ -110,7 +116,7 @@ async fn main() -> std::io::Result<()>{
                 let meta_data_uuid = {
                     cloned_mutex_runtime_info_object.lock().unwrap().add(
                         MetaData{
-                            address: stream.peer_addr().unwrap(),
+                            address: addr,
                             actor: miner.clone(), //-- cloning (making a deep copy) the miner actor will prevent the object from moving
                         }
                     )
@@ -121,14 +127,13 @@ async fn main() -> std::io::Result<()>{
     }
     while let Some((mut stream, generated_uuid, cloned_mutex_runtime_info_object, cloned_arc_mutex_miner_addr)) = rx.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
         tokio::spawn(async move { //-- this is an async task related to updating a miner actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
-            let mut transaction_buffer_bytes = vec![0 as u8; buffer_size]; //-- using [0 as u8; buffer_size] gives us the error : attempt to use a non-constant value in a constant
+            let mut transaction_buffer_bytes = vec![0 as u8; buffer_size]; //-- using [0 as u8; buffer_size] gives us the error of `attempt to use a non-constant value in a constant`
             while match stream.read(&mut transaction_buffer_bytes).await{ //-- streaming over the incoming bytes from the socket - reading is the input and writing is the output
                 Ok(size) if size == 0 => false, //-- socket closed
                 Ok(size) => {
                     // ----------------------------------------------------------------------
                     //                              MINING PROCESS
                     // ----------------------------------------------------------------------
-                    // TODO - bytes validation like accept only transaction bytes
                     // TODO - limit transaction inside a block by calculating the size of the block after adding an incoming transaction from the auth microservice
                     // TODO - if the size of the current block was equal to 4 mb then we have to build another block for mining its transaction
                     // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called

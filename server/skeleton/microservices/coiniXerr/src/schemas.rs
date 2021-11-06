@@ -12,13 +12,30 @@ use std::collections::HashMap;
 
 
 
-// ============================================== Miner Pool Schema ==============================================
-// ===============================================================================================================
+
+
+
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+//                                                      Miner Pool Schema                      
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
 pub struct MinerPool(pub Vec<Addr<Miner>>); //-- pool of miners
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 
-// ============================================== RuntimeInfo Schema ==============================================
-// ================================================================================================================
+
+
+
+
+
+
+
+
+
+
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+//                                                     RuntimeInfo Schema 
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
 pub struct RuntimeInfo{
     pub info_dict: HashMap<Uuid, MetaData>, //-- MetaData struct should implements the Debug and Clone trait also
@@ -36,9 +53,21 @@ impl RuntimeInfo{
         generated_uuid
     }
 }
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 
-// ============================================== MetaData Schema ==============================================
-// =============================================================================================================
+
+
+
+
+
+
+
+
+
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+//                                                       MetaData Schema 
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)] 
 pub struct MetaData{
     pub address: SocketAddr,
@@ -50,9 +79,23 @@ impl MetaData{
         self.actor.transaction = transaction;
     }
 }
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 
-// ============================================== Chain Schema ==============================================
-// ==========================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+//                                                         Chain Schema
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Chain{
     pub branch_id: Uuid,
@@ -61,7 +104,7 @@ pub struct Chain{
 }
 
 impl Chain{
-
+    
     pub fn default() -> Self{
         Chain{
             branch_id: Uuid::new_v4(),
@@ -77,7 +120,7 @@ impl Chain{
             blocks,
         }
     }
-
+    
     pub fn add(&mut self, block: Block) -> Self{ //-- the first param is a mutable pointer to every field of the struct - self takes a copy of all fields and &mut borrow the ownership of those fields for mutating them
         self.blocks.push(block);
         Chain{
@@ -87,9 +130,28 @@ impl Chain{
         }
     }
 }
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 
-// ============================================== Block Schema ==============================================
-// ==========================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+//                                                          Block Schema
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Block{
     pub id: Uuid,
@@ -109,12 +171,12 @@ impl Block{
         Block{ //-- don't return &self when constructing the struct cause we'll face lifetime issue for struct fields - &mut T is not bounded to Copy trait due to ownership and borrowing rules which we can't have multiple mutable pointer at the same time
             id: self.id,
             is_genesis: self.is_genesis,
-            prev_hash: self.prev_hash.clone(), //-- self.prev_hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
-            hash: self.hash.clone(), //-- self.hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
-            merkle_root: self.merkle_root.clone(), //-- self.merkle_root is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
+            prev_hash: self.prev_hash.clone(), //-- self.prev_hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
+            hash: self.hash.clone(), //-- self.hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
+            merkle_root: self.merkle_root.clone(), //-- self.merkle_root is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
             nonce: self.nonce,
             timestamp: self.timestamp,
-            transactions: self.transactions.clone(), //-- self.transactions is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait thus we have to clone it
+            transactions: self.transactions.clone(), //-- self.transactions is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for Vec thus we have to clone it 
             is_mined: self.is_mined,
         }
     }
@@ -135,9 +197,24 @@ impl Default for Block{
         }
     }
 }
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 
-// ============================================== Node Schema ==============================================
-// =========================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+//                                                      Merkle Tree Schema
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug)]
 pub struct Node{
     pub id: Uuid,
@@ -160,9 +237,26 @@ impl Node{
         }
     }
 }
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 
-// ============================================== Transaction Schema ==============================================
-// ================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+//                                                        Transaction Schema
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 // NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
@@ -206,4 +300,5 @@ impl Transaction{
         }
     }
 }
-
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
+// ==========--------------==========--------------==========--------------==========--------------==========--------------
