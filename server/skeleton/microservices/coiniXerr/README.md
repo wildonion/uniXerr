@@ -1,8 +1,5 @@
 
-💰 uniXerr Cryptocurrency Coins and CRC20 Token Smart Contract based on Actor Desing Pattern on top of coiniXerr Blockchain Network
-
-
-[Blockchain Technology](https://drive.google.com/open?id=1bB_d_wIUyWDoKZlY217AODeYeypw2BUj)
+💰 uniXerr Cryptocurrency Coin and CRC20 Token Smart Contract to Mint NFT for Digital Assests inside uniXerr Protocol based on Actor Desing Pattern on top of coiniXerr Blockchain Network
 
 # Development Setup
 
