@@ -114,11 +114,13 @@ pub struct UserData{
 #[derive(Serialize, Deserialize)]
 pub struct Transaction{
     pub id: Uuid,
+    pub ttype: u8,
     pub amount: i32,
     pub from_address: String,
     pub to_address: String,
     pub issued: i64,
     pub signed: Option<i64>,
+    pub signature: Option<String>, //-- it's going to be signed using sender's private key
     pub hash: String,
 }
 
@@ -164,7 +166,7 @@ impl QueryableUser{
     pub async fn signup(user: InsertableUser) -> Result<String, String>{ // it returns error as String
         let conn = pg::connection().await.unwrap();
         if Self::find_user_by_username(&user.username).await.is_err(){ // no user found with this username
-            let wallet_address = "a wallet address!".to_string(); // TODO -
+            let wallet_address = "a wallet address!".to_string(); // TODO - public key is used to generate wallet address
             let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
             let user = InsertableUser{
                 wallet_address,
@@ -272,7 +274,7 @@ impl QueryableUser{
 
     pub async fn add(user: InsertableUser) -> Result<Self, uniXerr>{
         let conn = pg::connection().await.unwrap();
-        let wallet_address = "a wallet address!".to_string(); // TODO - 
+        let wallet_address = "a wallet address!".to_string(); // TODO - public key is used to generate wallet address
         let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
         let user = InsertableUser{
             wallet_address,
@@ -325,11 +327,13 @@ impl QueryableUser{
         if current_user.coins != 0 && current_user.coins > 0{
             let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain
                 id: Uuid::new_v4(),
+                ttype: 0, //-- 0 means regular transaction not a contract
                 amount: coins,
                 from_address: current_user.wallet_address,
                 to_address: current_user_friend.wallet_address,
                 issued: chrono::Local::now().naive_local().timestamp(),
                 signed: None,
+                signature: Some("sign the current transaction using genesis private key".to_string()), // TODO - it must be signed using the sender's private key - transaction object needs to be signed using the sender's private key and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
                 hash: "hash of the current transaction".to_string(), // TODO -
             };
             let new_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes

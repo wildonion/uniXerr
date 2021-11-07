@@ -36,11 +36,6 @@ pub mod Token{
 
 
 
-
-
-
-
-
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 //                                                      Miner Pool Schema                      
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -298,11 +293,13 @@ union TransactionMem{
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Transaction{
     pub id: Uuid,
+    pub ttype: u8,
     pub amount: i32,
     pub from_address: String,
     pub to_address: String,
     pub issued: i64,
     pub signed: Option<i64>,
+    pub signature: Option<String>,
     pub hash: String,
 }
 
@@ -310,11 +307,13 @@ impl Default for Transaction{
     fn default() -> Self{
         Transaction{
             id: Uuid::new_v4(),
+            ttype: 0, //-- 0 means regular transaction - 1 means nft smart contract transaction 
             amount: 100,
-            from_address: "genesis wallet address here".to_string(), // TODO - the address of the coiniXerr network 
-            to_address: "a lucky user wallet address here".to_string(), // TODO - the address of the wildonion wallet
+            from_address: "genesis wallet address here".to_string(), // TODO - the address of the coiniXerr network - public key is used to generate wallet address
+            to_address: "a lucky user wallet address here".to_string(), // TODO - the address of the wildonion wallet - public key is used to generate wallet address
             issued: chrono::Local::now().naive_local().timestamp(),
             signed: Some(chrono::Local::now().naive_local().timestamp()),
+            signature: Some("sign the current transaction using genesis private key".to_string()), // TODO - transaction object needs to be signed using the sender's private key and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
             hash: "hash of the current transaction".to_string(), // TODO -
         }
     }

@@ -9,7 +9,7 @@
 mod constants;
 mod schemas;
 mod libs;
-mod consensus;
+mod cvm;
 mod utils;
 mod codec;
 mod apis;
@@ -35,6 +35,10 @@ use crate::schemas::{Transaction, Chain, RuntimeInfo, MetaData};
 
 
 
+
+
+
+
 //-- creating an event loop based Runtime under the hood
 // #[tokio::main]
 #[actix_web::main] //-- await is only allowd inside an async function due to this reason we're using the actix_web as a runtime on top of tokio to make the main() function as an async one
@@ -44,8 +48,6 @@ async fn main() -> std::io::Result<()>{
 
     
 
-
-    
 
 
 
@@ -89,9 +91,9 @@ async fn main() -> std::io::Result<()>{
     
     // NOTE - we can save each tokio::spawn() inside a variable which of type JoinHandle (like OS threads) to await on them later on to block their running background task to get the computation result of their async task or we can send their computation results through the mpsc job queue channel between other tasks             
     // NOTE - tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes an async task of type future of a process and shares it between its threads using its job queue channel protocol so every type in the task must be Send + Sync + 'static and cloneable
-    /////// ==============================================================================================================================   
-    ///////                         starting miners' actors for incoming transactions' bytes through a tcp stream 
-    /////// ==============================================================================================================================
+    /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
+    ///////                    starting miners' actors for incoming regular transactions' bytes through a tcp stream 
+    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     
     while let Ok((stream, addr)) = listener.accept().await{
         println!("-> connection stablished from miner [{}]", addr);
@@ -104,6 +106,7 @@ async fn main() -> std::io::Result<()>{
                 // ----------------------------------------------------------------------
                 let miner = Miner{ //-- every peer is a miner
                     id: Uuid::new_v4(),
+                    addr, //-- socket address of this miner
                     transaction: None, //-- signed and mined transaction - none when we're initializing a miner
                     recipient: None, //-- address of another miner - none when we're initializing a miner
                     rewards: None, //-- reward coins after mining transactions - none when we're initializing a miner
@@ -137,7 +140,7 @@ async fn main() -> std::io::Result<()>{
                     //                              MINING PROCESS
                     // ----------------------------------------------------------------------
                     let deserialized_transaction_union = Transaction::new(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using TransactionMem union
-                    let deserialized_transaction = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
+                    let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
                     // TODO - limit transaction inside a block by calculating the size of the block after adding an incoming transaction from the auth microservice
                     // TODO - if the size of the current block was equal to 4 mb then we have to build another block for mining its transaction
                     // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
@@ -151,7 +154,7 @@ async fn main() -> std::io::Result<()>{
                         //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
                         //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
                         //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
-                        slice::from_raw_parts(deserialized_transaction as *const Transaction as *const u8, mem::size_of::<Transaction>())
+                        slice::from_raw_parts(deserialized_transaction_union as *const Transaction as *const u8, mem::size_of::<Transaction>())
                     };
                     // ----------------------------------------------------------------------
                     //               UPDATING MINER ACTOR WITH A SIGNED TRANSACTION
@@ -190,9 +193,9 @@ async fn main() -> std::io::Result<()>{
     
 
     
-    /////// ========================================================
-    ///////                 actix HTTP web server
-    /////// ========================================================
+    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
+    ///////                                                 actix HTTP web server
+    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     let mut listenfd = ListenFd::from_env();
     let mut server = 
         HttpServer::new(move || {

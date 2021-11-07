@@ -11,7 +11,6 @@ use crate::schemas::{Block, Chain, Transaction};
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use actix_web::{web, get, post, Error, HttpRequest, HttpResponse};
 use futures::StreamExt;
-use std::sync::{Arc, Mutex};
 
 
 
