@@ -22,3 +22,14 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['device_id', 'customer_id', 'readings']
+
+
+class CustomerInsertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['device_id', 'customer_id', 'reading']
+
+class CustomerGetAllSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['pk', 'timestamp', 'device_id', 'customer_id', 'reading']
