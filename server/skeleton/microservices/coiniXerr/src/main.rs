@@ -94,7 +94,6 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////                    starting miners' actors for incoming regular transactions' bytes through a tcp stream 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-    
     while let Ok((stream, addr)) = listener.accept().await{
         println!("-> connection stablished from miner [{}]", addr);
         let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy) runtime info object to prevent from moving in every iteration between threads
