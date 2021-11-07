@@ -13,6 +13,8 @@ use super::token::Contract; //-- super is the root of the current directory (lib
 
 
 
+
+
 impl Contract for Miner{ //-- issuing a contract for a miner
     type Token = CRC20;
 
@@ -41,6 +43,8 @@ impl Contract for Miner{ //-- issuing a contract for a miner
 
     } 
 }
+
+
 
 
 
