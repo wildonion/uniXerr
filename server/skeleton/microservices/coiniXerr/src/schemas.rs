@@ -45,7 +45,10 @@ pub mod Token{
 //                                                      Miner Pool Schema                      
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
-pub struct MinerPool(pub Vec<Addr<Miner>>); //-- pool of miners
+pub struct MinerPool{ //-- pool of miners
+    pub miners: Vec<Addr<Miner>>,
+    pub name: String,
+} 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 
@@ -317,7 +320,7 @@ impl Default for Transaction{
     }
 }
 
-impl Transaction{
+impl Transaction{ //-- a transaction decoder or deserializer using union
     pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{ //-- self is a copy to all values of the struct; &self is a pointer to those values means by doing this we will borrow ownership of all original values
         unsafe{ // NOTE - if neither Copy nor Clone is not implemented for the object by moving it into a function we loose the ownership of the value of that object; we can borrow the ownership by taking a pointer to it using &
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //-- filling the buffer field will also fill the data cause thay have a same memory storage

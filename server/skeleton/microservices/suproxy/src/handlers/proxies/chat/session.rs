@@ -50,7 +50,7 @@ pub struct UserChatSession{
 impl UserChatSession {
     fn hb(&self, ctx: &mut ws::WebsocketContext<Self>) {
         ctx.run_interval(HEARTBEAT_INTERVAL, |act, ctx| {
-            if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT { //-- if now is greater than 10 seconds the we have a dead session
+            if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT { //-- if now is greater than 10 seconds then we have a dead session
                 println!("[!] SERVER TIME : {} | Websocket Client heartbeat failed, disconnecting!", chrono::Local::now().naive_local());
                 act.addr.do_send(balancer::Disconnect { username: act.name.clone(), id: act.id }); //-- sending disconnect event to ChatServer actor
                 ctx.stop();
@@ -225,7 +225,7 @@ async fn all_user_chats(req: HttpRequest, cass_sess: web::Data<cass::CassSession
             println!("[!] SERVER TIME : {} | FAILED TO VERIFY THE TOKEN CAUSE : {} ", chrono::Local::now().naive_local(), e); 
         }
     }
-    Ok(HttpResponse::Ok().json(old_chats.unwrap())) // NOTE - for sending struct through the json() method, the Serialize trait must be implemented for that struct
+    Ok(HttpResponse::Ok().json(old_chats.unwrap())) // NOTE - for sending struct through the json() method, the Serialize trait must be implemented for that struct cause we're serializing from struct object into the utf8 bytes to pass it through the socket
 }
 
 

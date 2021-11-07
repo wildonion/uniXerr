@@ -107,6 +107,7 @@ async fn main() -> std::io::Result<()>{
                     transaction: None, //-- signed and mined transaction - none when we're initializing a miner
                     recipient: None, //-- address of another miner - none when we're initializing a miner
                     rewards: None, //-- reward coins after mining transactions - none when we're initializing a miner
+                    pool: None, //-- pool name that this miner wants to be in - none when we're initializing a miner
                 };
                 let miner_addr = miner.clone().start(); //-- cloning (making a deep copy) the miner actor will prevent the object from moving - trait Clone is implemented for Miner actor struct
                 let arc_mutex_miner_addr = Arc::new(Mutex::new(miner_addr)); //-- creating an Arc object which is inside a Mutex cause Miner actor doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the miner_addr object inside a mutex to be updatable between threads
