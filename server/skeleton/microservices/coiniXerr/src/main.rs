@@ -39,9 +39,8 @@ use crate::schemas::{Transaction, Chain, RuntimeInfo, MetaData};
 
 
 
-//-- creating an event loop based Runtime under the hood
 // #[tokio::main]
-#[actix_web::main] //-- await is only allowd inside an async function due to this reason we're using the actix_web as a runtime on top of tokio to make the main() function as an async one
+#[actix_web::main] //-- await is only allowd inside an async function due to this reason we're using the actix_web as an event loop based runtime under the hood on top of tokio to make the main() function as an async one
 async fn main() -> std::io::Result<()>{
     
 
@@ -94,7 +93,7 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////                    starting miners' actors for incoming regular transactions' bytes through a tcp stream 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-    while let Ok((stream, addr)) = listener.accept().await{
+    while let Ok((stream, addr)) = listener.accept().await{ //-- await suspends the accept() function execution to solve the future but allows other code blocks to run  
         println!("-> connection stablished from miner [{}]", addr);
         let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy) runtime info object to prevent from moving in every iteration between threads
         let tx = tx.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock

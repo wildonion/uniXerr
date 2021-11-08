@@ -29,7 +29,7 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
 
 
 
-✅ SSL models like VAE, GAN and transformers with hybrid algorithms like fuzzy and GA for position clustering based coin generation using psychoder app 
+✅ SSL models like VAE, GAN and Transformers with hybrid algorithms like fuzzy and GA for position clustering based coin generation using psychoder app 
 ✅ fuzzy generative multi-task classification is the same as multi-class classification with softmax in the last layer
 ✅ if classes are mutually exclusive, then the sum of the fuzzy membership degrees for these classes should typically be equal to 1.
 ✅ The classes are mutually exclusive when there is not intersection between them: every input object belongs only to ONE class. 

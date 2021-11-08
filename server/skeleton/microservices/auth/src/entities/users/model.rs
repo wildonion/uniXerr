@@ -327,13 +327,13 @@ impl QueryableUser{
         if current_user.coins != 0 && current_user.coins > 0{
             let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain
                 id: Uuid::new_v4(),
-                ttype: 0, //-- 0 means regular transaction not a contract
+                ttype: 0x00, //-- 0 means regular transaction not a contract
                 amount: coins,
                 from_address: current_user.wallet_address,
                 to_address: current_user_friend.wallet_address,
                 issued: chrono::Local::now().naive_local().timestamp(),
                 signed: None,
-                signature: Some("sign the current transaction using genesis private key".to_string()), // TODO - it must be signed using the sender's private key - transaction object needs to be signed using the sender's private key and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
+                signature: Some("sign the current transaction using genesis private key".to_string()), // TODO - it must be signed using the sender's private key which is the user access_token generated after successful registeration - transaction object needs to be signed using the sender's private key and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
                 hash: "hash of the current transaction".to_string(), // TODO -
             };
             let new_transaction_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
@@ -344,7 +344,7 @@ impl QueryableUser{
             }; 
             let transfered_transaction_resp = match liber::send_transaction!(new_transaction_bytes){ //-- sending a binary stream of transaction data (serialized into bytes) to the coiniXerr network for mining and consensus process
                 Ok(transfered_transaction) => {
-                    if let Some(signed_transaction) = transfered_transaction.signed{ //-- if the transaction was added to the blockchain means it's mined and we can update both user coins
+                    if let Some(signed_transaction) = transfered_transaction.signed{ //-- if the transaction was added to the blockchain means it's confirmed and we can update both user coins
                         let updated_user_coins = UpdateCoins{
                             coins: current_user.coins - coins,
                             updated_at: Some(chrono::Local::now().naive_local()),

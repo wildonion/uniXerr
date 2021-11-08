@@ -29,7 +29,7 @@ use futures::StreamExt;
            the Transaction struct for mining and consensus process, finally if a transaction was added to the blockchain, 
            its is_mined field will become true and then update coins algorithm in auth microservice transfer coin will be processed.
    ------------------------------------------------------------------------------------------------------------------------------------------- */    
-#[post("/coiniXerr/transaction")] //-- the route for handling streaming of transactions in form of utf8 binary data 
+#[post("/coiniXerr/transaction")] //-- the route for handling streaming of regular transactions in form of utf8 binary data 
 async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchain: web::Data<Chain>) -> Result<HttpResponse, Error>{
     let blockchain = blockchain.as_ref().clone();
     let ip = req.peer_addr().unwrap().ip();
