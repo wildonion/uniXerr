@@ -56,7 +56,7 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets 
 
 pub trait CRC20{ //-- smart contract for fungible tokens or digital assets in which a token or the asset is a mapping between wallet addresses and their balances
 
-    type TotalSupply; //-- total value or price of the asset - sum of all addresses' balance must be equal to this; eg : an asset with total supply of 40 can be divided into 4 address 10 value for each means thos addresses must invest 10 coins to own this asset 
+    type TotalSupply; //-- total value or price of the asset - sum of all addresses' balance must be equal to this; eg : an asset with total supply of 40 can be divided into 4 addresses 10 value for each means thos addresses must invest 10 coins to own this asset 
     type Decimal;
 
     fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
