@@ -15,7 +15,7 @@ use crate::cvm::contract::nft::CRC20; //-- super is the root of the current dire
 
 
 
-impl CRC20 for Miner{ //-- issuing a contract for a miner
+impl CRC20 for Miner{ //-- issuing a FT (fungible token) contract for a miner
 
     type TotalSupply = u128;
     type Decimal = u8;
