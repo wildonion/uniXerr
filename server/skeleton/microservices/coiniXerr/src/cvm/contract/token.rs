@@ -24,7 +24,7 @@
 /* 
 
                         -----------------------------------------------------------------------------------
-                                 MINTING NFT BASED coiniXerr SMART CONTRACT FOR DIGITAL ASSETS
+                                MINTING TOKEN BASED coiniXerr SMART CONTRACT FOR DIGITAL ASSETS
                         -----------------------------------------------------------------------------------
 
 
