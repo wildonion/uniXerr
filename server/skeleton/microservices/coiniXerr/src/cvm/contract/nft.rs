@@ -30,7 +30,7 @@
 
 
         ==========--------------==========--------------==========--------------==========--------------==========--------------
-        | CRC20 and CRC21 (coiniXerr request for comment) ft and nft respectively are used to issue CRC20 and CRC21 based 
+        | CRC20 and CRC21 traits (coiniXerr request for comment) ft and nft respectively are used to issue CRC20 and CRC21 based 
         | smart contracts to invest on tokenized asstes like musics, notes and even coiniXerr gold coins which can be 
         | stored, sent, sold and bought using coiniXerr address and transactions using the coiniXerr VM on the uniXerr network 
         |
@@ -42,7 +42,7 @@
 
 
 
-pub trait CRC21{ //-- smart contract for none fungible tokens or assets
+pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets
 
     fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
     fn balance_of(&mut self); //-- provides the number of tokens held by a given address
@@ -53,7 +53,7 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or assets
 }
 
 
-pub trait CRC20{ //-- smart contract for fungible tokens or assets
+pub trait CRC20{ //-- smart contract for fungible tokens or digital assets in which a token is a mapping between wallet addresses and their balances
 
     type TotalSupply;
     type Decimal;
