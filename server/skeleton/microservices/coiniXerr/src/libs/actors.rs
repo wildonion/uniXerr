@@ -5,7 +5,7 @@ use actix::prelude::*; //-- loading actix actors and handlers for threads commun
 use uuid::Uuid;
 use std::{net::SocketAddr, time::Duration};
 use crate::schemas::{Transaction, MinerPool};
-use crate::cvm::contract::nft::CRC20; //-- super is the root of the current directory (libs)
+use crate::cvm::contract::token::CRC20; //-- super is the root of the current directory (libs)
 
 
 
