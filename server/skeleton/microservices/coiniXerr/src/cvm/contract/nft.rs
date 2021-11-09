@@ -30,9 +30,9 @@
 
 
         ==========--------------==========--------------==========--------------==========--------------==========--------------
-        | CRC20 (coiniXerr request for comment) nft is used to issue crc20 based smart contracts 
-        | to invest on tokenized based asstes like musics, notes and even coiniXerr gold coins which can be 
-        | stored and sent using coiniXerr address and transactions using the coiniXerr VM on the uniXerr network 
+        | CRC20 and CRC21 (coiniXerr request for comment) ft and nft respectively are used to issue CRC20 and CRC21 based 
+        | smart contracts to invest on tokenized asstes like musics, notes and even coiniXerr gold coins which can be 
+        | stored, sent, sold and bought using coiniXerr address and transactions using the coiniXerr VM on the uniXerr network 
         |
         | https://medium.com/block-journal/introducing-substrate-smart-contracts-with-ink-d486289e2b59
         ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -42,7 +42,18 @@
 
 
 
-pub trait CRC20{
+pub trait CRC21{ //-- smart contract for none fungible tokens or assets
+
+    fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
+    fn balance_of(&mut self); //-- provides the number of tokens held by a given address
+    fn approve(&mut self);  //-- a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
+    fn allowance(&mut self); //-- provides the number of tokens allowed to be transferred from a given address by another given address
+    fn trade(&mut self); //-- do something after successfull token transfer
+
+}
+
+
+pub trait CRC20{ //-- smart contract for fungible tokens or assets
 
     type TotalSupply;
     type Decimal;
@@ -54,3 +65,4 @@ pub trait CRC20{
     fn trade(&mut self); //-- do something after successfull token transfer
 
 }
+
