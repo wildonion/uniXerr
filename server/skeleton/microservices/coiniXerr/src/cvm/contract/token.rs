@@ -32,8 +32,8 @@
         ==========--------------==========--------------==========--------------==========--------------==========--------------
         | CRC20 and CRC21 (coiniXerr request for comment) traits are used to issue CRC20 and CRC21 FT and NFT based
         | smart contracts respectively to invest on tokenized asstes like musics, notes and even coiniXerr gold coins 
-        | which can be stored, sent, sold and bought using coiniXerr address and transactions using the coiniXerr 
-        | VM on the uniXerr network.
+        | which can be stored, sent, sold and bought using coiniXerr wallet address to put them on CVM(coiniXerr Virtual Machine)
+        | blockchain like regular transactions on top of the uniXerr network.
         |
         | https://medium.com/block-journal/introducing-substrate-smart-contracts-with-ink-d486289e2b59
         ==========--------------==========--------------==========--------------==========--------------==========--------------
