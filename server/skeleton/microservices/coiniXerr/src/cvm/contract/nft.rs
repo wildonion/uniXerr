@@ -42,7 +42,7 @@
 
 
 
-pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets
+pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets in which a token links ownership to unique physical or digital items
 
     fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
     fn balance_of(&mut self); //-- provides the number of tokens held by a given address
@@ -53,7 +53,7 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets
 }
 
 
-pub trait CRC20{ //-- smart contract for fungible tokens or digital assets in which a token is a mapping between wallet addresses and their balances
+pub trait CRC20{ //-- smart contract for fungible tokens or digital assets in which a token or the asset is a mapping between wallet addresses and their balances
 
     type TotalSupply;
     type Decimal;
