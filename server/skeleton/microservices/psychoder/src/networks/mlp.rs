@@ -47,7 +47,7 @@ impl Linear{
         let mut mult_of_all_sum_cols = 1.0;
         let mut children = Vec::new();
         let future_res = async { //-- we can also use tokio::spawn() to run the async task in the background using tokio event loop and green threads
-            for i in 0..NJOBS{ //-- iterating through all the jobs of the process
+            for i in 0..NJOBS{ //-- iterating through all the jobs of the process - this can be an infinite loop like waiting for a tcp connection
                 let cloned_receiver = Arc::clone(&arc_recv); // can't clone receiver, in order to move it between threads we have to clone it using Arc
                 let cloned_sender = sender.clone(); // NOTE - sender can be cloned because it's multiple producer
                 let cloned_mat = Arc::clone(&arc_mat);
