@@ -19,7 +19,7 @@ macro_rules! send_transaction {
                 pub to_address: String,
                 pub issued: i64,
                 pub signed: Option<i64>,
-                pub signature: Option<String>, //-- it's going to be signed using sender's private key
+                pub signature: Option<String>, //-- it's must be signed using sender's private key
                 pub hash: String,
             }
 

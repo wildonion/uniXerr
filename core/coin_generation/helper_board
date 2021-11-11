@@ -29,7 +29,7 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
 
 
 
-✅ SSL models like VAE, GAN and Transformers with hybrid algorithms like fuzzy and GA for position clustering based coin generation using psychoder app 
+✅ SSL models like VAE, GAN and Transformers with hybrid algorithms like fuzzy, FA (Firefly Algorithm) and GA for position clustering based coin generation using psychoder cli
 ✅ fuzzy generative multi-task classification is the same as multi-class classification with softmax in the last layer
 ✅ if classes are mutually exclusive, then the sum of the fuzzy membership degrees for these classes should typically be equal to 1.
 ✅ The classes are mutually exclusive when there is not intersection between them: every input object belongs only to ONE class. 
@@ -69,7 +69,7 @@ https://medium.com/henry-jia/how-to-score-your-credit-1c08dd73e2ed
 
 
 ➤ use openai gym or create your own env from scratch using pygame, matplotlib or other gui lib and put them in envs folder
-➤ train and optimize pytorch nn params using FAG algorithm (initialize the population of genetic algorithm using firefly algorithm)
+➤ train and optimize pytorch nn params using FA (Firefly Algorithm) (initialize the population of genetic algorithm using firefly algorithm)
 ➤ use ES(GA) as an alternative to RL algos(gradient descent) to update agent brain(nn) params
 ➤ combining evolutionary algorithms like GA (ES) and FA (Firefly Algorithm) for best rules selection or rules learning or membership function creation of fuzzy logic controller
 ➤ a hybrid intelligence for updating parameters of an expert system based on neuro-fuzzy classifier like ANFIS using GA (ES) and FA

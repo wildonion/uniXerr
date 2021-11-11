@@ -24,9 +24,8 @@
 /* 
 
                         -----------------------------------------------------------------------------------
-                                MINTING TOKEN BASED coiniXerr SMART CONTRACT FOR DIGITAL ASSETS
+                                 MINTING TOKEN BASED coiniXerr SMART CONTRACT FOR DIGITAL ASSETS
                         -----------------------------------------------------------------------------------
-
 
 
         ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -45,6 +44,12 @@
 
 pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets in which a token links ownership to unique physical or digital items
 
+    type AssetLink; //-- stored in IPFS or CVM(coiniXerr Virtual Machine) blockchain
+    type TokenName;
+    type TokenID;
+    type MetaData; //-- metadata schema in json format about the place of stored NFT
+
+    fn mint(&mut self); //-- minting NFT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
     fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
     fn balance_of(&mut self); //-- provides the number of tokens held by a given address
     fn approve(&mut self);  //-- a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
@@ -56,9 +61,12 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets 
 
 pub trait CRC20{ //-- smart contract for fungible tokens or digital assets in which a token or the asset is a mapping between wallet addresses and their balances
 
+    type TokenID;
+    type TokenName;
     type TotalSupply; //-- total value or price of the asset - sum of all addresses' balance must be equal to this; eg : an asset with total supply of 40 can be divided into 4 addresses 10 value for each means thos addresses must invest 10 coins to own this asset 
     type Decimal;
 
+    fn mint(&mut self); //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
     fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
     fn balance_of(&mut self); //-- provides the number of tokens held by a given address
     fn approve(&mut self);  //-- a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information

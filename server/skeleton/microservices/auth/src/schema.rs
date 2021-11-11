@@ -24,6 +24,7 @@ table! {
         wallet_address -> Varchar, 
         access_token -> Varchar,
         access_level -> Int2,
+        is_blocked -> Int2,
         phone_number -> Varchar,
         email -> Varchar,
         device_id -> Varchar,

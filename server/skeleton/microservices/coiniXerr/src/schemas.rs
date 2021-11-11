@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net 
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
-use crate::libs::actors::Miner;
+use crate::actors::peer::Miner;
 use std::collections::HashMap;
 
 
@@ -137,6 +137,24 @@ impl Chain{
             blocks: self.blocks.clone(), //-- Copy trait is not implemented for blocks thus we have to clone it to return from the function
         }
     }
+
+    pub fn get_genesis(&self) -> &Block{
+        let genesis = &self.blocks[0];
+        genesis
+    }
+
+    pub fn build_raw_block(&self, prev_block: &Block) -> Block{
+        Block{
+            id: Uuid::new_v4(),
+            is_genesis: false,
+            prev_hash: prev_block.clone().hash, //-- first block inside the chain is the genesis block - we have to clone the prev_block cause Block struct doesn't implement the Copy trait 
+            hash: None, // TODO -
+            merkle_root: None, // TODO - 
+            timestamp: chrono::Local::now().naive_local().timestamp(),
+            transactions: vec![],
+            is_mined: false,
+        }
+    }
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -158,18 +176,17 @@ impl Chain{
 
 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
-//                                                          Block Schema
+//                                                         Block Schema
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Block{
     pub id: Uuid,
     pub is_genesis: bool,
-    pub prev_hash: String,
-    pub hash: String,
-    pub merkle_root: String, //-- hash of all transactions in the form of a binary tree-like structure called merkle tree such that each hash is linked to its parent following a parent-child tree-like relation
-    pub nonce: u64,
+    pub prev_hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
+    pub hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
+    pub merkle_root: Option<String>, //-- hash of all transactions in the form of a binary tree-like structure called merkle tree such that each hash is linked to its parent following a parent-child tree-like relation
     pub timestamp: i64,
-    pub transactions: Vec<Transaction>, //-- can't implement the Copy trait for Vec thus can't bound it to the Block structure 
+    pub transactions: Vec<Transaction>, //-- valid transactions (mempool) waiting to be confirmed and signed - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
     pub is_mined: bool,
 }
 
@@ -179,10 +196,9 @@ impl Block{
         Block{ //-- don't return &self when constructing the struct cause we'll face lifetime issue for struct fields - &mut T is not bounded to Copy trait due to ownership and borrowing rules which we can't have multiple mutable pointer at the same time
             id: self.id,
             is_genesis: self.is_genesis,
-            prev_hash: self.prev_hash.clone(), //-- self.prev_hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
-            hash: self.hash.clone(), //-- self.hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
-            merkle_root: self.merkle_root.clone(), //-- self.merkle_root is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
-            nonce: self.nonce,
+            prev_hash: Some(self.prev_hash.clone().unwrap()), //-- self.prev_hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
+            hash: Some(self.hash.clone().unwrap()), //-- self.hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
+            merkle_root: Some(self.clone().merkle_root.unwrap()), //-- self.merkle_root is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
             timestamp: self.timestamp,
             transactions: self.transactions.clone(), //-- self.transactions is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for Vec thus we have to clone it 
             is_mined: self.is_mined,
@@ -195,10 +211,9 @@ impl Default for Block{
         Block{
             id: Uuid::new_v4(),
             is_genesis: true,
-            prev_hash: "hash of pervious block".to_string(), // TODO -
-            hash: "hash of current block".to_string(), // TODO -
-            merkle_root: "hash of merkle root".to_string(), // TODO - 
-            nonce: 0,
+            prev_hash: Some("prev block hash here".to_string()), // TODO -
+            hash: Some("current block hash here".to_string()), // TODO -
+            merkle_root: Some("merkle root hash here".to_string()), // TODO - 
             timestamp: chrono::Local::now().naive_local().timestamp(),
             transactions: vec![Transaction::default()],
             is_mined: true,
@@ -277,27 +292,27 @@ union TransactionMem{
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Transaction{
     pub id: Uuid,
-    pub ttype: u8,
+    pub ttype: u8, //-- one byte or 00000000 or 0x00 - every 4 digits in one byte is a hex number and every 3 digit in one byte is a oct number
     pub amount: i32,
-    pub from_address: String,
-    pub to_address: String,
+    pub from_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
+    pub to_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
     pub issued: i64,
     pub signed: Option<i64>,
-    pub signature: Option<String>,
-    pub hash: String,
+    pub signature: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
+    pub hash: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
 }
 
 impl Default for Transaction{
     fn default() -> Self{
         Transaction{
             id: Uuid::new_v4(),
-            ttype: 0, //-- 0 means regular transaction - 1 means nft smart contract transaction 
+            ttype: 0x00, //-- 0 means regular transaction - 1 means smart contract transaction 
             amount: 100,
-            from_address: "genesis wallet address here".to_string(), // TODO - the address of the coiniXerr network - public key is used to generate wallet address
-            to_address: "a lucky user wallet address here".to_string(), // TODO - the address of the wildonion wallet - public key is used to generate wallet address
+            from_address: "the address of coiniXerr network wallet".to_string(), // TODO - the address of the coiniXerr network - public key is used to generate wallet address
+            to_address: "the address of wildonion wallet network".to_string(), // TODO - the address of the wildonion wallet - public key is used to generate wallet address
             issued: chrono::Local::now().naive_local().timestamp(),
             signed: Some(chrono::Local::now().naive_local().timestamp()),
-            signature: Some("sign the current transaction using genesis private key".to_string()), // TODO - transaction object needs to be signed using the sender's private key and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
+            signature: Some("signature hash of the transaction signed with sender's private key".to_string()), // TODO - transaction object needs to be signed using the sender's private key and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
             hash: "hash of the current transaction".to_string(), // TODO -
         }
     }

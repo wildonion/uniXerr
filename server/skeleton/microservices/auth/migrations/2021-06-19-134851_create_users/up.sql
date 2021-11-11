@@ -8,6 +8,7 @@ CREATE TABLE users(
     wallet_address VARCHAR NOT NULL DEFAULT '', 
     access_token VARCHAR NOT NULL DEFAULT '',
     access_level SMALLINT DEFAULT 1 NOT NULL,
+    is_blocked SMALLINT DEFAULT 0 NOT NULL, 
     phone_number VARCHAR NOT NULL,
     email VARCHAR NOT NULL,
     device_id VARCHAR NOT NULL,

@@ -17,7 +17,9 @@
 
 
 
-next-coding: coiniXerr consensus and hash algorithm for a transaction and transaction signature, block and merkle root and wallet address => https://github.com/stellar/slingshot/
+next-coding: coiniXerr hash algorithm for a transaction and transaction signature, block and merkle root and wallet address => https://github.com/stellar/slingshot/
+next-coding: implement gRPC protocol for coiniXerr network to double up the speed of incoming transactions
 next-coding: credit score coin generation algorithm based on classified position which has been clustered using VAE and Kmeans
 next-issue : weights updating process issue for mlp model inside core/recognizer/pdc/
-next-thesis: ideas.txt and master_thesis.docx in Google Drive for master thesis
+
+when & is used to take a reference for Copy trait bounded type means coping the type by borrowing its ownership and mut means is a mutable pointer to that for changing it

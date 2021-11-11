@@ -17,8 +17,14 @@ use crate::cvm::contract::token::CRC20; //-- super is the root of the current di
 
 impl CRC20 for Miner{ //-- issuing a FT (fungible token) contract for a miner
 
+    type TokenID = u8;
+    type TokenName = String;
     type TotalSupply = u128;
     type Decimal = u8;
+
+    fn mint(&mut self){
+        //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
+    }
 
     fn transfer_from(&mut self){
         //-- transfer token from a sender to a recipient
@@ -68,8 +74,7 @@ pub struct Miner {
     pub id: Uuid,
     pub addr: SocketAddr,
     pub transaction: Option<Transaction>, //-- signed transaction
-    pub recipient: Option<Recipient<Command>>, //-- recipient address 
-    pub rewards: Option<i32>,
+    pub recipient: Option<Recipient<Command>>, //-- recipient actor address
     pub pool: Option<String>,
 }
 

@@ -12,7 +12,7 @@
 
 
 
-
+            https://doc.rust-lang.org/beta/unstable-book/language-features/generators.html
             https://github.com/wildonion/aravl/tree/master/microservices/device/src
             https://github.com/actix/examples/blob/master/websockets/tcp-chat/src/codec.rs
             https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8

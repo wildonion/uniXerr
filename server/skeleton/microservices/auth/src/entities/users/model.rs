@@ -120,7 +120,7 @@ pub struct Transaction{
     pub to_address: String,
     pub issued: i64,
     pub signed: Option<i64>,
-    pub signature: Option<String>, //-- it's going to be signed using sender's private key
+    pub signature: Option<String>, //-- it's going to be signed using sender's private key which is the access_token of the sender
     pub hash: String,
 }
 
@@ -149,6 +149,7 @@ pub struct QueryableUser{
     pub wallet_address: String,
     pub access_token: String,
     pub access_level: i16,
+    pub is_blocked: i16,
     pub phone_number: String,
     pub email: String,
     pub device_id: String,

@@ -7,3 +7,4 @@
 
 pub mod consensus;
 pub mod contract;
+pub mod codec;

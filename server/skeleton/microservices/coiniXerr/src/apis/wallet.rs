@@ -4,13 +4,14 @@
 
 
 
-
 use crate::constants;
 use crate::utils::response::ResponseBody;
-use crate::schemas::{Block, Chain, Transaction};
+use crate::schemas::Transaction;
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use actix_web::{web, get, post, Error, HttpRequest, HttpResponse};
-use futures::StreamExt;
+use futures::StreamExt; //-- a trait for streaming utf8 bytes data
+use tokio::sync::mpsc::Sender;
+use std::{slice, mem, sync::{Arc, Mutex}};  
 
 
 
@@ -19,19 +20,9 @@ use futures::StreamExt;
 
 
 
-                                                            ////////////////////////////////////
-                                                            ///////// TRANSACTION APIs /////////
-                                                            //////////////////////////////////// 
-
-/* -------------------------------------------------------------------------------------------------------------------------------------------
-    NOTE - a transaction should be sent from auth transfer coin api to the coiniXerr network transaction api which is a stream of binary data 
-           in from of utf8 bytes loaded into the memory, then it'll deserialize or map the binary from memory into 
-           the Transaction struct for mining and consensus process, finally if a transaction was added to the blockchain, 
-           its is_mined field will become true and then update coins algorithm in auth microservice transfer coin will be processed.
-   ------------------------------------------------------------------------------------------------------------------------------------------- */    
 #[post("/coiniXerr/transaction")] //-- the route for handling streaming of regular transactions in form of utf8 binary data 
-async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchain: web::Data<Chain>) -> Result<HttpResponse, Error>{
-    let blockchain = blockchain.as_ref().clone();
+async fn transaction(req: HttpRequest, mut body_payload: web::Payload, transaction_sender: web::Data<Sender<Arc<Mutex<Transaction>>>>) -> Result<HttpResponse, Error>{
+    let transaction_sender = transaction_sender.as_ref();
     let ip = req.peer_addr().unwrap().ip();
     let port = req.peer_addr().unwrap().port();
     println!("[+] SERVER TIME : {} | TRANSACTION FROM PEER ::: {}:{} ", chrono::Local::now().naive_local(), ip, port);
@@ -39,19 +30,29 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchai
     while let Some(chunk) = body_payload.next().await { //-- extracting binary wallet data or utf8 bytes from incoming request - loading the payload into the memory
         bytes.extend_from_slice(&chunk?); //-- the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed
     }
-    println!("Transaction Body in Bytes {:?}!", bytes);
-    let des_trans_union = Transaction::new(&bytes).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using TransactionMem union
-    let des_trans_serde = &mut serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using serde from_slice method
-    // ----------------------------------------------------------------------
-    //                              MINING PROCESS
-    // ----------------------------------------------------------------------
-    // TODO - limit transaction inside a block by calculating the size of the block after adding an incoming transaction from the auth microservice
-    // TODO - if the size of the current block was equal to 4 mb then we have to build another block for mining its transaction
-    // TODO - do the mining and consensus process here then send back the mined transaction inside the response to where it's called
-    // TODO - add mined block to the coiniXerr chain
-    // blockchain.add(mined_block);
+    println!("-> transaction body in bytes {:?}!", bytes);
+    let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using serde from_slice method
+    // TODO - if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the channel to be pushed inside a block for mining process
     // ...
-    des_trans_union.signed = Some(chrono::Local::now().naive_local().timestamp()); // TODO - this should be update after a successful signed contract and mined process
+    deserialized_transaction_serde.signed = Some(chrono::Local::now().naive_local().timestamp()); //-- signing the incoming transaction with server time
+    // ----------------------------------------------------------------------
+    //          SERIALIZING SIGNED TRANSACTION INTO THE UTF8 BYTES
+    // ----------------------------------------------------------------------
+    // NOTE - encoding or serializing process is converting struct object into utf8 bytes
+    // NOTE - decoding or deserializing process is converting utf8 bytes into the struct object
+    let signed_transaction_serialized_into_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
+        //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
+        //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+        //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
+        slice::from_raw_parts(deserialized_transaction_serde as *const Transaction as *const u8, mem::size_of::<Transaction>())
+    };
+    // ---------------------------------------------------------------------------------------
+    //        SENDING SIGNED TRANSACTION TO DOWN SIDE OF THE CHANNEL FOR MINING PROCESS
+    // ---------------------------------------------------------------------------------------
+    let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
+    let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //-- putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
+    let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //-- cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
+    transaction_sender.send(cloned_arc_mutex_transaction).await.unwrap(); //-- sending signed transaction through the mpsc job queue channel asynchronously for mining process
     // ----------------------------------------------------------------------
     //               SENDING SIGNED TRANSACTION BACK TO THE USER
     // ----------------------------------------------------------------------
@@ -59,7 +60,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, blockchai
         HttpResponse::Ok().json(
             ResponseBody::new(
                 constants::MESSAGE_FETCHED_SUCCESS,
-                des_trans_union, //-- send the signed transaction back to the user
+                deserialized_transaction_serde, //-- send the signed transaction back to the user
             )
         )
     )
