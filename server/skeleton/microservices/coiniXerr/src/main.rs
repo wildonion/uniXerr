@@ -4,7 +4,8 @@
 
 
 
-
+/////// ==========--------------==========--------------==========--------------==========--------------
+///////                            coiniXerr DESIGN PATTERN EXPLAINED
 /////// ==========--------------==========--------------==========--------------==========--------------
 // a transaction of a transfer event might be send either using the http api or through
 // a tcp stream to the coiniXerr server handled each one by a multithreading based scheduler; 
@@ -29,6 +30,7 @@
 // NOTE - tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes an async task of type future of a process and shares it between its threads using its job queue channel protocol so every type in the task must be Send + Sync + 'static and cloneable
 // NOTE - we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument and needs to mutate a field like run_time_info add() method in which the info_dict field will be updated 
 // NOTE - to solve above issue we have to put that object inside a Mutex (&mut) to share (Arc) and protect it between multiple threads and mutating or mutex acquisition is done by blocking the current thread when calling the lock() method, prevent from being in a dead lock, race condition and shared state situations
+// NOTE - & is used to take a reference for Copy trait bounded type; means coping the type by borrowing its ownership and &mut is a mutable pointer to that for changing it
 /////// ==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------
 
 
