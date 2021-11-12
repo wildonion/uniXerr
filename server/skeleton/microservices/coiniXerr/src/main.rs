@@ -146,7 +146,7 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////                                               parachains and parathreads
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-    // TODO - connect other blockchains from other instances of this server to build a parachains and parathreads based in on uniXerr network using libp2p and gRPC protocol
+    // TODO - connect other blockchains from other instances of this server to build a parachains and parathreads based network using scheduler, libp2p and gRPC protocol
     // ...
 
 
