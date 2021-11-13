@@ -182,8 +182,8 @@ impl Chain{
 pub struct Block{
     pub id: Uuid,
     pub is_genesis: bool,
-    pub prev_hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
-    pub hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
+    pub prev_hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     pub merkle_root: Option<String>, //-- hash of all transactions in the form of a binary tree-like structure called merkle tree such that each hash is linked to its parent following a parent-child tree-like relation
     pub timestamp: i64,
     pub transactions: Vec<Transaction>, //-- valid transactions (mempool) waiting to be confirmed and signed - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
@@ -294,12 +294,12 @@ pub struct Transaction{
     pub id: Uuid,
     pub ttype: u8, //-- one byte or 00000000 or 0x00 - every 4 digits in one byte is a hex number and every 3 digit in one byte is a oct number
     pub amount: i32,
-    pub from_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
-    pub to_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
+    pub from_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub to_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     pub issued: i64,
     pub signed: Option<i64>,
-    pub signature: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
-    pub hash: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 and 32 bytes hex string means 64 characters
+    pub signature: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub hash: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
 }
 
 impl Default for Transaction{
