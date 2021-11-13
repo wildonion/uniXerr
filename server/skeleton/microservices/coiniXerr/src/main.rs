@@ -10,7 +10,7 @@
 // a transaction of a transfer event might be send either using the http api or through
 // a tcp stream to the coiniXerr server handled each one in parallel by a multithreading based scheduler; 
 // an actor will be started on successful connection from every peer only in tcp mode. 
-// once the transaction received asynchronously and simultaneously they must be signed in order to send them 
+// once the transaction has received asynchronously and simultaneously they must be signed in order to send them 
 // through the mpsc job queue channel to down side of the channel for mining process 
 // and relatively for all users to have a successful transfer. they can only be signed 
 // as long as the receiver of the transaction channel is waiting for the new transaction 
