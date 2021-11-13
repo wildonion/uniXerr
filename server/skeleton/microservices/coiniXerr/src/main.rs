@@ -300,7 +300,7 @@ async fn main() -> std::io::Result<()>{
                     let mut rev_iter = blockchain.blocks.iter().rev();
                     (rev_iter.next().unwrap().clone(), rev_iter.next().unwrap().clone())
                 };
-                current_block = blockchain.build_raw_block(&prev); //-- passing the genesis block by borrowing it    
+                current_block = blockchain.build_raw_block(&prev); //-- passing the previous block by borrowing it    
             }
         }
         match can_be_mined(current_block.clone()){
