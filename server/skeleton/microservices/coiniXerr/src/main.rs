@@ -14,10 +14,11 @@
 // through the mpsc job queue channel to down side of the channel for mining process 
 // and relatively for all users to have a successful transfer. they can only be signed 
 // as long as the receiver of the transaction channel is waiting for the new transaction 
-// and if the receiver was not able to receive caused by a sudden shutdown or something else 
-// that transaction will not be signed and the transfer process won 't be a successful event.
-// of course if the transaction is not signed means there will be no mining process cause 
-// the receiver is not waiting to receive anything from the sender to put them in a block for mining.
+// and if the receiver was not able to receive caused by a sudden shutdown, dropped sender 
+// (caused by joining the thread contains sender to stop the task from being processed in background) and 
+// timeout or deadline issue that transaction will not be signed and the transfer process won't be 
+// a successful event. of course if the transaction is not signed means there will be no mining process 
+// cause the receiver is not waiting to receive anything from the sender to put them in a block for mining.
 /////// ==========--------------==========--------------==========--------------==========--------------
 
 
