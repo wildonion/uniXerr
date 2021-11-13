@@ -45,7 +45,7 @@
 mod constants;
 mod schemas;
 mod actors;
-mod cvm;
+mod engine;
 mod utils;
 mod apis;
 use tokio::net::{TcpListener, TcpStream}; //-- async tcp listener and stream
@@ -62,7 +62,7 @@ use actix_session::CookieSession;
 use apis::wallet::routes as coin_routes;
 use crate::actors::peer::Miner;
 use crate::utils::scheduler;
-use crate::cvm::consensus::pos::can_be_mined;
+use crate::engine::consensus::pos::can_be_mined;
 use crate::schemas::{Transaction, Chain, Block, RuntimeInfo, MetaData};
 
 
@@ -148,7 +148,8 @@ async fn main() -> std::io::Result<()>{
     ///////                                               parachains and parathreads
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     // TODO - connect other blockchains from other instances of this server to build a parachains and parathreads based network using scheduler, libp2p and gRPC protocol
-    // TODO - solve forking issue for this model of blockchain
+    // TODO - solve forking issue for this model of blockchain by choosing the longest chain
+    // TODO - save the whole chain inside a db or a persistence storage
     // ...
 
 
@@ -167,7 +168,7 @@ async fn main() -> std::io::Result<()>{
     ///////                 starting miners' actors for incoming regular transactions' bytes through a tcp stream 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     while let Ok((stream, addr)) = listener.accept().await{ //-- await suspends the accept() function execution to solve the future but allows other code blocks to run  
-        println!("[+] SERVER TIME : {} | CONNECTION STABLISHED FROM PEER ::: {}", chrono::Local::now().naive_local(), addr);
+        println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), addr);
         let cloned_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy) runtime info object to prevent from moving in every iteration between threads
         let tx = tx.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
         pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks spawned with tokio::spawn() using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - mpsc definition : every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
@@ -175,6 +176,7 @@ async fn main() -> std::io::Result<()>{
                 // ----------------------------------------------------------------------
                 //                  STARTING MINER ACTOR FOR THIS STREAM
                 // ----------------------------------------------------------------------
+                println!("-> {} - starting miner actor", chrono::Local::now().naive_local());
                 let miner = Miner{ //-- every peer is a miner
                     id: Uuid::new_v4(),
                     addr, //-- socket address of this miner
@@ -183,11 +185,12 @@ async fn main() -> std::io::Result<()>{
                     pool: None, //-- pool name that this miner wants to be in - none when we're initializing a miner
                 };
                 let miner_addr = miner.clone().start(); //-- cloning (making a deep copy) the miner actor will prevent the object from moving - trait Clone is implemented for Miner actor struct
-                let arc_mutex_miner_addr = Arc::new(Mutex::new(miner_addr)); //-- creating an Arc object which is inside a Mutex cause Miner actor doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the miner_addr object inside a mutex to be updatable between threads
+                let arc_mutex_miner_addr = Arc::new(Mutex::new(miner_addr)); //-- creating an Arc object which is inside a Mutex cause Miner actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the miner_addr object inside a mutex to be updatable between threads
                 let cloned_arc_mutex_miner_addr = Arc::clone(&arc_mutex_miner_addr); //-- we're borrowing the ownership of the Arc-ed and Mutex-ed miner_addr object to move it between threads without loosing the ownership 
                 // ----------------------------------------------------------------------
                 //                           SAVING RUNTIME INFO
                 // ----------------------------------------------------------------------
+                println!("-> {} - saving runtime info", chrono::Local::now().naive_local());
                 let meta_data_uuid = {
                     cloned_mutex_runtime_info_object.lock().unwrap().add(
                         MetaData{
@@ -196,6 +199,7 @@ async fn main() -> std::io::Result<()>{
                         }
                     )
                 };
+                println!("-> {} - sending stream setups through the channel", chrono::Local::now().naive_local());
                 tx.send((stream, meta_data_uuid, cloned_mutex_runtime_info_object, cloned_arc_mutex_miner_addr)).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid through the mpsc channel 
             }); //-- awaiting on tokio::spawn() will block the current task which is running in the background
         });
@@ -220,7 +224,7 @@ async fn main() -> std::io::Result<()>{
     ///////                                 waiting to receive stream and other setups asynchronously 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     while let Some((mut stream, generated_uuid, cloned_mutex_runtime_info_object, cloned_arc_mutex_miner_addr)) = rx.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started miner actor for every incoming connection - stream must be mutable for reading and writing from and to socket
-        println!("-> receiving a new stream setups");
+        println!("-> receiving the stream setups");
         let transaction_sender = transaction_sender.clone(); //-- cloning transaction_sender to send signed transaction through the channel to the receiver for mining process
         tokio::spawn(async move { //-- this is an async task related to updating a miner actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
             let mut transaction_buffer_bytes = vec![0 as u8; buffer_size]; //-- using [0 as u8; buffer_size] gives us the error of `attempt to use a non-constant value in a constant` cause [u8] doesn't implement the Sized trait
@@ -231,6 +235,7 @@ async fn main() -> std::io::Result<()>{
                     let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
                     // TODO - if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the channel to be pushed inside a block for mining process
                     // ...
+                    println!("-> {} - signing incoming transaction", chrono::Local::now().naive_local());
                     deserialized_transaction_serde.signed = Some(chrono::Local::now().naive_local().timestamp()); //-- signing the incoming transaction with server time
                     // ----------------------------------------------------------------------
                     //               SENDING SIGNED TRANSACTION BACK TO THE PEER
@@ -243,10 +248,12 @@ async fn main() -> std::io::Result<()>{
                         //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
                         slice::from_raw_parts(deserialized_transaction_serde as *const Transaction as *const u8, mem::size_of::<Transaction>())
                     };
+                    println!("-> {} - sending signed transaction back to the peer", chrono::Local::now().naive_local());
                     stream.write(&signed_transaction_serialized_into_bytes).await.unwrap(); //-- sending the signed transaction back to the peer
                     // ----------------------------------------------------------------------
                     //               UPDATING MINER ACTOR WITH A SIGNED TRANSACTION
                     // ----------------------------------------------------------------------
+                    println!("-> {} - updating miner actor with a signed transaction", chrono::Local::now().naive_local());
                     for (id, md) in cloned_mutex_runtime_info_object.lock().unwrap().info_dict.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the miner actor transaction of our matched meta_data id with the incoming uuid
                         if id == &generated_uuid{
                             let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
@@ -256,6 +263,7 @@ async fn main() -> std::io::Result<()>{
                     // ---------------------------------------------------------------------------------------
                     //        SENDING SIGNED TRANSACTION TO DOWN SIDE OF THE CHANNEL FOR MINING PROCESS
                     // ---------------------------------------------------------------------------------------
+                    println!("-> {} - sending signed transaction to down side of the channel for mining process", chrono::Local::now().naive_local());
                     let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
                     let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //-- putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
                     let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //-- cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
