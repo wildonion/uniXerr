@@ -29,10 +29,6 @@ source corenv/bin/activate && pip install -r requirements.txt
 #### Run Server
 
 ```console 
-cd cus_dev
-```
-
-```console 
 python manage.py migrate && python manage.py runserver
 ```
 
