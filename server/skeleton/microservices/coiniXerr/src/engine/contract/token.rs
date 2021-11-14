@@ -14,6 +14,7 @@
 // https://blog.logrocket.com/procedural-macros-in-rust/
 // http://gradebot.org/doc/ipur/trait.html
 // https://cheats.rs/#behind-the-scenes
+// https://docs.substrate.io/
 
 
 
