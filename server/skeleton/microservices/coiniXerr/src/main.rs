@@ -148,7 +148,7 @@ async fn main() -> std::io::Result<()>{
     ///////                                               parachains and parathreads
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     // TODO - connect other blockchains from other instances of this server to build a parachains and parathreads based network for parallel transactions using scheduler, libp2p and gRPC protocol over http or tcp socket
-    // TODO - solve forking issue for this model of blockchain by choosing the longest chain
+    // TODO - solve forking issue for this model of blockchain by choosing the longest chain created by new() method of the blockchain object of the Chain struct 
     // TODO - save the whole chain inside a db or a persistence storage using wasm
     // ...
 
