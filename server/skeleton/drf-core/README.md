@@ -4,9 +4,9 @@
 
 # DRF APIs for AI Cores
 
-#### Prerequisite
+### Prerequisite
 
-### Setup On Windows
+#### Setup On Windows
 
 ```console 
 pip install virtualenv && virtualenv corenv
@@ -16,7 +16,7 @@ pip install virtualenv && virtualenv corenv
 .\corenv\Scripts\activate && pip install -r requirements.txt
 ```
 
-### Setup On Linux
+#### Setup On Linux
 
 ```console 
 sudo pip install virtualenv && virtualenv corenv
@@ -26,10 +26,10 @@ sudo pip install virtualenv && virtualenv corenv
 source corenv/bin/activate && pip install -r requirements.txt
 ```
 
-#### Run Server
+### Run Server
 
 ```console 
 python manage.py migrate && python manage.py runserver
 ```
 
-[APIs](http://localhost:8000/core)
+[APIs](http://localhost:8000/ai/core)
