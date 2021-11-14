@@ -328,7 +328,7 @@ impl QueryableUser{
         if current_user.coins != 0 && current_user.coins > 0{
             let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain
                 id: Uuid::new_v4(),
-                ttype: 0x00, //-- 0 means regular transaction not a contract
+                ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF means 1 in hex and a smart contract transaction 
                 amount: coins,
                 from_address: current_user.wallet_address,
                 to_address: current_user_friend.wallet_address,

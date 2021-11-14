@@ -150,7 +150,7 @@ impl Drop for ThreadPool{
         for worker in &mut self.workers {
             println!("Shutting down worker {}", worker.id);
             if let Some(thread) = worker.thread.take(){ //-- take() takes the value out of the option, leaving a None in its place
-                thread.join().unwrap();
+                thread.join().unwrap(); //-- joining on thread will block the current thread to get the computation result which is running in background
             }
         }
     }

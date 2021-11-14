@@ -16,7 +16,7 @@
 
 * **Put _postgres_ lib and bin path into environment variable on Windows:** ```C:\Program Files\PostgreSQL\13\lib``` and ```C:\Program Files\PostgreSQL\13\bin```
 
-* **Install _cargo_ bullshits:** ```cargo install diesel_cli --no-default-features --features postgres && cargo install systemfd cargo-watch```  
+* **Install _cargo_ extra packages:** ```cargo install diesel_cli --no-default-features --features postgres && cargo install systemfd cargo-watch```  
 
 ### Updating `auth` Microservice API Acess Level
 

@@ -104,7 +104,7 @@ impl MetaData{
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 //                                                         Chain Schema
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)] //-- encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Chain{
     pub branch_id: Uuid,
     pub branch_name: String,
@@ -178,7 +178,7 @@ impl Chain{
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 //                                                         Block Schema
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)] //-- encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Block{
     pub id: Uuid,
     pub is_genesis: bool,
@@ -289,7 +289,7 @@ union TransactionMem{
     pub buffer: *const u8,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)] //-- encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Transaction{
     pub id: Uuid,
     pub ttype: u8, //-- one byte or 00000000 or 0x00 - every 4 digits in one byte is a hex number and every 3 digit in one byte is a oct number
@@ -306,7 +306,7 @@ impl Default for Transaction{
     fn default() -> Self{
         Transaction{
             id: Uuid::new_v4(),
-            ttype: 0x00, //-- 0 means regular transaction - 1 means smart contract transaction 
+            ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF means 1 in hex and a smart contract transaction 
             amount: 100,
             from_address: "the address of coiniXerr network wallet".to_string(), // TODO - the address of the coiniXerr network - public key is used to generate wallet address
             to_address: "the address of wildonion wallet network".to_string(), // TODO - the address of the wildonion wallet - public key is used to generate wallet address

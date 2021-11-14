@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
     
     // NOTE - cloning db connections using Arc cause trait Copy and Clone is not implemented for them and they are not Sync and Send and safe to move between threads thus Arc do these things for us
     // NOTE - in order to start the ChatServer actor we have to define a simple Context for that
-    // NOTE - based on orphan rule in order to call the start() method on our ChatServer actor we have to include the Actor trait in here   
+    // NOTE - based on orphan rule in order to call the start() method on our ChatServer actor we have to include the Actor trait in here cause start() method belongs to Actor trait
     let chat_server_address = chat_balancer::ChatServer::new(cass_session.clone()).start(); // start a new asynchronous actor, returning its address.
     let mut listenfd = ListenFd::from_env();
     let mut server = 

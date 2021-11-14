@@ -47,6 +47,9 @@ Async & Multithreading Rules:
     [+] we have to take an atomic reference from the receiver using Arc in order to clone it for passing between multiple threads and for mutating it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time. this is done by waiting on the receiver until a job or task becomes available to down side of the channel then locking on the receiver to acquire the mutex.
     [+] thread safe coding is about to putting the shareable receiver (cloned with Arc) inside a Mutex in order to lock on the incoming task from the sender to prevent other threads from mutating the task at a time.
 Sugar Rules:
+    [+] raw pointers * and references &T function similarly, but references are always safe because they are guaranteed to point to valid data and it's not a dangling reference due to the borrow checker
+    [+] one byte or 00000000 or 0x00 - every 4 digits in one byte is a hex number and every 3 digit in one byte is a oct number
+    [+] 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     [+] one byte is the range 00000000 - 11111111 in binary, or 0x00 - 0xFF in hex, one byte is represented in hex as a 2 character string therefore, a 32 byte hex string is 64 characters long
     [+] the size of a unit struct like Test (std::mem::size_of::<Test>()) is 0
     [+] a codec is basically an algorithm which will map or deserialize the buffer filled of utf8 bytes from memory into an object and visa versa
@@ -54,6 +57,7 @@ Sugar Rules:
     [+] enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
     [+] all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
     [+] usize gives you the guarantee to be always big enough to hold any pointer or any offset in a data structure  and its size is depended on how much size it takes to reference any location in memory, on a 32 bit target usize is 4 bytes and on a 64 bit target usize is 8 bytes, while u32 can be too small on some architectures
+    [+] procedural macros enables other prgrammers to use our trait on our own struct
     [+] macros are expanded before the compiler interprets the meaning of the code, so a macro can, for example, implement a trait on a given type
     [+] function gets called at runtime and a trait needs to be implemented at compile time
     [+] for those types specially concrete types like traits which don't have size at compile time means they are not bounded to Sized trait, we have to point them using a pointer like Box<dyn Trait> or &dyn Trait
