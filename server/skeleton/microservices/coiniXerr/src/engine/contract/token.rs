@@ -77,7 +77,7 @@ pub trait CRC20{ //-- smart contract for fungible tokens or digital assets in wh
 
 }
 
-pub trait CRC22{ //-- coiniXerr smart contract supports both FT and NFT types
+pub trait CRC22{ //-- coiniXerr smart contract supports both FT and NFT types - https://docs.openzeppelin.com/contracts/3.x/erc1155
 
     type TokenID;
     type TokenName;
