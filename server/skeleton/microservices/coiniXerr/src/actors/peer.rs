@@ -26,7 +26,7 @@ impl CRC20 for Miner{ //-- issuing a FT (fungible token) contract for a miner
 
     fn mint(&mut self){
         //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
-        TokenAddress = self.transaction.unwrap().from_address;
+        Self::TokenAddress = self.transaction.unwrap().from_address;
     }
 
     fn transfer_from(&mut self){

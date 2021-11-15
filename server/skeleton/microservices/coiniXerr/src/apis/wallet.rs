@@ -24,7 +24,6 @@ use std::{slice, mem, sync::{Arc, Mutex}};
 async fn transaction(req: HttpRequest, mut body_payload: web::Payload, transaction_sender: web::Data<Sender<Arc<Mutex<Transaction>>>>) -> Result<HttpResponse, Error>{
     let transaction_sender = transaction_sender.as_ref();
     println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), req.peer_addr().unwrap());
-    println!("[+] SERVER TIME : {} | TRANSACTION FROM PEER ::: {}:{} ", chrono::Local::now().naive_local(), ip, port);
     let mut bytes = web::BytesMut::new();
     while let Some(chunk) = body_payload.next().await { //-- extracting binary wallet data or utf8 bytes from incoming request - loading the payload into the memory
         bytes.extend_from_slice(&chunk?); //-- the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed

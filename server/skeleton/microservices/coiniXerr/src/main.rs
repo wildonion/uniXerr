@@ -299,9 +299,27 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     while let Some(transaction) = transaction_receiver.recv().await{ //-- waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously 
         println!("-> receiving new transaction to push inside the current block");
-        // TODO - check the type of the incoming transaction and send issue contract message to miner actor if the transaction was of type smart contract or 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) in hex
-        // ...
         let mutext_transaction = transaction.lock().unwrap().clone();
+        // ----------------------------------------------------------------------
+        //                            TRANSACTION TYPES
+        // ----------------------------------------------------------------------
+        if mutext_transaction.ttype == 0x00{
+            // TODO - regular transaction
+            // TODO - send issue contract message to miner actor
+            // ...
+        } else if mutext_transaction.ttype == 0xFF{
+            // TODO - issuing CRC21 smart contract
+            // TODO - send issue contract message to miner actor
+            // ...
+        } else if mutext_transaction.ttype == 0x02{
+            // TODO - issuing CRC20 smart contract
+            // TODO - send issue contract message to miner actor
+            // ...
+        } else if mutext_transaction.ttype == 0x03{
+            // TODO - issuing CRC22 smart contract
+            // TODO - send issue contract message to miner actor
+            // ...
+        }
         // ----------------------------------------------------------------------
         //                              MINING PROCESS
         // ----------------------------------------------------------------------
