@@ -21,9 +21,12 @@ impl CRC20 for Miner{ //-- issuing a FT (fungible token) contract for a miner
     type TokenName = String;
     type TotalSupply = u128;
     type Decimal = u8;
+    type TokenAddress = String;
+    type ValidTime = u64;
 
     fn mint(&mut self){
         //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
+        TokenAddress = self.transaction.unwrap().from_address;
     }
 
     fn transfer_from(&mut self){
@@ -37,7 +40,7 @@ impl CRC20 for Miner{ //-- issuing a FT (fungible token) contract for a miner
     } 
     
     fn approve(&mut self){
-        //-- a token holder gives another wallet address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
+        //-- the code that's executed by the contract's method can include calls to other contracts, these trigger more transactions that have the from field set to the contract's address - a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
 
     }
 
@@ -82,14 +85,14 @@ impl Actor for Miner {
     type Context = Context<Miner>;
     fn started(&mut self, ctx: &mut Self::Context){ //-- this function body will run once a miner has been started
         let addr = ctx.address(); //-- getting the address of the this miner actor
-        print!("-> A miner has been started with address {:?}", self.addr);
+        print!("-> a miner has been started with address {:?}", self.addr);
     }
 }
 
-impl Handler<Command> for Miner { //-- implementing a Handler for Command event to send commands or messages to another miner actor
+impl Handler<Command> for Miner { //-- implementing a Handler for Command event to send commands or messages to another miner actor like issuing a smart contract event
     type Result = ();
     fn handle(&mut self, msg: Command, ctx: &mut Context<Self>) -> Self::Result{
-        println!("[{0}] Command received {1}", self.id, msg.id);
+        println!("[{0}] command received {1}", self.id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
             act.recipient.as_ref().unwrap().do_send(Command { id: Uuid::new_v4(), cmd: "balance".to_string() }); //-- sending a message to another miner is done through the miner address and defined Command event or message 
         });

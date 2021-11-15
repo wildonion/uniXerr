@@ -23,7 +23,7 @@ pub fn can_be_mined(mut block: Block) -> Result<Block, bool>{ //-- define block 
     // TODO - a decoder in the server side is responsible to decode all of them from the latent space of VAE
     // TODO - if the decoder was successful at decoding each transactin and no anomal transaction detected means all transactins are valid which cause the block be a mined one 
     // ...
-    let is_mined = true;
+    let is_mined = true; // TODO - checks the block's hash to ensure it's legitimate
     if is_mined{
         block.is_mined = true; // TODO - 
         Ok(block)

@@ -321,14 +321,19 @@ impl QueryableUser{
         }
     }
 
+    pub async fn issue_contract(){
+        // TODO - issuing a smart contract transaction which is of type 0xFF or 1
+        // ...
+    }
+
     pub async fn update_coins(id: i32, friend_id: i32, coins: i32) -> Result<DeliveredCoins, String>{ // NOTE - `?` couldn't convert the error to `std::string::String` thus we can't use `?` inside this function to solve the error, instead we have to use unwrap()
         let conn = pg::connection().await.unwrap();
         let current_user = Self::find_by_id(id).await.unwrap(); // current_user contains all columns data inside the table
         let current_user_friend = Self::find_by_id(friend_id).await.unwrap(); // current_user_friend contains all columns data inside the table
         if current_user.coins != 0 && current_user.coins > 0{
-            let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain
+            let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain (mined block)
                 id: Uuid::new_v4(),
-                ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF means 1 in hex and a smart contract transaction 
+                ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF means 1 in hex and a smart contract transaction either token or NFT
                 amount: coins,
                 from_address: current_user.wallet_address,
                 to_address: current_user_friend.wallet_address,
@@ -345,7 +350,7 @@ impl QueryableUser{
             }; 
             let transfered_transaction_resp = match liber::send_transaction!(new_transaction_bytes){ //-- sending a binary stream of transaction data (serialized into bytes) to the coiniXerr network for mining and consensus process
                 Ok(transfered_transaction) => {
-                    if let Some(signed_transaction) = transfered_transaction.signed{ //-- if the transaction was added to the blockchain means it's confirmed and we can update both user coins
+                    if let Some(signed_transaction) = transfered_transaction.signed{ //-- if the transaction was added to the blockchain (mined block) means it's confirmed and we can update both user coins
                         let updated_user_coins = UpdateCoins{
                             coins: current_user.coins - coins,
                             updated_at: Some(chrono::Local::now().naive_local()),

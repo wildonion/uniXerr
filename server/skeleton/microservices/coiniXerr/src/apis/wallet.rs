@@ -23,8 +23,7 @@ use std::{slice, mem, sync::{Arc, Mutex}};
 #[post("/coiniXerr/transaction")] //-- the route for handling streaming of regular transactions in form of utf8 binary data 
 async fn transaction(req: HttpRequest, mut body_payload: web::Payload, transaction_sender: web::Data<Sender<Arc<Mutex<Transaction>>>>) -> Result<HttpResponse, Error>{
     let transaction_sender = transaction_sender.as_ref();
-    let ip = req.peer_addr().unwrap().ip();
-    let port = req.peer_addr().unwrap().port();
+    println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), req.peer_addr().unwrap());
     println!("[+] SERVER TIME : {} | TRANSACTION FROM PEER ::: {}:{} ", chrono::Local::now().naive_local(), ip, port);
     let mut bytes = web::BytesMut::new();
     while let Some(chunk) = body_payload.next().await { //-- extracting binary wallet data or utf8 bytes from incoming request - loading the payload into the memory

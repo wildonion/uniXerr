@@ -56,7 +56,7 @@ use uuid::Uuid;
 use std::sync::{Arc, Mutex};
 use std::{env, slice, mem};
 use dotenv::dotenv;
-use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
+use actix::{*, prelude::*}; //-- loading actix actors and handlers for miner actor's threads communication using their address and defined events 
 use actix_web::{App, HttpServer, middleware};
 use actix_session::CookieSession;
 use apis::wallet::routes as coin_routes;
@@ -148,7 +148,8 @@ async fn main() -> std::io::Result<()>{
     ///////                                               parachains and parathreads
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     // TODO - connect other blockchains from other instances of this server to build a parachains and parathreads based network for parallel transactions using scheduler, libp2p and gRPC protocol over http or tcp socket
-    // TODO - solve forking issue for this model of blockchain by choosing the longest chain created by new() method of the blockchain object of the Chain struct 
+    // TODO - solve forking and reorgs issue for this model of blockchain by choosing the longest chain created by new() method of the blockchain object of the Chain struct 
+    // TODO - even though it's possible for two rivaling chains to exist at the same time, soon one of the two chains will add another block and outgrow the other due to the time it takes to solve the mining algorithms,
     // TODO - save the whole chain inside a db or a persistence storage using wasm
     // ...
 
