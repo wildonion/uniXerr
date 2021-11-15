@@ -306,7 +306,7 @@ impl Default for Transaction{
     fn default() -> Self{
         Transaction{
             id: Uuid::new_v4(),
-            ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF means 1 in hex and a smart contract transaction 
+            ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) in hex means smart contract transaction
             amount: 100,
             from_address: "the address of coiniXerr network wallet".to_string(), // TODO - the address of the coiniXerr network - public key is used to generate wallet address
             to_address: "the address of wildonion wallet network".to_string(), // TODO - the address of the wildonion wallet - public key is used to generate wallet address

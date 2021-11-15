@@ -76,3 +76,17 @@ pub trait CRC20{ //-- smart contract for fungible tokens or digital assets in wh
     fn trade(&mut self); //-- do something after successfull token transfer
 
 }
+
+pub trait CRC22{ //-- coiniXerr smart contract supports both FT and NFT types
+
+    type TokenID;
+    type TokenName;
+    type TotalSupply;
+    type Decimal;
+    type TokenAddress; //-- the address of this token
+    type AssetLink; //-- stored in IPFS or coiniXerr blockchain
+    type MetaData; //-- metadata schema in json format about the place of stored NFT
+    type ValidTime;
+    type Volume; //-- number of total NFTs of an asset; like there are total of 10 rust notes but with unique id 
+
+}

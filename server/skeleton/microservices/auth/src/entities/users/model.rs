@@ -322,7 +322,7 @@ impl QueryableUser{
     }
 
     pub async fn issue_contract(){
-        // TODO - issuing a smart contract transaction which is of type 0xFF or 1
+        // TODO - issuing a smart contract transaction which is of type 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) 
         // ...
     }
 
@@ -333,7 +333,7 @@ impl QueryableUser{
         if current_user.coins != 0 && current_user.coins > 0{
             let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain (mined block)
                 id: Uuid::new_v4(),
-                ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF means 1 in hex and a smart contract transaction either token or NFT
+                ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) in hex means smart contract transaction
                 amount: coins,
                 from_address: current_user.wallet_address,
                 to_address: current_user_friend.wallet_address,
