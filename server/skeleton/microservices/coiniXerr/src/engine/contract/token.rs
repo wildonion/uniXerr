@@ -48,6 +48,7 @@
 
 pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limited supply to invest on tokenized asstes like musics, notes, homes and even coiniXerr gold coins in which a token or the asset is a mapping between wallet addresses and their balances - a fungible token which is not unique is any token whose fundamental unit or characteristic is interchangeable with other tokens of the same set
 
+    //-- associated types
     type TokenID;
     type TokenName;
     type TotalSupply; //-- total value or price or balance of this cryptocurrency token of the asset - sum of all addresses' balance must be equal to this; eg : an asset with total supply of 40 can be divided into 4 addresses 10 value for each means thos addresses must invest 10 coins to own this asset 
@@ -66,6 +67,7 @@ pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limit
 
 pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets in which a token links ownership to unique physical or digital items like musics, notes, homes and even coiniXerr gold coins 
 
+    //-- associated types
     type AssetLink; //-- stored in IPFS or uniXerr network
     type TokenName;
     type TokenID;
@@ -85,6 +87,7 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets 
 
 pub trait CRC22{ //-- coiniXerr smart contract supports variety of tokens and standards like both FT and NFT types
 
+    //-- associated types
     type TokenID;
     type TokenName;
     type TotalSupply;

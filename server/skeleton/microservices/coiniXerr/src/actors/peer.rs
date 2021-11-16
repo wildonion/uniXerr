@@ -25,8 +25,8 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
     type ValidTime = u64;
 
     fn mint(&mut self){
-        //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
-        Self::TokenAddress = self.transaction.unwrap().from_address;
+        //-- minting FT is a transaction and means assigning a token or an asset value with a limited to a wallet address which can be issued by this contract
+        let mint_address: Self::TokenAddress = self.transaction.clone().unwrap().from_address; //-- self is a mutable pointer to the CRC20 fields - for unwrapping the transaction we must clone it cause it's behind a shared reference which is &mut behind the self parameter
     }
 
     fn transfer_from(&mut self){

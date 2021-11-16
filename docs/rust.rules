@@ -87,6 +87,7 @@ Sugar Rules:
     [+] Vec<&dyn Fn(i32) -> i32> is a vector of i32 closures because Fn is an object safe trait which is not bounded to Sized trait means compiler doesn't know how much space it will need to store the closure thus we must get a reference to Fn using &dyn or Box<dyn Fn(i32) -> i32>
     [+] Fn, FnMut, and FnOnce can be bounded an object safe trait bounds to closure arguments
     [+] Fn trait is an object safe trait, because of unknown size at compile time it needs to be inside the Box<dyn Trait_Name>
+    [+] object safe traits are not bounded to trait Sized thus they need to be inside the Box<dyn Trait_Name>
     [+] &T and &mut T will be coerced into raw pointers *const T or *mut T respectively
     [+] Vec<u8> is coerced to &u8 and String is coerced to &str cause of unknown size (not bounded to Sized trait) for both of them at compile time a reference will be taken from them which contains a pointer to the location of the data inside heap saved on stack along with capacity and len    
     [+] we take a reference from a variable using & which is called smart pointer, by doing this we're borrowing the value of the variable instead of taking its ownership and the reference that just has taken from the variable contains a pointer stored on the stack which is a hex address to the memory location of the data stored on heap or stack.
