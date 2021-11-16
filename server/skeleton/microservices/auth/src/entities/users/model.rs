@@ -331,7 +331,7 @@ impl QueryableUser{
         let current_user = Self::find_by_id(id).await.unwrap(); // current_user contains all columns data inside the table
         let current_user_friend = Self::find_by_id(friend_id).await.unwrap(); // current_user_friend contains all columns data inside the table
         if current_user.coins != 0 && current_user.coins > 0{
-            let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain (mined block)
+            let new_transaction = Transaction{ //-- creating new transaction to add to the blockchain (created block)
                 id: Uuid::new_v4(),
                 ttype: 0x00, //-- 0x00 means 0 in hex and a regular transaction - 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) in hex means smart contract transaction
                 amount: coins,
@@ -350,7 +350,7 @@ impl QueryableUser{
             }; 
             let transfered_transaction_resp = match liber::send_transaction!(new_transaction_bytes){ //-- sending a binary stream of transaction data (serialized into bytes) to the coiniXerr network for mining and consensus process
                 Ok(transfered_transaction) => {
-                    if let Some(signed_transaction) = transfered_transaction.signed{ //-- if the transaction was added to the blockchain (mined block) means it's confirmed and we can update both user coins
+                    if let Some(signed_transaction) = transfered_transaction.signed{ //-- if the transaction was added to the blockchain means it's confirmed and we can update both user coins
                         let updated_user_coins = UpdateCoins{
                             coins: current_user.coins - coins,
                             updated_at: Some(chrono::Local::now().naive_local()),
@@ -361,7 +361,7 @@ impl QueryableUser{
                         };
                         let current_user_with_updated_coins = diesel::update(users::table.filter(users::id.eq(id))).set(updated_user_coins).get_result::<QueryableUser>(&conn).unwrap();
                         let current_user_friend_with_updated_coins = diesel::update(users::table.filter(users::id.eq(friend_id))).set(updated_user_friend_coins).get_result::<QueryableUser>(&conn).unwrap();
-                        let mined_transaction = DeliveredCoins{
+                        let signed_transaction = DeliveredCoins{
                             id: transfered_transaction.id,
                             amount: transfered_transaction.amount,
                             from_address: transfered_transaction.from_address,
@@ -375,7 +375,7 @@ impl QueryableUser{
                             send_time: current_user_with_updated_coins.updated_at.timestamp(), //-- the time that the user sent his/her coins
                             delivery_time: current_user_friend_with_updated_coins.updated_at.timestamp(), //-- the time that the friend borrowed coins
                         };
-                        Ok(mined_transaction)
+                        Ok(signed_transaction)
                     } else{
                         Err(constants::MESSAGE_NOT_MINED_TRANSACTION.to_string()) //-- can't transfer coins
                     }

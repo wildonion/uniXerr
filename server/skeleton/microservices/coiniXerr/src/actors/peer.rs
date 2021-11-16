@@ -4,7 +4,7 @@
 use actix::prelude::*; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use uuid::Uuid;
 use std::{net::SocketAddr, time::Duration};
-use crate::schemas::{Transaction, MinerPool};
+use crate::schemas::{Transaction, ValidatorPool};
 use crate::engine::contract::token::CRC20; //-- super is the root of the current directory (libs)
 
 
@@ -15,7 +15,7 @@ use crate::engine::contract::token::CRC20; //-- super is the root of the current
 
 
 
-impl CRC20 for Miner{ //-- issuing a FT (fungible token) contract for a miner
+impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a validator
 
     type TokenID = u8;
     type TokenName = String;
@@ -73,7 +73,7 @@ pub struct Command {
 }
 
 #[derive(Debug, Clone)] //-- trait Clone is required to prevent the object of this struct from moving
-pub struct Miner {
+pub struct Validator {
     pub id: Uuid,
     pub addr: SocketAddr,
     pub transaction: Option<Transaction>, //-- signed transaction
@@ -81,20 +81,20 @@ pub struct Miner {
     pub pool: Option<String>,
 }
 
-impl Actor for Miner {
-    type Context = Context<Miner>;
-    fn started(&mut self, ctx: &mut Self::Context){ //-- this function body will run once a miner has been started
-        let addr = ctx.address(); //-- getting the address of the this miner actor
-        print!("-> a miner has been started with address {:?}", self.addr);
+impl Actor for Validator {
+    type Context = Context<Validator>;
+    fn started(&mut self, ctx: &mut Self::Context){ //-- this function body will run once a validator has been started
+        let addr = ctx.address(); //-- getting the address of the this validator actor
+        print!("-> a validator has been started with address {:?}", self.addr);
     }
 }
 
-impl Handler<Command> for Miner { //-- implementing a Handler for Command event to send commands or messages to another miner actor like issuing a smart contract event
+impl Handler<Command> for Validator { //-- implementing a Handler for Command event to send commands or messages to another validator actor like issuing a smart contract event
     type Result = ();
     fn handle(&mut self, msg: Command, ctx: &mut Context<Self>) -> Self::Result{
         println!("[{0}] command received {1}", self.id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
-            act.recipient.as_ref().unwrap().do_send(Command { id: Uuid::new_v4(), cmd: "balance".to_string() }); //-- sending a message to another miner is done through the miner address and defined Command event or message 
+            act.recipient.as_ref().unwrap().do_send(Command { id: Uuid::new_v4(), cmd: "balance".to_string() }); //-- sending a message to another validator is done through the validator address and defined Command event or message 
         });
     }
 }

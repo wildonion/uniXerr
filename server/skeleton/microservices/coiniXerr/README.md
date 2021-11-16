@@ -1,5 +1,5 @@
 
-💰 An Actor Based Design Patter for uniXerr Cryptocurrency Coin, CRC20 and CRC21 Smart Contract; to Mint NFT and FT for Digital Assests inside uniXerr Protocol on top of coiniXerr Blockchain Network
+💰 An Actor Based Design Patter for uniXerr Cryptocurrency Coin, CRC20, CRC21 and CRC22 Smart Contract; to Mint NFT and FT for Digital Assests inside uniXerr Protocol on top of coiniXerr Blockchain Network
 
 # Development Setup
 

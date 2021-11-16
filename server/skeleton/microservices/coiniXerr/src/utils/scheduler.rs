@@ -10,31 +10,6 @@
                     || synchronous task scheduler using multiple OS threads or workers communication based on messaging channel; mpsc job queue channel protocol ||
                      ---------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-            https://doc.rust-lang.org/beta/unstable-book/language-features/generators.html
-            https://github.com/wildonion/aravl/tree/master/microservices/device/src
-            https://github.com/actix/examples/blob/master/websockets/tcp-chat/src/codec.rs
-            https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
-            https://stackoverflow.com/questions/2490912/what-are-pinned-objects
-            https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
-            https://github.com/zupzup/warp-websockets-example
-            https://github.com/tokio-rs/tokio/tree/master/examples
-            https://blog.softwaremill.com/multithreading-in-rust-with-mpsc-multi-producer-single-consumer-channels-db0fc91ae3fa
-            https://danielkeep.github.io/tlborm/book/
-            https://cetra3.github.io/blog/implementing-a-jobq/
-            https://cetra3.github.io/blog/implementing-a-jobq-with-tokio/
-            https://docs.rs/tokio/1.12.0/tokio/sync/index.html
-            https://docs.rs/tokio-stream/0.1.7/tokio_stream/
-            https://doc.rust-lang.org/std/pin/index.html
-            https://doc.rust-lang.org/std/sync/struct.Arc.html
-            https://doc.rust-lang.org/std/rc/struct.Rc.html
-            https://doc.rust-lang.org/std/sync/struct.Mutex.html
-            https://doc.rust-lang.org/std/sync/struct.RwLock.html
-            https://doc.rust-lang.org/std/cell/struct.RefMut.html
-            https://doc.rust-lang.org/std/cell/struct.RefCell.html
-            https://doc.rust-lang.org/std/rc/struct.Weak.html
-
      
 
 
@@ -136,11 +111,11 @@ impl ThreadPool{
 
     pub fn execute<F>(&self, f: F) where F: FnOnce() + Send + 'static {
         let job = Box::new(f);
-        self.sender.send(Message::NewJob(job)).unwrap(); //-- by executing the task handler sender will send a job and only one receiver at a time can get that job and solve it by locking on that job inside the choosen thread since thread safe programming is all about this pattern!
+        self.sender.send(Message::NewJob(job)).unwrap(); //-- by executing the task handler sender will send a job asynchronously and only one receiver at a time can get that job and solve it by locking on the mutex to block the choosen thread since thread safe programming is all about this pattern!
     }
 }
 
-impl Drop for ThreadPool{
+impl Drop for ThreadPool{ //-- hitting CTRL + C can drop the lifetime also
     fn drop(&mut self) { //-- destructor for ThreadPool struct 
         println!("Sending terminate message to all workers.");
         for _ in &self.workers {
@@ -150,7 +125,7 @@ impl Drop for ThreadPool{
         for worker in &mut self.workers {
             println!("Shutting down worker {}", worker.id);
             if let Some(thread) = worker.thread.take(){ //-- take() takes the value out of the option, leaving a None in its place
-                thread.join().unwrap(); //-- joining on thread will block the current thread to get the computation result which is running in background
+                thread.join().unwrap(); //-- joining on thread will block the current thread to get the computation result and stop the thread from being processed in the background
             }
         }
     }

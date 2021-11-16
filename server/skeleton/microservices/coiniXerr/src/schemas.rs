@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net 
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
-use crate::actors::peer::Miner;
+use crate::actors::peer::Validator;
 use std::collections::HashMap;
 
 
@@ -21,12 +21,13 @@ use std::collections::HashMap;
 
 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
-//                                                      Miner Pool Schema                      
+//                                                      Validator Pool Schema                      
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
-pub struct MinerPool{ //-- pool of miners
-    pub miners: Vec<Addr<Miner>>,
+pub struct ValidatorPool{ //-- pool of validators
+    pub validators: Vec<Addr<Validator>>,
     pub name: String,
+    pub stakes: i32,
 } 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -79,11 +80,11 @@ impl RuntimeInfo{
 #[derive(Debug, Clone)] 
 pub struct MetaData{
     pub address: SocketAddr,
-    pub actor: Miner, //-- Miner actor should implements the Debug and Clone trait also
+    pub actor: Validator, //-- Validator actor should implements the Debug and Clone trait also
 }
 
 impl MetaData{
-    pub fn update_miner_transaction(&mut self, transaction: Option<Transaction>){ //-- updating the transaction field of the miner actor is done using a mutable borrower (pointer) as the parameter of the update_miner_transaction() method 
+    pub fn update_validator_transaction(&mut self, transaction: Option<Transaction>){ //-- updating the transaction field of the validator actor is done using a mutable borrower (pointer) as the parameter of the update_validator_transaction() method 
         self.actor.transaction = transaction;
     }
 }
@@ -152,7 +153,7 @@ impl Chain{
             merkle_root: None, // TODO - 
             timestamp: chrono::Local::now().naive_local().timestamp(),
             transactions: vec![],
-            is_mined: false,
+            is_valid: false,
         }
     }
 }
@@ -182,12 +183,12 @@ impl Chain{
 pub struct Block{
     pub id: Uuid,
     pub is_genesis: bool,
-    pub prev_hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
-    pub hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub prev_hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     pub merkle_root: Option<String>, //-- hash of all transactions in the form of a binary tree-like structure called merkle tree such that each hash is linked to its parent following a parent-child tree-like relation
     pub timestamp: i64,
     pub transactions: Vec<Transaction>, //-- valid transactions (mempool) waiting to be confirmed and signed - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
-    pub is_mined: bool,
+    pub is_valid: bool,
 }
 
 impl Block{
@@ -201,7 +202,7 @@ impl Block{
             merkle_root: Some(self.clone().merkle_root.unwrap()), //-- self.merkle_root is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
             timestamp: self.timestamp,
             transactions: self.transactions.clone(), //-- self.transactions is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for Vec thus we have to clone it 
-            is_mined: self.is_mined,
+            is_valid: self.is_valid,
         }
     }
 }
@@ -216,7 +217,7 @@ impl Default for Block{
             merkle_root: Some("merkle root hash here".to_string()), // TODO - 
             timestamp: chrono::Local::now().naive_local().timestamp(),
             transactions: vec![Transaction::default()],
-            is_mined: true,
+            is_valid: true,
         }
     }
 }
@@ -292,14 +293,14 @@ union TransactionMem{
 #[derive(Serialize, Deserialize, Clone, Debug)] //-- encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Transaction{
     pub id: Uuid,
-    pub ttype: u8, //-- one byte or 00000000 or 0x00 - every 4 digits in one byte is a hex number and every 3 digit in one byte is a oct number
+    pub ttype: u8, //-- 00000000 or 0x00 is one byte - every 4 bits in one byte is a hex number so 8 bits is 2 hex number in one byte representation bits and every 3 digit in one byte is a oct number
     pub amount: i32,
-    pub from_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
-    pub to_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub from_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub to_address: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     pub issued: i64,
     pub signed: Option<i64>,
-    pub signature: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
-    pub hash: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub signature: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub hash: String, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
 }
 
 impl Default for Transaction{
