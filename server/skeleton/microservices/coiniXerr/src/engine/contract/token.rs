@@ -48,7 +48,9 @@
 
 pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limited supply to invest on tokenized asstes like musics, notes, homes and even coiniXerr gold coins in which a token or the asset is a mapping between wallet addresses and their balances - a fungible token which is not unique is any token whose fundamental unit or characteristic is interchangeable with other tokens of the same set
 
+    // ------------------
     //-- associated types
+    // ------------------
     type TokenID;
     type TokenName;
     type TotalSupply; //-- total value or price or balance of this cryptocurrency token of the asset - sum of all addresses' balance must be equal to this; eg : an asset with total supply of 40 can be divided into 4 addresses 10 value for each means thos addresses must invest 10 coins to own this asset 
@@ -67,7 +69,9 @@ pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limit
 
 pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets in which a token links ownership to unique physical or digital items like musics, notes, homes and even coiniXerr gold coins 
 
+    // ------------------
     //-- associated types
+    // ------------------
     type AssetLink; //-- stored in IPFS or uniXerr network
     type TokenName;
     type TokenID;
@@ -87,7 +91,9 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets 
 
 pub trait CRC22{ //-- coiniXerr smart contract supports variety of tokens and standards like both FT and NFT types
 
+    // ------------------
     //-- associated types
+    // ------------------
     type TokenID;
     type TokenName;
     type TotalSupply;
@@ -98,10 +104,10 @@ pub trait CRC22{ //-- coiniXerr smart contract supports variety of tokens and st
     type Volume; //-- number of total NFTs of an asset; like there are total of 10 rust notes but with unique id
 
     fn mint(&mut self); //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
-    fn balanceOf(&mut self); //-- query the deployer’s balance
-    fn safeTransferFrom(&mut self); //-- transfer items to player accounts
-    fn safeBatchTransferFrom(&mut self); //-- batch transfer items to player accounts and get the balance of batches using balanceOfBatch() method
-    fn balanceOfBatch(&mut self); //-- balance of batches
+    fn balance_of(&mut self); //-- query the deployer’s balance
+    fn safe_transfer_from(&mut self); //-- transfer items to player accounts
+    fn safe_batch_transfer_from(&mut self); //-- batch transfer items to player accounts and get the balance of batches using balance_of_batch() method
+    fn balance_of_batch(&mut self); //-- balance of batches
     fn uri(&mut self, id: String); //-- the uri metadata can include the string {id} which clients must replace with the actual token ID, in lowercase hexadecimal (with no 0x prefix) and leading zero padded to 64 hex characters or 32 bytes; eg token ID : 0000000000000000000000000000000000000000000000000000000000000002
 
 }

@@ -12,7 +12,7 @@ use crate::schemas::Block;
 
 
 pub fn can_be_valid(mut block: Block) -> Result<Block, bool>{ //-- define block as mutable cause we want to update its is_valid field - it's not a mutable borrower (pointer) to the block
-    println!("-> mining process has been started for block [{}]", block.id);
+    println!("-> {} - mining process has been started for block [{}]", chrono::Local::now().naive_local(), block.id);
 
     
     /*

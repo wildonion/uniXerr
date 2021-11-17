@@ -31,3 +31,8 @@ bcrypt = "0.10"
 [[bin]]
 name = "coiniXerr"
 path = "src/main.rs"
+
+
+[[bin]]
+name = "node"
+path = "src/client/main.rs"

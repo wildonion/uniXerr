@@ -57,7 +57,7 @@ use std::sync::{Arc, Mutex};
 use std::{env, slice, mem};
 use dotenv::dotenv;
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for validator actor's threads communication using their address and defined events 
-use actix_web::{App, HttpServer, middleware};
+use actix_web::{App, HttpServer, middleware, web};
 use actix_session::CookieSession;
 use apis::wallet::routes as coin_routes;
 use crate::actors::peer::Validator;
@@ -107,7 +107,7 @@ async fn main() -> std::io::Result<()>{
     let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
     let pool = scheduler::ThreadPool::new(10);
     let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid, Arc<Mutex<RuntimeInfo>>, Arc<Mutex<Addr<Validator>>>)>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket
-    let (transaction_sender, mut transaction_receiver) = mpsc::channel::<Arc<Mutex<Transaction>>>(buffer_size); //-- mpsc channel to send all transactions of all peers' stream to down side of the channel asynchronously for mining process
+    let (transaction_sender, mut transaction_receiver) = mpsc::channel::<Arc<Mutex<Transaction>>>(buffer_size); //-- transaction mempool channel - mpsc channel to send all transactions of all peers' stream to down side of the channel asynchronously for mining process
     
     
     
@@ -136,23 +136,6 @@ async fn main() -> std::io::Result<()>{
     
     
     
-    
-    
-
-    
-    
-    
-    
-    
-
-    /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
-    ///////                                               parachains and parathreads
-    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-    // TODO - connect other coiniXerr full node blockchains from other instances of this server to build a parachains and parathreads based network for parallel transactions using scheduler, libp2p, protobuf and gRPC protocol over http or tcp socket
-    // TODO - solve forking and reorgs issue for this model of blockchain by choosing the longest chain created by new() method of the blockchain object of the Chain struct 
-    // TODO - even though it's possible for two rivaling chains to exist at the same time, soon one of the two chains will add another block and outgrow the other due to the time it takes to solve the mining algorithms,
-    // TODO - save the whole chain state inside a db or a persistence storage using wasm
-    // ...
 
 
 
@@ -160,16 +143,13 @@ async fn main() -> std::io::Result<()>{
 
 
 
-
-    
-    
 
 
     
     
     
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
-    ///////                 starting validators' actors for incoming regular transactions' bytes through a tcp stream 
+    ///////                starting validators' actors for incoming regular transactions' bytes through a tcp stream 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     while let Ok((stream, addr)) = listener.accept().await{ //-- await suspends the accept() function execution to solve the future but allows other code blocks to run  
         println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), addr);
@@ -265,7 +245,7 @@ async fn main() -> std::io::Result<()>{
                         }
                     }
                     // ---------------------------------------------------------------------------------------
-                    //        SENDING SIGNED TRANSACTION TO DOWN SIDE OF THE CHANNEL FOR MINING PROCESS
+                    //      SENDING SIGNED TRANSACTION TO DOWN SIDE OF THE CHANNEL FOR CONSENSUS PROCESS
                     // ---------------------------------------------------------------------------------------
                     println!("-> {} - sending signed transaction to down side of the channel for mining process", chrono::Local::now().naive_local());
                     let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
@@ -275,7 +255,7 @@ async fn main() -> std::io::Result<()>{
                     true
                 },
                 Err(e) => {
-                    println!("-> terminating connection with {}", stream.peer_addr().unwrap());
+                    println!("-> {} - terminating connection with {}", chrono::Local::now().naive_local(), stream.peer_addr().unwrap());
                     stream.shutdown().await.unwrap(); //-- shuts down the output stream
                     false
                 }
@@ -297,39 +277,43 @@ async fn main() -> std::io::Result<()>{
 
 
 
-    /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
-    ///////       waiting to receive signed transactions asynchronously from the sender to push them inside the current block
-    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
+    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========-------------- 
+    ///////     waiting to receive signed transactions asynchronously from the sender to push them inside the current block - this buffer zone is the transaction mempool channel
+    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------
     while let Some(transaction) = transaction_receiver.recv().await{ //-- waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously 
-        println!("-> receiving new transaction to push inside the current block");
-        let mutext_transaction = transaction.lock().unwrap().clone();
+        println!("-> {} - receiving new transaction to push inside the current block", chrono::Local::now().naive_local());
+        let mutex_transaction = transaction.lock().unwrap().clone();
+        println!("-> {} - new transaction : {:#?}", chrono::Local::now().naive_local(), mutex_transaction);
         // ----------------------------------------------------------------------
         //                            TRANSACTION TYPES
         // ----------------------------------------------------------------------
-        if mutext_transaction.ttype == 0x00{
+        if mutex_transaction.ttype == 0x00{
             // TODO - regular transaction
             // TODO - send issue contract message to validator actor
             // ...
-        } else if mutext_transaction.ttype == 0xFF{
+        } else if mutex_transaction.ttype == 0xFF{
             // TODO - issuing CRC21 smart contract
             // TODO - send issue contract message to validator actor
             // ...
-        } else if mutext_transaction.ttype == 0x02{
+            let cmd = "issue crc21".to_string();
+        } else if mutex_transaction.ttype == 0x02{
             // TODO - issuing CRC20 smart contract
             // TODO - send issue contract message to validator actor
             // ...
-        } else if mutext_transaction.ttype == 0x03{
+            let cmd = "issue crc20".to_string();
+        } else if mutex_transaction.ttype == 0x03{
             // TODO - issuing CRC22 smart contract
             // TODO - send issue contract message to validator actor
             // ...
+            let cmd = "issue crc22".to_string();
         }
         // ----------------------------------------------------------------------
-        //                              MINING PROCESS
+        //                              CONSENSUS PROCESS
         // ----------------------------------------------------------------------
         while std::mem::size_of_val(&current_block) <= max_block_size{ //-- push incoming transaction into the current_block until the current block size is smaller than the max_block_size
-            current_block.push_transaction(mutext_transaction.clone()); //-- cloning transaction object in every iteration to prevent from moving and loosing ownership
+            current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent from moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > max_block_size{
-                println!("-> creating a new block");
+                println!("-> {} - creating a new block", chrono::Local::now().naive_local());
                 let (prev, last) = {
                     let mut rev_iter = blockchain.blocks.iter().rev();
                     (rev_iter.next().unwrap().clone(), rev_iter.next().unwrap().clone())
@@ -339,7 +323,7 @@ async fn main() -> std::io::Result<()>{
         }
         match can_be_valid(current_block.clone()){
             Ok(created_block) => {
-                println!("-> adding the created block to the chain");
+                println!("-> {} - adding the created block to the chain", chrono::Local::now().naive_local());
                 blockchain.add(created_block); //-- adding created block to the coiniXerr chain
             }, 
             Err(_) => {
@@ -372,11 +356,14 @@ async fn main() -> std::io::Result<()>{
     let mut server = 
         HttpServer::new(move || {
             App::new() // NOTE - we can build the pg pool in here and pass its clone through the .data() actix method
-                .data(transaction_sender.clone()) //-- clone the transaction_sender to movie it between actix routes and threads 
-                .data(blockchain.clone()) //-- clone the blockchain to move it between actix routes and threads
+                .service(
+            web::scope("/coiniXerr")
+                        .data(transaction_sender.clone()) //-- clone the transaction_sender to movie it between actix routes and threads 
+                        .data(blockchain.clone()) //-- clone the blockchain to move it between actix routes and threads
+                        .configure(coin_routes)
+                    )
                 .wrap(middleware::Logger::default())
                 .wrap(CookieSession::signed(&[0; 32]).secure(false))
-                .configure(coin_routes)
         });
     server = match listenfd.take_tcp_listener(0)?{
         Some(listener) => server.listen(listener)?,

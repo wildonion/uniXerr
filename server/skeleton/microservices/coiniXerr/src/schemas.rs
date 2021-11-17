@@ -107,7 +107,7 @@ impl MetaData{
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Serialize, Deserialize, Clone, Debug)] //-- encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Chain{
-    pub branch_id: Uuid,
+    pub branch_id: Uuid, //-- chain id
     pub branch_name: String,
     pub blocks: Vec<Block>,
 }

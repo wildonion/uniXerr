@@ -321,11 +321,6 @@ impl QueryableUser{
         }
     }
 
-    pub async fn issue_contract(){
-        // TODO - issuing a smart contract transaction which is of type 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) 
-        // ...
-    }
-
     pub async fn update_coins(id: i32, friend_id: i32, coins: i32) -> Result<DeliveredCoins, String>{ // NOTE - `?` couldn't convert the error to `std::string::String` thus we can't use `?` inside this function to solve the error, instead we have to use unwrap()
         let conn = pg::connection().await.unwrap();
         let current_user = Self::find_by_id(id).await.unwrap(); // current_user contains all columns data inside the table

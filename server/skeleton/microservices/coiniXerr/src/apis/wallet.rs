@@ -20,7 +20,7 @@ use std::{slice, mem, sync::{Arc, Mutex}};
 
 
 
-#[post("/coiniXerr/transaction")] //-- the route for handling streaming of regular transactions in form of utf8 binary data 
+#[post("/transaction")] //-- the route for handling streaming of all kind of transactions in form of utf8 binary data 
 async fn transaction(req: HttpRequest, mut body_payload: web::Payload, transaction_sender: web::Data<Sender<Arc<Mutex<Transaction>>>>) -> Result<HttpResponse, Error>{
     let transaction_sender = transaction_sender.as_ref();
     println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), req.peer_addr().unwrap());
@@ -28,7 +28,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, transacti
     while let Some(chunk) = body_payload.next().await { //-- extracting binary wallet data or utf8 bytes from incoming request - loading the payload into the memory
         bytes.extend_from_slice(&chunk?); //-- the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed
     }
-    println!("-> transaction body in bytes {:?}!", bytes);
+    println!("-> {} - transaction body in bytes {:?}!", chrono::Local::now().naive_local(), bytes);
     let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using serde from_slice method
     // TODO - if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the channel to be pushed inside a block for mining process
     // ...
