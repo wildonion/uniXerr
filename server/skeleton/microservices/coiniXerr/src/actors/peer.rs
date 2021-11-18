@@ -94,7 +94,7 @@ impl Handler<Command> for Validator { //-- implementing a Handler for Command ev
     fn handle(&mut self, msg: Command, ctx: &mut Context<Self>) -> Self::Result{
         println!("[{0}] command received {1}", self.id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
-            act.recipient.as_ref().unwrap().do_send(Command { id: Uuid::new_v4(), cmd: "balance".to_string() }); //-- sending a message to another validator is done through the validator address and defined Command event or message 
+            act.recipient.as_ref().unwrap().do_send(Command { id: Uuid::new_v4(), cmd: "balance".to_string() }); //-- as_reF() converts &Option<T> to Option<&T> - sending a message to another validator in the background (unless we await on it) is done through the validator address and defined Command event or message 
         });
     }
 }

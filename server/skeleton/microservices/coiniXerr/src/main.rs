@@ -105,10 +105,10 @@ async fn main() -> std::io::Result<()>{
     let coiniXerr_http_port = env::var("COINIXERR_HTTP_PORT").expect("⚠️ please set coiniXerr http port in .env");
     let coiniXerr_tcp_port = env::var("COINIXERR_TCP_PORT").expect("⚠️ please set coiniXerr tcp port in .env");
     let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
-    let pool = scheduler::ThreadPool::new(10);
+    let pool = scheduler::ThreadPool::new(10); //-- 10 threads per process to handle all its incoming tasks
     let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid, Arc<Mutex<RuntimeInfo>>, Arc<Mutex<Addr<Validator>>>)>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket
     let (transaction_sender, mut transaction_receiver) = mpsc::channel::<Arc<Mutex<Transaction>>>(buffer_size); //-- transaction mempool channel - mpsc channel to send all transactions of all peers' stream to down side of the channel asynchronously for mining process
-    
+    println!("-> {} - server is up", chrono::Local::now().naive_local());
     
     
 
@@ -235,8 +235,10 @@ async fn main() -> std::io::Result<()>{
                     println!("-> {} - sending signed transaction back to the peer", chrono::Local::now().naive_local());
                     stream.write(&signed_transaction_serialized_into_bytes).await.unwrap(); //-- sending the signed transaction back to the peer
                     // ----------------------------------------------------------------------
-                    //               UPDATING MINER ACTOR WITH A SIGNED TRANSACTION
+                    //             UPDATING MINER ACTOR WITH A SIGNED TRANSACTION
                     // ----------------------------------------------------------------------
+                    // TODO - update recipient and pool fields of the current validator actor
+                    // ...
                     println!("-> {} - updating validator actor with a signed transaction", chrono::Local::now().naive_local());
                     for (id, md) in cloned_arc_mutex_runtime_info_object.lock().unwrap().info_dict.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
                         if id == &generated_uuid{
@@ -308,7 +310,7 @@ async fn main() -> std::io::Result<()>{
             let cmd = "issue crc22".to_string();
         }
         // ----------------------------------------------------------------------
-        //                              CONSENSUS PROCESS
+        //                             CONSENSUS PROCESS
         // ----------------------------------------------------------------------
         while std::mem::size_of_val(&current_block) <= max_block_size{ //-- push incoming transaction into the current_block until the current block size is smaller than the max_block_size
             current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent from moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
@@ -328,6 +330,7 @@ async fn main() -> std::io::Result<()>{
             }, 
             Err(_) => {
                 // TODO - decoder couldn't decode transactions inside the block
+                // TODO - stakers couldn't validate the current block cause perhaps it was malicious 
                 // ...
             }
         }
