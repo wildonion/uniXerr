@@ -64,12 +64,11 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
 
 
 
-
 #[derive(Message)]
 #[rtype(result = "()")] //-- result type of this event
-pub struct Command {
+pub struct Contract {
     pub id: Uuid,
-    pub cmd: String,
+    pub ttype: u8,
 }
 
 #[derive(Debug, Clone)] //-- trait Clone is required to prevent the object of this struct from moving
@@ -77,7 +76,7 @@ pub struct Validator {
     pub id: Uuid,
     pub addr: SocketAddr,
     pub transaction: Option<Transaction>, //-- signed transaction
-    pub recipient: Option<Recipient<Command>>, //-- recipient actor address
+    pub recipient: Option<Recipient<Contract>>, //-- recipient actor address
     pub pool: Option<String>,
 }
 
@@ -89,12 +88,12 @@ impl Actor for Validator {
     }
 }
 
-impl Handler<Command> for Validator { //-- implementing a Handler for Command event to send commands or messages to another validator actor like issuing a smart contract event
+impl Handler<Contract> for Validator { //-- implementing a Handler for Contract event to send commands or messages to another validator actor like issuing a smart contract event
     type Result = ();
-    fn handle(&mut self, msg: Command, ctx: &mut Context<Self>) -> Self::Result{
+    fn handle(&mut self, msg: Contract, ctx: &mut Context<Self>) -> Self::Result{
         println!("[{0}] command received {1}", self.id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
-            act.recipient.as_ref().unwrap().do_send(Command { id: Uuid::new_v4(), cmd: "balance".to_string() }); //-- as_reF() converts &Option<T> to Option<&T> - sending a message to another validator in the background (unless we await on it) is done through the validator address and defined Command event or message 
+            act.recipient.as_ref().unwrap().do_send(Contract { id: Uuid::new_v4(), ttype: 0x02 }); //-- as_reF() converts &Option<T> to Option<&T> - sending a message to another validator in the background (unless we await on it) is done through the validator address and defined Contract event or message 
         });
     }
 }

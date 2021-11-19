@@ -94,7 +94,7 @@ async fn main() -> std::io::Result<()>{
 
 
     let run_time_info = RuntimeInfo::new();
-    let arc_mutex_runtime_info_object = Arc::new(Mutex::new(run_time_info)); //-- we can clone the run_time_info withou using Arc cause Clone trait is implemented for RuntimeInfo -> MetaData -> Validator actor
+    let arc_mutex_runtime_info_object = Arc::new(Mutex::new(run_time_info)); //-- we can clone the run_time_info without using Arc cause Clone trait is implemented for RuntimeInfo -> MetaData -> Validator actor
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
     dotenv().expect("⚠️ .env file not found");
