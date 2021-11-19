@@ -19,6 +19,7 @@ async fn main() -> std::io::Result<()>{ //-- await is only allowd inside an asyn
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////                                          parachains and parathreads coiniXerr node
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
+    // NOTE - nodes' weights are their stakes 
     // NOTE - web3 or polkadotjs <-grpc or wss api-> blockchain nodes
     // TODO - connect other coiniXerr full node blockchains from other instances of this server to build a parachains and parathreads based network for parallel transactions using scheduler, libp2p, protobuf and gRPC protocol over http or tcp socket
     // TODO - solve forking and reorgs issue for this model of blockchain by choosing the longest chain created by new() method of the blockchain object of the Chain struct 
