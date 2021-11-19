@@ -91,7 +91,7 @@ impl Actor for Validator {
 impl Handler<Contract> for Validator { //-- implementing a Handler for Contract event to send commands or messages to another validator actor like issuing a smart contract event
     type Result = ();
     fn handle(&mut self, msg: Contract, ctx: &mut Context<Self>) -> Self::Result{
-        println!("[{0}] command received {1}", self.id, msg.id);
+        println!("-> {} - contract info received {} - {}", chrono::Local::now().naive_local(), self.id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
             act.recipient.as_ref().unwrap().do_send(Contract { id: Uuid::new_v4(), ttype: 0x02 }); //-- as_reF() converts &Option<T> to Option<&T> - sending a message to another validator in the background (unless we await on it) is done through the validator address and defined Contract event or message 
         });
