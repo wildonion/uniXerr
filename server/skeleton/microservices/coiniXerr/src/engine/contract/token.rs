@@ -3,8 +3,8 @@
 
 
 
-// NOTE - declarative macros are written using macro_rules!
-// NOTE - procedural macros are custom derive: #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
+// TODO - declarative macros are written using macro_rules!
+// TODO - procedural macros are custom derive: #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros
 // TODO - substrate FT and NFT smart contracts on local chain or full node
 // https://wiki.polkadot.network
