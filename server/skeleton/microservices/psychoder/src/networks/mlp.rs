@@ -12,7 +12,7 @@ use utilser::Info;
 use crate::schemas::brain::Neuron;
 use actix::prelude::*;
 use std::sync::{Arc, mpsc::channel};
-use futures::{executor::block_on, join};
+use futures::{executor::block_on, join, StreamExt, TryStreamExt};
 use threadpool::ThreadPool;
 use crate::schemas::brain::Synapse; //-- based on the orphan rule this should be used in here cause the communication() method of each neuron is implemented inside the Synapse trait - items from traits can only be used if the trait is in scope
 

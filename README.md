@@ -14,7 +14,7 @@
 
 * **Install _openssl_ for _diesel_ using ```choco install openssl``` and _gcc_/_g++_ with _mingw_ using ```choco install mingw``` on Windows** 
 
-* **Put _postgres_ lib and bin path into environment variable on Windows:** ```C:\Program Files\PostgreSQL\13\lib``` and ```C:\Program Files\PostgreSQL\13\bin```
+* **Put _postgres_ lib and bin path into environment variable on Windows:** ```C:\Program Files\PostgreSQL\<version>\lib``` and ```C:\Program Files\PostgreSQL\<version>\bin```
 
 * **Install _cargo_ extra packages:** ```cargo install diesel_cli --no-default-features --features postgres && cargo install systemfd cargo-watch```  
 

@@ -14,7 +14,7 @@
 
 
 
-AI Cores APIs
+AI Cores APIs - https://fastapi.tiangolo.com/
 
 '''
 

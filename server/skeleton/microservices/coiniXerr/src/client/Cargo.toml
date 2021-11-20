@@ -1,8 +1,9 @@
 [package]
-name = "coiniXerr"
+name = "node"
 version = "0.1.0"
 authors = ["wildonion <marefimoghaddam@unixerr.com>"]
 edition = "2021"
+
 
 
 
@@ -26,8 +27,6 @@ bcrypt = "0.10"
 
 
 
-
-
 [[bin]]
-name = "coiniXerr"
+name = "node"
 path = "src/main.rs"

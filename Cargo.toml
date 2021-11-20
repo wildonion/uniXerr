@@ -6,6 +6,7 @@ members = [
     "server/skeleton/microservices/auth",
     "server/skeleton/microservices/suproxy",
     "server/skeleton/microservices/coiniXerr",
+    "server/skeleton/microservices/coiniXerr/src/client",
     "server/skeleton/microservices/psychoder",
 ]
 
@@ -28,4 +29,9 @@ opt-level = 3
 [profile.dev.package.coiniXerr]
 opt-level = 0
 [profile.release.package.coiniXerr]
+opt-level = 3
+
+[profile.dev.package.coiniXerr.client]
+opt-level = 0
+[profile.release.package.coiniXerr.client]
 opt-level = 3

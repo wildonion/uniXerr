@@ -7,6 +7,7 @@
 // TODO - procedural macros are custom derive: #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros
 // TODO - substrate FT and NFT smart contracts on local chain or full node
+// https://wiki.iota.org/
 // https://www.quicknode.com/guides
 // https://wiki.polkadot.network
 // https://docs.substrate.io/tutorials/v3/create-your-first-substrate-chain/
@@ -59,12 +60,15 @@ pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limit
     type TokenAddress; //-- the address of this token which can be stored, sent, sold and bought using coiniXerr wallet address
     type ValidTime;
 
+    // -------------------
+    //-- ownership methods
+    // -------------------
     fn mint(&mut self); //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
     fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
     fn balance_of(&mut self); //-- provides the number of tokens held by a given address
     fn approve(&mut self);  //-- the code that's executed by the contract's method can include calls to other contracts, these trigger more transactions that have the from field set to the contract's address - a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
     fn allowance(&mut self); //-- provides the number of tokens allowed to be transferred from a given address by another given address
-    fn trade(&mut self); //-- do something after successfull token transfer
+    fn owner_of(&mut self); //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
 
 }
 
@@ -76,17 +80,20 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets 
     type AssetLink; //-- stored in IPFS or uniXerr network
     type TokenName;
     type TokenID;
-    type MetaData; //-- metadata schema in json format about the place of stored NFT
+    type TokenMetaData; //-- metadata schema in json format about the place of stored NFT
     type TokenAddress; //-- the address of this NFT which can be stored, sent, sold and bought using coiniXerr wallet address
     type ValidTime;
     type Volume; //-- number of total NFTs of an asset; like there are total of 10 rust notes but with unique id 
 
+    // -------------------
+    //-- ownership methods
+    // -------------------
     fn mint(&mut self); //-- minting NFT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
     fn transfer_from(&mut self); //-- transfer token from a sender to a recipient
     fn balance_of(&mut self); //-- provides the number of tokens held by a given address
     fn approve(&mut self);  //-- the code that's executed by the contract's method can include calls to other contracts, these trigger more transactions that have the from field set to the contract's address - a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
     fn allowance(&mut self); //-- provides the number of tokens allowed to be transferred from a given address by another given address
-    fn trade(&mut self); //-- do something after successfull token transfer
+    fn owner_of(&mut self); //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
 
 }
 
@@ -100,15 +107,19 @@ pub trait CRC22{ //-- coiniXerr smart contract supports variety of tokens and st
     type TotalSupply;
     type TokenAddress; //-- the address of this token
     type AssetLink; //-- stored in IPFS or coiniXerr blockchain
-    type MetaData; //-- metadata schema in json format about the place of stored NFT
+    type TokenMetaData; //-- metadata schema in json format about the place of stored NFT
     type ValidTime;
     type Volume; //-- number of total NFTs of an asset; like there are total of 10 rust notes but with unique id
 
+    // -------------------
+    //-- ownership methods
+    // -------------------
     fn mint(&mut self); //-- minting FT is a transaction and means assigning a token or an asset value to a wallet address which can be issued by smart contracts
     fn balance_of(&mut self); //-- query the deployer’s balance
     fn safe_transfer_from(&mut self); //-- transfer items to player accounts
     fn safe_batch_transfer_from(&mut self); //-- batch transfer items to player accounts and get the balance of batches using balance_of_batch() method
     fn balance_of_batch(&mut self); //-- balance of batches
     fn uri(&mut self, id: String); //-- the uri metadata can include the string {id} which clients must replace with the actual token ID, in lowercase hexadecimal (with no 0x prefix) and leading zero padded to 64 hex characters or 32 bytes; eg token ID : 0000000000000000000000000000000000000000000000000000000000000002
+    fn owner_of(&mut self); //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
 
 }

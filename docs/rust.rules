@@ -47,6 +47,7 @@ Async & Multithreading Rules:
     [+] we have to take an atomic reference from the receiver using Arc in order to clone it for passing between multiple threads and for mutating it we have to put it inside a Mutex to insure that only one thread can change the content of the receiver at a time. this is done by waiting on the receiver until a job or task becomes available to down side of the channel then locking on the receiver to acquire the mutex.
     [+] thread safe coding is about to putting the shareable receiver (cloned with Arc) inside a Mutex in order to lock on the incoming task from the sender to prevent other threads from mutating the task at a time.
 Sugar Rules:
+    [+] utf8 bytes is on range 0 to 255 in which we can represent image pixels or code ascii char instead; utf16 or utf32 support more range of code ascii chars
     [+] raw pointers * and references &T function similarly, but references are always safe because they are guaranteed to point to valid data and it's not a dangling reference due to the borrow checker
     [+] one byte or 00000000 or 0x00 - every 4 digits in one byte is a hex number and every 3 digit in one byte is a oct number
     [+] 32 bytes means 256 bits and 64 characters cause every 4 digits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters

@@ -292,33 +292,33 @@ async fn main() -> std::io::Result<()>{
         if mutex_transaction.ttype == 0x00{
             // TODO - regular transaction
             // TODO - send issue contract message to validator actor
-            // ...
+            todo!();
         } else if mutex_transaction.ttype == 0xFF{
             // TODO - issuing CRC21 smart contract
             // TODO - send issue contract message to validator actor
-            // ...
-            let cmd = "issue crc21".to_string();
+            let ttype = 0xFF;
+            todo!();
         } else if mutex_transaction.ttype == 0x02{
             // TODO - issuing CRC20 smart contract
             // TODO - send issue contract message to validator actor
-            // ...
-            let cmd = "issue crc20".to_string();
+            let ttype = 0x02;
+            todo!();
         } else if mutex_transaction.ttype == 0x03{
             // TODO - issuing CRC22 smart contract
             // TODO - send issue contract message to validator actor
-            // ...
-            let cmd = "issue crc22".to_string();
+            let ttype = 0x03;
+            todo!();
         }
         // ----------------------------------------------------------------------
         //                             CONSENSUS PROCESS
         // ----------------------------------------------------------------------
-        while std::mem::size_of_val(&current_block) <= max_block_size{ //-- push incoming transaction into the current_block until the current block size is smaller than the max_block_size
+        while std::mem::size_of_val(&current_block) <= max_block_size{ //-- returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the max_block_size
             current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent from moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > max_block_size{
                 println!("-> {} - creating a new block", chrono::Local::now().naive_local());
                 let (prev, last) = {
                     let mut rev_iter = blockchain.blocks.iter().rev();
-                    (rev_iter.next().unwrap().clone(), rev_iter.next().unwrap().clone())
+                    (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //-- converting &Block to Block by using to_owned() method in which cloning process will be used 
                 };
                 current_block = blockchain.build_raw_block(&prev); //-- passing the previous block by borrowing it    
             }
