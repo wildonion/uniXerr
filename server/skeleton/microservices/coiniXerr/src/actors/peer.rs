@@ -22,7 +22,7 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
     type TotalSupply = u128;
     type Decimal = u8;
     type TokenAddress = String;
-    type ValidTime = u64;
+    type ExpTime = u64;
 
     fn mint(&mut self){
         //-- minting FT is a transaction and means assigning a token or an asset value with a limited to a wallet address which can be issued by this contract

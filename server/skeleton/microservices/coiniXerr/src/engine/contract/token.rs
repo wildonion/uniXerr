@@ -3,10 +3,15 @@
 
 
 
+// NOTE - all coiniXerr coin holders are uniXerr community members called participants known as validator actors
+// NOTE - validator actors can issue contracts by staking their total coiniXerr balance which can locked based on their smart contract tokens (CRC20) ExpTime field
+// TODO - compile coiniXerr node to wasm to run in browser through the loading process of .wasm or .js compiled file
 // TODO - declarative macros are written using macro_rules!
 // TODO - procedural macros are custom derive: #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros
-// TODO - substrate FT and NFT smart contracts on local chain or full node
+// TODO - substrate FT and NFT ink! smart contracts on local chain or full node
+// https://rustwasm.github.io/docs/book/introduction.html
+// https://github.com/paritytech
 // https://wiki.iota.org/
 // https://www.quicknode.com/guides
 // https://wiki.polkadot.network
@@ -58,7 +63,7 @@ pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limit
     type TotalSupply; //-- total value or price or balance of this cryptocurrency token of the asset - sum of all addresses' balance must be equal to this; eg : an asset with total supply of 40 can be divided into 4 addresses 10 value for each means thos addresses must invest 10 coins to own this asset 
     type Decimal;
     type TokenAddress; //-- the address of this token which can be stored, sent, sold and bought using coiniXerr wallet address
-    type ValidTime;
+    type ExpTime; //-- expiration time
 
     // -------------------
     //-- ownership methods
@@ -82,7 +87,7 @@ pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets 
     type TokenID;
     type TokenMetaData; //-- metadata schema in json format about the place of stored NFT
     type TokenAddress; //-- the address of this NFT which can be stored, sent, sold and bought using coiniXerr wallet address
-    type ValidTime;
+    type ExpTime; //-- expiration time
     type Volume; //-- number of total NFTs of an asset; like there are total of 10 rust notes but with unique id 
 
     // -------------------
@@ -108,7 +113,7 @@ pub trait CRC22{ //-- coiniXerr smart contract supports variety of tokens and st
     type TokenAddress; //-- the address of this token
     type AssetLink; //-- stored in IPFS or coiniXerr blockchain
     type TokenMetaData; //-- metadata schema in json format about the place of stored NFT
-    type ValidTime;
+    type ExpTime; //-- expiration time
     type Volume; //-- number of total NFTs of an asset; like there are total of 10 rust notes but with unique id
 
     // -------------------

@@ -8,7 +8,7 @@ use std::net::SocketAddr; //-- these structures are not async; to be async in re
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use crate::actors::peer::Validator;
 use std::collections::HashMap;
-
+use rand::Rng;
 
 
 
@@ -144,6 +144,16 @@ impl Chain{
         genesis
     }
 
+    pub fn store(&mut self) -> Self{
+        let mut rng = rand::thread_rng();
+        let b_name = format!("mirror-{}", rng.gen::<u32>().to_string());
+        // TODO - save the whole chain state inside a db or a persistence storage and return new chain
+        // ...
+        let mut chain = Self::new(Uuid::new_v4(), b_name, vec![]);
+        chain
+
+    }
+
     pub fn build_raw_block(&self, prev_block: &Block) -> Block{
         Block{
             id: Uuid::new_v4(),
@@ -187,7 +197,7 @@ pub struct Block{
     pub hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     pub merkle_root: Option<String>, //-- hash of all transactions in the form of a binary tree-like structure called merkle tree such that each hash is linked to its parent following a parent-child tree-like relation
     pub timestamp: i64,
-    pub transactions: Vec<Transaction>, //-- valid transactions (mempool) waiting to be confirmed and signed - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
+    pub transactions: Vec<Transaction>, //-- valid transactions (came through mempool channel) waiting to be confirmed and signed - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
     pub is_valid: bool,
 }
 

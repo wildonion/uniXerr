@@ -5,7 +5,7 @@
 
 
 /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-///////                                    coiniXerr RUNTIME DESIGN PATTERN EXPLAINED
+///////                                      coiniXerr node design pattern explained
 /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
 // a transaction of a transfer event might be send either using the http api or through
 // a tcp stream to the coiniXerr server handled each one in parallel by a multithreading based scheduler; 
@@ -63,7 +63,7 @@ use apis::wallet::routes as coin_routes;
 use crate::actors::peer::Validator;
 use crate::utils::scheduler;
 use crate::engine::consensus::pos::can_be_valid;
-use crate::schemas::{Transaction, Chain, Block, RuntimeInfo, MetaData};
+use crate::schemas::{Transaction, Chain, RuntimeInfo, MetaData};
 
 
 
@@ -127,8 +127,11 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////             starting coiniXerr network by adding the genesis block to it and initializing the first block 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
+    println!("-> {} - starting default chain", chrono::Local::now().naive_local());
     let mut blockchain = Chain::default(); //-- start the network by building a genesis block and a default transaction with 100 coins from the coiniXerr network wallet to the wildonion wallet - we have to define it as mutable cause we'll cal its add() method in which a new created block will be added to the chain
+    println!("-> {} - attaching genesis block to the default chain", chrono::Local::now().naive_local());
     let genesis_block = blockchain.get_genesis(); //-- returns a borrow or immutable pointer to the genesis block
+    println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
     let mut current_block = blockchain.build_raw_block(genesis_block); //-- passing the genesis block by borrowing it - we have to define it as mutable cause we'll cal its push_transaction() method in which a new transaction will be added to the block
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     
@@ -315,7 +318,9 @@ async fn main() -> std::io::Result<()>{
         while std::mem::size_of_val(&current_block) <= max_block_size{ //-- returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the max_block_size
             current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent from moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > max_block_size{
-                println!("-> {} - creating a new block", chrono::Local::now().naive_local());
+                // TODO - calculate the block and merkle_root hash
+                todo!();
+                println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
                 let (prev, last) = {
                     let mut rev_iter = blockchain.blocks.iter().rev();
                     (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //-- converting &Block to Block by using to_owned() method in which cloning process will be used 
@@ -329,9 +334,7 @@ async fn main() -> std::io::Result<()>{
                 blockchain.add(created_block); //-- adding created block to the coiniXerr chain
             }, 
             Err(_) => {
-                // TODO - decoder couldn't decode transactions inside the block
-                // TODO - stakers couldn't validate the current block cause perhaps it was malicious 
-                // ...
+                todo!();
             }
         }
     }
