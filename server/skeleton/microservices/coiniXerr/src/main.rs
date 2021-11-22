@@ -132,6 +132,7 @@ async fn main() -> std::io::Result<()>{
             let mut rng = rand::thread_rng();
             let b_name = format!("mirror-{}", rng.gen::<u32>().to_string());
             let mut chain = Chain::new(Uuid::new_v4(), b_name, vec![]);
+            // TODO - coiniXerr parachain slot for all coiniXerr chains to communicate with each other
             // TODO - chains will communicate with each other through the mpsc job queue channel
             // ...
         });
