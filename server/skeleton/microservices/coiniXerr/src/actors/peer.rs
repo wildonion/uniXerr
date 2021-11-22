@@ -52,6 +52,10 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
     fn owner_of(&mut self){
         //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
     }
+
+    fn burn(&mut self){
+        //-- burn some the tokens
+    }
 }
 
 

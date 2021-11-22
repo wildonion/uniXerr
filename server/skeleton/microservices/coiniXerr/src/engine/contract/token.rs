@@ -4,7 +4,8 @@
 
 
 // NOTE - all coiniXerr coin holders are uniXerr community members called participants known as validator actors
-// NOTE - validator actors can issue contracts by staking their total coiniXerr balance which can locked based on their smart contract tokens (CRC20) ExpTime field
+// NOTE - validator actors can issue contracts by staking some coins from their coiniXerr balance which can be deposited based on their smart contract tokens (CRC20) ExpTime field
+// NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm which is position clustering coin generation model
 // TODO - compile coiniXerr node to wasm to run in browser through the loading process of .wasm or .js compiled file
 // TODO - declarative macros are written using macro_rules!
 // TODO - procedural macros are custom derive: #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
@@ -53,7 +54,7 @@
 
 
 
-pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limited supply to invest on tokenized asstes like musics, notes, homes and even coiniXerr gold coins in which a token or the asset is a mapping between wallet addresses and their balances - a fungible token which is not unique is any token whose fundamental unit or characteristic is interchangeable with other tokens of the same set
+pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limited supply to invest on tokenized asstes like musics, notes, homes and flash loan for coiniXerr coins in which a token or the asset is a mapping between wallet addresses and their balances - a fungible token which is not unique is any token whose fundamental unit or characteristic is interchangeable with other tokens of the same set
 
     // ------------------
     //-- associated types
@@ -74,10 +75,15 @@ pub trait CRC20{ //-- dApp based smart contract for fungible tokens with a limit
     fn approve(&mut self);  //-- the code that's executed by the contract's method can include calls to other contracts, these trigger more transactions that have the from field set to the contract's address - a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
     fn allowance(&mut self); //-- provides the number of tokens allowed to be transferred from a given address by another given address
     fn owner_of(&mut self); //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
-
+    
+    // ---------------
+    //-- event methods
+    // ---------------
+    fn burn(&mut self); //-- burn some of the tokens
+    
 }
 
-pub trait CRC21{ //-- smart contract for none fungible tokens or digital assets in which a token links ownership to unique physical or digital items like musics, notes, homes and even coiniXerr gold coins 
+pub trait CRC21{ //-- dApp smart contract for none fungible tokens or digital assets in which a token links ownership to unique physical or digital items like musics, notes, homes and even coiniXerr gold coins 
 
     // ------------------
     //-- associated types
@@ -127,4 +133,9 @@ pub trait CRC22{ //-- coiniXerr smart contract supports variety of tokens and st
     fn uri(&mut self, id: String); //-- the uri metadata can include the string {id} which clients must replace with the actual token ID, in lowercase hexadecimal (with no 0x prefix) and leading zero padded to 64 hex characters or 32 bytes; eg token ID : 0000000000000000000000000000000000000000000000000000000000000002
     fn owner_of(&mut self); //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
 
+    // ---------------
+    //-- event methods
+    // ---------------
+    fn burn(&mut self); //-- burn some of the tokens
+    
 }

@@ -8,7 +8,7 @@ use std::net::SocketAddr; //-- these structures are not async; to be async in re
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use crate::actors::peer::Validator;
 use std::collections::HashMap;
-use rand::Rng;
+
 
 
 
@@ -145,12 +145,9 @@ impl Chain{
     }
 
     pub fn store(&mut self) -> Self{
-        let mut rng = rand::thread_rng();
-        let b_name = format!("mirror-{}", rng.gen::<u32>().to_string());
         // TODO - save the whole chain state inside a db or a persistence storage and return new chain
         // ...
-        let mut chain = Self::new(Uuid::new_v4(), b_name, vec![]);
-        chain
+        todo!();
 
     }
 

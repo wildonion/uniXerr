@@ -62,9 +62,8 @@ use actix_session::CookieSession;
 use apis::wallet::routes as coin_routes;
 use crate::actors::peer::Validator;
 use crate::utils::scheduler;
-use crate::engine::consensus::pos::can_be_valid;
 use crate::schemas::{Transaction, Chain, RuntimeInfo, MetaData};
-
+use rand::Rng;
 
 
 
@@ -106,11 +105,40 @@ async fn main() -> std::io::Result<()>{
     let coiniXerr_tcp_port = env::var("COINIXERR_TCP_PORT").expect("⚠️ please set coiniXerr tcp port in .env");
     let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
     let pool = scheduler::ThreadPool::new(10); //-- 10 threads per process to handle all its incoming tasks
+    let parachain = scheduler::ThreadPool::new(10);
     let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid, Arc<Mutex<RuntimeInfo>>, Arc<Mutex<Addr<Validator>>>)>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket
     let (transaction_sender, mut transaction_receiver) = mpsc::channel::<Arc<Mutex<Transaction>>>(buffer_size); //-- transaction mempool channel - mpsc channel to send all transactions of all peers' stream to down side of the channel asynchronously for mining process
     println!("-> {} - server is up", chrono::Local::now().naive_local());
     
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
+    ///////                              parachain network communicating through mpsc job queue channel 
+    /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
+    parachain.execute(move || {
+        tokio::spawn(async move {
+            let mut rng = rand::thread_rng();
+            let b_name = format!("mirror-{}", rng.gen::<u32>().to_string());
+            let mut chain = Chain::new(Uuid::new_v4(), b_name, vec![]);
+            // TODO - chains will communicate with each other through the mpsc job queue channel
+            // ...
+        });
+    });
+    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
+
+
 
 
 
@@ -328,14 +356,11 @@ async fn main() -> std::io::Result<()>{
                 current_block = blockchain.build_raw_block(&prev); //-- passing the previous block by borrowing it    
             }
         }
-        match can_be_valid(current_block.clone()){
-            Ok(created_block) => {
-                println!("-> {} - adding the created block to the chain", chrono::Local::now().naive_local());
-                blockchain.add(created_block); //-- adding created block to the coiniXerr chain
-            }, 
-            Err(_) => {
-                todo!();
-            }
+        if let (Some(merkle_root), Some(block_hash)) = (current_block.clone().merkle_root, current_block.clone().hash){ //-- checking the block's hash and merkle_root hash for transactions finality
+            println!("-> {} - validating process has been started for block [{}]", chrono::Local::now().naive_local(), current_block.id);
+            current_block.is_valid = true;
+            println!("-> {} - adding the created block to the chain", chrono::Local::now().naive_local());
+            blockchain.add(current_block.clone()); //-- adding the cloned of current block to the coiniXerr chain - cloning must be done to prevent current_block from moving in every iteration transaction_receiver loop
         }
     }
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
