@@ -2,7 +2,7 @@
 
 
 
-
+// NOTE - build blockchains (parachain) for ink! smart contract based dapp using substrate to run each of them on their slots on polkadot or kusama network
 // NOTE - all coiniXerr coin holders are uniXerr community members called participants known as validator actors
 // NOTE - validator actors can issue contracts by staking some coins from their coiniXerr balance which can be deposited based on their smart contract tokens (CRC20) ExpTime field
 // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm which is position clustering coin generation model
