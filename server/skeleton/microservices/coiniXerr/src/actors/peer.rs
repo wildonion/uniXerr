@@ -74,18 +74,12 @@ pub struct Contract {
     pub ttype: u8,
 }
 
-#[derive(Message)]
-#[rtype(result = "()")] //-- result type of this event
-pub struct Connect {
-    pub recipient: Recipient<Contract>, //-- another parachain recipient actor address
-}
-
 #[derive(Debug, Clone)] //-- trait Clone is required to prevent the object of this struct from moving
 pub struct Validator {
     pub id: Uuid,
     pub addr: SocketAddr,
     pub transaction: Option<Transaction>, //-- signed transaction
-    pub another_validator: Option<Addr<Validator>>, //-- another validator actor address
+    pub another_validator: Option<Recipient<Contract>>, //-- another validator actor address
     pub stakes: Option<i32>,
     pub rewards: Option<i32>,
 }
@@ -103,7 +97,7 @@ impl Handler<Contract> for Validator { //-- implementing a Handler for Contract 
     fn handle(&mut self, msg: Contract, ctx: &mut Context<Self>) -> Self::Result{
         println!("-> {} - contract info received {} - {}", chrono::Local::now().naive_local(), self.id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
-            act.another_validator.as_ref().unwrap().do_send(Contract { id: Uuid::new_v4(), ttype: 0x02 }); //-- as_reF() converts &Option<T> to Option<&T> - sending a message to another validator in the background (unless we await on it) is done through the validator address and defined Contract event or message 
+            let _ = act.another_validator.as_ref().unwrap().do_send(Contract { id: Uuid::new_v4(), ttype: 0x02 }); //-- as_reF() converts &Option<T> to Option<&T> - sending a message to another validator in the background (unless we await on it) is done through the validator address and defined Contract event or message 
         });
     }
 }

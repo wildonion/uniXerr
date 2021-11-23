@@ -60,9 +60,12 @@ use actix::{*, prelude::*}; //-- loading actix actors and handlers for validator
 use actix_web::{App, HttpServer, middleware, web};
 use actix_session::CookieSession;
 use apis::wallet::routes as coin_routes;
-use crate::actors::{parathread::{Parachain, Connect as PConnect}, peer::{Validator, Connect as VConnect}};
+use crate::actors::{parathread::{Parachain, Communicate}, peer::{Validator, Contract}};
 use crate::utils::scheduler;
 use crate::schemas::{Transaction, RuntimeInfo, MetaData};
+use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
+
+
 
 
 
@@ -134,11 +137,19 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////      starting coiniXerr default parachain network by adding the genesis block to it and initializing the first block 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-    // TODO - fill the slot field later with another parachain address
+    // TODO - update the slot field
+    // TODO - send message from first_parachain_addr to second_parachain_addr
     // ...
     println!("-> {} - starting default parachain", chrono::Local::now().naive_local());
     let parachain = Parachain{slot: None, blockchain: None, another_parachain: None, current_block: None};
-    let parachain_addr = parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
+    let first_parachain_addr = parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
+    
+    
+    println!("-> {} - starting second parachain", chrono::Local::now().naive_local());
+    let second_parachain = Parachain{slot: None, blockchain: None, another_parachain: None, current_block: None};
+    let second_parachain_addr = second_parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
+        
+
     let mut current_block = parachain.clone().current_block.unwrap(); //-- cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     
@@ -165,7 +176,7 @@ async fn main() -> std::io::Result<()>{
         println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), addr);
         let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy) runtime info object to prevent from moving in every iteration between threads
         let tx = tx.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
-        pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks spawned with tokio::spawn() using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - mpsc definition : every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
+        pool.execute(move || { //-- parallel transactions handler - executing pool of threads for scheduling synchronous tasks spawned with tokio::spawn() using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - mpsc definition : every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
             tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a validator actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
                 // ----------------------------------------------------------------------
                 //                 STARTING VALIDATOR ACTOR FOR THIS STREAM
@@ -268,7 +279,7 @@ async fn main() -> std::io::Result<()>{
                     true
                 },
                 Err(e) => {
-                    println!("-> {} - terminating connection with {}", chrono::Local::now().naive_local(), stream.peer_addr().unwrap());
+                    println!("-> {} - terminating connection with validator {}", chrono::Local::now().naive_local(), stream.peer_addr().unwrap());
                     stream.shutdown().await.unwrap(); //-- shuts down the output stream
                     false
                 }

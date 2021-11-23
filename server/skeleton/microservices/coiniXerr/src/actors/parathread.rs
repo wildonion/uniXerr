@@ -16,22 +16,16 @@ use crate::schemas::{Slot, Chain, Block};
 
 #[derive(Message)]
 #[rtype(result = "()")] //-- response type
-pub struct Message{ //-- parathread sends this message to a parachain
+pub struct Communicate{ //-- parathread sends this message to a parachain
     pub id: Uuid,
     pub cmd: String,
-}
-
-#[derive(Message)]
-#[rtype(result = "()")] //-- result type of this event
-pub struct Connect {
-    pub recipient: Recipient<Message>, //-- another parachain recipient actor address
 }
 
 #[derive(Debug, Clone)] //-- trait Clone is required to prevent the object of this struct from moving
 pub struct Parachain {
     pub slot: Option<Slot>,
     pub blockchain: Option<Chain>,
-    pub another_parachain: Option<Addr<Parachain>>, //-- another parachain actor address
+    pub another_parachain: Option<Recipient<Communicate>>, //-- another parachain actor address
     pub current_block: Option<Block>,
 }
 
@@ -53,12 +47,12 @@ impl Actor for Parachain {
     }
 }
 
-impl Handler<Message> for Parachain { //-- implementing a Handler for Message event to send commands or messages to another parachain actor like issuing a smart contract event
+impl Handler<Communicate> for Parachain { //-- implementing a Handler for Communicate event to send commands or messages to another parachain actor like issuing a smart contract event
     type Result = ();
-    fn handle(&mut self, msg: Message, ctx: &mut Context<Self>) -> Self::Result{
-        println!("-> {} - message info received {} - {}", chrono::Local::now().naive_local(), self.slot.as_ref().unwrap().id, msg.id);
+    fn handle(&mut self, msg: Communicate, ctx: &mut Context<Self>) -> Self::Result{
+        println!("-> {} - message info received with id [{}] and content [{}]", chrono::Local::now().naive_local(), msg.id, msg.cmd);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
-            act.another_parachain.as_ref().unwrap().do_send(Message { id: Uuid::new_v4(), cmd: "communicating with another parachain".to_string() }); //-- as_ref() converts &Option<T> to Option<&T> - sending a message to another parachain in the background (unless we await on it) is done through the parachain address and defined Message event or message 
+            let _ = act.another_parachain.as_ref().unwrap().send(Communicate { id: Uuid::new_v4(), cmd: "communicating with another parachain".to_string() }); //-- as_ref() converts &Option<T> to Option<&T> - sending a message to another parachain in the background (unless we await on it) is done through the parachain address and defined Message event or message 
         });
     }
 }
