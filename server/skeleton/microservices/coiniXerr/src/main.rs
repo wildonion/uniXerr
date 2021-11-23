@@ -105,7 +105,6 @@ async fn main() -> std::io::Result<()>{
     let coiniXerr_tcp_port = env::var("COINIXERR_TCP_PORT").expect("⚠️ please set coiniXerr tcp port in .env");
     let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
     let pool = scheduler::ThreadPool::new(10); //-- 10 threads per process to handle all its incoming tasks
-    let parachain = scheduler::ThreadPool::new(10);
     let (tx, mut rx) = mpsc::channel::<(TcpStream, Uuid, Arc<Mutex<RuntimeInfo>>, Arc<Mutex<Addr<Validator>>>)>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket
     let (transaction_sender, mut transaction_receiver) = mpsc::channel::<Arc<Mutex<Transaction>>>(buffer_size); //-- transaction mempool channel - mpsc channel to send all transactions of all peers' stream to down side of the channel asynchronously for mining process
     println!("-> {} - server is up", chrono::Local::now().naive_local());
@@ -124,20 +123,10 @@ async fn main() -> std::io::Result<()>{
 
 
 
-    /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
-    ///////                              parachain network communicating through mpsc job queue channel 
-    /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
-    parachain.execute(move || {
-        tokio::spawn(async move {
+ 
             let mut rng = rand::thread_rng();
             let b_name = format!("mirror-{}", rng.gen::<u32>().to_string());
             let mut chain = Chain::new(Uuid::new_v4(), b_name, vec![]);
-            // TODO - coiniXerr parachain slot for all coiniXerr chains to communicate with each other
-            // TODO - chains will communicate with each other through the mpsc job queue channel
-            // ...
-        });
-    });
-    /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
 
 
 
@@ -154,7 +143,7 @@ async fn main() -> std::io::Result<()>{
 
 
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
-    ///////             starting coiniXerr network by adding the genesis block to it and initializing the first block 
+    ///////      starting coiniXerr default parachain network by adding the genesis block to it and initializing the first block 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     println!("-> {} - starting default chain", chrono::Local::now().naive_local());
     let mut blockchain = Chain::default(); //-- start the network by building a genesis block and a default transaction with 100 coins from the coiniXerr network wallet to the wildonion wallet - we have to define it as mutable cause we'll cal its add() method in which a new created block will be added to the chain
