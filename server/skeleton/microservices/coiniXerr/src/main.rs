@@ -60,10 +60,10 @@ use actix::{*, prelude::*}; //-- loading actix actors and handlers for validator
 use actix_web::{App, HttpServer, middleware, web};
 use actix_session::CookieSession;
 use apis::wallet::routes as coin_routes;
-use crate::actors::peer::Validator;
+use crate::actors::{parathread::{Parachain, Connect as PConnect}, peer::{Validator, Connect as VConnect}};
 use crate::utils::scheduler;
-use crate::schemas::{Transaction, Chain, RuntimeInfo, MetaData};
-use rand::Rng;
+use crate::schemas::{Transaction, RuntimeInfo, MetaData};
+
 
 
 
@@ -123,17 +123,6 @@ async fn main() -> std::io::Result<()>{
 
 
 
- 
-            let mut rng = rand::thread_rng();
-            let b_name = format!("mirror-{}", rng.gen::<u32>().to_string());
-            let mut chain = Chain::new(Uuid::new_v4(), b_name, vec![]);
-
-
-
-
-
-
-
 
 
 
@@ -145,12 +134,12 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////      starting coiniXerr default parachain network by adding the genesis block to it and initializing the first block 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-    println!("-> {} - starting default chain", chrono::Local::now().naive_local());
-    let mut blockchain = Chain::default(); //-- start the network by building a genesis block and a default transaction with 100 coins from the coiniXerr network wallet to the wildonion wallet - we have to define it as mutable cause we'll cal its add() method in which a new created block will be added to the chain
-    println!("-> {} - attaching genesis block to the default chain", chrono::Local::now().naive_local());
-    let genesis_block = blockchain.get_genesis(); //-- returns a borrow or immutable pointer to the genesis block
-    println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
-    let mut current_block = blockchain.build_raw_block(genesis_block); //-- passing the genesis block by borrowing it - we have to define it as mutable cause we'll cal its push_transaction() method in which a new transaction will be added to the block
+    // TODO - fill the slot field later with another parachain address
+    // ...
+    println!("-> {} - starting default parachain", chrono::Local::now().naive_local());
+    let parachain = Parachain{slot: None, blockchain: None, paractor: None, current_block: None};
+    let parachain_addr = parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
+    let mut current_block = parachain.clone().current_block.unwrap(); //-- cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     
     
@@ -179,15 +168,16 @@ async fn main() -> std::io::Result<()>{
         pool.execute(move || { //-- executing pool of threads for scheduling synchronous tasks spawned with tokio::spawn() using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - mpsc definition : every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
             tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a validator actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
                 // ----------------------------------------------------------------------
-                //                  STARTING MINER ACTOR FOR THIS STREAM
+                //                 STARTING VALIDATOR ACTOR FOR THIS STREAM
                 // ----------------------------------------------------------------------
                 println!("-> {} - starting validator actor", chrono::Local::now().naive_local());
                 let validator = Validator{ //-- every peer is a validator
                     id: Uuid::new_v4(),
                     addr, //-- socket address of this validator
                     transaction: None, //-- signed transaction - none when we're initializing a validator
-                    recipient: None, //-- address of another validator - none when we're initializing a validator
-                    pool: None, //-- pool name that this validator wants to be in - none when we're initializing a validator
+                    another_validator: None, //-- address of another validator - none when we're initializing a validator
+                    stakes: None, //-- amnount of coins that this validator can stakes for auction, crowdloan, bidding and staking process - none when we're initializing a validator 
+                    rewards: None, //-- amnount of coins that this validator gets rewarded for auction, crowdloan, bidding and staking process - none when we're initializing a validator 
                 };
                 let validator_addr = validator.clone().start(); //-- cloning (making a deep copy) the validator actor will prevent the object from moving - trait Clone is implemented for Validator actor struct
                 let arc_mutex_validator_addr = Arc::new(Mutex::new(validator_addr)); //-- creating an Arc object which is inside a Mutex cause Validator actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the validator_addr object inside a mutex to be updatable between threads
@@ -256,9 +246,9 @@ async fn main() -> std::io::Result<()>{
                     println!("-> {} - sending signed transaction back to the peer", chrono::Local::now().naive_local());
                     stream.write(&signed_transaction_serialized_into_bytes).await.unwrap(); //-- sending the signed transaction back to the peer
                     // ----------------------------------------------------------------------
-                    //             UPDATING MINER ACTOR WITH A SIGNED TRANSACTION
+                    //            UPDATING VALIDATOR ACTOR WITH A SIGNED TRANSACTION
                     // ----------------------------------------------------------------------
-                    // TODO - update recipient and pool fields of the current validator actor
+                    // TODO - update recipient, stakes and rewards fields of the current validator actor
                     // ...
                     println!("-> {} - updating validator actor with a signed transaction", chrono::Local::now().naive_local());
                     for (id, md) in cloned_arc_mutex_runtime_info_object.lock().unwrap().info_dict.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
@@ -340,17 +330,17 @@ async fn main() -> std::io::Result<()>{
                 todo!();
                 println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
                 let (prev, last) = {
-                    let mut rev_iter = blockchain.blocks.iter().rev();
+                    let mut rev_iter = parachain.blockchain.clone().unwrap().blocks.iter().rev(); //-- cloning (making a deep copy) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //-- converting &Block to Block by using to_owned() method in which cloning process will be used 
                 };
-                current_block = blockchain.build_raw_block(&prev); //-- passing the previous block by borrowing it    
+                current_block = parachain.blockchain.clone().unwrap().build_raw_block(&prev); //-- passing the previous block by borrowing it - cloning (making a deep copy) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
             }
         }
         if let (Some(merkle_root), Some(block_hash)) = (current_block.clone().merkle_root, current_block.clone().hash){ //-- checking the block's hash and merkle_root hash for transactions finality
             println!("-> {} - validating process has been started for block [{}]", chrono::Local::now().naive_local(), current_block.id);
             current_block.is_valid = true;
             println!("-> {} - adding the created block to the chain", chrono::Local::now().naive_local());
-            blockchain.add(current_block.clone()); //-- adding the cloned of current block to the coiniXerr chain - cloning must be done to prevent current_block from moving in every iteration transaction_receiver loop
+            parachain.blockchain.clone().unwrap().add(current_block.clone()); //-- adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration transaction_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
         }
     }
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -380,7 +370,7 @@ async fn main() -> std::io::Result<()>{
                 .service(
             web::scope("/coiniXerr")
                         .data(transaction_sender.clone()) //-- clone the transaction_sender to movie it between actix routes and threads 
-                        .data(blockchain.clone()) //-- clone the blockchain to move it between actix routes and threads
+                        .data(parachain.blockchain.clone().unwrap()) //-- clone the blockchain of the parachain to move it between actix routes and threads
                         .configure(coin_routes)
                     )
                 .wrap(middleware::Logger::default())

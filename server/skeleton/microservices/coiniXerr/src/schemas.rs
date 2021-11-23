@@ -8,7 +8,7 @@ use std::net::SocketAddr; //-- these structures are not async; to be async in re
 use actix::{*, prelude::*}; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use crate::actors::peer::Validator;
 use std::collections::HashMap;
-
+use rand::Rng;
 
 
 
@@ -21,16 +21,21 @@ use std::collections::HashMap;
 
 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
-//                                                      Validator Pool Schema                      
+//                                                  Parachain Slot Schema                      
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
-pub struct ValidatorPool{ //-- pool of validators
-    pub validators: Vec<Addr<Validator>>,
+pub struct Slot{ //-- pool of validators for slot auctions
+    pub id: Uuid,
     pub name: String,
-    pub stakes: i32,
+    pub validators: Vec<Addr<Validator>>,
 } 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
+
+
+
+
+
 
 
 
@@ -117,7 +122,7 @@ impl Chain{
     pub fn default() -> Self{
         Chain{
             branch_id: Uuid::new_v4(),
-            branch_name: "main".to_string(),
+            branch_name: format!("cc-{}", rand::thread_rng().gen::<u32>().to_string()),
             blocks: vec![Block::default()],
         }
     }
@@ -145,13 +150,13 @@ impl Chain{
     }
 
     pub fn store(&mut self) -> Self{
-        // TODO - save the whole chain state inside a db or a persistence storage and return new chain
+        // TODO - save the whole chain state inside a db or a persistence storage like bigchain db
         // ...
         todo!();
 
     }
 
-    pub fn build_raw_block(&self, prev_block: &Block) -> Block{
+    pub fn build_raw_block(&self, prev_block: &Block) -> Block{ //-- this method get an immutable pointer to the block (borrowed) as its second argument 
         Block{
             id: Uuid::new_v4(),
             is_genesis: false,

@@ -8,14 +8,7 @@
 // TODO - declarative macros are written using macro_rules!
 // TODO - procedural macros are custom derive: #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros
-// TODO - build substrate blockchain (parachain) nodes for ink! smart contract based dapp like FT and NFT and run each of them on their slots on polkadot or kusama network
 // https://rustwasm.github.io/docs/book/introduction.html
-// https://github.com/paritytech
-// https://wiki.iota.org/
-// https://www.quicknode.com/guides
-// https://wiki.polkadot.network
-// https://docs.substrate.io/tutorials/v3/create-your-first-substrate-chain/
-// https://medium.com/block-journal/introducing-substrate-smart-contracts-with-ink-d486289e2b59 
 // https://stackoverflow.com/questions/60345904/defining-a-macro-that-passes-params-to-a-function
 // https://danielkeep.github.io/practical-intro-to-macros.html
 // https://blog.logrocket.com/macros-in-rust-a-tutorial-with-examples/
