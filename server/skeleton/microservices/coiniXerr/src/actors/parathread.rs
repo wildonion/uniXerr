@@ -31,7 +31,7 @@ pub struct Connect {
 pub struct Parachain {
     pub slot: Option<Slot>,
     pub blockchain: Option<Chain>,
-    pub paractor: Option<Addr<Parachain>>, //-- another parachain actor address
+    pub another_parachain: Option<Addr<Parachain>>, //-- another parachain actor address
     pub current_block: Option<Block>,
 }
 
@@ -58,7 +58,7 @@ impl Handler<Message> for Parachain { //-- implementing a Handler for Message ev
     fn handle(&mut self, msg: Message, ctx: &mut Context<Self>) -> Self::Result{
         println!("-> {} - message info received {} - {}", chrono::Local::now().naive_local(), self.slot.as_ref().unwrap().id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
-            act.paractor.as_ref().unwrap().do_send(Message { id: Uuid::new_v4(), cmd: "communicating with another parachain".to_string() }); //-- as_ref() converts &Option<T> to Option<&T> - sending a message to another parachain in the background (unless we await on it) is done through the parachain address and defined Message event or message 
+            act.another_parachain.as_ref().unwrap().do_send(Message { id: Uuid::new_v4(), cmd: "communicating with another parachain".to_string() }); //-- as_ref() converts &Option<T> to Option<&T> - sending a message to another parachain in the background (unless we await on it) is done through the parachain address and defined Message event or message 
         });
     }
 }
