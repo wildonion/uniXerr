@@ -85,10 +85,10 @@ pub struct Validator {
 }
 
 impl Actor for Validator {
-    type Context = Context<Validator>;
-    fn started(&mut self, ctx: &mut Self::Context){ //-- this function body will run once a validator has been started
+    type Context = Context<Self>; //-- Self referes to Validator struct
+    fn started(&mut self, ctx: &mut Self::Context){ //-- this function body will run once a validator actor has been started
         let addr = ctx.address(); //-- getting the address of the this validator actor
-        print!("-> a validator has been started with address {:?}", self.addr);
+        print!("-> a validator has been started with stream address {:?}", self.addr);
     }
 }
 
