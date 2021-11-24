@@ -24,9 +24,9 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
     type TokenAddress = String;
     type ExpTime = u64;
 
-    fn mint(&mut self){
+    fn mint(&mut self){ //-- self is a mutable pointer to the Validator fields
         //-- minting FT is a transaction and means assigning a token or an asset value with a limited to a wallet address which can be issued by this contract
-        let mint_address: Self::TokenAddress = self.transaction.clone().unwrap().from_address; //-- self is a mutable pointer to the Validator fields - for unwrapping the transaction we must clone it cause it's behind a shared reference which is &mut behind the self parameter
+        let mint_address: Self::TokenAddress = self.latest_transaction.as_ref().unwrap().from_address.clone(); //-- cloning the from_address field of the Transaction struct cause is of type String - for unwrapping the transaction we must first clone it cause it's behind a shared reference which is &mut behind the self parameter which is &mut behind the Option cause latest_transaction is of type Option<Transaction> - we can also use as_ref() method instead of cloning cause the as_ref() will conver the &Option<T> to Option<&T>
     }
 
     fn transfer_from(&mut self){
@@ -69,7 +69,7 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
 
 #[derive(Message)]
 #[rtype(result = "()")] //-- result type of this event
-pub struct Contract {
+pub struct Contract { //-- Contract event between two validators on the coiniXerr network
     pub id: Uuid,
     pub ttype: u8,
 }
@@ -78,10 +78,7 @@ pub struct Contract {
 pub struct Validator {
     pub id: Uuid,
     pub addr: SocketAddr,
-    pub transaction: Option<Transaction>, //-- signed transaction
-    pub another_validator: Option<Recipient<Contract>>, //-- another validator actor address
-    pub stakes: Option<i32>,
-    pub rewards: Option<i32>,
+    pub latest_transaction: Option<Transaction>, //-- signed the latest_transaction
 }
 
 impl Actor for Validator {
@@ -89,15 +86,9 @@ impl Actor for Validator {
     fn started(&mut self, ctx: &mut Self::Context){ //-- this function body will run once a validator actor has been started
         let addr = ctx.address(); //-- getting the address of the this validator actor
         print!("-> a validator has been started with stream address {:?}", self.addr);
-    }
-}
-
-impl Handler<Contract> for Validator { //-- implementing a Handler for Contract event to send commands or messages to another validator actor like issuing a smart contract event
-    type Result = ();
-    fn handle(&mut self, msg: Contract, ctx: &mut Context<Self>) -> Self::Result{
-        println!("-> {} - contract info received {} - {}", chrono::Local::now().naive_local(), self.id, msg.id);
         ctx.run_later(Duration::new(0, 100), move |act, _| { //-- wait 100 nanoseconds
-            let _ = act.another_validator.as_ref().unwrap().do_send(Contract { id: Uuid::new_v4(), ttype: 0x02 }); //-- as_reF() converts &Option<T> to Option<&T> - sending a message to another validator in the background (unless we await on it) is done through the validator address and defined Contract event or message 
+            // TODO - do whatsoever after 100 nanoseconds
+            // ...
         });
     }
 }

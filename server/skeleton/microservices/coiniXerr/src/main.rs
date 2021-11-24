@@ -142,15 +142,15 @@ async fn main() -> std::io::Result<()>{
     // ...
     println!("-> {} - starting default parachain", chrono::Local::now().naive_local());
     let parachain = Parachain{slot: None, blockchain: None, another_parachain: None, current_block: None};
-    let first_parachain_addr = parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
+    let first_parachain_addr = parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy of) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
     
     
     println!("-> {} - starting second parachain", chrono::Local::now().naive_local());
     let second_parachain = Parachain{slot: None, blockchain: None, another_parachain: None, current_block: None};
-    let second_parachain_addr = second_parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
+    let second_parachain_addr = second_parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy of) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
         
 
-    let mut current_block = parachain.clone().current_block.unwrap(); //-- cloning (making a deep copy) the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+    let mut current_block = parachain.clone().current_block.unwrap(); //-- cloning (making a deep copy of) the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     
     
@@ -174,8 +174,8 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
     while let Ok((stream, addr)) = listener.accept().await{ //-- await suspends the accept() function execution to solve the future but allows other code blocks to run  
         println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), addr);
-        let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy) runtime info object to prevent from moving in every iteration between threads
-        let stream_sender = stream_sender.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
+        let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy of) runtime info object to prevent from moving in every iteration between threads
+        let stream_sender = stream_sender.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy of) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
         // ----------------------------------------------------------------------
         //                 STARTING VALIDATOR ACTOR FOR THIS STREAM
         // ----------------------------------------------------------------------
@@ -183,12 +183,9 @@ async fn main() -> std::io::Result<()>{
         let validator = Validator{ //-- every peer is a validator
             id: Uuid::new_v4(),
             addr, //-- socket address of this validator
-            transaction: None, //-- signed transaction - none when we're initializing a validator
-            another_validator: None, //-- address of another validator - none when we're initializing a validator
-            stakes: None, //-- amnount of coins that this validator can stakes for auction, crowdloan, bidding and staking process - none when we're initializing a validator 
-            rewards: None, //-- amnount of coins that this validator gets rewarded for auction, crowdloan, bidding and staking process - none when we're initializing a validator 
+            latest_transaction: None, //-- signed transaction - none when we're initializing a validator
         };
-        let validator_addr = validator.clone().start(); //-- cloning (making a deep copy) the validator actor will prevent the object from moving in every iteration - trait Clone is implemented for Validator actor struct
+        let validator_addr = validator.clone().start(); //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration - trait Clone is implemented for Validator actor struct
         // ----------------------------------------------------------------------
         //                  SAVING RUNTIME INFO FOR THIS STREAM
         // ----------------------------------------------------------------------
@@ -197,7 +194,7 @@ async fn main() -> std::io::Result<()>{
             cloned_arc_mutex_runtime_info_object.lock().unwrap().add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
             MetaData{
                 address: addr,
-                actor: validator.clone(), //-- cloning (making a deep copy) the validator actor will prevent the object from moving in every iteration
+                actor: validator.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
             }
         )
     };
@@ -252,26 +249,24 @@ async fn main() -> std::io::Result<()>{
                         //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
                         //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
                         //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
-                        slice::from_raw_parts(deserialized_transaction_serde as *const Transaction as *const u8, mem::size_of::<Transaction>())
+                        slice::from_raw_parts(deserialized_transaction_serde as *const Transaction as *const u8, mem::size_of::<Transaction>()) //-- it'll form a slice from the pointer to the struct and the total size of the struct which is the number of elements inside the constructed &[u8] array; means number of elements in constructing a &[u8] from a struct is the total size of the struct allocated in the memory
                     };
                     println!("-> {} - sending signed transaction back to the peer", chrono::Local::now().naive_local());
                     stream.write(&signed_transaction_serialized_into_bytes).await.unwrap(); //-- sending the signed transaction back to the peer
                     // ----------------------------------------------------------------------
-                    //            UPDATING VALIDATOR ACTOR WITH A SIGNED TRANSACTION
+                    //       UPDATING VALIDATOR ACTOR WITH THE LATEST SIGNED TRANSACTION
                     // ----------------------------------------------------------------------
-                    // TODO - update recipient, stakes and rewards fields of the current validator actor
-                    // ...
-                    println!("-> {} - updating validator actor with a signed transaction", chrono::Local::now().naive_local());
+                    println!("-> {} - updating validator actor with the latest signed transaction", chrono::Local::now().naive_local());
                     for (id, md) in cloned_arc_mutex_runtime_info_object.lock().unwrap().info_dict.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
                         if id == &generated_uuid{
                             let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
-                            md.update_validator_transaction(Some(signed_transaction_deserialized_from_bytes)); //-- update the validator actor with a signed transaction
+                            md.update_validator_transaction(Some(signed_transaction_deserialized_from_bytes)); //-- update the validator actor with a latest signed transaction
                         }
                     }
                     // ---------------------------------------------------------------------------------------
                     //      SENDING SIGNED TRANSACTION TO DOWN SIDE OF THE CHANNEL FOR CONSENSUS PROCESS
                     // ---------------------------------------------------------------------------------------
-                    println!("-> {} - sending signed transaction to down side of the channel for mining process", chrono::Local::now().naive_local());
+                    println!("-> {} - sending signed transaction to down side of the channel for consensus process", chrono::Local::now().naive_local());
                     let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
                     let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //-- putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
                     let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //-- cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
@@ -341,10 +336,10 @@ async fn main() -> std::io::Result<()>{
                 todo!();
                 println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
                 let (prev, last) = {
-                    let mut rev_iter = parachain.blockchain.clone().unwrap().blocks.iter().rev(); //-- cloning (making a deep copy) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                    let mut rev_iter = parachain.blockchain.clone().unwrap().blocks.iter().rev(); //-- cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //-- converting &Block to Block by using to_owned() method in which cloning process will be used 
                 };
-                current_block = parachain.blockchain.clone().unwrap().build_raw_block(&prev); //-- passing the previous block by borrowing it - cloning (making a deep copy) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                current_block = parachain.blockchain.clone().unwrap().build_raw_block(&prev); //-- passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
             }
         }
         if let (Some(merkle_root), Some(block_hash)) = (current_block.clone().merkle_root, current_block.clone().hash){ //-- checking the block's hash and merkle_root hash for transactions finality

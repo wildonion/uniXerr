@@ -89,8 +89,8 @@ pub struct MetaData{
 }
 
 impl MetaData{
-    pub fn update_validator_transaction(&mut self, transaction: Option<Transaction>){ //-- updating the transaction field of the validator actor is done using a mutable borrower (pointer) as the parameter of the update_validator_transaction() method 
-        self.actor.transaction = transaction;
+    pub fn update_validator_transaction(&mut self, transaction: Option<Transaction>){ //-- updating the latest_transaction field of the validator actor is done using a mutable borrower (pointer) as the parameter of the update_validator_transaction() method 
+        self.actor.latest_transaction = transaction;
     }
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -159,6 +159,7 @@ impl Chain{
     pub fn build_raw_block(&self, prev_block: &Block) -> Block{ //-- this method get an immutable pointer to the block (borrowed) as its second argument 
         Block{
             id: Uuid::new_v4(),
+            index: prev_block.clone().index + 1, //-- we have to clone the prev_block cause Block struct doesn't implement the Copy trait
             is_genesis: false,
             prev_hash: prev_block.clone().hash, //-- first block inside the chain is the genesis block - we have to clone the prev_block cause Block struct doesn't implement the Copy trait 
             hash: None, // TODO -
@@ -194,6 +195,7 @@ impl Chain{
 #[derive(Serialize, Deserialize, Clone, Debug)] //-- encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Block{
     pub id: Uuid,
+    pub index: u32,
     pub is_genesis: bool,
     pub prev_hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     pub hash: Option<String>, //-- 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
@@ -208,6 +210,7 @@ impl Block{
         self.transactions.push(transaction);
         Block{ //-- don't return &self when constructing the struct cause we'll face lifetime issue for struct fields - &mut T is not bounded to Copy trait due to ownership and borrowing rules which we can't have multiple mutable pointer at the same time
             id: self.id,
+            index: self.index,
             is_genesis: self.is_genesis,
             prev_hash: Some(self.prev_hash.clone().unwrap()), //-- self.prev_hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
             hash: Some(self.hash.clone().unwrap()), //-- self.hash is behind a mutable reference (&mut self in function param) which doesn't implement Copy trait (can't have a multiple mutable pointer a time) for String thus we have to clone it
@@ -223,6 +226,7 @@ impl Default for Block{
     fn default() -> Self{
         Block{
             id: Uuid::new_v4(),
+            index: 0,
             is_genesis: true,
             prev_hash: Some("prev block hash here".to_string()), // TODO -
             hash: Some("current block hash here".to_string()), // TODO -

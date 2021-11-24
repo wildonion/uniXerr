@@ -30,7 +30,10 @@ pub struct Parachain {
 }
 
 impl Parachain{
-    fn health(){}
+    fn health(){
+        // TODO - check the parachain health
+        // ...
+    }
 }
 
 impl Actor for Parachain {
