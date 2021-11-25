@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)] //-- when we implement the Serialize trait for this struct we can put the instance of it inside the json() method cause we can serialize an instance of it into the json to send back to where it was called
 pub struct ResponseBody<T>{
     pub message: String,
     pub data: T,

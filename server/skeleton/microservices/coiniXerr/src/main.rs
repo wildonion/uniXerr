@@ -191,16 +191,16 @@ async fn main() -> std::io::Result<()>{
         // ----------------------------------------------------------------------
         println!("-> {} - saving runtime info", chrono::Local::now().naive_local());
         let meta_data_uuid = {
-            cloned_arc_mutex_runtime_info_object.lock().unwrap().add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
-            MetaData{
-                address: addr,
-                actor: validator.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
-            }
-        )
-    };
-    pool.execute(move || { //-- parallel transactions handler - executing pool of threads for scheduling synchronous tasks spawned with tokio::spawn() using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - mpsc definition : every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
-        tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a validator actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
-                let arc_mutex_validator_addr = Arc::new(Mutex::new(validator_addr)); //-- creating an Arc object which is inside a Mutex cause Validator actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the validator_addr object inside a mutex to be updatable between threads
+                cloned_arc_mutex_runtime_info_object.lock().unwrap().add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
+                MetaData{
+                    address: addr,
+                    actor: validator.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
+                }
+            )
+        };
+        pool.execute(move || { //-- parallel transactions handler - executing pool of threads for scheduling synchronous tasks spawned with tokio::spawn() using a messaging channel protocol called mpsc job queue channel in which its sender will send the job or task or message coming from the process constantly to the channel and the receiver inside an available thread (a none blocked thread) will wait until a job becomes available to down side of the channel finally the current thread must be blocked for the mutex (contains a message like a job) lock - mpsc definition : every job or task has its own sender but only one receiver can be waited at a time inside a thread for mutex lock 
+            tokio::spawn(async move { //-- spawning an async task (of socket process) inside a thread pool which will use a thread to start a validator actor in the background - a thread will be choosed to receive the task or job using the down side of the mpsc channel (receiver) to acquire the mutex for the lock operation
+                let arc_mutex_validator_addr = Arc::new(Mutex::new(validator_addr)); //-- creating an Arc object which is inside a Mutex to share and mutate data between threads cause Validator actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the validator_addr object inside a mutex to be updatable between threads
                 let cloned_arc_mutex_validator_addr = Arc::clone(&arc_mutex_validator_addr); //-- we're borrowing the ownership of the Arc-ed and Mutex-ed validator_addr object to move it between threads without loosing the ownership 
                 println!("-> {} - sending stream setups through the channel", chrono::Local::now().naive_local());
                 stream_sender.send((stream, meta_data_uuid, cloned_arc_mutex_runtime_info_object, cloned_arc_mutex_validator_addr)).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid through the mpsc channel 

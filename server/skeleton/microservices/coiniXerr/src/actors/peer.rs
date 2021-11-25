@@ -64,7 +64,7 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
 
 
 
-// NOTE - we've put T inside the Option cause T might be None at initializing stage
+// NOTE - we've put T inside the Option cause T might be None at initializing stage or a dangling pointer
 
 
 #[derive(Message)]

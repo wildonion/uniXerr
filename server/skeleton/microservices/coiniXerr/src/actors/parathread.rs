@@ -3,7 +3,7 @@
 
 
 
-// NOTE - we've put T inside the Option cause T might be None at initializing stage
+// NOTE - we've put T inside the Option cause T might be None at initializing stage or a dangling pointer
 
 
 
