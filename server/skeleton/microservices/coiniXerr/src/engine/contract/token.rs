@@ -4,7 +4,6 @@
 // NOTE - all coiniXerr coin holders are uniXerr community members called participants known as validator actors
 // NOTE - validator actors can issue contracts by staking some coins from their coiniXerr balance which can be deposited based on their smart contract tokens (CRC20) ExpTime field
 // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm which is position clustering coin generation model
-// TODO - compile coiniXerr node to wasm to run in browser through the loading process of the .wasm or .js compiled file
 // TODO - declarative macros are written using macro_rules!
 // TODO - procedural macros are custom derive: #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros
