@@ -1,6 +1,11 @@
 
 
 
+
+
+// NOTE - we've put T inside the Option cause T might be None at initializing stage
+
+
 use std::rc::{Rc, Weak};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;

@@ -3,6 +3,9 @@
 
 
 
+// NOTE - we've put T inside the Option cause T might be None at initializing stage
+
+
 
 use actix::prelude::*; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use uuid::Uuid;
