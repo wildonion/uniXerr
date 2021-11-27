@@ -94,8 +94,8 @@ pub struct MetaData{
 }
 
 impl MetaData{
-    pub fn update_validator_transaction(&mut self, transaction: Option<Transaction>){ //-- updating the latest_transaction field of the validator actor is done using a mutable borrower (pointer) as the parameter of the update_validator_transaction() method 
-        self.actor.latest_transaction = transaction;
+    pub fn update_validator_transaction(&mut self, transaction: Option<Transaction>){ //-- updating the recent_transaction field of the validator actor is done using a mutable borrower (pointer) as the parameter of the update_validator_transaction() method 
+        self.actor.recent_transaction = transaction;
     }
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------

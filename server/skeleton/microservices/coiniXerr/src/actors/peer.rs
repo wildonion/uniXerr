@@ -26,7 +26,7 @@ impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a vali
 
     fn mint(&mut self){ //-- self is a mutable pointer to the Validator fields
         //-- minting FT is a transaction and means assigning a token or an asset value with a limited to a wallet address which can be issued by this contract
-        let mint_address: Self::TokenAddress = self.latest_transaction.as_ref().unwrap().from_address.clone(); //-- cloning the from_address field of the Transaction struct cause is of type String - for unwrapping the transaction we must first clone it cause it's behind a shared reference which is &mut behind the self parameter which is &mut behind the Option cause latest_transaction is of type Option<Transaction> - we can also use as_ref() method instead of cloning cause the as_ref() will conver the &Option<T> to Option<&T>
+        let mint_address: Self::TokenAddress = self.recent_transaction.as_ref().unwrap().from_address.clone(); //-- cloning the from_address field of the Transaction struct cause is of type String - for unwrapping the transaction we must first clone it cause it's behind a shared reference which is &mut behind the self parameter which is &mut behind the Option cause recent_transaction is of type Option<Transaction> - we can also use as_ref() method instead of cloning cause the as_ref() will conver the &Option<T> to Option<&T>
     }
 
     fn transfer_from(&mut self){
@@ -78,7 +78,7 @@ pub struct Contract { //-- Contract event between two validators on the coiniXer
 pub struct Validator {
     pub id: Uuid,
     pub addr: SocketAddr,
-    pub latest_transaction: Option<Transaction>, //-- signed the latest_transaction
+    pub recent_transaction: Option<Transaction>, //-- signed the recent_transaction
 }
 
 impl Actor for Validator {
