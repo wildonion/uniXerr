@@ -5,6 +5,7 @@
 // NOTE - validator actors can issue contracts by staking some coins from their coiniXerr balance which can be deposited based on their smart contract tokens (CRC20) ExpTime field
 // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm which is position clustering coin generation model
 // TODO - declarative macros (macro_rules!) and procedural macros or custom derive macros for contract traits : #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
+// TODO - compile coiniXerr contracts to wasm to run in browser through the loading process of the .wasm or .js compiled file
 // TODO - different kind of arguments passing structure with arbitrary numbers of them using macros
 // https://rustwasm.github.io/docs/book/introduction.html
 // https://stackoverflow.com/questions/60345904/defining-a-macro-that-passes-params-to-a-function
