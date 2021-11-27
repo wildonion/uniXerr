@@ -240,6 +240,9 @@ async fn main() -> std::io::Result<()>{
                     // TODO - if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the channel to be pushed inside a block for mining process
                     // ...
                     println!("-> {} - signing incoming transaction", chrono::Local::now().naive_local());
+                    // ----------------------------------------------------------------------
+                    //              SIGNING THE INCOMING TRANSACTION WITH SERVER TIME
+                    // ----------------------------------------------------------------------
                     deserialized_transaction_serde.signed = Some(chrono::Local::now().naive_local().timestamp()); //-- signing the incoming transaction with server time
                     // ----------------------------------------------------------------------
                     //               SENDING SIGNED TRANSACTION BACK TO THE PEER
