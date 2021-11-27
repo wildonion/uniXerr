@@ -33,7 +33,7 @@
 // NOTE - to solve above issue we have to put that object inside a Mutex (&mut) to share its ownership (Arc) and protect it between multiple threads and mutating or mutex acquisition is done by blocking the current thread when calling the lock() method, prevent from being in a dead lock and shared state situations
 // NOTE - & is used to take a reference or borrow the ownership; for Copy trait bounded type this means coping the type by borrowing its ownership and &mut is a mutable pointer to that for changing it
 // NOTE - Arc (we use Arc if the type wasn't bounded to Clone trait) is used to share the ownership of data and move it between threads safely with Mutex; we can change and mutate the data (also inside Arc) by locking the local or current thread at runtime to acquire the mutex 
-// NOTE - Box is a smart pointer and will use with dyn keyword instread of &dyn to take a reference to dynamic size types like traits which are not bounded to Sized and Copy traits 
+// NOTE - Box is a smart pointer and is used along with the dyn keyword instread of &dyn to take a reference to object safe traits which are not bounded to Sized and Copy traits
 /////// ==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------==========--------------
 
 
