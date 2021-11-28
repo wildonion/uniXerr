@@ -3,7 +3,7 @@
 
 
 
-// NOTE - we've put T inside the Option cause T might be None at initializing stage or a dangling pointer
+// NOTE - we've put T inside the Option cause T might be None at initializing stage or a dangling pointer on later changes 
 
 
 use std::rc::{Rc, Weak};
