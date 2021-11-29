@@ -228,7 +228,7 @@ async fn main() -> std::io::Result<()>{
     /////// ==========--------------==========--------------==========--------------==========--------------==========-------------- 
     ///////                                 waiting to receive stream and other setups asynchronously 
     /////// ==========--------------==========--------------==========--------------==========--------------==========--------------
-    while let Some((mut stream, generated_uuid, cloned_arc_mutex_runtime_info_object, cloned_arc_mutex_validator_addr)) = stream_receiver.recv().await{ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started validator actor for every incoming connection - stream must be mutable for reading and writing from and to socket
+    while let Some((mut stream, generated_uuid, cloned_arc_mutex_runtime_info_object, cloned_arc_mutex_validator_addr)) = stream_receiver.recv().await.take(){ //-- waiting for the stream, the generated uuid of the runtime info object and the runtime info object itself to become available to the down side of channel (receiver) to change the started validator actor for every incoming connection - stream must be mutable for reading and writing from and to socket
         println!("-> {} - receiving the stream setups", chrono::Local::now().naive_local());
         let transaction_sender = transaction_sender.clone(); //-- cloning transaction_sender to send signed transaction through the channel to the receiver for mining process
         tokio::spawn(async move { //-- this is an async task related to updating a validator actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
@@ -338,12 +338,13 @@ async fn main() -> std::io::Result<()>{
             current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent from moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > max_block_size{
                 // TODO - calculate the block and merkle_root hash
-                todo!();
-                println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
+                // TODO - consensus process in here
+                // ...
                 let (prev, last) = {
                     let mut rev_iter = parachain.blockchain.clone().unwrap().blocks.iter().rev(); //-- cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //-- converting &Block to Block by using to_owned() method in which cloning process will be used 
                 };
+                println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
                 current_block = parachain.blockchain.clone().unwrap().build_raw_block(&prev); //-- passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
             }
         }

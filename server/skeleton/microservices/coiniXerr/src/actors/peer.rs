@@ -4,7 +4,7 @@
 use actix::prelude::*; //-- loading actix actors and handlers for threads communication using their address and defined events 
 use uuid::Uuid;
 use std::{net::SocketAddr, time::Duration};
-use crate::schemas::Transaction;
+use crate::schemas::{Transaction, StakeInfo};
 use crate::engine::contract::token::CRC20; //-- super is the root of the current directory (libs)
 
 
