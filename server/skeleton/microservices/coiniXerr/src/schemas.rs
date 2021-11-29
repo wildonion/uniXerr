@@ -44,11 +44,11 @@ pub mod tests{
 //                                                        Stake Info Schema                      
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
-pub struct StakeInfo{
+pub struct Staker{
     pub id: Uuid,
-    pub amount: i32,
-    pub staker: Validator, //-- delegator or staker is a Validator
-    pub rewrds: Option<i32>,
+    pub deposit: i32,
+    pub owner: Validator, //-- delegator or owner or staker is a Validator
+    pub rewards: Option<i32>,
     pub signed: Option<i64>,
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -71,12 +71,12 @@ pub struct StakeInfo{
 //                                                        Vote Info Schema                      
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
-pub struct VoteInfo{
+pub struct Voter{
     pub parachain_id: Uuid, //-- voter will vote in this parachain using delegator stakes
-    pub voater: Validator, //-- voter is a Validator
-    pub rewrds: Option<i32>,
+    pub owner: Validator, //-- owner is a Validator
+    pub rewards: Option<i32>,
     pub signed: Option<i64>,
-    pub staker_id: Uuid, //-- delegator id 
+    pub staker_id: Uuid, //-- delegator id who staked his/her money for this voter
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
