@@ -26,6 +26,7 @@ pub struct Communicate{ //-- parathread sends this message to a parachain
 
 #[derive(Debug, Clone)] //-- trait Clone is required to prevent the object of this struct from moving
 pub struct Parachain {
+    pub id: Uuid,
     pub slot: Option<Slot>,
     pub blockchain: Option<Chain>,
     pub another_parachain: Option<Recipient<Communicate>>, //-- another parachain actor address

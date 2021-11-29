@@ -143,12 +143,12 @@ async fn main() -> std::io::Result<()>{
     // TODO - send message from first_parachain_addr to second_parachain_addr
     // ...
     println!("-> {} - starting default parachain", chrono::Local::now().naive_local());
-    let parachain = Parachain{slot: None, blockchain: None, another_parachain: None, current_block: None};
+    let parachain = Parachain{id: Uuid::new_v4(), slot: None, blockchain: None, another_parachain: None, current_block: None};
     let first_parachain_addr = parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy of) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
     
     
     println!("-> {} - starting second parachain", chrono::Local::now().naive_local());
-    let second_parachain = Parachain{slot: None, blockchain: None, another_parachain: None, current_block: None};
+    let second_parachain = Parachain{id: Uuid::new_v4(), slot: None, blockchain: None, another_parachain: None, current_block: None};
     let second_parachain_addr = second_parachain.clone().start(); //-- building a new parachain actor - cloning (making a deep copy of) the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership - trait Clone is implemented for Parachain actor struct
         
 

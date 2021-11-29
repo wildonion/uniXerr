@@ -47,7 +47,8 @@ pub mod tests{
 pub struct StakeInfo{
     pub id: Uuid,
     pub amount: i32,
-    pub staker: Validator,
+    pub staker: Validator, //-- delegator or staker is a Validator
+    pub rewrds: Option<i32>,
     pub signed: Option<i64>,
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -71,9 +72,11 @@ pub struct StakeInfo{
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
 pub struct VoteInfo{
-    pub voater: Validator,
+    pub parachain_id: Uuid, //-- voter will vote in this parachain using delegator stakes
+    pub voater: Validator, //-- voter is a Validator
+    pub rewrds: Option<i32>,
     pub signed: Option<i64>,
-    pub staker_id: Uuid,
+    pub staker_id: Uuid, //-- delegator id 
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
