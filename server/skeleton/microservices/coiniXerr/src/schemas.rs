@@ -103,7 +103,7 @@ pub struct Voter{
 pub struct Slot{ //-- pool of validators for slot auctions
     pub id: Uuid,
     pub name: String,
-    pub validators: Vec<VoteInfo>, //-- auction voters for this slot
+    pub validators: Vec<Voter>, //-- auction voters for this slot
     pub epoch: u32, //-- number of created blocks to generate new slot auction process 
 } 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
