@@ -346,7 +346,9 @@ pub struct Node{
 
 impl Node{
 
-    pub fn 
+    pub fn is_leaf(&mut self) -> bool{
+        todo!();
+    }
 
     pub fn add_child(&mut self, node: Node){
         self.children.push(Rc::new(node));

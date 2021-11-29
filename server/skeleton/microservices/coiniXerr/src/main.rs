@@ -338,13 +338,14 @@ async fn main() -> std::io::Result<()>{
             current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent from moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > max_block_size{
                 // TODO - calculate the block and merkle_root hash
-                // TODO - consensus process in here
+                // TODO - consensus process here
                 // ...
+                println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
                 let (prev, last) = {
-                    let mut rev_iter = parachain.blockchain.clone().unwrap().blocks.iter().rev(); //-- cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                    let current_blockchain = parachain.blockchain.clone().unwrap(); //-- creating longer lifetime - can't have parachain.blockchain.clone().unwrap().blocks.iter().rev() cause parachain.blockchain.clone().unwrap() lifetime will be ended beforer reach the blocks field
+                    let mut rev_iter = current_blockchain.blocks.iter().rev(); //-- cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //-- converting &Block to Block by using to_owned() method in which cloning process will be used 
                 };
-                println!("-> {} - shaping a new block to add transactions", chrono::Local::now().naive_local());
                 current_block = parachain.blockchain.clone().unwrap().build_raw_block(&prev); //-- passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
             }
         }
