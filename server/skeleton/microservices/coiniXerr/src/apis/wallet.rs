@@ -25,7 +25,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, transacti
     let transaction_sender = transaction_sender.as_ref();
     println!("-> {} - connection stablished from {}", chrono::Local::now().naive_local(), req.peer_addr().unwrap());
     let mut bytes = web::BytesMut::new();
-    while let Some(chunk) = body_payload.next().await { //-- extracting binary wallet data or utf8 bytes from incoming request - loading the payload into the memory
+    while let Some(chunk) = body_payload.next().await { //-- extracting binary wallet data or utf8 bytes from incoming request chunk by chunk - loading the payload into the memory
         bytes.extend_from_slice(&chunk?); //-- the web::Payload extractor already contains the decoded byte stream if the request payload is compressed with one of the supported compression codecs (br, gzip, deflate), then the byte stream is decompressed
     }
     println!("-> {} - transaction body in bytes {:?}!", chrono::Local::now().naive_local(), bytes);
