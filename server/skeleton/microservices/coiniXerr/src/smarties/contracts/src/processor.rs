@@ -85,11 +85,11 @@ pub fn contract_program( //-- this program keeps track of the number of times th
 
 
 
+    //-- nft is a token with only one amount minted to an address which contains the url to the digital asset
     // other instructions on this program like changing the state of this program using incoming instruction_data when this program is called from the RPC client API
     // ...
     // traits, macros, Box<dyn Trait> &dyn Trait, mpsc job queue channel, ptr + len + cap, pointers and clone for borrowing instead of moving the ownership, 
     // lifetimes to prevent dangling pointers from returning, (de)serializing from or (d)ecoding into utf8 bytes or mapping using union, borsh and serde codec,  
-    // nft is a token with only one amount minted to an address which contains the url to the digital asset
     
 
 
