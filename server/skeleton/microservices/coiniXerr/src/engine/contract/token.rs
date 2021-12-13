@@ -1,44 +1,13 @@
 
 
 
+
+
+
 // NOTE - all coiniXerr coin holders are uniXerr community members called participants known as validator actors
 // NOTE - validator actors can issue contracts by staking some coins from their coiniXerr balance which can be deposited based on their smart contract tokens (CRC20) ExpTime field
 // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm which is position clustering coin generation model
-// TODO - declarative macros (macro_rules!) and procedural macros or custom derive macros for contract traits : #[derive(CustomDerive)], attribute-like: #[CustomAttribute], and function-like: custom!(...)
 // TODO - compile coiniXerr contracts to wasm to run in browser through the loading process of the .wasm or .js compiled file
-// TODO - different kind of arguments passing structure with arbitrary numbers of them using macros
-// https://rustwasm.github.io/docs/book/introduction.html
-// https://stackoverflow.com/questions/60345904/defining-a-macro-that-passes-params-to-a-function
-// https://danielkeep.github.io/practical-intro-to-macros.html
-// https://blog.logrocket.com/macros-in-rust-a-tutorial-with-examples/
-// https://blog.logrocket.com/procedural-macros-in-rust/
-// http://gradebot.org/doc/ipur/trait.html
-// https://cheats.rs/#behind-the-scenes
-// https://doc.rust-lang.org/beta/unstable-book/language-features/generators.html
-// https://github.com/wildonion/aravl/tree/master/microservices/device/src
-// https://github.com/actix/examples/blob/master/websockets/tcp-chat/src/codec.rs
-// https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
-// https://stackoverflow.com/questions/2490912/what-are-pinned-objects
-// https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
-// https://github.com/zupzup/warp-websockets-example
-// https://github.com/tokio-rs/tokio/tree/master/examples
-// https://blog.softwaremill.com/multithreading-in-rust-with-mpsc-multi-producer-single-consumer-channels-db0fc91ae3fa
-// https://danielkeep.github.io/tlborm/book/
-// https://cetra3.github.io/blog/implementing-a-jobq/
-// https://cetra3.github.io/blog/implementing-a-jobq-with-tokio/
-// https://docs.rs/tokio/1.12.0/tokio/sync/index.html
-// https://docs.rs/tokio-stream/0.1.7/tokio_stream/
-// https://doc.rust-lang.org/std/pin/index.html
-// https://doc.rust-lang.org/std/sync/struct.Arc.html
-// https://doc.rust-lang.org/std/rc/struct.Rc.html
-// https://doc.rust-lang.org/std/sync/struct.Mutex.html
-// https://doc.rust-lang.org/std/sync/struct.RwLock.html
-// https://doc.rust-lang.org/std/cell/struct.RefMut.html
-// https://doc.rust-lang.org/std/cell/struct.RefCell.html
-// https://doc.rust-lang.org/std/rc/struct.Weak.html
-
-
-
 
 
 
