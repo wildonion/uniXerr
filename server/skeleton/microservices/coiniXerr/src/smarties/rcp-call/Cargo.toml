@@ -1,0 +1,10 @@
+[package]
+name = "bpf-program-template"
+version = "0.1.0"
+edition = "2018"
+
+
+
+
+[dependencies]
+solana-client = "1.8.8"
