@@ -58,7 +58,7 @@ pub fn contract_program( //-- this program keeps track of the number of times th
     
 
     
-    let mut contract_account_string_val = Contract::<String>::try_from_slice(&our_account.data.borrow())?; //-- Contract struct is taking a generic value of type String to deserialize our account data value into it
+    let mut contract_account_string_val = Contract::<String>::try_from_slice(&our_account.data.borrow())?; //-- Contract struct is taking a generic value of type String to deserialize our account data value into it - our_account.data is gaurded by the RefCell so we can call the borrow() method to borrow its ownership
     let mut contract_account = Contract::<u32>::try_from_slice(&our_account.data.borrow())?; //-- Contract struct takes a generic value of type T here is u32 - deserializing our account data into the Contract struct; we must define the deserialized account data as a mutable one in order to update its sign variable later - the data of an account can be a link to a picture art for nft based contracts
     
     
@@ -73,21 +73,28 @@ pub fn contract_program( //-- this program keeps track of the number of times th
 
 
     
+    
 
 
     // client will send a transaction contains instruction to transfer lamports to another accounts 
-    // we can be a middleware to catch all of these lamports and transfer them to another account
-    // like being a shity escrow  
+    // we can be a middleware to catch all of these lamports and transfer 
+    // them to another account like being a shity escrow.  
     // ...
+    
     
 
 
 
 
-
+    //-- vote on 32 slots (blocks) over the past 12 seconds means 2 ** 32 slots (blocks) timeout in PoH and every slots (blocks)
     //-- nft is a token with only one amount minted to an address which contains the url to the digital asset
     // other instructions on this program like changing the state of this program using incoming instruction_data when this program is called from the RPC client API
     // ...
+
+
+
+
+
     // traits, macros, Box<dyn Trait> &dyn Trait, mpsc job queue channel, ptr + len + cap, pointers and clone (deep copy) for borrowing instead of moving the ownership, 
     // lifetimes to prevent dangling pointers from returning, (de)serializing from or (d)ecoding into utf8 bytes or mapping using union, borsh and serde codec,  
     // from and into raw parts
