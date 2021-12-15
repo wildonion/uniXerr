@@ -86,7 +86,7 @@ pub fn contract_program( //-- this program keeps track of the number of times th
 
 
 
-    //-- vote on 32 slots (blocks) over the past 12 seconds means 2 ** 32 slots (blocks) timeout in PoH and every slots (blocks)
+    //-- vote on 32 slots (blocks) over the past 12 seconds means 2 ** 32 slots (blocks) timeout in PoH
     //-- nft is a token with only one amount minted to an address which contains the url to the digital asset
     // other instructions on this program like changing the state of this program using incoming instruction_data when this program is called from the RPC client API
     // ...
