@@ -11,6 +11,11 @@ private key: canal clump smoke purpose bubble tired electric company shop law wi
 
 
 
+TODO - build a macro for the whole process of loading and compiling the contract_program to bpf bytecode 
+
+
+
+
 https://rustwasm.github.io/docs/book/introduction.html
 https://danielkeep.github.io/practical-intro-to-macros.html
 https://blog.logrocket.com/macros-in-rust-a-tutorial-with-examples/
