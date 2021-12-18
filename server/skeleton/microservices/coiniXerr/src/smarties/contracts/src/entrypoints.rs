@@ -36,7 +36,7 @@ use solana_program::{
 // =======================================
 //  ....... CONTRACT ENTRYPOINTS
 // =======================================
-entrypoint!(contract_program); //-- the entrypoint of bpf loader for each instruction to compile the program defined instruction into elf shared object (.so) which contains the bpf bytecode - every program has its own loader and entrypoint which the program was deployed with - each loader provides a helper function that deserializes the program's input parameters into Rust types, the entrypoint macros automatically calls the deserialization helper
+entrypoint!(contract_program); //-- the entrypoint of bpf loader for each instruction to compile the program defined instruction into elf shared object (.so) which contains the bpf bytecode and allows the program to interface with the runtime - every program has its own loader and entrypoint which the program was deployed with - each loader provides a helper function that deserializes the program's input parameters into Rust types, the entrypoint macros automatically calls the deserialization helper
 
 
 

@@ -32,7 +32,7 @@ pub struct Contract<T>{
 //  ....... SMART CONTRACT LOGIC
 // =======================================
 pub fn contract_program( //-- this program keeps track of the number of times the contract_program() program has been called for a given account - every program belongs to a instruction and every instruction belongs to an entrypoint loader and all accounts are owned by a specific program
-    program_id: &Pubkey, //-- this is the public key of the account this program was loaded into - a program is read-only or stateless and contains just program logic
+    program_id: &Pubkey, //-- this is the public key of the account this program was loaded into and containing this program - a program is read-only or stateless and contains just program logic
     accounts: &[AccountInfo], //-- accounts to say hello to which interact with this program store data related to program interaction like saving infos about uploaded metadata files for this account - account contains data and owner to save data inside an account for a specific owner
     instruction_data: &[u8]
 ) -> ProgramResult { //-- the return type is ProgramResult  
@@ -50,7 +50,7 @@ pub fn contract_program( //-- this program keeps track of the number of times th
     let our_account = next_account_info(accounts_iter)?; //-- selecting this account to process the instructions of this program and read its data to deserialize it into the Contract struct on every call of this program
     
     
-    if our_account.owner != program_id{ //-- account.owner is the program that ownes this account cause accounts can only be owned by programs - the owner is the program id
+    if our_account.owner != program_id{ //-- account.owner is the program that ownes this account and is not controlled by a private key like other accounts cause accounts can only be owned by programs - the owner of this account which is called program derived account is the program id and 
         msg!("this account is not owned by this program");
         msg!("account data={:?}", our_account.data);
         return Err(ProgramError::IncorrectProgramId);
