@@ -18,5 +18,6 @@
 
 
 next-coding: coiniXerr hash for a transaction and transaction signature, block and merkle root and wallet address using Argon2
+next-coding: add JSON-RPC over HTTP and socket for coiniXerr network
 next-coding: credit score coin generation algorithm based on classified position which has been clustered using VAE and Kmeans
 next-issue : weights updating process issue for mlp model inside core/recognizer/pdc/

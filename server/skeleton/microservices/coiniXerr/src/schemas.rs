@@ -49,7 +49,7 @@ pub struct Staker{
     pub deposit: i32,
     pub owner: Validator, //-- delegator or owner or staker is a Validator
     pub rewards: Option<i32>,
-    pub signed: Option<i64>,
+    pub signed_at: Option<i64>,
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
@@ -75,7 +75,7 @@ pub struct Voter{
     pub parachain_id: Uuid, //-- voter will vote in this parachain using delegator stakes
     pub owner: Validator, //-- owner is a Validator
     pub rewards: Option<i32>,
-    pub signed: Option<i64>,
+    pub signed_at: Option<i64>,
     pub staker_id: Uuid, //-- delegator id who staked his/her money for this voter
 }
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
