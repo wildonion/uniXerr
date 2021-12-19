@@ -128,19 +128,18 @@ pub struct Slot{ //-- pool of validators for slot auctions
 //                                                     RuntimeInfo Schema 
 // ==========--------------==========--------------==========--------------==========--------------==========--------------
 #[derive(Debug, Clone)]
-pub struct RuntimeInfo{
-    pub info_dict: HashMap<Uuid, MetaData>, //-- MetaData struct should implements the Debug and Clone trait also
-}
+pub struct RuntimeInfo(pub HashMap<Uuid, MetaData>); //-- MetaData struct should implements the Debug and Clone trait also
 
 impl RuntimeInfo{
 
     pub fn new() -> Self{
-        RuntimeInfo{info_dict: HashMap::new()}
+        RuntimeInfo(HashMap::new()) //-- unit like struct
     }
 
     pub fn add(&mut self, meta_data: self::MetaData) -> Uuid{ //-- &self means borrowing the ownership of all RuntimeInfo fields - it must be mutable cause we want to insert into the info_dict
         let generated_uuid = Uuid::new_v4();
-        self.info_dict.insert(generated_uuid, meta_data);
+        let rti = RuntimeInfo(HashMap::new());
+        rti.0.insert(generated_uuid, meta_data);
         generated_uuid
     }
 }
