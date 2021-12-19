@@ -5,7 +5,8 @@
 
 
 
-#![cfg(feature="test-bpf")]
+#![cfg(feature="test-bpf")] //-- inner attribute - this crate only gets compiled if the feature is test-bpf
+
 
 pub mod lib;
 use lib::entrypoints::contract_program;
@@ -31,8 +32,8 @@ use {
 
 
 // https://docs.solana.com/developing/test-validator
-#[test]
-fn test_validator_transaction() {
+#[tokio::test]
+async fn test_validator_transaction() {
     let program_id = Pubkey::new_unique();
 
     let (test_validator, payer) = TestValidatorGenesis::default().add_program("some token contracts", program_id).start();
@@ -111,20 +112,20 @@ async fn test_contract_program_instruction(){
 
 
     assert_eq!(
-        Contract::try_from_slice(&accounts[0].data.borrow()).unwrap().counter, 
+        Contract::try_from_slice(&accounts[0].data.borrow()).unwrap().sign, 
         0
     );
     
-    contract_program(&program_id, accounts, instruction_data);
+    contract_program(&program_id, accounts, instruction_data); //-- contract sign field will be increased every time we call the contract program 
     assert_eq!(
-        Contract::try_from_slice(&accounts[0].data.borrow()).unwrap().counter, 
+        Contract::try_from_slice(&accounts[0].data.borrow()).unwrap().sign, 
         1
     );
     
     
-    contract_program(&program_id, accounts, instruction_data);
+    contract_program(&program_id, accounts, instruction_data); //-- contract sign field will be increased every time we call the contract program
     assert_eq!(
-        Contract::try_from_slice(&accounts[0].data.borrow()).unwrap().counter, 
+        Contract::try_from_slice(&accounts[0].data.borrow()).unwrap().sign, 
         2
     );
 

@@ -30,7 +30,7 @@ async fn transaction(req: HttpRequest, mut body_payload: web::Payload, transacti
     }
     println!("-> {} - transaction body in bytes {:?}!", chrono::Local::now().naive_local(), bytes);
     let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&bytes).unwrap(); //-- deserializing bytes into the Transaction struct object using serde from_slice method
-    // TODO - if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the channel to be pushed inside a block for mining process
+    // TODO - only if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the mempool channel to be pushed inside a block for mining process
     // ...
     deserialized_transaction_serde.signed = Some(chrono::Local::now().naive_local().timestamp()); //-- signing the incoming transaction with server time
     // ----------------------------------------------------------------------

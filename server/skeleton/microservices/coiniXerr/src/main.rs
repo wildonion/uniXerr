@@ -238,7 +238,7 @@ async fn main() -> std::io::Result<()>{
                 Ok(size) => {
                     let deserialized_transaction_union = Transaction::new(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using TransactionMem union
                     let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
-                    // TODO - if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the channel to be pushed inside a block for mining process
+                    // TODO - only if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the mempool channel to be pushed inside a block for mining process
                     // ...
                     println!("-> {} - signing incoming transaction", chrono::Local::now().naive_local());
                     // ----------------------------------------------------------------------

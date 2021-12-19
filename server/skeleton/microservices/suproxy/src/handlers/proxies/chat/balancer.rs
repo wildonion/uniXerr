@@ -107,7 +107,7 @@ impl ChatServer{
 
     pub fn new(cass_session: Arc<cass::CassSession>) -> ChatServer{
         let mut rooms = HashMap::new();
-        rooms.insert("Main".to_owned(), HashSet::new());
+        rooms.insert("Main".to_owned(), HashSet::new()); //-- to_owned() creates an owned String from a string slice or &str by cloning
         ChatServer{
             sessions: HashMap::new(), //-- all sessions are an actor which is of type Addr object, the sessions field is a hash map contains the id as the key and the address of the session actor as its value
             rooms, //-- rooms contain a name as the key and one or more set of sessions (client session id) as its value
