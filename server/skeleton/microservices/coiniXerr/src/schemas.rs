@@ -136,9 +136,8 @@ impl RuntimeInfo{
         RuntimeInfo(HashMap::new()) //-- unit like struct
     }
 
-    pub fn add(&mut self, meta_data: self::MetaData) -> Uuid{ //-- &self means borrowing the ownership of all RuntimeInfo fields - it must be mutable cause we want to insert into the info_dict
+    pub fn add(mut rti: Self, meta_data: self::MetaData) -> Uuid{ //-- &rti means borrowing the ownership of all RuntimeInfo fields - it must be mutable cause we want to insert into its hash map field
         let generated_uuid = Uuid::new_v4();
-        let mut rti = RuntimeInfo(HashMap::new()); //-- a mutable runtime info object for inserting data
         rti.0.insert(generated_uuid, meta_data);
         generated_uuid
     }

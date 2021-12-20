@@ -193,7 +193,9 @@ async fn main() -> std::io::Result<()>{
         // ----------------------------------------------------------------------
         println!("-> {} - saving runtime info", chrono::Local::now().naive_local());
         let meta_data_uuid = {
-                cloned_arc_mutex_runtime_info_object.lock().unwrap().add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
+                let mut runtime_info = cloned_arc_mutex_runtime_info_object.lock().unwrap().to_owned(); //-- unlocking, unwrapping and cloning (by using to_ownded() method) the runtim_info object in every iteration of incoming stream inside the local thread to convert it to an instance of the RuntimeInfo struct
+                RuntimeInfo::add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
+                runtime_info, //-- passing the mutable runtime_info object for adding new metadata into its hash map field
                 MetaData{
                     address: addr,
                     actor: validator.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
