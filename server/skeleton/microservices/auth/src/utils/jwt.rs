@@ -33,11 +33,11 @@ pub mod user_token{
             let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nano to sec
             let payload = UserToken{
                 iat: now,
-                exp: now + env::var("JWT_EXPIRATION").expect("⚠️ found no jwt secret key").parse::<i64>().unwrap(),
-                user: login.username.clone(), // need to clone cause it's String
+                exp: now + env::var("JWT_EXPIRATION").expect("⚠️ found no jwt expiration time").parse::<i64>().unwrap(),
+                user: login.username.clone(), // need to clone cause it's String in order not to move its ownership
                 id: login.id, // doesn't need to clone cause it's integer
                 access_level: login.access_level,
-                access_token: login.access_token.clone(), // need to clone cause it's String
+                access_token: login.access_token.clone(), // need to clone cause it's String in order not to move its ownership
             };
             let secret_key = env::var("JWT_SECRET_KEY").expect("⚠️ found no jwt secret key"); 
             let key: &[u8] = &secret_key.as_str().as_bytes(); // this is salt
