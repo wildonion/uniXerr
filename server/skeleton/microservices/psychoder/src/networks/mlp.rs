@@ -38,7 +38,7 @@ impl Linear{
         let mut linear_neural_circuit = self.neural_circuit.iter();
         linear_neural_circuit.next().unwrap().communicate(linear_neural_circuit.next()); //-- communicate method through synapse trait
         let mat = x_train;
-        let NTHREADS = 4; // number of threads inside the pool
+        let NTHREADS: usize = 4; // number of threads inside the pool
         let NJOBS: usize = mat.len(); // number of tasks of the process (incoming x_train matrix) to share each one between threads inside the pool
         let pool = ThreadPool::new(NTHREADS);
         let (sender, receiver) = channel();
@@ -51,7 +51,7 @@ impl Linear{
                 let cloned_receiver = Arc::clone(&arc_recv); // can't clone receiver, in order to move it between threads we have to clone it using Arc
                 let cloned_sender = sender.clone(); // NOTE - sender can be cloned because it's multiple producer
                 let cloned_mat = Arc::clone(&arc_mat);
-                children.push(pool.execute(move || { // NOTE - pool.execute() will spawn threads or workers to solve the incoming job inside a free thread
+                children.push(pool.execute(move || { // NOTE - pool.execute() will spawn threads or workers to solve the incoming job inside a free thread - incoming job can be an async task spawned using tokio::spawn() method
                     let sum_cols = cloned_mat[0][i] + cloned_mat[1][i] + cloned_mat[2][i];
                     cloned_sender.send(sum_cols).unwrap();
                 }));

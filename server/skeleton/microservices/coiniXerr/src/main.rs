@@ -242,43 +242,53 @@ async fn main() -> std::io::Result<()>{
                     let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[0..size]).unwrap(); //-- decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a Transaction object using serde_json::from_slice
                     // TODO - only if the downside of the mpsc job queue channel was available the transaction will be signed and sent through the mempool channel to be pushed inside a block for mining process
                     // ...
-                    println!("-> {} - signing incoming transaction", chrono::Local::now().naive_local());
-                    // ----------------------------------------------------------------------
-                    //              SIGNING THE INCOMING TRANSACTION WITH SERVER TIME
-                    // ----------------------------------------------------------------------
-                    deserialized_transaction_serde.signed = Some(chrono::Local::now().naive_local().timestamp()); //-- signing the incoming transaction with server time
-                    // ----------------------------------------------------------------------
-                    //               SENDING SIGNED TRANSACTION BACK TO THE PEER
-                    // ----------------------------------------------------------------------
-                    // NOTE - encoding or serializing process is converting struct object into utf8 bytes
-                    // NOTE - decoding or deserializing process is converting utf8 bytes into the struct object
-                    let signed_transaction_serialized_into_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
-                        //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
-                        //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
-                        //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
-                        slice::from_raw_parts(deserialized_transaction_serde as *const Transaction as *const u8, mem::size_of::<Transaction>()) //-- it'll form a slice from the pointer to the struct and the total size of the struct which is the number of elements inside the constructed &[u8] array; means number of elements in constructing a &[u8] from a struct is the total size of the struct allocated in the memory
-                    };
-                    println!("-> {} - sending signed transaction back to the peer", chrono::Local::now().naive_local());
-                    stream.write(&signed_transaction_serialized_into_bytes).await.unwrap(); //-- sending the signed transaction back to the peer
-                    // ----------------------------------------------------------------------
-                    //       UPDATING VALIDATOR ACTOR WITH THE LATEST SIGNED TRANSACTION
-                    // ----------------------------------------------------------------------
-                    println!("-> {} - updating validator actor with the recent signed transaction", chrono::Local::now().naive_local());
-                    for (id, md) in cloned_arc_mutex_runtime_info_object.lock().unwrap().0.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
-                        if id == &generated_uuid{
-                            let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
-                            md.update_validator_transaction(Some(signed_transaction_deserialized_from_bytes)); //-- update the validator actor with a recent signed transaction
+                    let must_be_signed = true;
+                    if must_be_signed{
+                        // ----------------------------------------------------------------------
+                        //              SIGNING THE INCOMING TRANSACTION WITH SERVER TIME
+                        // ----------------------------------------------------------------------
+                        println!("-> {} - signing incoming transaction", chrono::Local::now().naive_local());
+                        deserialized_transaction_serde.signed = Some(chrono::Local::now().naive_local().timestamp()); //-- signing the incoming transaction with server time
+                        // ----------------------------------------------------------------------
+                        //               SENDING SIGNED TRANSACTION BACK TO THE PEER
+                        // ----------------------------------------------------------------------
+                        // NOTE - encoding or serializing process is converting struct object into utf8 bytes
+                        // NOTE - decoding or deserializing process is converting utf8 bytes into the struct object
+                        let signed_transaction_serialized_into_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
+                            //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
+                            //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+                            //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
+                            slice::from_raw_parts(deserialized_transaction_serde as *const Transaction as *const u8, mem::size_of::<Transaction>()) //-- it'll form a slice from the pointer to the struct and the total size of the struct which is the number of elements inside the constructed &[u8] array; means number of elements in constructing a &[u8] from a struct is the total size of the struct allocated in the memory
+                        };
+                        println!("-> {} - sending signed transaction back to the peer", chrono::Local::now().naive_local());
+                        stream.write(&signed_transaction_serialized_into_bytes).await.unwrap(); //-- sending the signed transaction back to the peer
+                        // ----------------------------------------------------------------------
+                        //       UPDATING VALIDATOR ACTOR WITH THE LATEST SIGNED TRANSACTION
+                        // ----------------------------------------------------------------------
+                        println!("-> {} - updating validator actor with the recent signed transaction", chrono::Local::now().naive_local());
+                        for (id, md) in cloned_arc_mutex_runtime_info_object.lock().unwrap().0.iter_mut(){ //-- id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
+                            if id == &generated_uuid{
+                                let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
+                                md.update_validator_transaction(Some(signed_transaction_deserialized_from_bytes)); //-- update the validator actor with a recent signed transaction
+                            }
                         }
+                        // ---------------------------------------------------------------------------------------
+                        //      SENDING SIGNED TRANSACTION TO DOWN SIDE OF THE CHANNEL FOR CONSENSUS PROCESS
+                        // ---------------------------------------------------------------------------------------
+                        println!("-> {} - sending signed transaction to down side of the channel for consensus process", chrono::Local::now().naive_local());
+                        let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
+                        let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //-- putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
+                        let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //-- cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
+                        transaction_sender.send(cloned_arc_mutex_transaction).await.unwrap(); //-- sending signed transaction through the mpsc job queue channel asynchronously for mining process
+                        true
+                    } else{
+                        // ----------------------------------------------------------------------
+                        //       REJECTING THE INCOMING TRANSACTION BACK TO THE VALIDATOR
+                        // ----------------------------------------------------------------------
+                        println!("-> {} - rejecting incoming transaction caused by unavailable mempool channel", chrono::Local::now().naive_local());
+                        stream.write(&transaction_buffer_bytes[0..size]).await.unwrap(); //-- rejecting the transaction back to the peer
+                        true
                     }
-                    // ---------------------------------------------------------------------------------------
-                    //      SENDING SIGNED TRANSACTION TO DOWN SIDE OF THE CHANNEL FOR CONSENSUS PROCESS
-                    // ---------------------------------------------------------------------------------------
-                    println!("-> {} - sending signed transaction to down side of the channel for consensus process", chrono::Local::now().naive_local());
-                    let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&signed_transaction_serialized_into_bytes).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
-                    let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //-- putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
-                    let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //-- cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
-                    transaction_sender.send(cloned_arc_mutex_transaction).await.unwrap(); //-- sending signed transaction through the mpsc job queue channel asynchronously for mining process
-                    true
                 },
                 Err(e) => {
                     println!("-> {} - terminating connection with validator {}", chrono::Local::now().naive_local(), stream.peer_addr().unwrap());

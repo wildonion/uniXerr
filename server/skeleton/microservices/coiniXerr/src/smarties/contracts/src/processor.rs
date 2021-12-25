@@ -27,7 +27,7 @@ pub struct Contract<T>{
 
 
 
-impl<T> for Contract<T>{
+impl<T> Contract<T>{
     pub fn new(&self) -> Option<&T>{ //-- we need to define the first argument as &self which is an immutable pointer to all Contract struct fields to satisfy the return type of new() method which is Option<&T> 
         Some(self.sign) //-- returning a pointer to the sign field inside Option by using self which is &self in first argument of the new() method
     }
@@ -57,7 +57,7 @@ pub fn contract_program( //-- this program keeps track of the number of times th
     let our_account = next_account_info(accounts_iter)?; //-- selecting this account to process the instructions of this program and read its data to deserialize it into the Contract struct on every call of this program
     
     
-    if our_account.owner != program_id{ //-- account.owner is the program that ownes this account and is not controlled by a private key like other accounts cause accounts can only be owned by programs - the owner of this account which is called program derived account is the program id and 
+    if our_account.owner != program_id{ //-- account.owner is the program that ownes this account and is not controlled by a private key like other accounts cause accounts can only be owned by programs - the owner of this account which is called program derived account is the program id
         msg!("this account is not owned by this program");
         msg!("account data={:?}", our_account.data);
         return Err(ProgramError::IncorrectProgramId);
@@ -92,10 +92,11 @@ pub fn contract_program( //-- this program keeps track of the number of times th
 
 
 
-
+    //-- at a specific time like every 2 or 3 days (epoch) votes will be transmited via the gossip protocol to the leader by every validators to form a slot (block) with morew than 2/3 of votes
+    //-- votes are the hash of the computed state at that PoH tick count based on a greedy choice to maximize the reward
     //-- vote on 32 slots (blocks) over the past 12 seconds means 2 ** 32 slots (blocks) timeout in PoH
     //-- nft is a token with only one amount minted to an address which contains the url to the digital asset
-    // other instructions on this program like changing the state of this program using incoming instruction_data when this program is called from the RPC client API
+    // TODO - other instructions on this program like changing the state of this program using incoming instruction_data when this program is called from the RPC client API
     // ...
 
 

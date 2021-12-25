@@ -78,7 +78,7 @@ pub struct Contract { //-- Contract event between two validators on the coiniXer
 pub struct Validator {
     pub id: Uuid,
     pub addr: SocketAddr,
-    pub recent_transaction: Option<Transaction>, //-- signed the recent_transaction
+    pub recent_transaction: Option<Transaction>, //-- signed the recent_transaction came from the peer
 }
 
 impl Actor for Validator {
