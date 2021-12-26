@@ -2,6 +2,9 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
+
+[uniXerr miro board](https://miro.com/app/board/uXjVOYkgrgc=/?moveToWidget=3458764515729747697&cot=10)
+
 # uniXerr Skeleton Development Setup
 
 ### Requirements
