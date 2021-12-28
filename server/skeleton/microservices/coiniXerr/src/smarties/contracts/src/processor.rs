@@ -105,7 +105,7 @@ pub fn contract_program( //-- this program keeps track of the number of times th
 
     // traits, macros, Box<dyn Trait> &dyn Trait, mpsc job queue channel, ptr + len + cap, pointers and clone (deep copy) for borrowing instead of moving the ownership, 
     // lifetimes to prevent dangling pointers from returning, (de)serializing from or (d)ecoding into utf8 bytes or mapping using union, borsh and serde codec,  
-    // from and into raw parts
+    // from and into raw parts, little and big endian
     
 
 
