@@ -43,7 +43,7 @@ pub type Error = Infallible; //-- an error which never happen
 
 
 
-async fn handle(req: Request<Body>) -> Result<Response<Body>, Infallible>{ //-- we have no error at all so we use Infallible
+async fn cmd(req: Request<Body>) -> Result<Response<Body>, Infallible>{ //-- we have no error at all so we use Infallible
     Ok(Response::new("Hello, world".into()));
 }
 
@@ -73,12 +73,13 @@ async fn main(){
         return 123; //-- here ! will be coerced to i32 
     };
 
+    
 
 
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     let make_svc = make_service_fn(|_conn| async{
-        Ok::<_, Infallible>(service_fn(handle))
+        Ok::<_, Infallible>(service_fn(cmd))
     });
 
     let server = Server::bind(&addr).serve(make_svc);

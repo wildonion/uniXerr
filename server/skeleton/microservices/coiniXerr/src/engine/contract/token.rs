@@ -66,6 +66,10 @@ pub trait CRC21{ //-- dApp smart contract for none fungible tokens or digital as
     fn allowance(&mut self); //-- provides the number of tokens allowed to be transferred from a given address by another given address
     fn owner_of(&mut self); //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
 
+    // ---------------
+    //-- event methods
+    // ---------------
+    fn burn(&mut self); //-- burn some of the tokens to zero address
 }
 
 pub trait CRC22{ //-- coiniXerr smart contract supports variety of tokens and standards like both FT and NFT types
