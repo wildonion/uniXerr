@@ -70,7 +70,9 @@ Sugar Rules:
     [+] since compiler will free the memory once the heap allocated data get dropped as soon as their scope is finish; we can’t copy the heap allocated data despite the unknown size of them in compile time cause by coping we have two pointers pointing to a same location inside the heap and by dropping the data from the heap we’ll have two dangling pointers pointing to no where which will face us into a double free pointer issue
     [+] ptr, len and capacity (extract them using into_raw_parts() + build the variable using from_raw_parts() ) of a variable will be stored on the stack and if the data was bounded to Sized trait its value will be stored on the stack too otherwise on the heap
     [+] ptr, len and capacity of the String are stored on the stack and the data will be stored on the heap which is a buffer allocate in the binary to the str data cause String is a wrapper around the str
-    [+] &String is a pointer to the whole String and &str is a pointer to that part of the String (which is a str) on the heap buffer
+    [+] String is of type Vec<u8> which will be coerced to &[u8] at runtime and every 8 bits is 1 byte so every char in String can be 1 byte in range utf8 means 0 to 255 and byte indices is string slices or &str to some parts of the String
+    [+] we use string slices (&Some_String[0..n] for example) to access some parts of the String cause some char might be 2 bytes long thus we can't access them like &Some_String[0] cause the first char is 2 bytes means it's of type utf16
+    [+] &String is a pointer to the whole String and a wrapper over a Vec<u8> and &str is a pointer to that part of the String (which is a str) on the heap buffer
     [+] String is a growable, ownable heap-allocated data structure that owns the actual full str buffer on the heap it manages and it can be coerced to a &str
     [+] &str substrings (a slice of String) are just fat pointers to that buffer (allocated by String) on the heap
     [+] a String wraps and manages a dynamically allocated str as backing storage since str cannot be resized, String will dynamically allocate/deallocate memory

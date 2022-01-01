@@ -16,7 +16,7 @@
 use std::{convert::Infallible, net::SocketAddr}; //-- Infallible and ! are the same type and expressions with type ! will coerce into any other type
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn}; //-- required for making a service from a function for the hyper server
-
+use hyper::server::conn::AddrStream;
 
 
 
@@ -29,8 +29,17 @@ pub type Error = Infallible; //-- an error which never happen
 
 
 
-async fn cmd(req: Request<Body>) -> Result<Response<Body>, Infallible>{ //-- we have no error at all so we use Infallible
-    Ok(Response::new("Hello, world".into()))
+
+#[derive(Clone)]
+pub struct AppContext{
+    pub id: u32,
+} 
+
+
+
+
+async fn handle(context: AppContext, add: SocketAdd, req: Request<Body>) -> Result<Response<Body>, Infallible>{ //-- we have no error at all so we use Infallible
+    Ok(Response::new(Body::from("hello world")))
 }
 
 
@@ -54,35 +63,65 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
     
     
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    let make_svc = make_service_fn(|_conn| async{
-        Ok::<_, Infallible>(service_fn(cmd))
+    let make_service = make_service_fn(move |conn: &AddrStream| async{
+        let context = context.clone(); //-- cloning context to move it between hyper threads - if your data doesn't implement Clone trait we have to use Arc
+        let addr = conn.remote_addr();
+        let service = service_fn(move |req|{
+            handle(context.clone(), addr, req)
+        });
+        Ok::<_, Infallible>(service)
     });
     
 
+
+
+
+
     
-    let server = Server::bind(&addr).serve(make_svc);
+    let server = Server::bind(&addr).serve(make_service);
     println!("[+] server is listening...");
     if let Err(e) = server.await{
         eprintln!("server error: {}", e);
     }
 
+
     
 
-    // let access = |ac| {
-    //     match ac {
-    //         1 => {
-    //             //-- superuser
-    //             // ...
-    //         }, 
-    //         2 => {
-    //             //-- admin
-    //             // ...
-    //         }, 
-    //     }
-    // };
+
+    
+    let context = AppContext{
+        id: 0001110,
+    };
+
+
+
+
+
+
+
+
+    let access = |ac| {
+        match ac {
+            1 => { //-- superuser
+                // TODO - check the access level of the user inside the token
+                // ...
+            }, 
+            2 => { //-- admin
+                // TODO - check the access level of the user inside the token
+                // ...
+            }, 
+        }
+    };
 
 
     // api!("/user/all", method, access(2), token)
+
+
+
+
+
+
+
 
 
     Ok(())
