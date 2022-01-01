@@ -116,7 +116,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
     // api!("/user/all", method, access(2), token)
 
+    #[derive(Clone)]
+    struct Request{
+        pub user: u32,
+    }
 
+    let res = test(move |req: Request|{
+        req.user;
+    });
+
+
+    fn test<C>(cls: C) where C: FnOnce(Request) + Send + 'static {
+        let req = Request{user: 2893};
+        cls(req);
+    }
 
 
 
