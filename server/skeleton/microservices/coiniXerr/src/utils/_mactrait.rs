@@ -11,7 +11,26 @@ async fn cls_fn() {
 
 async fn function_with_callback(cb: Box<dyn FnOnce(i32) -> i32>){
     cb(32);
+    #[derive(Clone)]
+    struct Request{
+        pub user: u32,
+        pub access: u32,
+    }
+    
+    let res = run(move |req: Request|{
+        println!("user {} has access {}", req.user, req.access);
+    });
+    
+    
+    fn run<C>(cls: C) where C: FnOnce(Request) + Send + 'static {
+        let req = Request{user: 2893};
+        cls(req);
+    }
 }
+
+
+
+
 
 fn mactrait(){
 

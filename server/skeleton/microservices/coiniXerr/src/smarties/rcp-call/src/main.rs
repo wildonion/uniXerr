@@ -13,18 +13,17 @@
 
 
 
+//-- The error type for errors that can never happen, since this enum has no variant, a value of this type can never actually exist. 
+//-- this can be useful for generic APIs that use [Result] and parameterize the error type, to indicate that the result is always [Ok] 
 use std::{convert::Infallible, net::SocketAddr}; //-- Infallible and ! are the same type and expressions with type ! will coerce into any other type
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn}; //-- required for making a service from a function for the hyper server
 use hyper::server::conn::AddrStream;
+use hyper::{Method, StatusCode};
+use futures::TryStreamExt as _;
 
 
 
-
-//-- The error type for errors that can never happen, since this enum has no variant, a value of this type can never actually exist. 
-//-- this can be useful for generic APIs that use [Result] and parameterize the error type, to indicate that the result is always [Ok] 
-pub type Empty = ();
-pub type Error = Infallible; //-- an error which never happen
 
 
 
@@ -39,8 +38,54 @@ pub struct AppContext{
 
 
 async fn handle(context: AppContext, add: SocketAdd, req: Request<Body>) -> Result<Response<Body>, Infallible>{ //-- we have no error at all so we use Infallible
-    Ok(Response::new(Body::from("hello world")))
+    
+    let mut response = Response::new(Body::empty()); //-- empty &[u8] of buffer bytes
+    match (req.method(), req.uri().path()){
+        (&Method::GET, "/") => {
+            // TODO - access level closure
+            // ...
+        },
+        (&Method::POST, "/api") => {
+            // TODO - access level closure
+            // ...
+            let full = true;
+            if full{
+                let full_body_bytes = hyper::body::to_bytes(req.into_body()).await?;
+                let reversed = full_body_bytes.iter()
+                    .rev()
+                    .cloned()
+                    .collect::<Vec<u8>>();
+                *response.body_mut() = reversed.into(); //-- fill the body of dereferenced response mutably
+            } else{
+                let mapping = req
+                    .into_body()
+                    .map_ok(|chunk|{
+                        chunk.iter()
+                            .map(|byte| byte.to_ascii_uppercase())
+                            .collect::<Vec<u8>>()
+                    });
+                    *response.body_mut() = Body::wrap_stream(mapping); //-- returns all bytes after converting them to ASCII uppercase
+            }
+        },
+        _ => {
+            *response.status_mut() = StatusCode::NOT_FOUND;
+        },
+    };
+    
+    Ok(response)
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -49,7 +94,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
     
     
+
     
+
+
+
     // https://docs.rs/hyper/0.14.16/hyper/server/index.html
     // http://zderadicka.eu/hyper-websocket/
     // an RPC call to our smart contract by seding a new transaction to our deployed contract_program to change its state using defined instructions and the instruction_data field
@@ -59,8 +108,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
     // ...
     
     
+    
+
 
     
+    
+    
+    let context = AppContext{
+        id: 0001110,
+    };
+
     
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     let make_service = make_service_fn(move |conn: &AddrStream| async{
@@ -72,10 +129,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
         Ok::<_, Infallible>(service)
     });
     
-
-
-
-
 
     
     let server = Server::bind(&addr).serve(make_service);
@@ -89,47 +142,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
 
     
-    let context = AppContext{
-        id: 0001110,
-    };
-
-
-
-
-
-
-
-
-    let access = |ac| {
-        match ac {
-            1 => { //-- superuser
-                // TODO - check the access level of the user inside the token
-                // ...
-            }, 
-            2 => { //-- admin
-                // TODO - check the access level of the user inside the token
-                // ...
-            }, 
-        }
-    };
-
-
-    // api!("/user/all", method, access(2), token)
-
-    #[derive(Clone)]
-    struct Request{
-        pub user: u32,
-    }
-
-    let res = test(move |req: Request|{
-        req.user;
-    });
-
-
-    fn test<C>(cls: C) where C: FnOnce(Request) + Send + 'static {
-        let req = Request{user: 2893};
-        cls(req);
-    }
 
 
 
