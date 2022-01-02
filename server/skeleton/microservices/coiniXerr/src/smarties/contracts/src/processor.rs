@@ -92,6 +92,12 @@ pub fn contract_program( //-- this program keeps track of the number of times th
 
 
 
+
+    // https://solanart.io/
+    // https://solsea.io/
+    //-- lockout is the duration of time for which a validator is unable to vote on another fork
+    //-- ledger vote is a hash of the validator's state at a given tick height, it comprises a validator's affirmation that a block it has received has been verified, as well as 
+    //-- ledger vote comprises a promise not to vote for a conflicting block (i.e. fork) for a specific amount of time, the lockout period
     //-- at a specific time like every 2 or 3 days (epoch) votes will be transmited via the gossip protocol to the leader by every validators to form a slot (block) with morew than 2/3 of votes
     //-- votes are the hash of the computed state at that PoH tick count based on a greedy choice to maximize the reward
     //-- vote on 32 slots (blocks) over the past 12 seconds means 2 ** 32 slots (blocks) timeout in PoH
@@ -102,6 +108,7 @@ pub fn contract_program( //-- this program keeps track of the number of times th
 
 
 
+    
 
     // traits, macros, Box<dyn Trait> &dyn Trait, mpsc job queue channel, ptr + len + cap, pointers and clone (deep copy) for borrowing instead of moving the ownership, 
     // lifetimes to prevent dangling pointers from returning, (de)serializing from or (d)ecoding into utf8 bytes or mapping using union, borsh and serde codec,  

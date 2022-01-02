@@ -37,35 +37,27 @@ pub struct AppContext{
 
 
 
-async fn handle(context: AppContext, add: SocketAdd, req: Request<Body>) -> Result<Response<Body>, Infallible>{ //-- we have no error at all so we use Infallible
+async fn api(context: AppContext, add: SocketAdd, req: Request<Body>) -> Result<Response<Body>, Infallible>{ //-- we have no error at all so we use Infallible
     
     let mut response = Response::new(Body::empty()); //-- empty &[u8] of buffer bytes
     match (req.method(), req.uri().path()){
         (&Method::GET, "/") => {
             // TODO - access level closure
+            // TODO - check access level in req.headers
             // ...
         },
-        (&Method::POST, "/api") => {
+        (&Method::POST, "/user") => {
             // TODO - access level closure
+            // TODO - check access level in req.headers
             // ...
-            let full = true;
-            if full{
-                let full_body_bytes = hyper::body::to_bytes(req.into_body()).await?;
-                let reversed = full_body_bytes.iter()
-                    .rev()
-                    .cloned()
-                    .collect::<Vec<u8>>();
-                *response.body_mut() = reversed.into(); //-- fill the body of dereferenced response mutably
-            } else{
-                let mapping = req
-                    .into_body()
-                    .map_ok(|chunk|{
-                        chunk.iter()
-                            .map(|byte| byte.to_ascii_uppercase())
-                            .collect::<Vec<u8>>()
-                    });
-                    *response.body_mut() = Body::wrap_stream(mapping); //-- returns all bytes after converting them to ASCII uppercase
-            }
+            let full_body_chunk = hyper::body::to_bytes(req.into_body()).await?;
+            let reversed = full_body_bytes
+                .map_ok(|chunk|{ //-- chunk of bytes is a set of bytes
+                    chunk.iter()
+                        .map(|byte| byte.to_ascii_uppercase()) //-- iterating through all chunks to convert each of their bytes to ASCII uppercase
+                        .collect::<Vec<u8>>()
+                });
+                *response.body_mut() = Body::wrap_stream(mapping);
         },
         _ => {
             *response.status_mut() = StatusCode::NOT_FOUND;
@@ -124,7 +116,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
         let context = context.clone(); //-- cloning context to move it between hyper threads - if your data doesn't implement Clone trait we have to use Arc
         let addr = conn.remote_addr();
         let service = service_fn(move |req|{
-            handle(context.clone(), addr, req)
+            api(context.clone(), addr, req)
         });
         Ok::<_, Infallible>(service)
     });
