@@ -189,7 +189,8 @@ fn unsafer(){
     //        and we are trying to print that pointer when we are changing the `g` value at the same time otherwise
     //        can't assign to `g` when we are using its mutable pointer, since based on multiple mutable references can't
     //        be exist at the same time thus we can't have the `g` and its pointer at the same time for writing and reading.
-    // println!("`mut_smart_pointer_to_name` value after changing `name` value >>>> {}", mut_smart_pointer_to_name); 
+    // println!("`v` value after `g` value >>>> {}", v);
+    // println!("`m` value after `g` value >>>> {}", m);
 
 
 
