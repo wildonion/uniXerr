@@ -4,7 +4,7 @@
 
 
 
-📌 fix backpropagation algorithm, the issue with the size of each weights
+📌 fix backpropagation algorithm, the issue with the size of each weights (weights updating process issue for mlp model)
 📌 train MLP and CNN params (weights and biases) using GA(ES)
 📌 build the confusion matrix (TN, FP, FN and TP) and scores (accuracy, precision, recall and f1 scores) from valid (test) data after training is over
 📌 building the prediction bot (complete bot.py script)
