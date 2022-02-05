@@ -2,9 +2,6 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
-
-[uniXerr miro board](https://miro.com/app/board/uXjVOYkgrgc=/?moveToWidget=3458764515729747697&cot=10)
-
 # AI Core Development Guide
 
 ###### ⚠️ If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.
