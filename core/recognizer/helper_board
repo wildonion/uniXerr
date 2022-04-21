@@ -18,10 +18,9 @@ __________________________ SSL (Self Supervised Learning) - TREND AI ___________
       - health improvement based on a pattern mining approach like 
             - predicting missing part of the unseen input based on the exact style of the input 
             - reconstructing and labeling the unseen input based on the exact style of the input
-      - feature learning and extracting
-      - feature selection from dimensionality reduction
-      - autoregressive based sequence modeling
-      - representation learning from the data itself
+      - feature or representation learning and extracting from the data itself
+      - feature or representation selection from dimensionality reduction
+      - autoregressive based sequence modeling to predict the future based on past events and behaviors
       - anomaly detection, one shot and meta learning
       - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture LSTM based
 📌 MODELS & TOOLS
