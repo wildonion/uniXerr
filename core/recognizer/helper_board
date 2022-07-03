@@ -42,7 +42,7 @@ __________________________ NLP TOOLS, CONCEPTS & PROCESSES _____________________
       - lowercasing
       - stopwwords removal
       - padding
-📌 VOCABULARY BUILDING OR WORD EMBEDDING OR VECTORIZATION OR FEATURE EXTRACTION 
+📌 VOCABULARY BUILDING OR WORD EMBEDDING OR VECTORIZATION OR FEATURE EXTRACTION & SEMANTIC ANALYSIS
       - BOW(ngram based with TF-IDF normalization)
       - Word2Vec(skip-gram & CBOW based)
       - GloVe
