@@ -21,7 +21,7 @@ __________________________ SSL (Self Supervised Learning) - TREND AI ___________
       - feature or representation learning and extracting from the data itself
       - feature or representation selection from dimensionality reduction
       - autoregressive based sequence modeling to predict the future based on past events and behaviors
-      - anomaly detection, one shot and meta learning
+      - anomaly detection, 0/1 shot and meta learning
       - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture LSTM based
 📌 MODELS & TOOLS
       - Transformers (https://arxiv.org/abs/2101.12037)
@@ -32,6 +32,7 @@ __________________________ SSL (Self Supervised Learning) - TREND AI ___________
       - GNN (Graph Neural Network)
       - MemTransformer (https://arxiv.org/pdf/2006.11527.pdf)
       - Decision Transformer (https://arxiv.org/pdf/2106.01345v1.pdf)
+      - TransZero (https://arxiv.org/abs/2112.08643)
 
 
 __________________________ NLP TOOLS, CONCEPTS & PROCESSES __________________________
