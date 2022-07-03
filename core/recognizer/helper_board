@@ -15,13 +15,14 @@
 
 __________________________ SSL (Self Supervised Learning) - TREND AI __________________________
 📌 TASKS
-      - health improvement based on a pattern mining approach like 
+      - health improvement based on a pattern mining approach and semantic attributes like 
             - predicting missing part of the unseen input based on the exact style of the input 
             - reconstructing and labeling the unseen input based on the exact style of the input
       - feature or representation learning and extracting from the data itself
       - feature or representation selection from dimensionality reduction
+      - extracting semantic attributes from the input for 0/1/few/n-shot learning 
       - autoregressive based sequence modeling to predict the future based on past events and behaviors
-      - anomaly detection, 0/1 shot and meta learning
+      - anomaly detection, 0/1/few/n-shot and meta learning
       - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture LSTM based
 📌 MODELS & TOOLS
       - Transformers (https://arxiv.org/abs/2101.12037)
