@@ -19,7 +19,7 @@ __________________________ SSL (Self Supervised Learning) - TREND AI ___________
             - predicting missing part of the unseen input based on the exact style of the input 
             - reconstructing and labeling the unseen input based on the exact style of the input
       - feature or representation learning and extracting from the data itself
-      - feature or representation selection from dimensionality reduction
+      - feature or representation selection using dimensionality reduction algorithms like GA, TSNE, PCA & VAE
       - extracting semantic attributes from the input for 0/1/few/n-shot learning 
       - autoregressive based sequence modeling to predict the future based on past events and behaviors
       - anomaly detection, 0/1/few/n-shot and meta learning
@@ -317,6 +317,8 @@ ___________________________ NLP ___________________________________
       medium.com/@sabber/classifying-yelp-review-comments-using-cnn-lstm-and-pre-trained-glove-word-embeddings-part-3-53fcea9a17fa
 
 ___________________________ IMP ___________________________________
+      https://towardsdatascience.com/understanding-zero-shot-learning-making-ml-more-human-4653ac35ccaba
+      https://machinelearningmastery.com/one-shot-learning-with-siamese-networks-contrastive-and-triplet-loss-for-face-recognition/
       https://github.com/ultralytics/yolov5
       https://towardsdatascience.com/self-supervised-learning-methods-for-computer-vision-c25ec10a91bd
       https://lilianweng.github.io/lil-log/2019/11/10/self-supervised-learning.html
