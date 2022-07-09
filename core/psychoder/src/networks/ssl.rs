@@ -3,6 +3,9 @@
 
 /*
 
+https://www.lpalmieri.com/posts/2019-03-12-scientific-computing-a-rust-adventure-part-1-zero-cost-abstractions/
+https://www.lpalmieri.com/posts/2019-02-23-scientific-computing-a-rust-adventure-part-0-vectors/
+https://www.lpalmieri.com/posts/2019-04-07-scientific-computing-a-rust-adventure-part-2-array1/
 https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
 
 NOTE - feature vectoers learning and representation or extracting semantic attributes using dimensionality reduction algorithms like GA, TSNE, PCA and VAE 
