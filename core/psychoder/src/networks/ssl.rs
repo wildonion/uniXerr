@@ -17,7 +17,7 @@ NOTE - feature vectoers learning and representation or extracting semantic attri
 ➔ train input -> feature extractor -> feature vectors for each training input in a latent space or an embedding layer of extracted feature 
 ➔ unseen test input -> feature extractor -> if | unseen feature vectors - each training feature vectors | > treshhold :: abnormality or a new category or label for dataset else unseen input belongs to the smallest distance class
 ➔ text -> embedding vector -> CLIP model -> generate latent image embedding by extracting semantic attributes and features -> decoder that generates an image conditioned on the latent image embedding 
-➔ in ssl or meta learning we're looking for finding the semantic meaning between input features and put them into a latent space or an embedding layer of extracted feature
+➔ in ssl or meta learning we're looking for finding the semantic meaning between input features and put them into a latent space or an embedding layer of extracted features or attributes to campare this layer with the features layer of unseen and contrastive inputs 
 
 */
 
