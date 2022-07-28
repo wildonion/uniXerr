@@ -2,6 +2,7 @@
 
 
 
+// https://www.learnpytorch.io/
 // https://pytorch.org
 // https://github.com/LaurentMazare/tch-rs
 // https://nalgebra.org/
