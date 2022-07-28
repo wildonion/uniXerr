@@ -2,6 +2,7 @@
 
 
 
+// TODO - every layer must be an actor to send its Arc<Mutex<output_data_matrix>> from its free thread to the next layer actor free thread asyncly through its mpsc channel to lock on it 
 // TODO - every layer inside the defined network is an actor which can send its output of size (BATCH X NEXT_LAYER_NEURONS) as the input of the next layer actor through the mpsc channle by scheduling a future object (async message) to be executed later and calculate the output of the next layer actor asyncly  
 // TODO - send borsh encoded training data asyncly through the mpsc channel of each layer actor using SIMD pattern
 // ...
