@@ -4,6 +4,8 @@
 
 // https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
 // TODO - implement all cognitive neuroscience concepts and schemas
+// TODO - every neuron can be an actor (or the column of our input matrix) to construct the GNN in an async and multithreading manner in such a way that every actor which is a neuron can communicate with each other to get the data of the next or the last neuron asyncly 
+
 
 
 
@@ -13,7 +15,9 @@ use uuid::Uuid;
 
 
 
-
+pub trait Void{
+    type Illusion;
+}
 
 pub trait Illusion{
     fn VisualCortex(&self) -> () {
