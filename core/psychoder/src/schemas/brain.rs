@@ -5,6 +5,9 @@
 // https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
 // TODO - implement all cognitive neuroscience concepts and schemas
 // TODO - every neuron can be an actor (or the column of our input matrix) to construct the GNN in an async and multithreading manner in such a way that every actor which is a neuron can communicate with each other to get the data of the next or the last neuron asyncly 
+// NOTE - a brain structure can have multiple interfaces like being in void and illusion situations which can be implemented using traits 
+
+
 
 
 
@@ -15,6 +18,18 @@ use uuid::Uuid;
 
 
 
+
+
+
+
+
+
+
+
+
+// ---------------
+//   INTERFACES
+// ---------------
 pub trait Void{
     type Illusion;
 }
@@ -25,16 +40,24 @@ pub trait Illusion{
     }
 }
 
-pub struct BrainContext<Neuron>(pub Vec<Neuron>, pub i64);
-impl<Neuron> Default for BrainContext<Neuron>{
-    fn default() -> Self{
-        BrainContext(vec![], chrono::Local::now().naive_local().timestamp())
-    }
-}
-
 pub trait Synapse{
     fn communicate(&self, n: Option<&Neuron>) -> Self; //-- this is not object safe trait cause it's returning an associated type which is Self
 }
+
+
+
+
+
+
+
+
+
+
+// ---------------
+//   STRUCTURES
+// ---------------
+pub struct BrainContext<Neuron>(pub Vec<Neuron>, pub i64);
+
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Neuron{
@@ -43,6 +66,14 @@ pub struct Neuron{
     pub timestamp: i64,
     pub data: Vec<f32>,
 }
+
+
+impl<Neuron> Default for BrainContext<Neuron>{
+    fn default() -> Self{
+        BrainContext(vec![], chrono::Local::now().naive_local().timestamp())
+    }
+}
+
 
 impl Synapse for Neuron{
     fn communicate(&self, next_neuron: Option<&Self>) -> Self{
