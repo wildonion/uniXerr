@@ -5,7 +5,7 @@
 // https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
 // TODO - implement all cognitive neuroscience concepts and schemas
 // TODO - every neuron can be an actor (or the column of our input matrix) to construct the GNN in an async and multithreading manner in such a way that every actor which is a neuron can communicate with each other to get the data of the next or the last neuron asyncly 
-// NOTE - a brain structure can have multiple interfaces like being in void and illusion situations which can be implemented using traits 
+// NOTE - a brain structure can have multiple interfaces like being in void and illusion abstract situations which can be implemented using traits 
 
 
 
