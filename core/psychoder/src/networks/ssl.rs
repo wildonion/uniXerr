@@ -3,8 +3,6 @@
 
 /*
 
-TODO - intrusion detection or invalid network traffic detection using transformers like classifing the incoming packet as valid or invalid packet at the socket level
-
 https://www.lpalmieri.com/posts/2019-03-12-scientific-computing-a-rust-adventure-part-1-zero-cost-abstractions/
 https://www.lpalmieri.com/posts/2019-02-23-scientific-computing-a-rust-adventure-part-0-vectors/
 https://www.lpalmieri.com/posts/2019-04-07-scientific-computing-a-rust-adventure-part-2-array1/
