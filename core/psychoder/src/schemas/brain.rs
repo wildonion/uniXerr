@@ -44,7 +44,10 @@ pub trait Synapse{
     fn communicate(&self, n: Option<&Neuron>) -> Self; //-- this is not object safe trait cause it's returning an associated type which is Self
 }
 
-pub trait Reconnect{ //// an abstract trait which rebuild the whole brain neuron connections like taking mushrooms for a long period of time
+///////
+/// an abstract trait which rebuild the whole brain network, neuron connections, destroy consciousness and renew the self
+///////
+pub trait Reconnect{ //-- the following method must be invoked on taking mushrooms for a long period of time
     fn rebuild(&self) -> Self{ //-- it'll return the type that this trait will be implemented for 
          todo!()
     }
