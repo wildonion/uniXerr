@@ -19,5 +19,6 @@
 // https://competitions.codalab.org/
 // http://colah.github.io/posts/2015-09-Visual-Information/
 // https://drive.google.com/file/d/1N7BHIT7awygV5Qm5izbaYdBNfnFgF08n/view?usp=sharing
+// https://drive.google.com/file/d/1kSRp1hQd9M56zS_Bfj4xQAmTSn66gl5l/view?usp=sharing
 // TODO - implementation of all abstract information theory rules like kl-divergence and entropy
 // ...
