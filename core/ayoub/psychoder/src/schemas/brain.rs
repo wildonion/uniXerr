@@ -3,11 +3,13 @@
 
 
 // https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
+// TODO - implement the coiniXerr::utils::scheduler::_async::Actor as uniXerrActor for Neuron in here
 // TODO - implement all cognitive neuroscience concepts and schemas
 // TODO - every neuron can be an actor (or the column of our input matrix) to construct the GNN in an async and multithreading manner in such a way that every actor which is a neuron can communicate with each other to get the data of the next or the last neuron asyncly 
 // NOTE - a brain structure can have multiple interfaces like being in void and illusion abstract situations which can be implemented using traits 
-
-
+// NOTE - train on ayoub PaaS events' phases which will be used to create behavioural graph of each player inside the game 
+//          to show the tips and tricks of the new game based on the history or the behavioural graph of the player.
+// ...  
 
 
 
@@ -32,6 +34,7 @@ use uuid::Uuid;
 // ---------------
 pub trait Void{
     type Illusion;
+    type Pain;
 }
 
 pub trait Illusion{
@@ -53,9 +56,16 @@ pub trait Reconnect{ //-- the following method must be invoked on taking mushroo
     }
 }
 
+///////
+/// an abstract trait which can echo the feeling of pain through the neurons to the whole brain
+///////
+pub trait Pain;
 
 
-
+///////
+/// an abstract trait which can buffer (store them) the suspended, unsolved and unaddressed data inside neurons
+///////
+pub trait Suspend; //-- a buffer contains unaddressed issues, feelings, pains and etc..
 
 
 

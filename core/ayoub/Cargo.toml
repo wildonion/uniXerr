@@ -1,0 +1,16 @@
+[workspace]
+
+members = [
+    "coiniXerr/src/wallet/",
+    "PaaS",
+    "coiniXerr",
+    "psychoder",
+]
+
+
+[profile.release]
+panic = "abort"
+opt-level = "z"
+lto = true
+codegen-units = 1
+overflow-checks = true # panic on integer overflow
