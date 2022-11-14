@@ -15,7 +15,7 @@ use crate::schemas::brain::Neuron;
 use actix::prelude::*;
 use std::sync::{Arc, mpsc::channel};
 use futures::{executor::block_on, join, StreamExt, TryStreamExt};
-use threadpool::ThreadPool;
+use rayon::prelude::*;
 use crate::schemas::brain::Synapse; //-- based on the orphan rule this should be used in here cause the communication() method of each neuron is implemented inside the Synapse trait - items from traits can only be used if the trait is in scope
 
 
@@ -57,21 +57,19 @@ impl Linear{
         let mat = x_train;
         let NTHREADS: usize = 4; // number of threads inside the pool
         let NJOBS: usize = mat.len(); // number of tasks of the process (incoming x_train matrix) to share each one between threads inside the pool
-        let pool = ThreadPool::new(NTHREADS);
         let (sender, receiver) = channel();
         let arc_mat = Arc::new(mat);
         let arc_recv = Arc::new(&receiver); //-- take a reference to the receiver to borrow it for putting it inside an Arc
-        let mut mult_of_all_sum_cols = 1.0;
-        let mut children = Vec::new();
+        let mut mult_of_all_sum_cols = 1.0; 
         let future_res = async { //-- we can also use tokio::spawn() to run the async task in the background using tokio event loop and green threads
             for i in 0..NJOBS{ //-- iterating through all the jobs of the process - this can be an infinite loop like waiting for a tcp connection
                 let cloned_receiver = Arc::clone(&arc_recv); // can't clone receiver, in order to move it between threads we have to clone it using Arc
                 let cloned_sender = sender.clone(); // NOTE - sender can be cloned because it's multiple producer
                 let cloned_mat = Arc::clone(&arc_mat);
-                children.push(pool.execute(move || { // NOTE - pool.execute() will spawn threads or workers to solve the incoming job inside a free thread - incoming job can be an async task spawned using tokio::spawn() method
+                rayon::spawn(move || { // NOTE - rayon::spawn() contains a threadpool and will spawn threads or workers to solve the incoming job inside a free thread
                     let sum_cols = cloned_mat[0][i] + cloned_mat[1][i] + cloned_mat[2][i];
                     cloned_sender.send(sum_cols).unwrap();
-                }));
+                });
                 println!("job {} finished!", i);
             }
             // NOTE - recv() will block the current thread if there are no messages available

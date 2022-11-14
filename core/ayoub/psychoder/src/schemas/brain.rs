@@ -22,6 +22,7 @@ use uuid::Uuid;
 
 
 
+ 
 
 
 
@@ -33,8 +34,8 @@ use uuid::Uuid;
 //   INTERFACES
 // ---------------
 pub trait Void{
-    type Illusion;
-    type Pain;
+    type Illusion<Neuron>; //-- the generic type of the Illusion type is Neuron, we can use this later to transfer an illusion between neurons 
+    type Pain<Neuron>; //-- the generic type of the Pain type is Neuron, we can use this later to transfer the pain between neurons
 }
 
 pub trait Illusion{
@@ -51,21 +52,33 @@ pub trait Synapse{
 /// an abstract trait which rebuild the whole brain network, neuron connections, destroy consciousness and renew the self
 ///////
 pub trait Reconnect{ //-- the following method must be invoked on taking mushrooms for a long period of time
-    fn rebuild(&self) -> Self{ //-- it'll return the type that this trait will be implemented for 
-         todo!()
+    fn rebuild(&self) -> Self  //-- we can bind traits and lifetimes to return type using where
+        where Self: Sized{ //-- it'll return the type that this trait will be implemented for - since it could be no type to implement this for thus we have to boung the Self to Sized trait since the compiler can't detect the size of the Self (there might be no type yet!) 
+
+            todo!()
+
     }
 }
 
 ///////
 /// an abstract trait which can echo the feeling of pain through the neurons to the whole brain
 ///////
-pub trait Pain;
+pub trait Pain{}
 
 
 ///////
 /// an abstract trait which can buffer (store them) the suspended, unsolved and unaddressed data inside neurons
 ///////
-pub trait Suspend; //-- a buffer contains unaddressed issues, feelings, pains and etc..
+pub trait Suspend{} //-- a buffer contains unaddressed issues, feelings, pains and etc..
+
+
+
+
+
+
+
+
+
 
 
 

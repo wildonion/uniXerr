@@ -663,6 +663,7 @@ pub async fn trash(){
     pub struct Complex{
         pub callback: Box<dyn FnOnce(Option<String>) -> u8>,
         pub labeled_block: bool,
+        pub long_block: u8,
         pub callback_result: u8,
     }
     
@@ -677,6 +678,13 @@ pub async fn trash(){
                 break 'block false; // it'll break the 'labeled block with a false return
             }
         },
+        long_block: {
+            let mut x = 0;
+            while 2 % x > 2{
+                x+=1;
+            }
+            x
+        },
         callback_result: ( // building and calling the closure at the same time inside the struct field
             |_| 254
         )(Some("wildonion".to_string())),
@@ -685,13 +693,14 @@ pub async fn trash(){
     let Complex{ 
         callback, 
         labeled_block,
+        long_block,
         callback_result 
     } = comp else{ // the else part is not needed since the unpacking process will be matched always
         panic!("can't unpack");
     }; // struct unpacking
 
-    pub async fn do_it<F>(callback: F) // callback is of type F where F is a closure which is Send Sync and have a valid static lifetime
-        where F: FnOnce(Option<String>) -> u8 + Send + Sync + 'static{
+    pub async fn do_it<F>(callback: F) // callback is of type F
+        where F: FnOnce(Option<String>) -> u8 + Send + Sync + 'static{ // where F is a closure which is bounded to Send Sync traits and have a valid static lifetime
         callback(Some("wildonion".to_string()));
     }
 
