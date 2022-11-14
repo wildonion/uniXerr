@@ -2,7 +2,7 @@
 
 members = [
     "coiniXerr/src/wallet/",
-    "PaaS",
+    "conse",
     "coiniXerr",
     "psychoder",
 ]
@@ -13,4 +13,4 @@ panic = "abort"
 opt-level = "z"
 lto = true
 codegen-units = 1
-overflow-checks = true # panic on integer overflow
+overflow-checks = true # panic on any overflow

@@ -114,6 +114,7 @@ https://github.com/wildonion/thedos/
 ------------------------------------------------------------------------
        networking projects with rabbitmq, tokio, hyper and riker  
 ------------------------------------------------------------------------
+--- TASK --- add k8s configs for ayoub to balancing the request loads
 --- TASK --- hoopoe and async jobq coding
 [TASK] - coniXerr wallet (walleXerr) in yew to build a wasm file using rafael runtime build() method like cloudflare and shuttle runtime to load the wasm file in js 
 [TASK] - add XChaCha20Poly1305 end-to-end encryption for socket tls between walleXerr and the coiniXerr streaming servers: tcp + (rtp folder)

@@ -34,8 +34,8 @@ use uuid::Uuid;
 //   INTERFACES
 // ---------------
 pub trait Void{
-    type Illusion<Neuron>; //-- the generic type of the Illusion type is Neuron, we can use this later to transfer an illusion between neurons 
-    type Pain<Neuron>; //-- the generic type of the Pain type is Neuron, we can use this later to transfer the pain between neurons
+    type Illusion<Neuron>; //-- we can have GAT with generic arg; the generic type of the Illusion type is Neuron, we can use this later to transfer an illusion between neurons 
+    type Pain<Neuron>; //-- we can have GAT with generic arg; the generic type of the Pain type is Neuron, we can use this later to transfer the pain between neurons
 }
 
 pub trait Illusion{
@@ -45,6 +45,9 @@ pub trait Illusion{
 }
 
 pub trait Synapse{
+    //-- we also have a lifetime 'f for the future event notifs means that all notifs must be valid as long as 'f
+    type FutureEventNotif<'f, Neuron>; //-- we can have GAT with generic arg; the generic type of the FutureEventNotif type is Neuron, we can use this later to transfer the future events notif between the selected neurons (some special neurons are responsible for receiving the future event notifs)
+
     fn communicate(&self, n: Option<&Neuron>) -> Self; //-- this is not object safe trait cause it's returning an associated type which is Self
 }
 
@@ -83,6 +86,7 @@ pub trait Suspend{} //-- a buffer contains unaddressed issues, feelings, pains a
 
 
 
+
 // ---------------
 //   STRUCTURES
 // ---------------
@@ -106,6 +110,10 @@ impl<Neuron> Default for BrainContext<Neuron>{
 
 
 impl Synapse for Neuron{
+
+    //-- we also have a lifetime 'f for the future event notifs means that all notifs must be valid as long as 'f
+    type FutureEventNotif<'f, Neuron> = BrainContext<Neuron>; //-- the type of FutureEventNotif with Neuron generic type is BrainContext; we've passed a generic of type Neuron since we want to use the BrainContext structure, and the generic type of that struct is also Neuron; BrainContext structure contains a list of selected neurons
+
     fn communicate(&self, next_neuron: Option<&Self>) -> Self{
         let next_neuron = next_neuron.unwrap();
         let new_neuron_data: Vec<f32> = self.data.iter().zip(next_neuron.data.iter()).map(|(x, y)| x * y).collect();

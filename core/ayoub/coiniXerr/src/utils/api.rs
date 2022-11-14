@@ -40,7 +40,7 @@ macro_rules! user_data {
             
 
 
-            let coiniXerr_http_port = env::var("AYOUB_PORT").expect("⚠️ please set ayoub port in .env");
+            let coiniXerr_http_port = env::var("CONSE_PORT").expect("⚠️ please set ayoub port in .env");
             let host = env::var("HOST").expect("⚠️ please set host in .env");
             let url = format!("http://{}:{}/auth/check-token", host, coiniXerr_http_port, $user_id);
             match reqwest::Client::builder().build(){

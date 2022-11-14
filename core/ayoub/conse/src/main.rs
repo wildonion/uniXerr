@@ -99,7 +99,7 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
     let io_buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ no io buffer size variable set").parse::<u32>().unwrap() as usize; //-- usize is the minimum size in os which is 32 bits
     let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
     let host = env::var("HOST").expect("⚠️ no host variable set");
-    let port = env::var("AYOUB_PORT").expect("⚠️ no port variable set");
+    let port = env::var("CONSE_PORT").expect("⚠️ no port variable set");
     let sms_api_token = env::var("SMS_API_TOKEN").expect("⚠️ no sms api token variable set");
     let sms_template = env::var("SMS_TEMPLATE").expect("⚠️ no sms template variable set");
     let (sender, receiver) = oneshot::channel::<u8>(); //-- oneshot channel for handling server signals - we can't clone the receiver of the oneshot channel
@@ -285,7 +285,7 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
 
 
     
-    // -------------------------------- building the ayoub server from the router
+    // -------------------------------- building the conse server from the router
     //
     //      we're sharing the db_instance state between routers' threads to get the data inside each api
     // --------------------------------------------------------------------------------------------------------
@@ -299,13 +299,13 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
         .build()
         .unwrap();
 
-    info!("running ayoub server on port {} - {}", port, chrono::Local::now().naive_local());
-    let ayoub_service = RouterService::new(api).unwrap();
-    let ayoub_server = Server::bind(&server_addr).serve(ayoub_service);
-    let ayoub_graceful = ayoub_server.with_graceful_shutdown(ctx::app::shutdown_signal(receiver));
-    if let Err(e) = ayoub_graceful.await{ //-- awaiting on the server to receive the shutdown signal
+    info!("running conse server on port {} - {}", port, chrono::Local::now().naive_local());
+    let conse_service = RouterService::new(api).unwrap();
+    let conse_server = Server::bind(&server_addr).serve(conse_service);
+    let conse_graceful = conse_server.with_graceful_shutdown(ctx::app::shutdown_signal(receiver));
+    if let Err(e) = conse_graceful.await{ //-- awaiting on the server to receive the shutdown signal
         unwrapped_storage.db.clone().unwrap().mode = ctx::app::Mode::Off; //-- set the db mode of the app storage to off
-        error!("ayoub server error {} - {}", e, chrono::Local::now().naive_local());
+        error!("conse server error {} - {}", e, chrono::Local::now().naive_local());
     }
 
 

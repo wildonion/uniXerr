@@ -1,5 +1,5 @@
 [package]
-name = "ayoub"
+name = "conse"
 version = "0.1.1"
 edition = "2021"
 
@@ -37,5 +37,5 @@ async-trait = "0.1.57"
 
 
 [[bin]]
-name = "ayoub"
+name = "conse"
 path = "src/main.rs"

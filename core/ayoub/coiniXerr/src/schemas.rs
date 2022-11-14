@@ -366,9 +366,10 @@ impl Node{
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                        Transaction Schema
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// TODO - End-to-End Encryption for transactions
+// TODO - End-to-End Encryption tools
 //              https://github.com/skerkour/black-hat-rust/tree/main/ch_11
 //              https://cryptobook.nakov.com/
+//              https://medium.com/@panghalamit/whatsapp-s-end-to-end-encryption-how-does-it-work-80020977caa0
 //      • Signature: Ed25519 -> tx hash
 //      • Encryption: XChaCha20Poly1305
 //      • Key Exchange: X25519 -> handshake = agent private key + client public key : agent wants to communicate with client
@@ -377,6 +378,7 @@ impl Node{
 // ---- server pvk + client pbkey of the vpn server = key exchange request from the vpn server
 // ---- symmetric  : a shared secret key
 // ---- asymmetric : pub and pv key 
+// NOTE - in end to end encryption a key exchange will be used to sign the message of both sides and it'll be stored on the both sides' device 
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 // NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself

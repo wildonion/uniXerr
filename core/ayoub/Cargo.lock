@@ -165,37 +165,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "ayoub"
-version = "0.1.1"
-dependencies = [
- "async-trait",
- "borsh",
- "bytes 1.2.1",
- "chrono",
- "dotenv",
- "futures",
- "futures-util",
- "hex",
- "hyper",
- "jsonwebtoken",
- "lazy_static",
- "log",
- "mongodb",
- "pretty_env_logger",
- "rand 0.8.5",
- "rayon",
- "routerify",
- "routerify-cors",
- "routerify-multipart",
- "rust-argon2",
- "sanitize-filename",
- "serde 1.0.144",
- "serde_json",
- "tokio",
- "uuid 1.1.2",
-]
-
-[[package]]
 name = "backtrace"
 version = "0.3.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -475,6 +444,37 @@ dependencies = [
  "serde_json",
  "toml",
  "yaml-rust",
+]
+
+[[package]]
+name = "conse"
+version = "0.1.1"
+dependencies = [
+ "async-trait",
+ "borsh",
+ "bytes 1.2.1",
+ "chrono",
+ "dotenv",
+ "futures",
+ "futures-util",
+ "hex",
+ "hyper",
+ "jsonwebtoken",
+ "lazy_static",
+ "log",
+ "mongodb",
+ "pretty_env_logger",
+ "rand 0.8.5",
+ "rayon",
+ "routerify",
+ "routerify-cors",
+ "routerify-multipart",
+ "rust-argon2",
+ "sanitize-filename",
+ "serde 1.0.144",
+ "serde_json",
+ "tokio",
+ "uuid 1.1.2",
 ]
 
 [[package]]

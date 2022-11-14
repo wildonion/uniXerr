@@ -1,13 +1,13 @@
 
 
 
-# 🏗 Ayoub PaaS
+# 🏗 Conse PaaS
 
 
 ### Usage
 
 ```console
-$ sudo chmod +x ayoub.sh && ./ayoub.sh --help
+$ sudo chmod +x app.sh && ./app.sh --help
 ```
 
 ### 📌 TODOs
