@@ -9,6 +9,10 @@
 
 > psychoder: ```cargo run --bin psychoder```
 
+## 🧪 Test Conse Server
+
+```cargo run --bin conse test```
+
 # ☣️ Build for Production
 
 > conse PaaS: ```cargo build --bin conse --release```

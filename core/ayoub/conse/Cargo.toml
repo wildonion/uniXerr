@@ -36,6 +36,13 @@ async-trait = "0.1.57"
 
 
 
+[lib]
+path = "src/lib.rs"
+name = "helpers"
+
+
+
+
 [[bin]]
 name = "conse"
 path = "src/main.rs"

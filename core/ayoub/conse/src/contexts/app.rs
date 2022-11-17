@@ -32,6 +32,7 @@ use log::{info, error};
 type Callback = Box<dyn 'static + FnMut(hyper::Request<Body>, hyper::http::response::Builder) -> CallbackResponse>; //-- capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
 type CallbackResponse = Box<dyn Future<Output=GenericResult<hyper::Response<Body>, hyper::Error>> + Send + Sync + 'static>; //-- CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
 type SafeShareAsync = Arc<Mutex<Pin<Box<dyn Future<Output=u8> + Send + Sync + 'static>>>>; //-- this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and in the entire lifetime of the app until we await on it 
+type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<Body>) -> hyper::Response<Body> + Send + Sync + 'static>>>; //-- this type is safe and sendable to share between threads also it can be mutated by a thread using a mutex guard; we have to use the &dyn keyword or put them inside the Box<dyn> for traits if we want to treat them as a type since they have no sepecific size at compile time thus they must be referenced by the &dyn or the Box<dyn> 
 
 unsafe impl Send for Api{}
 unsafe impl Sync for Api{}
@@ -51,6 +52,10 @@ pub struct Api{
 impl Api{
 
     // -----------------------------------------------------------------------------------------------------------------------------
+    // NOTE - if Clone trait is not implemented for a type and that type is also a field of a structure we can't have &self in
+    //        structure methods since using a shared reference requires Clone trait be implemented for all types of the structure 
+    //        otherwise we can't share none of the fields of the structure and by calling a method of the structure on the instance
+    //        the instance will be no longer valid and be moved.
     // NOTE - we can borrow the req and res cause Request and Response structs are not bounded to Copy and Clone traits 
     //        thus cb closure (callback) arguments must be references to Request and Response objects.
     // NOTE - we can use as_ref() method to borrow the self.req and self.res cause as_ref() 
@@ -64,7 +69,7 @@ impl Api{
     //        and have valid lifetime across threads and .awaits.
     // NOTE - since we can't put & behind the mut self thus we can't have the instance of the Api in later scopes
     //        after calling its post or get methods and due to this fact we've built controllers which implements
-    //        only one Api instance per writing api pattern, means since we can have only one Api instance inside
+    //        only one Api instance per writing api pattern, means we can have only one Api instance inside
     //        a crate therefore we must have one controller per each Api instance to handle the incoming request
     //        inside that controller which is related to a specific route (MVC like design pattern).
     // NOTE - we can't have api.post().await and api.get().await inside the same scope from one instance since with the first 

@@ -40,14 +40,17 @@ pub enum Topic{
     AccountInfo,
 }   
 
-
+//// if Clone trait is not implemented for a type and that type is also a field of a structure we can't have &self in
+//   structure methods since using a shared reference requires Clone trait be implemented for all types of the structure 
+//   otherwise we can't share none of the fields of the structure and by calling a method of the structure on the instance
+//   the instance will be no longer valid and be moved.
 //// if the first param of methods was &self that means the instance is behind a shared reference
 //// but it can't be moved or cloned since Clone trait which is a supertrait of the Copy is not  
 //// implemented for DedUp thus we can't clone or move the self.producer out of the shared reference at all
 //// hence we can't have &self as the first param.
 pub struct Account{ //// Account is the user that can publish and subscribe to the messages
     pub account_id: String, //// this is the _id of the account that wants to publish messages
-    pub env: Environment,
+    pub env: Environment, //// the rabbitmq environemt which is used to publish or subscribe
     pub producer: Option<Producer<Dedup>>, //// Clone trait is not implemented for the DedUp thus we can't clone or copy this field
     pub consumer: Option<Consumer>,
 } 

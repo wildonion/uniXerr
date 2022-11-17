@@ -7,6 +7,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 pub mod api;
 pub mod hexy;
 pub mod scheduler;
+pub mod onion;
 pub mod jobq;
 
 
@@ -517,10 +518,9 @@ pub enum Storagekey{ //-- defining an enum based unique storage key for every ou
 // https://blog.logrocket.com/procedural-macros-in-rust/
 // https://danielkeep.github.io/tlborm/book/mbe-macro-rules.html
 // TODO - build function like macro like query!() and custom inner and outter trait like proc macro attributes and derive like; on structs, fields, modules and functions like #[near_bindgen] and #[borsh_skip] proc macro attribute, #[custom(token_stream)] and #[derive(Clone)] style 
-// TODO - write proc macro attributes and derives with TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes  
+// TODO - write proc macro attributes like #[tokio::main(flavor="multi_thread", worker_threads=10)] and derives with TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes  
 // TODO - a proc macro attribute to convert a trait into a module and its methods into static methods of that module and add extra args like the ones for nft_on_transfer() and nft_on_approve() methods when the user is implementing these methods
 // TODO - VM, interpreter and #[wowasm] proc macro attribute to write smart contracts with wo syntax to compile to wasm to run on near
-// TODO - create a new language with macro based syntax
 // NOTE - we can use [], {} or () to call macros
 // NOTE - #[derive(Trait, SomeMacro)] bounds a struct to a trait or a macro
 // NOTE - #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate

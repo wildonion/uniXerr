@@ -1,14 +1,7 @@
 
 
 
-# 🏗 Conse PaaS
-
-
-### Usage
-
-```console
-$ sudo chmod +x app.sh && ./app.sh --help
-```
+# 🏗 Conse PaaS and 🕊️ Hoopoe Social Media
 
 ### 📌 TODOs
 
@@ -18,6 +11,3 @@ $ sudo chmod +x app.sh && ./app.sh --help
 
 * coin generation based on player scores which are collected by each event manager inside the game, then update the balance field of the user based on that
 
-## 🕊️ Hoopoe
-
-Hoopoe Social Media

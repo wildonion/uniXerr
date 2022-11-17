@@ -46,7 +46,7 @@ use tokio::sync::oneshot;
 use tokio::sync::Mutex; //-- async Mutex will be used inside async methods since the trait Send is not implement for std::sync::Mutex
 use hyper::server::Server;
 use self::contexts as ctx; // use crate::contexts as ctx;
-
+use helpers;
 
 
 
@@ -95,8 +95,8 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
     env::set_var("RUST_LOG", "trace");
     pretty_env_logger::init();
     dotenv().expect("⚠️ .env file not found");
-    let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let io_buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ no io buffer size variable set").parse::<u32>().unwrap() as usize; //-- usize is the minimum size in os which is 32 bits
+    let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
     let host = env::var("HOST").expect("⚠️ no host variable set");
     let port = env::var("CONSE_PORT").expect("⚠️ no port variable set");
@@ -181,7 +181,8 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
             }
         }
     } else if db_engine.as_str() == "postgres"{
-        
+        info!("switching to postgres");
+
         let db_host = env::var("POSTGRES_HOST").expect("⚠️ no db host variable set");
         let db_port = env::var("POSTGRES_PORT").expect("⚠️ no db port variable set");
         let db_username = env::var("POSTGRES_USERNAME").expect("⚠️ no db username variable set");
@@ -298,10 +299,8 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
         .scope("/game", routers::game::register().await)
         .build()
         .unwrap();
-
     info!("running conse server on port {} - {}", port, chrono::Local::now().naive_local());
-    let conse_service = RouterService::new(api).unwrap();
-    let conse_server = Server::bind(&server_addr).serve(conse_service);
+    let conse_server = helpers::build_server(api).await; //-- build the server from the series of api routers
     let conse_graceful = conse_server.with_graceful_shutdown(ctx::app::shutdown_signal(receiver));
     if let Err(e) = conse_graceful.await{ //-- awaiting on the server to receive the shutdown signal
         unwrapped_storage.db.clone().unwrap().mode = ctx::app::Mode::Off; //-- set the db mode of the app storage to off
@@ -317,7 +316,7 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
         
         
     tokio::signal::ctrl_c().await?;
-    println!("ctrl-c received");
+    println!("conse server stopped due to receiving [ctrl-c]");
         
         
         

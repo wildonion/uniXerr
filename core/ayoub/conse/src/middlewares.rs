@@ -9,7 +9,6 @@
 
 
 
-
 pub mod cors{
 
 
@@ -20,7 +19,7 @@ pub mod cors{
 
 
     
-
+    ///// CORS middleware allow method - by adding this api to the router config we're allowing the client to access all resources of that router 
 
     pub async fn allow(mut res: Response<Body>) -> GenericResult<Response<Body>, hyper::Error> { //-- res must be mutable to borrow its headers mutably
         let headers = res.headers_mut();
@@ -56,9 +55,6 @@ pub mod logging{
         info!("{} - {} {} {}", chrono::Local::now(), req.remote_addr(), req.method(), req.uri().path());
         Ok(req)
     }
-
-
-
 
 }
 

@@ -663,7 +663,7 @@ pub async fn trash(){
     pub struct Complex{
         pub callback: Box<dyn FnOnce(Option<String>) -> u8>,
         pub labeled_block: bool,
-        pub long_block: u8,
+        pub long_block: Option<u8>,
         pub callback_result: u8,
     }
     
@@ -683,7 +683,12 @@ pub async fn trash(){
             while 2 % x > 2{
                 x+=1;
             }
-            x
+            let somed = Some(x);
+            match somed{ // we must cover all the match arms if we have if in one of the arm 
+                Some(n) if n == 2 => Some(n as u8), // in those case that n must be 2 
+                Some(n) => Some(n), // if this arm was the first arm then above arm will be unreachable since this arm has no condition in it thus definitely will be the matched one
+                None => None
+            }
         },
         callback_result: ( // building and calling the closure at the same time inside the struct field
             |_| 254
@@ -699,10 +704,26 @@ pub async fn trash(){
         panic!("can't unpack");
     }; // struct unpacking
 
+    
+
     pub async fn do_it<F>(callback: F) // callback is of type F
-        where F: FnOnce(Option<String>) -> u8 + Send + Sync + 'static{ // where F is a closure which is bounded to Send Sync traits and have a valid static lifetime
-        callback(Some("wildonion".to_string()));
+        -> u8 where 
+                F: FnOnce(Option<String>) -> u8 + Send + Sync + 'static
+        { // where F is a closure which is bounded to Send Sync traits and have a valid static lifetime
+        callback(Some("wildonion".to_string())) // by calling the passed in closure we can have the u8 as the result of calling which must be returned from this function
     }
+    do_it(|name|{
+        let Some(some_u8_number) = Some(24) else{
+            panic!("can't get out of Some");
+        };
+        some_u8_number // the some_u8_number scope is still valid in here and we can return
+    }).await;
+    ( // building and calling the closure at the same time; the return type of this closure is a future which must be awaited later on
+        |age| async move{ 
+            age
+        }
+    )(32).await;
+
 
 
     let statement = |x: u32| Some(2);
@@ -718,6 +739,8 @@ pub async fn trash(){
         )(34).await; 
     };
     
+
+
 
     let callback = |_| Some(1); // |_| means that the param name can be anything  
     let (
@@ -743,7 +766,7 @@ pub async fn trash(){
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-pub fn mactrait(){
+pub async fn mactrait(){
 
 
     
@@ -870,7 +893,7 @@ pub fn mactrait(){
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-pub fn unsafer(){
+pub async fn unsafer(){
 
 
 

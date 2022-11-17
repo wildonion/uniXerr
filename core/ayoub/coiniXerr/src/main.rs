@@ -81,7 +81,7 @@ Coded by
         a reference to object safe traits which are not bounded to Sized and Copy traits.
 
     [🚨] when an actor is created, it gets its own mailbox for receiving messages and other interested actors are notified 
-        about the new actor joining the system also riker actors are Futures and run as Futures on the underlying thread pool
+        about the new actor joining the system also riker actors are Futures and run as Futures on the underlying threadpool
         also all riker data structures are Send Sync and have a valid lifetimes across threads.
 
     [🚨] ActorRef is a lightweight type that is inexpensive to clone and can be used to interact with its underlying Actor or the struct itself, 
@@ -115,8 +115,8 @@ Coded by
     
     [🚨] in building multithreading apps sending data between threads must be done by using jobq channels like mpsc job queue to avoid being in deadlock and race condition situations
     
-    [🚨] actors are workers which uses jobq algos like mpsc job queue channels to send message events asyncly between other 
-        actors and the system to execute them inside their free thread from the thread pool
+    [🚨] actors are workers which uses jobq algos like mpsc job queue channels to send message events or jobs or tasks asyncly between other 
+        actors and the system like req/res format to execute them inside their free thread from the worker threadpool
     
     [🚨] messages or the data must be Send Sync static and Arc<Mutex<Message>> to share between actor threads for mutating
     
@@ -143,6 +143,11 @@ Coded by
 
     [🚨] we can pass a mutex through the mpsc job queue channel to other threads to allow the thread mutate the content of that 
         type by locking on that type which prevent other threads from mutating the type.
+
+    [🚨] workers is the number of threads used in a threadpool amd jobs is the number of tasks that must be solved inside the worker threadpool
+    
+    [🚨] jobq channel is an async queue like mpsc that can schedule the received jobs, events or tasks (a method or a closure) 
+        from the channel inside a thread which has been sent by the sender asyncly from another thread to be executed
 
 
 
@@ -227,9 +232,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-    // ex::trash();
-    // ex::mactrait();
-    // ex::unsafer();
+    // ex::trash().await;
+    // ex::mactrait().await;
+    // ex::unsafer().await;
 
     
 
@@ -1009,7 +1014,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         //// ... the following will handle the the incoming stream inside a threadpool of the tokio green threads
         //// ... move will move everything from its behind to the new scope and take their ownership so there is not a single var after moving in second iteration of the loop thus we've passed all the requirements that might be moved by doing that we can make sure that we have them again after first iteration 
         //// ... beacuse in the first iteration async move{} will move the everything and takes the ownership from its behind thus in second iteration we don't have them and to solve this issue we have to pass them in the channel to have them in every iteration  
-        tokio::spawn(async move { //-- this is an async task related to updating a validator actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green thread pool of tokio runtime and message passing channels like mpsc job queue channel protocol
+        tokio::spawn(async move { //-- this is an async task related to updating a validator actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green threadpool of tokio runtime and message passing channels like mpsc job queue channel protocol
             let mut transaction_buffer_bytes = vec![0 as u8; buffer_size]; //-- using [0 as u8; buffer_size] gives us the error of `attempt to use a non-constant value in a constant` cause [u8] array doesn't implement the Sized trait
             while match stream.read(&mut transaction_buffer_bytes).await{ //-- streaming over the incoming bytes from the socket - reading is the input and writing is the output
                 Ok(size) if size == 0 => false, //-- socket closed since zero bytes data are here!

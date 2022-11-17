@@ -40,11 +40,15 @@ rabbitmq-stream-client = "*"
 
 [lib]
 # libraries don't have entry points, you can't run them,they're used for functionality sharing like binding a .wasm into js codes
-# we need lib.rs and crate type of cdylib for none binary like .wasm, .so, .dylib and .dll files
+# we need lib.rs and crate type of cdylib for none binary like .wasm, .so, .dylib and .dll files or for tests
 crate-type = ["cdylib", "rlib"]
 path = "src/lib.rs"
 name = "ex"
 
+
+[build]
+# a linker is an important utility program that takes the object files, produced by the assembler and compiler, and other code to join them into a single executable file
+rustflags = ["-C", "link-args=-s"] # c linker to produce shared object file
 
 
 [[bin]]
