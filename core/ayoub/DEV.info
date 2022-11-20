@@ -118,7 +118,7 @@ https://github.com/wildonion/thedos/
 TASK - dockerize ayoub coiniXerr and conse then deploy it using k8s and ci/cd in app.sh to scale and balance the request loads
               https://www.fpcomplete.com/blog/2018/07/deploying-rust-with-docker-and-kubernetes/
               https://medium.com/@jaya.p/helloworld-with-rust-rest-api-web-service-in-kubernetes-2dfda148a89b
-TASK - hoopoe rabbitmq coding and its conse apis 
+TASK - hoopoe rabbitmq streaming (video and voice) and its conse apis 
 TASK - coniXerr wallet (walleXerr) in yew to build a wasm file using rafael runtime build() method like cloudflare and shuttle runtime to load the wasm file in js 
 TASK - add XChaCha20Poly1305 end-to-end encryption for socket tls and ssl (like using certbot) between walleXerr and the coiniXerr streaming servers: tcp + (rtp folder)
 TASK - coiniXerr reset slot, mempool channel, runtime log, consensus and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on XChaCha20Poly1305 end-to-end encryption
@@ -135,4 +135,4 @@ TASK - an event streaming platform like VoD and FoD protocol like arvancloud bas
         - convert uploaded videos to hls for multi bitrate conversion
         - create an endpoint api to point where the hls is
         - call the api to load in html5 video tag
-        - a file on demand protocol to upload files and return their id 
+        - a file on demand protocol to upload files and return their id                                  

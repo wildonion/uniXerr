@@ -31,14 +31,8 @@ routerify-cors = "3"
 routerify = "3"
 routerify-multipart = "3.0.0"
 sanitize-filename = "0.4.0"
-async-trait = "0.1.57"
+async-trait = "0.1.58"
 
-
-
-
-[lib]
-path = "src/lib.rs"
-name = "helpers"
 
 
 

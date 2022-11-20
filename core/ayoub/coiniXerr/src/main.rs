@@ -260,8 +260,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                     .unwrap();
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
-
-    let hoopoe_environment = Environment::builder().build().await?; 
+ 
     let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
     let mut run_time_info = RafaelRt(HashMap::new());
@@ -412,6 +411,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     ///////                 starting hoopoe mq
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈  
     
+    info!("➔ 🟢 building hoopoe rabbitmq streamer environment");
+    let hoopoe_environment = Environment::builder().build().await?;
     let sample_account_id = Uuid::new_v4().to_string();
     let account = Account::new(
                                 hoopoe_environment, 

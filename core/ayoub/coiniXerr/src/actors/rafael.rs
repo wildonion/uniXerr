@@ -139,10 +139,28 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
         Deposit,
         Withdraw,
     }
-
     
 
+
+    #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Debug)]
+    pub struct Node{ //// this contains server info 
+        pub dns: String,
+        pub addr: SocketAddr, 
+        pub cost_per_api_call: u128, //// this is based on the load of the weights
+        #[serde(skip_serializing_if="Option::is_none")]
+        pub weights: Option<Vec<SocketAddr>>,
+        pub init_at: i64,
+    }
     
+    
+
+    #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Debug)]
+    pub struct LoadBalancer{
+        pub nodes: Vec<Node>,
+    }
+
+
+
     #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone)]
     pub enum FutureResult{
         Successful(Vec<u8>), //-- the successful result of the future object in form utf8 bytes

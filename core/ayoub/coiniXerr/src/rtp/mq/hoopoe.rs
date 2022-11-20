@@ -4,6 +4,11 @@
 
 
 
+// ---------------------------
+//// hoopoe rabbitmq streams
+// ---------------------------
+
+
 
 
 
@@ -68,6 +73,8 @@ impl Account{ //// we can't take a reference to self since the producer field ca
 
     pub async fn build_producer(self) -> Self{ //// we can't take a reference to self since the consumer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.consumer issue
 
+        info!("➔ 🟢 building hoopoe producer");
+
         let prod = self.env
                 .producer()
                 .name("hoopoe_publisher")
@@ -85,6 +92,8 @@ impl Account{ //// we can't take a reference to self since the producer field ca
     }
 
     pub async fn build_consumer(self) -> Self{ //// we can't take a reference to self since the consumer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.consumer issue
+
+        info!("➔ 🟢 building hoopoe consumer");
 
         let cons = self.env
                 .consumer()
@@ -116,6 +125,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
         };
 
         if let Some(mut prod) = producer{
+            info!("➔ 🟢 publishing");
             prod
                 .send(Message::builder().body(body).build(), |_| async move{})
                 .await
@@ -131,6 +141,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
 
         let mut consumer = consumer.unwrap(); //// defining the consumer as mutable since receiving and reading from the consumer is a mutable process and needs the futures::StreamExt trait to be imported 
         tokio::spawn(async move{
+            info!("➔ 🟢 subscribing");
             while let Some(delivery) = consumer.next().await{ //// streaming over the consumer to receive all the messages comming from the producer while there is some delivery
                 info!("Received message {:?}", delivery);
             }
@@ -140,6 +151,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
 
     pub async fn close_producer(producer: Option<Producer<Dedup>>){
         if let Some(prod) = producer{
+            info!("➔ 🟢 closing hoopoe producer");
             prod
                 .close().await
                 .unwrap();
@@ -148,6 +160,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
 
     pub async fn close_consumer(consumer: Option<Consumer>){
         if let Some(cons) = consumer{
+            info!("➔ 🟢 closing hoopoe consumer");
             let consumer_handler = cons.handle();
             consumer_handler
                     .close().await

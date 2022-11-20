@@ -20,9 +20,10 @@ use crate::contexts::app;
 use serde::{Serialize, Deserialize};
 use borsh::{BorshDeserialize, BorshSerialize};
 use routerify_multipart::Multipart;
-use hyper::{Client as HyperClient, Response, Body, Uri};
+use hyper::{Client as HyperClient, Response, Body, Uri, Server, server::conn::AddrIncoming};
 use async_trait::async_trait;
-
+use std::net::SocketAddr;
+use routerify::{RouterService, Router};
 
 
 
@@ -119,6 +120,11 @@ pub mod otp{
 
     }
 
+    //// we can define async method inside the trait; since traits' size are unknown at compile time 
+    //// thus we can't have async method cause async method are future objects which must be pinned 
+    //// to the ram to be awaited later for completion and we can solve this issue by rewriting the method 
+    //// of the trait in such a way that it should return something like Pin<Box<dyn std::future::Future<Output = ()> + Send + 'async_trait>>>
+    //// like what async_trait crate does.
     #[async_trait] 
     pub trait Otp{
 
@@ -339,6 +345,20 @@ pub async fn get_random_doc(storage: Option<&Client>) -> Option<schemas::game::R
 
 }
 
+
+
+
+
+pub async fn build_server(router: Router<Body, hyper::Error>) -> Server<AddrIncoming, RouterService<Body, hyper::Error>>{ //// it'll create the server from the passed router apis
+
+    let host = env::var("HOST").expect("⚠️ no host variable set");
+    let port = env::var("CONSE_PORT").expect("⚠️ no port variable set");
+    let server_addr = format!("{}:{}", host, port).as_str().parse::<SocketAddr>().unwrap();
+    let conse_service = RouterService::new(router).unwrap();
+    let conse_server = Server::bind(&server_addr).serve(conse_service);
+    conse_server
+
+}
 
 
 

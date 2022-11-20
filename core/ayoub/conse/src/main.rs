@@ -37,26 +37,25 @@ Coded by
 
 
 use constants::MainResult;
-use routerify::{RouterService, Router};
+use routerify::Router;
 use std::{net::SocketAddr, sync::Arc, env};
 use dotenv::dotenv;
 use uuid::Uuid;
 use log::{info, error};
 use tokio::sync::oneshot;
 use tokio::sync::Mutex; //-- async Mutex will be used inside async methods since the trait Send is not implement for std::sync::Mutex
-use hyper::server::Server;
+use hyper::{Client, Uri};
 use self::contexts as ctx; // use crate::contexts as ctx;
-use helpers;
 
 
 
-mod middlewares;
-mod utils;
-mod constants;
-mod contexts;
-mod schemas;
-mod controllers;
-mod routers;
+pub mod middlewares;
+pub mod utils;
+pub mod constants;
+pub mod contexts;
+pub mod schemas;
+pub mod controllers;
+pub mod routers;
 
 
 
@@ -300,7 +299,7 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
         .build()
         .unwrap();
     info!("running conse server on port {} - {}", port, chrono::Local::now().naive_local());
-    let conse_server = helpers::build_server(api).await; //-- build the server from the series of api routers
+    let conse_server = utils::build_server(api).await; //-- build the server from the series of api routers
     let conse_graceful = conse_server.with_graceful_shutdown(ctx::app::shutdown_signal(receiver));
     if let Err(e) = conse_graceful.await{ //-- awaiting on the server to receive the shutdown signal
         unwrapped_storage.db.clone().unwrap().mode = ctx::app::Mode::Off; //-- set the db mode of the app storage to off
@@ -329,5 +328,51 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
 
 
 
+
+}
+
+
+
+
+
+
+
+
+// -------------------------------- conse test apis
+//
+// -----------------------------------------------------------------
+
+#[cfg(test)]
+mod tests{
+
+
+    use super::*;
+
+    #[tokio::test]
+    async fn get_all_in_going_events() -> Result<(), hyper::Error>{
+        
+        //// building the server for testing
+        let host = env::var("HOST").expect("⚠️ no host variable set");
+        let port = env::var("CONSE_PORT").expect("⚠️ no port variable set");
+        let api = Router::builder()
+                .scope("/auth", routers::auth::register().await)
+                .scope("/event", routers::event::register().await)
+                .scope("/game", routers::game::register().await)
+                .build()
+                .unwrap();
+        let conse_server = utils::build_server(api).await;
+
+        //// sending the stated conse server a get request to fetch all in going events
+        let uri = format!("http://{}:{}/event/get/all/in-going", host, port).as_str().parse::<Uri>().unwrap(); //-- parsing it to hyper based uri
+        let client = Client::new();
+        let Ok(res) = client.get(uri).await else{
+            panic!("test failed");
+        };
+
+        
+
+        Ok(())
+
+    }
 
 }
