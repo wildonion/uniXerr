@@ -338,6 +338,10 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
 
 
 
+
+
+
+
 // -------------------------------- conse test apis
 //
 // -----------------------------------------------------------------
@@ -349,21 +353,23 @@ mod tests{
     use super::*;
 
     #[tokio::test]
-    async fn get_all_in_going_events() -> Result<(), hyper::Error>{
+    async fn home() -> Result<(), hyper::Error>{
         
         //// building the server for testing
+        dotenv().expect("⚠️ .env file not found");
         let host = env::var("HOST").expect("⚠️ no host variable set");
         let port = env::var("CONSE_PORT").expect("⚠️ no port variable set");
         let api = Router::builder()
                 .scope("/auth", routers::auth::register().await)
-                .scope("/event", routers::event::register().await)
-                .scope("/game", routers::game::register().await)
                 .build()
                 .unwrap();
         let conse_server = utils::build_server(api).await;
+        if let Err(e) = conse_server.await{ //// we should await on the server to run for testing
+            eprintln!("conse server error in testing: {}", e);
+        }
 
-        //// sending the stated conse server a get request to fetch all in going events
-        let uri = format!("http://{}:{}/event/get/all/in-going", host, port).as_str().parse::<Uri>().unwrap(); //-- parsing it to hyper based uri
+        //// sending the started conse server a get request to auth home 
+        let uri = format!("http://{}:{}/auth/home", host, port).as_str().parse::<Uri>().unwrap(); //-- parsing it to hyper based uri
         let client = Client::new();
         let Ok(res) = client.get(uri).await else{
             panic!("test failed");

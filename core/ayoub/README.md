@@ -11,7 +11,7 @@
 
 ## 🧪 Test Conse Server
 
-```cargo run --bin conse test```
+```cargo test --bin conse```
 
 # ☣️ Build for Production
 
