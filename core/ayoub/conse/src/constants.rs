@@ -45,7 +45,6 @@ pub static NOT_IMPLEMENTED: &str = "Not Implemented";
 pub static OTP_CODE_HAS_BEEN_SENT: &str = "OTP Code Has Been Sent Successfully";
 pub static EXPIRED_OTP_CODE: &str = "OTP Code Has Been Expored";
 pub static WRONG_API_KEY: &str = "Wrong API Key";
-pub const FAAS_NAME: &str = "Rafael";
 pub const GROUP_UPLOAD_PATH: &str = "assets/images/group/"; //-- this will create assets inside of the very beginning of the root of the project path
 pub const EVENT_UPLOAD_PATH: &str = "assets/images/event/"; //-- this will create assets inside of the very beginning of the root of the project path
 pub const DEV_ACCESS: u8 = 0;

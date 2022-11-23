@@ -605,7 +605,7 @@ pub mod macros{
         };
     }
     //////
-    /// let d = dict!{"wildonion" => 1, "another_wildonion" => 2};
+    /// let d = dict!{"wildonion" => 1, "another_wildonion" => 2, "array": vec![1,3,4235,], "age": 24};
     //////
     
     #[macro_export]

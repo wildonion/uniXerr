@@ -108,31 +108,28 @@ https://github.com/wildonion/thedos/
 
 
 
-
-test cosne
+actors use worker threadpool and task queue like celery which is based on pub/sub or prod/cons manner and task scheduling
 
 
 ------------------------------------------------------------------------------------
        networking projects with rabbitmq, tokio, hyper and riker + above refs  
 ------------------------------------------------------------------------------------
+TASK - conse rest apis and rabbitmq streaming (video and voice) setup for hoopoe tcp and musiem p2p pub/sub 
 TASK - dockerize ayoub coiniXerr and conse then deploy it using k8s and ci/cd in app.sh to scale and balance the request loads
               https://www.fpcomplete.com/blog/2018/07/deploying-rust-with-docker-and-kubernetes/
               https://medium.com/@jaya.p/helloworld-with-rust-rest-api-web-service-in-kubernetes-2dfda148a89b
-TASK - hoopoe rabbitmq streaming (video and voice) and its conse apis 
 TASK - coniXerr wallet (walleXerr) in yew to build a wasm file using rafael runtime build() method like cloudflare and shuttle runtime to load the wasm file in js 
 TASK - add XChaCha20Poly1305 end-to-end encryption for socket tls and ssl (like using certbot) between walleXerr and the coiniXerr streaming servers: tcp + (rtp folder)
-TASK - coiniXerr reset slot, mempool channel, runtime log, consensus and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on XChaCha20Poly1305 end-to-end encryption
-TASK - implement a reactive paradigm code for the server/client and async jobq channel protocols (like mpsc, mcsp and spsc (async jobq coding in jobq.rs) ) of a pub-sub (producer(s)-consumer(s)) streaming message broker system like rabbitmq, kafka and mqtt using tokio and multithreading riker actors (riker messages can be scheduled to be executed and broadcast to other subs at a specific time)
-TASK - p2p music player, voice and video streaming based on k8s and the implemented message broker in above TASK
-TASK - build an ssl (obfuscated connection) based proxy server/client like nginx, pingora, v2ray protocols, softether and tor snowflake using hyper and tokio on layer4 based on tcp/udp/grpc/websocket and riker actors to bypass the cencorship using cryptography (zero proof of knowledge) and networking (ipatables) concepts
-TASK - build a load balancer and its config file engine (build the config file engine using macro syntax in utils.rs) runtime like k8s using cpu task (thread) scheduling algos (runtime scheduler will decide what task can be executed right now or later) like round robin dns, vector clock, event loop, simd vectorization and weighted round robin for ayoub using hyper and tokio on layer 1 and 2 (tcp/udp/grpc/websocket) based on and riker actors (every load balancer instance is an actor which can manage the server load instance inside their threadpool and every server instance can handle 144000 requests per second so with our load balance we must be able to spread the requests between each server node efficiently based on dns based round robin algo)
+TASK - coiniXerr engines, reset slot, mempool channel, runtime log, consensus and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on XChaCha20Poly1305 end-to-end encryption
 TASK - dpi to detect anomal packets to coiniXerr server and automatic load balancer and vps config using transformers and drl
-TASK - build something like ngrok using ssh tunnels and ipatables for rerouting traffics
-TASK - object storage like MinIO and S3
-TASK - download/upload manager like IDM/tus.io
-TASK - audio/video codec ((de)compression or (de)serializing) like ffmepg or gstreamer protocols and algos and audio and video streaming, media and data channel using webrtc 
+TASK - onion actor tasks:
+       - build an ssl (obfuscated connection) based (reverse) proxy server/client like nginx, pingora, v2ray protocols, softether and tor snowflake using hyper and tokio on layer4 based on tcp/udp/grpc/websocket and riker actors to bypass the cencorship using cryptography (zero proof of knowledge) and networking (ipatables) concepts
+       - build a load balancer and its config file engine (build the config file engine using macro syntax in utils.rs) runtime like k8s using cpu task (thread) scheduling algos (runtime scheduler will decide what task can be executed right now or later) like round robin dns, vector clock, event loop, simd vectorization and weighted round robin for ayoub using hyper and tokio on layer 1 and 2 (tcp/udp/grpc/websocket) based on and riker actors (every load balancer instance is an actor which can manage the server load instance inside their threadpool and every server instance can handle 144000 requests per second so with our load balance we must be able to spread the requests between each server node efficiently based on dns based round robin algo)
+       - build something like ngrok using ssh tunnels and ipatables for rerouting traffics
+       - object storage like MinIO and S3
+       - download/upload manager like IDM/tus.io
 TASK - an event streaming platform like VoD and FoD protocol like arvancloud based for streaming over video (Vod) chunks using ffmpeg and gstreamer in rust based on hls which is an adaptive bitrate method 
-        - convert uploaded videos to hls for multi bitrate conversion
-        - create an endpoint api to point where the hls is
-        - call the api to load in html5 video tag
-        - a file on demand protocol to upload files and return their id                                  
+       - convert uploaded videos to hls for multi bitrate conversion
+       - create an endpoint api to point where the hls is
+       - call the api to load in html5 video tag
+       - a file on demand protocol to upload files and return their id

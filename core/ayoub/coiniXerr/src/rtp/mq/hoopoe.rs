@@ -13,7 +13,7 @@
 
 
 use crate::*;
-use utils::api; // macro apis for communicating with the ayoub hyper server hoopoe service like storing in db
+use utils::api; // macro apis for communicating with the conse hyper server hoopoe service like storing in db
 use rtp::{
     rpc::server as rpc_server,
     wrtc::server as wrtc_server,
@@ -22,7 +22,6 @@ use rtp::{
         p2p::udp::app as p2p_app,
     };
         
-
 
 
 
@@ -112,7 +111,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
 
     pub async fn publish(producer: Option<Producer<Dedup>>, topic: Topic, message: String) -> Option<Producer<Dedup>>{ //// we're returning the producer for later calls since once the producer gets passed to this method it'll be moved and there will be no longer available 
 
-        // TODO - ayoub server api calls maybe! for storing in db 
+        // TODO - conse server api calls maybe! for storing in db 
         // TODO - schedule old and new ones (from the last offline time) 
         //        to be executed from the hoops queue buffer until the consumer is backed on line
         // ...

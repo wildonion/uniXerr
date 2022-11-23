@@ -43,11 +43,11 @@
 
     mq is actually a tcp socket channel based on actor desing pattern that will send and receive buffers like any other socket channels
     but the only difference between others is it can manage incoming payloads in a specific manner like:
-        • it uses an async job or task queue like mpsc to communicating between actors (send and receive tasks and messages between them)  
+        • it uses an async job or task queue like mpsc jobq channel and celery algos to communicating between actors' threads (send and receive tasks and messages between their threadpools)  
         • it has a batch handler which means it can take a batch of tasks and publish them to the producers from the queue
         • receiving only a specific message on a specific topic (receivers can only subscribe to a specific topic)
-        • schduling a message to be sent later
-        • schduling a message to be received at a specific condition
+        • schduling a message to be sent later using a task queue handler
+        • schduling a message to be received at a specific condition using a task queue handler
         • sending and broadcasting message only to specific receivers 
         • handle (send and receive) tasks and messages asyncly inside a threadpool
         • buffering messages inside a queue to send them once the receiver gets backed online
@@ -62,3 +62,4 @@
 
 pub mod hoopoe;
 pub mod wallexerr;
+pub mod musiem;

@@ -302,19 +302,7 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
 
         fn schedule(&self) -> Self{
 
-            // TODO - use multithreading, channels (oneshot and mpsc) and cryptography algos and also types must be send + sync + static across threads and .awaits
-            // TODO - use Arc<Mutex<T>> (use Arc::new(&Arc<Mutex<T>>) to clone the arced and mutexed T which T can also be Receiver<T>) in multithreaded env and RefCell<Rc<T>> in single threaded env
-            // TODO - actors will send encoded data through the mpsc channel from their free thread, so we have to deserialize them when we resolve them outside of the fulfilled future object 
-            // TODO - every receipt is a transaction with a specific id which will be created by scheduling an ActionReceipt 
-            // TODO - scheduling a promise of future object contains the method call (ActionReceipt) and get the resolved of the pending DataReceipt object from the executed future object inside a callback inside where we've scheduled the call
-            // TODO - try different IO streaming and future traits on a defined buffer from the following crates like mpsc and Mutex data structures
-            // TODO - consider every service a shard which can communicate (like executing each other's methods asyncly) with each other using their actors which has been implemented for each service through mpsc channels  
-            // TODO - scheduling an event which is a future object contains an async message like calling one of the method of the second service to be executed and triggered inside the second service and get the response inside a callback method using .then()
-            // TODO - incoming scheduled event from a thread of the first service actor inside a free thread of the second service actor must be of type Arc<Mutex<T>> (use Arc::new(&Arc<Mutex<T>>) to clone the arced and mutexed T which T can also be Receiver<T>) in order to avoid data races and dead locks 
-            // TODO - sending async message from the socket service to another serivce using actor that has been implemented for each service
-            // TODO - vector of || async move{} of events for an event manager struct like riker scheduling logic and vector clock schemas and call new event every 5 seconds from vector of event of closures 
-            // TODO - build a protocol based on binary address to transmit data between actors using mpsc tunnel like onionary://0001010101:2349
-            // TODO - use functional programming design pattern to call nested method on a return type of a struct method: events.iter().skip().take().map().collect()
+            // TODO
             // ...
             /*
                 let message = Arc::new( //-- we can send this message asyncly between each services actors threads using mpsc channel since mpsc means multiple thread can access the Arc<Mutex<T>> (use Arc::new(&Arc<Mutex<T>>) to clone the arced and mutexed T which T can also be Receiver<T>) but only one of them can mutate the T out of the Arc by locking on the Mutex

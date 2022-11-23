@@ -71,7 +71,6 @@ pub mod routers;
 
 
 
-
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
 async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ //-- generic types can also be bounded to lifetimes ('static in this case) and traits inside the Box<dyn ... > - since the error that may be thrown has a dynamic size at runtime we've put all these traits inside the Box (a heap allocation pointer) and bound the error to Sync, Send and the static lifetime to be valid across the main function and sendable and implementable between threads
     
@@ -298,7 +297,7 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
         .scope("/game", routers::game::register().await)
         .build()
         .unwrap();
-    info!("running conse server on port {} - {}", port, chrono::Local::now().naive_local());
+    info!("running {} server on port {} - {}", ctx::app::APP_NAME, port, chrono::Local::now().naive_local());
     let conse_server = utils::build_server(api).await; //-- build the server from the series of api routers
     let conse_graceful = conse_server.with_graceful_shutdown(ctx::app::shutdown_signal(receiver));
     if let Err(e) = conse_graceful.await{ //-- awaiting on the server to receive the shutdown signal
@@ -349,8 +348,9 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
 #[cfg(test)]
 mod tests{
 
-
     use super::*;
+
+
 
     #[tokio::test]
     async fn home() -> Result<(), hyper::Error>{
@@ -372,12 +372,12 @@ mod tests{
         let uri = format!("http://{}:{}/auth/home", host, port).as_str().parse::<Uri>().unwrap(); //-- parsing it to hyper based uri
         let client = Client::new();
         let Ok(res) = client.get(uri).await else{
-            panic!("test failed");
+            panic!("conse test failed");
         };
-
         
-
+        
         Ok(())
+        
 
     }
 

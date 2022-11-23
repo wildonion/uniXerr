@@ -8,12 +8,12 @@ use crate::*;
 
 
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-///////                fetching user data from the ayoub auth server 
+///////                fetching user data from the conse auth server 
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 #[macro_export]
 macro_rules! user_data {
-    ($user_id:expr, $token:expr) => { //-- we have to use match on where this macro is called
+    ($token:expr) => { //-- we have to use match on where this macro is called
         {
 
             use mongodb::bson::oid::ObjectId;
@@ -42,7 +42,7 @@ macro_rules! user_data {
 
             let coiniXerr_http_port = env::var("CONSE_PORT").expect("⚠️ please set ayoub port in .env");
             let host = env::var("HOST").expect("⚠️ please set host in .env");
-            let url = format!("http://{}:{}/auth/check-token", host, coiniXerr_http_port, $user_id);
+            let url = format!("http://{}:{}/auth/check-token", host, coiniXerr_http_port);
             match reqwest::Client::builder().build(){
                 Ok(client) => {
                     match client

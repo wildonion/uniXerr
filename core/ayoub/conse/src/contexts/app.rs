@@ -21,12 +21,7 @@ use log::{info, error};
 
 
 
-
-
-
-
-
-
+pub const APP_NAME: &str = "Conse";
 //// future objects must be Send and static and types that must be shared between threads must be send sync and static 
 //// Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
 type Callback = Box<dyn 'static + FnMut(hyper::Request<Body>, hyper::http::response::Builder) -> CallbackResponse>; //-- capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop

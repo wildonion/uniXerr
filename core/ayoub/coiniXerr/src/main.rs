@@ -194,7 +194,18 @@ use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode}
 use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
 use crate::rtp::mq::hoopoe::{Account, Topic};
 use mongodb::Client;
-use futures::{Future, StreamExt, executor::block_on, future::RemoteHandle}; //-- StreamExt is a trait for streaming utf8 bytes data - RemoteHandle is a handler for future objects which are returned by the remote_handle() method
+use lapin::{
+    options::*,
+    publisher_confirm::Confirmation,
+    types::FieldTable,
+    BasicProperties, 
+    Connection,
+    ConnectionProperties,
+    Result as LopinResult,
+};
+//// futures is used for reading and writing streams asyncly from and into buffer using its traits and based on orphan rule TryStreamExt trait is required to use try_next() method on the future object which is solved by using .await on it also try_next() is used on futures stream or chunks to get the next future IO stream and returns an Option in which the chunk might be either some value or none
+//// StreamExt is a trait for streaming utf8 bytes data - RemoteHandle is a handler for future objects which are returned by the remote_handle() method
+use futures::{Future, StreamExt, FutureExt, executor::block_on, future::RemoteHandle}; 
 use serde::{Deserialize, Serialize};
 use rand::Rng;
 use borsh::{BorshDeserialize, BorshSerialize};
@@ -202,7 +213,6 @@ use log4rs::append::console::ConsoleAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::Config;
 use ex; //// import lib.rs methods
-
 
 
 
@@ -260,7 +270,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                     .unwrap();
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
- 
+    
+    let ampq_addr = env::var("AMQP_ADDR").expect("⚠️ no ampq address variable set");
     let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
     let mut run_time_info = RafaelRt(HashMap::new());
@@ -405,13 +416,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-
     
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                 starting hoopoe mq
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈  
     
-    info!("➔ 🟢 building hoopoe rabbitmq streamer environment");
+    info!("➔ 🟢 building hoopoe rabbitmq streamer environment using [rabbitmq_stream_client] crate");
     let hoopoe_environment = Environment::builder().build().await?;
     let sample_account_id = Uuid::new_v4().to_string();
     let account = Account::new(
@@ -421,6 +431,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                             .build_producer().await; //// by calling the first method which has self the instance will be moved and its lifetime will be dropped since we didn't specify &self in first param methods to borrow the instance when we're calling the method 
     let producer = Account::publish(account.producer, Topic::Hoop, "new hoop from wildonion!".to_string()).await;
     Account::close_producer(producer).await;
+
+    info!("➔ 🟢 building hoopoe rabbitmq streamer environment using [lapin] crate");
+    let conn = Connection::connect(&ampq_addr, ConnectionProperties::default().with_default_executor(10)).await?;
+    info!("➔ ⛓️ hoopoe mq is now connected to broker");
+    let producer_channel = conn.create_channel().await?; //// this channel will be used for publishing process
+    let consumer_channel = conn.create_channel().await?; //// this channel will be used for subscribing to what producer has published
+
+
+
 
 
 

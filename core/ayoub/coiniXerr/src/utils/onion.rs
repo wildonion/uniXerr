@@ -14,38 +14,62 @@ use crate::*;
 
 
 
+
+
+#[derive(Clone)]
+pub struct Message;
+
+
+#[derive(Clone)]
+pub struct Publish{ //// use to publish message to the built channel
+    pub msg: Message,
+    pub topic: String,
+} 
+
+
+#[derive(Clone)]
+pub struct Subscribe{ //// use to subscribe to a specific topic which has published by another actor
+    pub actor: Actor,
+    pub topic: String,
+} 
+
+
+#[derive(Clone)]
 pub struct Actor; // https://ryhl.io/blog/actors-with-tokio/
     
 impl Actor{
 
-    pub fn schedule<T>(){
+    pub async fn schedule(){
 
         todo!() // ➔ schedule attack every 40 seconds after any error
 
     }
 
 
-    pub fn broadcast(){
+    pub async fn broadcast(){
         
         todo!() // ➔ use tokio::sync::broadcast
     
     }
     
-    pub fn run(){
+    pub async fn run(){
 
         todo!()
 
     }
 
-    fn handle_message(){
+    pub async fn handle_message(){
+
+        // use jobq.rs algos to put the incoming tasks and messages inside the queue
+        // ...
 
         todo!()
 
     }
 
-    fn communicate(){ // each actor (neuron in uniXerr brain schema) can communicate with each other through some kinda channel (synapse)
+    pub async fn communicate(){ // each actor (neuron in uniXerr brain schema) can communicate with each other through some kinda channel (synapse)
 
-        todo!() // ➔ use the jobqs the one inside jobq.rs for communicating between actors
+        todo!() // ➔ use the jobqs algos the ones inside jobq.rs for communicating between neuron actors
 
     }
 

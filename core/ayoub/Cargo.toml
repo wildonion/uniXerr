@@ -2,8 +2,8 @@
 
 members = [
     "coiniXerr/src/wallet/",
-    "conse",
     "coiniXerr",
+    "conse",
     "psychoder",
 ]
 
