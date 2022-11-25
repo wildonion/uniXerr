@@ -4,36 +4,16 @@
 
 
 
-// ---------------------------
+// -------------------------
 //// hoopoe rabbitmq streams
-// ---------------------------
+// -------------------------
 
-
-
-/*
-
-
-
-                            EXAMPLE USAGE
-    
-    let hoopoe_environment = Environment::builder().build().await?;
-    let sample_account_id = Uuid::new_v4().to_string();
-    let account = Account::new(
-                                hoopoe_environment, 
-                                sample_account_id
-                            ).await
-                            .build_producer().await; //// by calling the first method which has self the instance will be moved and its lifetime will be dropped since we didn't specify &self in first param methods to borrow the instance when we're calling the method 
-    let producer = Account::publish(account.producer, Topic::Hoop, "new hoop from wildonion!".to_string()).await;
-    Account::close_producer(producer).await;
-    
-
-
-*/
 
 
 
 
 use crate::*;
+use lapin::protocol::queue;
 use utils::api; // macro apis for communicating with the conse hyper server hoopoe service like storing in db
 use rtp::{
     rpc::server as rpc_server,
@@ -55,7 +35,7 @@ use rtp::{
 
 
 
-    
+#[derive(Debug)]    
 pub enum Topic{
     Hoop, //// hoops are the musiem playlist
     ReHoop,
@@ -75,117 +55,130 @@ pub enum Topic{
 //// hence we can't have &self as the first param.
 pub struct Account{ //// Account is the user that can publish and subscribe to the messages
     pub account_id: String, //// this is the _id of the account that wants to publish messages
-    pub env: Environment, //// the rabbitmq environemt which is used to publish or subscribe
-    pub producer: Option<Producer<Dedup>>, //// Clone trait is not implemented for the DedUp thus we can't clone or copy this field
-    pub consumer: Option<Consumer>,
+    pub channels: Vec<Channel>, //// rabbitmq channels
+    pub queues: Vec<Queue>, //// rabbitmq queues
 } 
 
 impl Account{ //// we can't take a reference to self since the producer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.producer issue 
     
-    pub async fn new(env: Environment, acc_id: String) -> Self{
+    pub async fn new(broker_addr: &str, n_channels: u16, acc_id: String) -> Self{
+
+        // ----------------------------------------------------------------------
+        //                     CONNECTING TO RABBITMQ BROKER
+        // ----------------------------------------------------------------------
+        
+        let conn = Connection::connect(&broker_addr, ConnectionProperties::default().with_default_executor(10)).await.unwrap();
+        info!("➔ 🟢 ⛓️ hoopoe mq is now connected to the broker");
+        
+        // ----------------------------------------------------------------------
+        //            CREATING RABBITMQ CHANNELS TO TALK TO THE BROKER
+        // ----------------------------------------------------------------------
+        
+        let mut channels = Vec::<Channel>::new(); //// producers and consumers must talk to the channel first
+        for i in 0..n_channels{
+            channels.push(
+                conn.create_channel().await.unwrap()
+            );
+        }
+        info!("➔ 🟢 🕳️ hoopoe channels created susscessfully");
         Self{
             account_id: acc_id,
-            env,
-            producer: None,
-            consumer: None,
+            channels,
+            queues: vec![],
         }
     }
 
-    pub async fn build_producer(self) -> Self{ //// we can't take a reference to self since the consumer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.consumer issue
+    pub async fn make_queue(&mut self, name: &str) -> Self{
 
-        info!("➔ 🟢 building hoopoe producer");
+        // ----------------------------------------------------------------------
+        //             BUILDING THE HOOP QUEUE USING THE FIRST CHANNEL
+        // ----------------------------------------------------------------------
 
-        let prod = self.env
-                .producer()
-                .name("hoopoe_publisher")
-                .build("hoopoe_producer_stream")
-                .await
-                .unwrap();
+        // let Account { account_id, channels, queues } = self; //// unpacking the self into the Account struct; by defining the self as mutable every field of the unpacked self will be mutable
+        //// consider the first one as the publisher channel and the second as the subscriber channel
+        let first_channel = self.channels[0].clone();
+        let mut queues = self.queues.clone();
+        queues.push(
+            first_channel.queue_declare(
+                            name, //// defining the queue with passed in name; this can be later used to subscribe messages to the buffer of this queue 
+                            QueueDeclareOptions::default(), 
+                            FieldTable::default(),
+                        ).await.unwrap()
+        );
+        
+        info!("➔ 🟢🎣 hoop queue created susscessfully");
         
         Self{
-            account_id: self.account_id.clone(), //// we're cloning the account_id since when we're creating the Self it'll move into a new instance scope
-            env: self.env.clone(), //// we're cloning the env since when we're creating the Self it'll move into a new instance scope
-            producer: Some(prod),
-            consumer: self.consumer, //// since self is not a shared reference thus we can move it into new scope
+            account_id: self.account_id.clone(), //// cannot move out of `self.account_id` which is behind a mutable reference 
+            channels: self.channels.clone(), //// cannot move out of `self.channels` which is behind a mutable reference
+            queues,
+        }
+
+    
+    }
+
+    pub async fn subscribe(&self, queue: &str){
+
+        // -------------------------------------------------------------------------------------------------------------
+        //             BUILDING THE CONSUMER FROM THE SECOND CHANNEL TO SUBSCRIBE TO THE PUBLISHED MESSAGES  
+        // -------------------------------------------------------------------------------------------------------------
+
+        //// we're using Arc to clone the second_channel since Arc is to safe for sharing the type between threads 
+        info!("➔ 🟢📩 subscribing from the second channel to the published messages from the [{}] queue", queue);
+        let second_channel = self.channels[1].clone();
+        let consumer_channel = Arc::new(&second_channel); //// putting the borrowed form of second_channel inside the Arc (since we want to clone it later for ack processes) to prevent ownership moving since we want to consume messages inside a worker threadpool
+        let consumer = consumer_channel
+                            .clone()
+                            .basic_consume( //// it'll return the consumer which will be used to get all the message deliveries from the specified queue
+                                queue, //// the quque that we've just built and want to get all messages which are buffered by the publisher 
+                                "hoop_consumer",  
+                                BasicConsumeOptions::default(),
+                                FieldTable::default(),
+                            ).await.unwrap();
+
+        // ----------------------------------------------------------------------
+        //           GETTING ALL THE DELIVERIES OF THE CONSUMED MESSAGES
+        // ----------------------------------------------------------------------
+        let second_channel = second_channel.clone(); //// cloning the second channel to prevent ownership moving since we're moving the channel into the tokio spawn scope
+        tokio::spawn(async move{ //// spawning async task that can be solved inside the tokio green threadpool under the hood which in our case is consuming all the messages from the passed in queue buffer  
+            info!("➔ 🪢🛀🏽 inside tokio worker green threadpool");
+            consumer
+                .for_each(move |delivery|{ //// awaiting on each message delivery 
+                    let delivery = delivery.expect("Error in consuming!").1;
+                    second_channel
+                        .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
+                        .map(|_| ())
+                }).await
+        }); 
+
+    }
+
+    pub async fn publish(&self, criteria: u16, exchange: &str, routing_key: &str){
+
+        // -----------------------------------------------------------------------------------------------------------------
+        //             BUILDING THE PUBLISHER FROM THE FIRST CHANNEL TO PUBLISH MESSAGES TO THE SPECIFIED QUEUE  
+        // -----------------------------------------------------------------------------------------------------------------
+
+        info!("➔ 🟢🛰️ publishing messages from the first channel to the [{}] queue", exchange);
+        let first_channel = self.channels[0].clone();
+        for n in 0..criteria{ //// sending the payload `criteria` times
+            let message = format!("[{:?} ➔ {}-th musiem]", Topic::Hoop, n); //// enum field first will be converted into String then into utf8 bytes
+            let payload = message.as_bytes(); //// converting the message to utf8 bytes
+            info!("➔ 🟢📦 iteration [{}], publishing payload", n);
+            let confirm = first_channel
+                                        .basic_publish(
+                                            exchange, //// exchange receives message from publishers and pushes them to queues
+                                            routing_key, //// this is the routing key and is the address that the message must be sent to like the queue name in which the messages will be buffered inside  
+                                            BasicPublishOptions::default(),
+                                            payload.to_vec(),
+                                            BasicProperties::default(),
+                                        )
+                                        .await.unwrap()
+                                        .await.unwrap();
+            assert_eq!(confirm, Confirmation::NotRequested);
         }
 
     }
 
-    pub async fn build_consumer(self) -> Self{ //// we can't take a reference to self since the consumer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.consumer issue
-
-        info!("➔ 🟢 building hoopoe consumer");
-
-        let cons = self.env
-                .consumer()
-                .build("hoopoe_consumer_stream")
-                .await
-                .unwrap();
-        
-        Self{
-            account_id: self.account_id.clone(), //// we're cloning the account_id since when we're creating the Self it'll move into a new instance scope
-            env: self.env.clone(), //// we're cloning the env since when we're creating the Self it'll move into a new instance scope
-            producer: self.producer, //// since self is not a shared reference thus we can move it into new scope
-            consumer: Some(cons), 
-        }
-
-    }
-
-    pub async fn publish(producer: Option<Producer<Dedup>>, topic: Topic, message: String) -> Option<Producer<Dedup>>{ //// we're returning the producer for later calls since once the producer gets passed to this method it'll be moved and there will be no longer available 
-
-        // TODO - conse server api calls maybe! for storing in db 
-        // TODO - schedule old and new ones (from the last offline time) 
-        //        to be executed from the hoops queue buffer until the consumer is backed on line
-        // ...
-        let body = match topic{
-            Hoop => format!("hooping: {}", message), 
-            ReHoop => format!("rehooping: {}", message), 
-            Mention => format!("Mentioning: {}", message),
-            HashTag => format!("Hashtaging: {}", message),
-            Like => format!("Liking: {}", message),
-        };
-
-        if let Some(mut prod) = producer{
-            info!("➔ 🟢 publishing");
-            prod
-                .send(Message::builder().body(body).build(), |_| async move{})
-                .await
-                .unwrap();            
-            Some(prod)
-        } else{
-            None
-        }        
-
-    }
-
-    pub async fn subscribe(consumer: Option<Consumer>){
-
-        let mut consumer = consumer.unwrap(); //// defining the consumer as mutable since receiving and reading from the consumer is a mutable process and needs the futures::StreamExt trait to be imported 
-        tokio::spawn(async move{
-            info!("➔ 🟢 subscribing");
-            while let Some(delivery) = consumer.next().await{ //// streaming over the consumer to receive all the messages comming from the producer while there is some delivery
-                info!("Received message {:?}", delivery);
-            }
-        });
-
-    }
-
-    pub async fn close_producer(producer: Option<Producer<Dedup>>){
-        if let Some(prod) = producer{
-            info!("➔ 🟢 closing hoopoe producer");
-            prod
-                .close().await
-                .unwrap();
-        }
-    }
-
-    pub async fn close_consumer(consumer: Option<Consumer>){
-        if let Some(cons) = consumer{
-            info!("➔ 🟢 closing hoopoe consumer");
-            let consumer_handler = cons.handle();
-            consumer_handler
-                    .close().await
-                    .unwrap();
-        }
-    }
 
 } 

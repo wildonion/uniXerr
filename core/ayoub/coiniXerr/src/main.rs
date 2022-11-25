@@ -188,6 +188,7 @@ use dotenv::dotenv;
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
+use crate::rtp::mq::hoopoe::{Account, Topic};
 use crate::actors::{
                     parathread::{Parachain, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
@@ -197,6 +198,8 @@ use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode}
 use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
 use mongodb::Client;
 use lapin::{
+    Channel,
+    Queue,
     options::*,
     publisher_confirm::Confirmation,
     types::FieldTable,
@@ -257,7 +260,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
     
+
+
+
+
 
 
     
@@ -441,87 +449,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     ////    from there (inside the broker channels) messages will be buffered inside a specific queue.
     //// ➔ subscribers (rust or js code) want to subscribe to a specific message in which they must talk to a channel
     ////    then the channel will talk to the broker to get the message from a specific queue.
+    //// ➔ rabbitmq uses queues instead of topics means that we can get all messages from a specific queues 
+    ////    instead of subscribing to a specific topic by doing this all consumers can subscribe to a specific queue.  
     //// ➔ there might be multiple channels each of which are able to talk to a specific queue to get the buffered message from there.
 
-    // ----------------------------------------------------------------------
-    //                     CONNECTING TO RABBITMQ BROKER
-    // ----------------------------------------------------------------------
+    let sample_account_id = Uuid::new_v4().to_string();
+    let mut account = Account::new(
+                                &ampq_addr,
+                                2, 
+                                sample_account_id
+                            ).await;
     
-    let conn = Connection::connect(&ampq_addr, ConnectionProperties::default().with_default_executor(10)).await?;
-    info!("➔ 🟢 ⛓️ hoopoe mq is now connected to the broker");
-    
     // ----------------------------------------------------------------------
-    //            CREATING RABBITMQ CHANNELS TO TALK TO THE BROKER
+    //                  MAKING QUEUE, PUBLISH AND SUBSCRIBE  
     // ----------------------------------------------------------------------
 
-    //// producers and consumers must talk to the channel first
-    let first_channel = conn.create_channel().await?; //// this channel will be used for publishing process
-    let second_channel = conn.create_channel().await?; //// this channel will be used for subscribing to what producer has published
-    info!("➔ 🟢 🕳️ hoopoe channels created susscessfully");
-    
-    // ----------------------------------------------------------------------
-    //             BUILDING THE HOOP QUEUE USING THE FIRST CHANNEL
-    // ----------------------------------------------------------------------
+    account
+        .make_queue("hoop")
+        .await;
+        
+    account
+        .publish(10, "", "hoop")
+        .await;
 
-    let queue = first_channel
-                            .queue_declare(
-                                            "hoop", //// defining the hoop queue; this can be later used to subscribe messages to the buffer of this queue 
-                                            QueueDeclareOptions::default(), 
-                                            FieldTable::default(),
-                                        ).await?;
-    info!("➔ 🟢🎣 hoop queue created susscessfully");
-    
-    // -------------------------------------------------------------------------------------------------------------
-    //             BUILDING THE CONSUMER FROM THE SECOND CHANNEL TO SUBSCRIBE TO THE PUBLISHED MESSAGES  
-    // -------------------------------------------------------------------------------------------------------------
+    account
+        .subscribe("hoop")
+        .await;
 
-    //// we're using Arc to clone the second_channel since Arc is to safe for sharing the type between threads 
-    info!("➔ 🟢📩 subscribing from the second channel to the published messages from the [hoop] queue");
-    let consumer_channel = Arc::new(&second_channel); //// putting the borrowed form of second_channel inside the Arc (since we want to clone it later for ack processes) to prevent ownership moving since we want to consume messages inside a worker threadpool
-    let consumer = consumer_channel
-                        .clone()
-                        .basic_consume( //// it'll return the consumer which will be used to get all the message deliveries from the specified queue
-                            "hoop", //// the quque that we've just built and want to get all messages which are buffered by the publisher 
-                            "hoop_consumer",  
-                            BasicConsumeOptions::default(),
-                            FieldTable::default(),
-                        ).await?;
     
-    // -----------------------------------------------------------------------------------------------------------------
-    //             BUILDING THE PUBLISHER FROM THE FIRST CHANNEL TO PUBLISH MESSAGES TO THE SPECIFIED QUEUE  
-    // -----------------------------------------------------------------------------------------------------------------
-
-    info!("➔ 🟢🛰️ publishing messages from the first channel to the [hoop] queue");
-    let payload = b"[a new hoop from wildonion]";
-    for n in 0..10{ //// sending the payload 10 times
-        info!("➔ 🟢📦 iteration [{}], publishing payload", n);
-        let confirm = first_channel
-                                    .basic_publish(
-                                        "", //// exchange receives message from publishers and pushes them to queues
-                                        "hoop", //// this is the routing key and is the address that the message must be sent to like the queue name in which the messages will be buffered inside  
-                                        BasicPublishOptions::default(),
-                                        payload.to_vec(),
-                                        BasicProperties::default(),
-                                    )
-                                    .await?
-                                    .await?;
-        assert_eq!(confirm, Confirmation::NotRequested);
-    }
     
-    // ----------------------------------------------------------------------
-    //           GETTING ALL THE DELIVERIES OF THE CONSUMED MESSAGES
-    // ----------------------------------------------------------------------
-    let second_channel = second_channel.clone();  
-    tokio::spawn(async move{ //// spawning async task that can be solved inside the tokio green threadpool under the hood which in our case is consuming all the messages from the hoop queue buffer  
-        info!("➔ 🪢🛀🏽 inside tokio worker green threadpool");
-        consumer
-            .for_each(move |delivery|{ //// awaiting on each message delivery 
-                let delivery = delivery.expect("Error in consuming!").1;
-                second_channel
-                    .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
-                    .map(|_| ())
-            }).await
-    }); 
 
 
 
@@ -579,6 +535,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
     
     // utils::api::tx_emulator().await;
+
+
+
 
 
 

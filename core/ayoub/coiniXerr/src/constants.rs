@@ -5,7 +5,6 @@
 
 
 
-
 pub const MESSAGE_FETCHED_SUCCESS: &str = "Fetched successfully";
 pub const MESSAGE_SPEND_SUCCESS: &str = "Spend successfully";
 pub const MESSAGE_INTERNAL_SERVER_ERROR: &str = "Internal Server Error";
