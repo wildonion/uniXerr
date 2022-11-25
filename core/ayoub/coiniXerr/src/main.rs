@@ -455,10 +455,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     let sample_account_id = Uuid::new_v4().to_string();
     let mut account = Account::new(
-                                &ampq_addr,
-                                2, 
-                                sample_account_id
-                            ).await;
+                                    &ampq_addr,
+                                    2, 
+                                    sample_account_id
+                                ).await;
     
     // ----------------------------------------------------------------------
     //                  MAKING QUEUE, PUBLISH AND SUBSCRIBE  

@@ -4,16 +4,15 @@
 
 
 
-// -------------------------
-//// hoopoe rabbitmq streams
-// -------------------------
+//// -----------------------
+//// Hoopoe Account Stream
+//// -----------------------
 
 
 
 
 
 use crate::*;
-use lapin::protocol::queue;
 use utils::api; // macro apis for communicating with the conse hyper server hoopoe service like storing in db
 use rtp::{
     rpc::server as rpc_server,
@@ -95,6 +94,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
         // ----------------------------------------------------------------------
 
         // let Account { account_id, channels, queues } = self; //// unpacking the self into the Account struct; by defining the self as mutable every field of the unpacked self will be mutable
+        
         //// consider the first one as the publisher channel and the second as the subscriber channel
         let first_channel = self.channels[0].clone();
         let mut queues = self.queues.clone();
@@ -170,7 +170,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
                                             exchange, //// exchange receives message from publishers and pushes them to queues
                                             routing_key, //// this is the routing key and is the address that the message must be sent to like the queue name in which the messages will be buffered inside  
                                             BasicPublishOptions::default(),
-                                            payload.to_vec(),
+                                            payload.to_vec(), //// the payload that must be published
                                             BasicProperties::default(),
                                         )
                                         .await.unwrap()
