@@ -108,13 +108,7 @@ https://github.com/wildonion/thedos/
 
 
 
-hoopoe run and design pattern
-hoopoe and musiem mock
-lib coding play with closures
-borrowing using & requires copy trait to be implemented for the type
-put dyn Trait inside Arc and Box
-enum borsh 
-stack data types implemented copy trait thus no need to clone them like &str and &[u8]
+
 
 
 
