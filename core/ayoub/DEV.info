@@ -108,7 +108,9 @@ https://github.com/wildonion/thedos/
 
 
 
-actors use worker threadpool and task queue like celery which is based on pub/sub or prod/cons manner and task scheduling
+
+
+
 
 
 ------------------------------------------------------------------------------------

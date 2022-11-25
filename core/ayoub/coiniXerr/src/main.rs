@@ -115,8 +115,9 @@ Coded by
     
     [🚨] in building multithreading apps sending data between threads must be done by using jobq channels like mpsc job queue to avoid being in deadlock and race condition situations
     
-    [🚨] actors are workers which uses jobq algos like mpsc job queue channels to send message events or jobs or tasks asyncly between other 
-        actors and the system like req/res format to execute them inside their free thread from the worker threadpool
+    [🚨] actors are workers which uses jobq algos like mpsc job queue channels like celery algos which is based on pub/sub or prod/cons manner and task scheduling 
+        to send message events or jobs or tasks asyncly between other actors and the system like req/res format 
+        to execute them inside their free thread from the worker threadpool.
     
     [🚨] messages or the data must be Send Sync static and Arc<Mutex<Message>> to share between actor threads for mutating
     
@@ -147,7 +148,9 @@ Coded by
     [🚨] workers is the number of threads used in a threadpool amd jobs is the number of tasks that must be solved inside the worker threadpool
     
     [🚨] jobq channel is an async queue like mpsc that can schedule the received jobs, events or tasks (a method or a closure) 
-        from the channel inside a thread which has been sent by the sender asyncly from another thread to be executed
+        from the sender side of the channel asyncly and execute them inside its worker threadpool, actors use this pattern
+        to transfer their tasks between their worker threadpools.
+
 
 
 
@@ -192,7 +195,6 @@ use crate::actors::{
                 }; 
 use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
 use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
-use crate::rtp::mq::hoopoe::{Account, Topic};
 use mongodb::Client;
 use lapin::{
     options::*,
@@ -418,25 +420,112 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                 starting hoopoe mq
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈  
-    
-    info!("➔ 🟢 building hoopoe rabbitmq streamer environment using [rabbitmq_stream_client] crate");
-    let hoopoe_environment = Environment::builder().build().await?;
-    let sample_account_id = Uuid::new_v4().to_string();
-    let account = Account::new(
-                                hoopoe_environment, 
-                                sample_account_id
-                            ).await
-                            .build_producer().await; //// by calling the first method which has self the instance will be moved and its lifetime will be dropped since we didn't specify &self in first param methods to borrow the instance when we're calling the method 
-    let producer = Account::publish(account.producer, Topic::Hoop, "new hoop from wildonion!".to_string()).await;
-    Account::close_producer(producer).await;
+    ///////                   hoopoe mq setup
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈      
+    ////
+    ////         publisher/subscriber app (rust or js code) 
+    ////                      |
+    ////                       ---- tcp socket
+    ////                                       |
+    ////                                 broker channels
+    ////                                       |
+    ////                                        --------- exchange
+    ////                                                     |
+    ////                             routing key ------- |binding| ------- routing key
+    ////                                                     |
+    ////                                             jobq queue buffer
+    ////                                                     |
+    ////                                                      --------- worker threadpool 
+    ////
+    //// ➔ publishers (rust or js code) which is connected to the mq broker can publish messages to a channel 
+    ////    from there (inside the broker channels) messages will be buffered inside a specific queue.
+    //// ➔ subscribers (rust or js code) want to subscribe to a specific message in which they must talk to a channel
+    ////    then the channel will talk to the broker to get the message from a specific queue.
+    //// ➔ there might be multiple channels each of which are able to talk to a specific queue to get the buffered message from there.
 
-    info!("➔ 🟢 building hoopoe rabbitmq streamer environment using [lapin] crate");
+    // ----------------------------------------------------------------------
+    //                     CONNECTING TO RABBITMQ BROKER
+    // ----------------------------------------------------------------------
+    
     let conn = Connection::connect(&ampq_addr, ConnectionProperties::default().with_default_executor(10)).await?;
-    info!("➔ ⛓️ hoopoe mq is now connected to broker");
-    let producer_channel = conn.create_channel().await?; //// this channel will be used for publishing process
-    let consumer_channel = conn.create_channel().await?; //// this channel will be used for subscribing to what producer has published
+    info!("➔ 🟢 ⛓️ hoopoe mq is now connected to the broker");
+    
+    // ----------------------------------------------------------------------
+    //            CREATING RABBITMQ CHANNELS TO TALK TO THE BROKER
+    // ----------------------------------------------------------------------
+
+    //// producers and consumers must talk to the channel first
+    let first_channel = conn.create_channel().await?; //// this channel will be used for publishing process
+    let second_channel = conn.create_channel().await?; //// this channel will be used for subscribing to what producer has published
+    info!("➔ 🟢 🕳️ hoopoe channels created susscessfully");
+    
+    // ----------------------------------------------------------------------
+    //             BUILDING THE HOOP QUEUE USING THE FIRST CHANNEL
+    // ----------------------------------------------------------------------
+
+    let queue = first_channel
+                            .queue_declare(
+                                            "hoop", //// defining the hoop queue; this can be later used to subscribe messages to the buffer of this queue 
+                                            QueueDeclareOptions::default(), 
+                                            FieldTable::default(),
+                                        ).await?;
+    info!("➔ 🟢🎣 hoop queue created susscessfully");
+    
+    // -------------------------------------------------------------------------------------------------------------
+    //             BUILDING THE CONSUMER FROM THE SECOND CHANNEL TO SUBSCRIBE TO THE PUBLISHED MESSAGES  
+    // -------------------------------------------------------------------------------------------------------------
+
+    //// we're using Arc to clone the second_channel since Arc is to safe for sharing the type between threads 
+    info!("➔ 🟢📩 subscribing from the second channel to the published messages from the [hoop] queue");
+    let consumer_channel = Arc::new(&second_channel); //// putting the borrowed form of second_channel inside the Arc (since we want to clone it later for ack processes) to prevent ownership moving since we want to consume messages inside a worker threadpool
+    let consumer = consumer_channel
+                        .clone()
+                        .basic_consume( //// it'll return the consumer which will be used to get all the message deliveries from the specified queue
+                            "hoop", //// the quque that we've just built and want to get all messages which are buffered by the publisher 
+                            "hoop_consumer",  
+                            BasicConsumeOptions::default(),
+                            FieldTable::default(),
+                        ).await?;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    //             BUILDING THE PUBLISHER FROM THE FIRST CHANNEL TO PUBLISH MESSAGES TO THE SPECIFIED QUEUE  
+    // -----------------------------------------------------------------------------------------------------------------
+
+    info!("➔ 🟢🛰️ publishing messages from the first channel to the [hoop] queue");
+    let payload = b"[a new hoop from wildonion]";
+    for n in 0..10{ //// sending the payload 10 times
+        info!("➔ 🟢📦 iteration [{}], publishing payload", n);
+        let confirm = first_channel
+                                    .basic_publish(
+                                        "", //// exchange receives message from publishers and pushes them to queues
+                                        "hoop", //// this is the routing key and is the address that the message must be sent to like the queue name in which the messages will be buffered inside  
+                                        BasicPublishOptions::default(),
+                                        payload.to_vec(),
+                                        BasicProperties::default(),
+                                    )
+                                    .await?
+                                    .await?;
+        assert_eq!(confirm, Confirmation::NotRequested);
+    }
+    
+    // ----------------------------------------------------------------------
+    //           GETTING ALL THE DELIVERIES OF THE CONSUMED MESSAGES
+    // ----------------------------------------------------------------------
+    let second_channel = second_channel.clone();  
+    tokio::spawn(async move{ //// spawning async task that can be solved inside the tokio green threadpool under the hood which in our case is consuming all the messages from the hoop queue buffer  
+        info!("➔ 🪢🛀🏽 inside tokio worker green threadpool");
+        consumer
+            .for_each(move |delivery|{ //// awaiting on each message delivery 
+                let delivery = delivery.expect("Error in consuming!").1;
+                second_channel
+                    .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
+                    .map(|_| ())
+            }).await
+    }); 
+
+
+
+
 
 
 

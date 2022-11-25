@@ -10,6 +10,27 @@
 
 
 
+/*
+
+
+
+                            EXAMPLE USAGE
+    
+    let hoopoe_environment = Environment::builder().build().await?;
+    let sample_account_id = Uuid::new_v4().to_string();
+    let account = Account::new(
+                                hoopoe_environment, 
+                                sample_account_id
+                            ).await
+                            .build_producer().await; //// by calling the first method which has self the instance will be moved and its lifetime will be dropped since we didn't specify &self in first param methods to borrow the instance when we're calling the method 
+    let producer = Account::publish(account.producer, Topic::Hoop, "new hoop from wildonion!".to_string()).await;
+    Account::close_producer(producer).await;
+    
+
+
+*/
+
+
 
 
 use crate::*;
@@ -36,7 +57,7 @@ use rtp::{
 
     
 pub enum Topic{
-    Hoop,
+    Hoop, //// hoops are the musiem playlist
     ReHoop,
     Mention,
     HashTag,

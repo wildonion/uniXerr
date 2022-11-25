@@ -9,18 +9,17 @@
 
 
 
-    clients
+    mq clients in rust and js
         | 
-        -------- rtp mq pub/sub actor streamer -------- hyper server 
+        -------- rtp mq producer and consumer actor streamer -------- conse hyper server 
                         |                             |
                         |                             -------- mongodb
                         |
-                        <---tcp socket--> |broker actor streamer exchanges <---route like mpsc--> queue buffer actor streamers| 
-                                                            |    
-                                                            |
-                                                            |
-                                                            <---tcp socket--> consumers/subscribers actor streamers
-
+                        <---tcp socket--> |broker actor streamer on VPS <---routing channel exchange--> job or task queue buffer| 
+                                                                                                            |
+                                                                                                            |
+                                                                                                            |
+                                                                                                            <---mpsc channel---> worker threadpools
 
 
 
@@ -43,7 +42,7 @@
 
     mq is actually a tcp socket channel based on actor desing pattern that will send and receive buffers like any other socket channels
     but the only difference between others is it can manage incoming payloads in a specific manner like:
-        • it uses an async job or task queue like mpsc jobq channel and celery algos to communicating between actors' threads (send and receive tasks and messages between their threadpools)  
+        • it uses an async job or task queue like mpsc jobq channel and celery algos to communicating between actors' threads (send and receive tasks and messages between their worker threadpools)  
         • it has a batch handler which means it can take a batch of tasks and publish them to the producers from the queue
         • receiving only a specific message on a specific topic (receivers can only subscribe to a specific topic)
         • schduling a message to be sent later using a task queue handler
