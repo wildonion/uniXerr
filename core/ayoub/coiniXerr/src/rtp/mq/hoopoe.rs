@@ -4,18 +4,18 @@
 
 
 
-//// -----------------------
+//// ----------------------
 //// Hoopoe Account Stream
-//// -----------------------
+//// ----------------------
 
 
 
 
 
 use crate::*;
-use utils::api; // macro apis for communicating with the conse hyper server hoopoe service like storing in db
-use rtp::{
-    rpc::server as rpc_server,
+use utils::api; // macro apis for communicating with the conse hyper server the hoopoe service like db storing and fetching ops
+use rtp::{ // load other rtp protocols
+    grpc::server as rpc_server,
     wrtc::server as wrtc_server,
         ws::server as ws_server, // for chatapp
         socks::server as socks_server,
@@ -60,14 +60,15 @@ pub struct Account{ //// Account is the user that can publish and subscribe to t
 
 impl Account{ //// we can't take a reference to self since the producer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.producer issue 
     
-    pub async fn new(broker_addr: &str, n_channels: u16, acc_id: String) -> Self{
+    //// this method will build the connection to the broker and rabbitmq channels to talk to publishers and subscribers
+    pub async fn new(broker_addr: &str, n_channels: u16, acc_id: String) -> Self{ 
 
         // ----------------------------------------------------------------------
         //                     CONNECTING TO RABBITMQ BROKER
         // ----------------------------------------------------------------------
         
         let conn = Connection::connect(&broker_addr, ConnectionProperties::default().with_default_executor(10)).await.unwrap();
-        info!("➔ 🟢 ⛓️ hoopoe mq is now connected to the broker");
+        info!("➔ 🟢 ⛓️ hoopoe is now connected to the broker");
         
         // ----------------------------------------------------------------------
         //            CREATING RABBITMQ CHANNELS TO TALK TO THE BROKER
@@ -80,13 +81,14 @@ impl Account{ //// we can't take a reference to self since the producer field ca
             );
         }
         info!("➔ 🟢 🕳️ hoopoe channels created susscessfully");
-        Self{
+        Self{ //// returning a new instance of the Account also is Self is the complete type of the Account<T> not just the constructor or Account
             account_id: acc_id,
             channels,
-            queues: vec![],
+            queues: Vec::new(), // or vec![]
         }
     }
 
+    //// this method will build the queue from the passed in name
     pub async fn make_queue(&mut self, name: &str) -> Self{
 
         // ----------------------------------------------------------------------
@@ -117,6 +119,9 @@ impl Account{ //// we can't take a reference to self since the producer field ca
     
     }
 
+    //// this method will build the consumer from the second channel 
+    //// and wait for each message to be consumed from the specified queue
+    //// until all the message gets deliverred.
     pub async fn subscribe(&self, queue: &str){
 
         // -------------------------------------------------------------------------------------------------------------
@@ -125,7 +130,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
 
         //// we're using Arc to clone the second_channel since Arc is to safe for sharing the type between threads 
         info!("➔ 🟢📩 subscribing from the second channel to the published messages from the [{}] queue", queue);
-        let second_channel = self.channels[1].clone();
+        let second_channel = self.channels[1].clone(); //// we've used the second channel to use its consumer to get all message deliveries
         let consumer_channel = Arc::new(&second_channel); //// putting the borrowed form of second_channel inside the Arc (since we want to clone it later for ack processes) to prevent ownership moving since we want to consume messages inside a worker threadpool
         let consumer = consumer_channel
                             .clone()
@@ -141,18 +146,21 @@ impl Account{ //// we can't take a reference to self since the producer field ca
         // ----------------------------------------------------------------------
         let second_channel = second_channel.clone(); //// cloning the second channel to prevent ownership moving since we're moving the channel into the tokio spawn scope
         tokio::spawn(async move{ //// spawning async task that can be solved inside the tokio green threadpool under the hood which in our case is consuming all the messages from the passed in queue buffer  
-            info!("➔ 🪢🛀🏽 inside tokio worker green threadpool");
+            info!("➔ 🪢🛀🏽 consuming deliveries inside tokio worker green threadpool");
             consumer
                 .for_each(move |delivery|{ //// awaiting on each message delivery 
                     let delivery = delivery.expect("Error in consuming!").1;
                     second_channel
-                        .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
+                        .basic_ack(delivery.delivery_tag, BasicAckOptions::default()) //// acknowledging the messages using their delivery tags
                         .map(|_| ())
                 }).await
-        }); 
+        });
 
     }
 
+    //// this method will build the producer from the first channel 
+    //// and produce payloads based on the passed in criteria to send them 
+    //// to the specified routing key which in this case is our queue name.
     pub async fn publish(&self, criteria: u16, exchange: &str, routing_key: &str){
 
         // -----------------------------------------------------------------------------------------------------------------

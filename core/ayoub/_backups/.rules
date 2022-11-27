@@ -384,16 +384,17 @@ NOTE - sharing types between scopes and threads is done using channels but the t
 NOTE - if we put the first param as &self means we're borrowing the instance of the type (sharded referece) also putting the self will move the instance out of the scope and can't call other methods since the instance is no longer available
 NOTE - if we want to use string or array slices we need to define a lifetime since they are in form of the borrowed type of the actual type (&str is a slice of String and &[] is a slice of Vec) itself thus in every borrowing we need a lifetime since they are a reference to the location of the actual type inside the ram
 NOTE - first the future object will be created then by putting .await in front of it it'll wait until the future gets sovled means its status gets changed from pending to complete
-NOTE - use multithreading, channels (oneshot and mpsc) and cryptography algos and also types must be send + sync + static across threads and .awaits
-NOTE - use Arc<Mutex<T>> (use Arc::new(&Arc<Mutex<T>>) to clone the arced and mutexed T which T can also be Receiver<T>) in multithreaded env and RefCell<Rc<T>> in single threaded env
+NOTE - use Arc<Mutex<T>> (use Arc::new(&Arc<Mutex<T>>) to clone the arced and mutexed T which T can also be Receiver<T>) in multithreaded env and RefCell<Rc<T>> in single threaded env also types must be send + sync + static across threads and .awaits
 NOTE - actors will send encoded data through the mpsc channel from their free thread, so we have to deserialize them when we resolve them outside of the fulfilled future object 
 NOTE - every receipt is a transaction with a specific id which will be created by scheduling an ActionReceipt 
-NOTE - scheduling a promise of future object contains the method call (ActionReceipt) and get the resolved of the pending DataReceipt object from the executed future object inside a callback inside where we've scheduled the call
-NOTE - try different IO streaming and future traits on a defined buffer from the following crates like mpsc and Mutex data structures
-NOTE - consider every service a shard which can communicate (like executing each other's methods asyncly) with each other using their actors which has been implemented for each service through mpsc channels  
+NOTE - scheduling a promise of future object contains the method call (ActionReceipt) and get the resolved of the pending DataReceipt object from the executed future object inside a callback inside where we've scheduled the call 
 NOTE - scheduling an event which is a future object contains an async message like calling one of the method of the second service to be executed and triggered inside the second service and get the response inside a callback method using .then()
 NOTE - incoming scheduled event from a thread of the first service actor inside a free thread of the second service actor must be of type Arc<Mutex<T>> (use Arc::new(&Arc<Mutex<T>>) to clone the arced and mutexed T which T can also be Receiver<T>) in order to avoid data races and dead locks 
-NOTE - build a protocol based on binary address to transmit data between actors using mpsc tunnel like onionary://0001010101:2349
+NOTE - stack data types implemented copy trait thus no need to clone them like &str and &[u8] and borrowing using & requires the implementation of the clone trait for the type otherwise can't take a reference to the type and it'll be moved on the first use
+NOTE - traits must be inside box or take a reference to them since they don't have know size at compile time thus they couldn't be a field of the struct directyly
+
+
+
 
 
 

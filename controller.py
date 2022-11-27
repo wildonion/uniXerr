@@ -21,7 +21,7 @@ import pandas as pd
 import os
 import time
 import sys
-from server.loader import ClusteringDatasetLoader, ClassificationDatasetLoader
+from piper.loader import ClusteringDatasetLoader, ClassificationDatasetLoader
 from core.position_clustering.model import trainer as position_clustering_trainer
 from core.position_clustering.cluster import labels
 from core.position_classification.model import trainer as position_classification_trainer

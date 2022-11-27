@@ -29,8 +29,8 @@ import uvicorn
 import typer
 import multiprocessing
 from controller import app
-from server import DatasetStreamer
-from server import api
+from piper import DatasetStreamer
+from piper import api
 
 
 

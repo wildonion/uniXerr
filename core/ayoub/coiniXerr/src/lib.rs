@@ -704,7 +704,6 @@ pub async fn trash(){
         panic!("can't unpack");
     }; // struct unpacking
 
-    
 
     pub async fn do_it<F>(callback: F) // callback is of type F
         -> u8 where 

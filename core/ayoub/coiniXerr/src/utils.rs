@@ -6,7 +6,7 @@
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 pub mod api;
 pub mod hexy;
-pub mod scheduler;
+pub mod worker;
 pub mod onion;
 pub mod jobq;
 

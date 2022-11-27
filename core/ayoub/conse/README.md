@@ -1,11 +1,17 @@
 
 
 
-# 🏗 Conse PaaS and 🕊️ Hoopoe Social Media
+# 🏗 Conse PaaS and 🕊️ Hoopoe Social Musiem APIs
 
-### 📌 TODOs
+Conse is a Game Event Manager Platform. 
 
-* complete all TODOs inside the app
+### 📌 WIP
+
+* hoopoe musiem apis
+
+* dockerizing, k8s-ing and ci/cd in app.sh
+
+* all TODOs inside the app
 
 * an AI model which suggests player the tips and tricks for a new game based on behavioural graph of the player collected by the history of each event's `phases` field
 

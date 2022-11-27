@@ -2,7 +2,7 @@
 
 
 
-// p2p based JSON-RPC over HTTP3
+// p2p based JSON-RPC over HTTP3 + protobuf
 // endpoints related to mutating the blockchain state staking, transfering transactions, viewing blocks and etc...
 // https://github.com/paritytech/jsonrpsee
 // https://github.com/hyperium/tonic

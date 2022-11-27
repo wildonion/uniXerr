@@ -24,6 +24,7 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
     // TODO - a register contains the current buffer inside the ram related to the passed in id means we have to read the buffer from inside of it related to the passed in id
     // TODO - we have to read the content of a specific register and save it inside a buffer
     // TODO - rafael serverless runtime must be like #[rafael::main] on top of a server instance  
+    // TODO - try different IO streaming and future traits on a defined buffer from the following crates like mpsc and Mutex data structures 
 
 
     // near, cloudflare and shuttle are serverless:
