@@ -740,6 +740,16 @@ pub async fn trash(){
     
 
 
+    // nodejs like function call
+    fn sayHelloAgain<C>(call: u8, callback: C) // C is the callback type which is a FnOnce trait
+        where C: FnOnce(Option<u8>, HashMap<String, String>){
+        callback(None, HashMap::new());
+    }
+
+    let mut map = HashMap::new();
+    map.insert("wildonion".to_string(), "another_wildonion".to_string());
+    let none_call: Option<u8> = None;
+    sayHelloAgain(23, |none_call, map|{});
 
     let callback = |_| Some(1); // |_| means that the param name can be anything  
     let (

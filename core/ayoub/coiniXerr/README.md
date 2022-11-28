@@ -5,7 +5,7 @@
 
 An Actor and Sharded Based Design Pattern Runtime, Blockchain and Engine for uniXerr Cryptocurrency Coin, CRC20, CRC21 and CRC22 Smart Contract to Mint NFT and FT for Digital Assests inside uniXerr Protocol.
 
-# 🕊️ Hoopoe Social Musiem RTPs (Real Time Protcols)
+# 🕊️ Hoopoe Social Musiem RTPs (Real-time Transport Protocols)
 
 Hoopoe is a p2p based Music Platform in which Hoopoers Live in the Same Area Can Hoop and Share their Playlists with each Others.
 
