@@ -7,6 +7,8 @@
 
 > coiniXerr: ```cargo run --bin coiniXerr```
 
+> rtp: ```cargo run --bin rtp```
+
 > psychoder: ```cargo run --bin psychoder```
 
 ## 🧪 Test Conse Server
@@ -19,6 +21,8 @@
 
 > coiniXerr: ```cargo build --bin coiniXerr --release```
 
+> rtp: ```cargo build --bin rtp --release```
+
 > psychoder: ```cargo build --bin psychoder --release```
 
 # 🗒 Notes
@@ -28,3 +32,5 @@
 * To update a user access level to dev first signup the user using `/auth/signup` API inside the `PaaS` then run the binary like so: `./app wildonion 0`
 
 * To Run and Setup Ayoub: ```sudo chmod +x app.sh && ./app.sh```
+
+* Every microservice has its own data/model and databases.

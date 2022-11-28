@@ -7,14 +7,12 @@ An Actor and Sharded Based Design Pattern Runtime, Blockchain and Engine for uni
 
 # 🕊️ Hoopoe Social Musiem RTPs (Real-time Transport Protocols)
 
-Hoopoe is a p2p based Music Platform in which Hoopoers Live in the Same Area Can Hoop and Share their Playlists with each Others.
+Hoopoe is a gRPC and MQ based Music Platform in which Hoopoers Live in the Same Area Can Hoop and Share their Playlists with each Others.
 
 
 ### 📌 WIP
 
-* hoopoe musiem streaming
-
-* dockerizing, k8s-ing and ci/cd in app.sh
+* HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
 
 * coniXerr wallet (walleXerr) in yew to build a wasm file using rafael runtime build() method like cloudflare and shuttle runtime to load the wasm file in js 
 

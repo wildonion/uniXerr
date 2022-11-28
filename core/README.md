@@ -14,4 +14,4 @@
 
 #### `recommender`: AI models responsible for uniXerr recommendation system.
 
-#### `ayoub`: Conse PaaS, coiniXerr FaaS Rafael Runtime and Psychoder.
+#### `ayoub`: Conse PaaS, coiniXerr FaaS Rafael Runtime, rtp and Psychoder.

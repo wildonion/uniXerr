@@ -173,7 +173,6 @@ Coded by
 use std::fmt;
 use is_type::Is;
 use rayon::prelude::*;
-use rabbitmq_stream_client::{Environment, types::Message, Producer, Dedup, Consumer};
 use log::{info, error, LevelFilter};
 use tokio::net::{TcpListener, TcpStream, UdpSocket}; //-- async tcp listener and stream
 use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method asyncly which has been implemented for the object of TcpStream (these trait have been implemented for TcpStream structure)
@@ -191,7 +190,6 @@ use dotenv::dotenv;
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
-use crate::rtp::mq::hoopoe::{Account, Topic};
 use crate::actors::{
                     parathread::{Parachain, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
@@ -200,17 +198,6 @@ use crate::actors::{
 use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
 use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
 use mongodb::Client;
-use lapin::{
-    Channel,
-    Queue,
-    options::*,
-    publisher_confirm::Confirmation,
-    types::FieldTable,
-    BasicProperties, 
-    Connection,
-    ConnectionProperties,
-    Result as LopinResult,
-};
 //// futures is used for reading and writing streams asyncly from and into buffer using its traits and based on orphan rule TryStreamExt trait is required to use try_next() method on the future object which is solved by using .await on it also try_next() is used on futures stream or chunks to get the next future IO stream and returns an Option in which the chunk might be either some value or none
 //// StreamExt is a trait for streaming utf8 bytes data - RemoteHandle is a handler for future objects which are returned by the remote_handle() method
 use futures::{Future, StreamExt, FutureExt, executor::block_on, future::RemoteHandle}; 
@@ -230,7 +217,6 @@ pub mod schemas;
 pub mod actors;
 pub mod engine;
 pub mod utils;
-pub mod rtp;
 
 
 
@@ -415,75 +401,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-    
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                   hoopoe mq setup
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈      
-    ////
-    ////         publisher/subscriber app (rust or js code) 
-    ////                      |
-    ////                       ---- tcp socket
-    ////                                       |
-    ////                                 broker channels
-    ////                                       |
-    ////                                        --------- exchange
-    ////                                                     |
-    ////                             routing key ------- |binding| ------- routing key
-    ////                                                     |
-    ////                                             jobq queue buffer
-    ////                                                     |
-    ////                                                      --------- worker threadpool 
-    ////
-    //// ➔ publishers (rust or js code) which is connected to the mq broker can publish messages to a channel 
-    ////    from there (inside the broker channels) messages will be buffered inside a specific queue.
-    //// ➔ subscribers (rust or js code) want to subscribe to a specific message in which they must talk to a channel
-    ////    then the channel will talk to the broker to get the message from a specific queue.
-    //// ➔ rabbitmq uses queues instead of topics means that we can get all messages from a specific queues 
-    ////    instead of subscribing to a specific topic by doing this all consumers can subscribe to a specific queue.  
-    //// ➔ there might be multiple channels each of which are able to talk to a specific queue to get the buffered message from there.
-
-    let sample_account_id = Uuid::new_v4().to_string();
-    let mut account = Account::new(
-                                    &ampq_addr,
-                                    2, 
-                                    sample_account_id
-                                ).await;
-    
-    // ----------------------------------------------------------------------
-    //                  MAKING QUEUE, PUBLISH AND SUBSCRIBE  
-    // ----------------------------------------------------------------------
-
-    account
-        .make_queue("hoop")
-        .await;
-        
-    account
-        .publish(10, "", "hoop")
-        .await;
-
-    account
-        .subscribe("hoop")
-        .await;
-
     
     
 
@@ -543,7 +460,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
     
     // utils::api::tx_emulator().await;
-
 
 
 

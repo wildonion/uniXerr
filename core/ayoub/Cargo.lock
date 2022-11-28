@@ -2436,6 +2436,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "rtp"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bcrypt",
+ "borsh",
+ "chrono",
+ "clap",
+ "dotenv",
+ "futures",
+ "futures-util",
+ "hex",
+ "is_type",
+ "lapin",
+ "log",
+ "log4rs",
+ "mongodb",
+ "pretty_env_logger",
+ "rand 0.8.5",
+ "rayon",
+ "reqwest",
+ "riker",
+ "riker-patterns",
+ "rust-argon2",
+ "serde 1.0.144",
+ "serde_json",
+ "tokio",
+ "tonic",
+ "uuid 1.1.2",
+]
+
+[[package]]
 name = "rust-argon2"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

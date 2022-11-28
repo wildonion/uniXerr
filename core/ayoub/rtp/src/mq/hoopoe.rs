@@ -166,7 +166,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
             info!("➔ 🟢📦 iteration [{}], publishing payload", n);
             let confirm = first_channel
                                         .basic_publish(
-                                            exchange, //// exchange receives message from publishers and pushes them to queues
+                                            exchange, //// exchange receives message from publishers and pushes them to queues by using binders and routing keys
                                             routing_key, //// this is the routing key and is the address that the message must be sent to like the queue name in which the messages will be buffered inside  
                                             BasicPublishOptions::default(),
                                             payload.to_vec(), //// the payload that must be published

@@ -1,7 +1,7 @@
 
 
 
-# 🏗 Conse PaaS and 🕊️ Hoopoe Social Musiem APIs
+# 🏗 Conse PaaS and 🕊️ Hoopoe Social Musiem REST APIs
 
 Conse is a Game Event Manager Platform. 
 
@@ -9,7 +9,7 @@ Conse is a Game Event Manager Platform.
 
 * hoopoe musiem apis
 
-* dockerizing, k8s-ing and ci/cd in app.sh
+* HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
 
 * all TODOs inside the app
 
