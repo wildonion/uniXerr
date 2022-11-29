@@ -7,7 +7,7 @@
 
 > coiniXerr: ```cargo run --bin coiniXerr```
 
-> rtp: ```cargo run --bin rtp```
+> hoopoe: ```cargo run --bin hoopoe```
 
 > psychoder: ```cargo run --bin psychoder```
 
@@ -21,7 +21,7 @@
 
 > coiniXerr: ```cargo build --bin coiniXerr --release```
 
-> rtp: ```cargo build --bin rtp --release```
+> hoopoe: ```cargo build --bin hoopoe --release```
 
 > psychoder: ```cargo build --bin psychoder --release```
 

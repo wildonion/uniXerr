@@ -1,5 +1,5 @@
 [package]
-name = "rtp"
+name = "hoopoe"
 version = "0.1.0"
 authors = ["wildonion <marefimoghaddam@unixerr.com>"]
 edition = "2021"
@@ -33,6 +33,7 @@ async-trait = "0.1.57"
 is_type = "0.2.1"
 lapin = "1.0.0-rc1"
 tonic = "0.8.2"
+prost = "0.11.3"
 
 
 
@@ -45,5 +46,22 @@ rustflags = ["-C", "link-args=-s"] # c linker to produce shared object file
 
 
 [[bin]]
-name = "rtp"
-path = "src/main.rs"
+name = "rmq"
+path = "src/mq/app.rs"
+
+
+
+
+[[bin]]
+name = "gs"
+path = "src/grpc/client.rs"
+
+
+
+
+[[bin]]
+name = "gc"
+path = "src/grpc/server.rs"
+
+[build-dependencies]
+tonic-build = "0.8.3"

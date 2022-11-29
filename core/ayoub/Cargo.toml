@@ -3,7 +3,7 @@
 members = [
     "coiniXerr/src/wallet/",
     "coiniXerr",
-    "rtp",
+    "hoopoe",
     "conse",
     "psychoder",
 ]

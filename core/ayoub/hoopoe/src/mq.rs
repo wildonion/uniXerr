@@ -11,7 +11,7 @@
 
     mq clients in rust and js
         | 
-        -------- rtp mq producer and consumer actor streamer -------- conse hyper server 
+        -------- hoopoe mq producer and consumer actor streamer -------- conse hyper server 
                         |                             |
                         |                             -------- mongodb
                         |
@@ -59,5 +59,4 @@
 
 
 
-pub mod hoopoe;
-pub mod wallexerr;
+pub mod app;

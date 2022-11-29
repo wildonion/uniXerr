@@ -15,7 +15,7 @@ use log4rs::append::console::ConsoleAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::Config;
 use tonic::*;
-use crate::mq::hoopoe::{Account, Topic};
+use crate::hooopoeq::{Account, Topic};
 use lapin::{
     Channel,
     Queue,
@@ -30,18 +30,8 @@ use lapin::{
 
 
 
-
-pub mod grpc;
-pub mod mq;
-
-
-
-
-
-
-
-
-
+#[path="pub.sub.rs"]
+pub mod hooopoeq;
 
 
 
@@ -110,19 +100,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                 ).await;
     
     // ----------------------------------------------------------------------
-    //                  MAKING QUEUE, PUBLISH AND SUBSCRIBE  
+    //                  MAKING QUEUES, PUBLISH AND SUBSCRIBE  
     // ----------------------------------------------------------------------
 
-    account
+    account //// making the hoop queue for publishing and subscribing process
         .make_queue("hoop")
         .await;
         
-    account
-        .publish(10, "", "hoop")
+    account //// the publisher could be another app written in another lang
+        .publish(10, "", "hoop") //// publishing 10 times on the passed in queue
         .await;
 
-    account
-        .subscribe("hoop")
+    account //// the subscriber could be another app written in another lang
+        .subscribe("hoop") //// subscribing to the hoop queue
         .await;
 
 

@@ -4,9 +4,6 @@
 
 
 
-// ------------------------------------------------------------
-//// hoopoe rabbitmq streams using rabbitmq_stream_client crate
-// ------------------------------------------------------------
 
 
 
@@ -34,18 +31,6 @@
 
 
 use crate::*;
-use utils::api; // macro apis for communicating with the conse hyper server hoopoe service like storing in db
-use rtp::{
-    rpc::server as rpc_server,
-    wrtc::server as wrtc_server,
-        ws::server as ws_server, // for chatapp
-        socks::server as socks_server,
-        p2p::udp::app as p2p_app,
-    };
-        
-
-
-
 
 
 

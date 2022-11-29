@@ -4,15 +4,16 @@
 
 
 
-//// ----------------------
-//// Hoopoe Account Stream
-//// ----------------------
+//// ---------------------------------------------------------
+//// RabbitMQ Account Stream Contains Publisher and Subscriber
+//// ---------------------------------------------------------
 
 
 
 
 
 use crate::*;
+
 
 
 
@@ -59,19 +60,19 @@ impl Account{ //// we can't take a reference to self since the producer field ca
         // ----------------------------------------------------------------------
         
         let conn = Connection::connect(&broker_addr, ConnectionProperties::default().with_default_executor(10)).await.unwrap();
-        info!("➔ 🟢 ⛓️ hoopoe is now connected to the broker");
+        info!("➔ 🟢 ⛓️ connected to the broker");
         
         // ----------------------------------------------------------------------
         //            CREATING RABBITMQ CHANNELS TO TALK TO THE BROKER
         // ----------------------------------------------------------------------
-        
+
         let mut channels = Vec::<Channel>::new(); //// producers and consumers must talk to the channel first
         for i in 0..n_channels{
             channels.push(
                 conn.create_channel().await.unwrap()
             );
         }
-        info!("➔ 🟢 🕳️ hoopoe channels created susscessfully");
+        info!("➔ 🟢 🕳️ channels created susscessfully");
         Self{ //// returning a new instance of the Account also is Self is the complete type of the Account<T> not just the constructor or Account
             account_id: acc_id,
             channels,
@@ -99,7 +100,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
                         ).await.unwrap()
         );
         
-        info!("➔ 🟢🎣 hoop queue created susscessfully");
+        info!("➔ 🟢🎣 queue created susscessfully");
         
         Self{
             account_id: self.account_id.clone(), //// cannot move out of `self.account_id` which is behind a mutable reference 
@@ -127,7 +128,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
                             .clone()
                             .basic_consume( //// it'll return the consumer which will be used to get all the message deliveries from the specified queue
                                 queue, //// the quque that we've just built and want to get all messages which are buffered by the publisher 
-                                "hoop_consumer",  
+                                format!("{} consumer", queue).as_str(),  
                                 BasicConsumeOptions::default(),
                                 FieldTable::default(),
                             ).await.unwrap();
@@ -161,7 +162,7 @@ impl Account{ //// we can't take a reference to self since the producer field ca
         info!("➔ 🟢🛰️ publishing messages from the first channel to the [{}] queue", exchange);
         let first_channel = self.channels[0].clone();
         for n in 0..criteria{ //// sending the payload `criteria` times
-            let message = format!("[{:?} ➔ {}-th musiem]", Topic::Hoop, n); //// enum field first will be converted into String then into utf8 bytes
+            let message = format!("[{:?} ➔ {}-th]", Topic::Hoop, n); //// enum field first will be converted into String then into utf8 bytes
             let payload = message.as_bytes(); //// converting the message to utf8 bytes
             info!("➔ 🟢📦 iteration [{}], publishing payload", n);
             let confirm = first_channel
