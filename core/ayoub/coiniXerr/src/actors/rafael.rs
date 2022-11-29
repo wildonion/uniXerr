@@ -290,7 +290,7 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
 
         fn build(&mut self) -> Self {
             
-            // TODO - build the walleXerr app using build.sh script  
+            // TODO - build the walleXerr app using build.sh script inside the walleXerr app  
             // ...
             
             todo!()

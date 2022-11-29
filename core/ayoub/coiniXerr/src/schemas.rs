@@ -376,8 +376,9 @@ impl Node{
 //      • Key Derivation Function: blake2b or argon2 : derives one or more secret key from a secret value such as a master key like creating a password from a secret key
 // ---- client pvk + server pbkey of the vpn server = key exchange request from the client
 // ---- server pvk + client pbkey of the vpn server = key exchange request from the vpn server
-// ---- symmetric  : a shared secret key
-// ---- asymmetric : pub and pv key 
+// ---- symmetric  : a shared secret key like AES
+// ---- asymmetric : pub and pv key like RSA used in certbot
+// NOTE - the method used in cerbot is based on SHA256 with RSA method means that a public will be stored on the VPS to decrypt the signed traffic with private key inside the client browser  
 // NOTE - in end to end encryption a key exchange will be used to sign the message of both sides and it'll be stored on the both sides' device 
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union

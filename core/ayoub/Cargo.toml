@@ -1,9 +1,10 @@
 [workspace]
 
 members = [
-    "coiniXerr/src/wallet/",
+    "walleXerr",
     "coiniXerr",
     "hoopoe",
+    "hoopie",
     "conse",
     "psychoder",
 ]
