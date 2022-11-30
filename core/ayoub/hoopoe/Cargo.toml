@@ -44,19 +44,19 @@ rustflags = ["-C", "link-args=-s"] # c linker to produce shared object file
 
 
 [[bin]]
-name = "rmq"
+name = "hoopoe-rmq"
 path = "src/mq/app.rs"
 
 
 
 
 [[bin]]
-name = "capserver"
+name = "hoopoe-capnp-server"
 path = "src/rpc/client.rs"
 
 
 
 
 [[bin]]
-name = "capclient"
+name = "hoopoe-capnp-client"
 path = "src/rpc/server.rs"

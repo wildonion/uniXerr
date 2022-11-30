@@ -45,8 +45,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
     let host = env::var("HOST").expect("⚠️ no host variable set");
-    let port = env::var("RPC_PORT").expect("⚠️ no grpc port variable set");
+    let port = env::var("RPC_PORT").expect("⚠️ no rpc port variable set");
     let rpc_addr = format!("{}{}", host, port).as_str();
+
+
+
+
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                   capnp rpc server
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
+    
 
 
     

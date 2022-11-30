@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     ////                      |
     ////                       ---- tcp socket
     ////                                       |
-    ////                              grpc broker channels
+    ////                              rpc broker channels
     ////                                       |
     ////                                        --------- exchange
     ////                                                     |

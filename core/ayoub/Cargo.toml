@@ -7,6 +7,9 @@ members = [
     "hoopie",
     "conse",
     "psychoder",
+    "contracts/reserve",
+    "contracts/donation"
+
 ]
 
 
