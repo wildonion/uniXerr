@@ -13,7 +13,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-
+//// coiniXerr VM like EVM and Aurora
 
 
 pub struct Vm(pub u8);

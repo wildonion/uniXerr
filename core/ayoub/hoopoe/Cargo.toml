@@ -32,9 +32,7 @@ mongodb = "2"
 async-trait = "0.1.57"
 is_type = "0.2.1"
 lapin = "1.0.0-rc1"
-tonic = "0.8.2"
-prost = "0.11.3"
-
+capnp = "0.15.1"
 
 
 
@@ -53,15 +51,12 @@ path = "src/mq/app.rs"
 
 
 [[bin]]
-name = "gs"
-path = "src/grpc/client.rs"
+name = "capserver"
+path = "src/rpc/client.rs"
 
 
 
 
 [[bin]]
-name = "gc"
-path = "src/grpc/server.rs"
-
-[build-dependencies]
-tonic-build = "0.8.3"
+name = "capclient"
+path = "src/rpc/server.rs"
