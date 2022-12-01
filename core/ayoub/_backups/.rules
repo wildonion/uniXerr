@@ -392,6 +392,9 @@ NOTE - scheduling an event which is a future object contains an async message li
 NOTE - incoming scheduled event from a thread of the first service actor inside a free thread of the second service actor must be of type Arc<Mutex<T>> (use Arc::new(&Arc<Mutex<T>>) to clone the arced and mutexed T which T can also be Receiver<T>) in order to avoid data races and dead locks 
 NOTE - stack data types implemented copy trait thus no need to clone them like &str and &[u8] and borrowing using & requires the implementation of the clone trait for the type otherwise can't take a reference to the type and it'll be moved on the first use
 NOTE - traits must be inside box or take a reference to them since they don't have know size at compile time thus they couldn't be a field of the struct directyly
+NOTE - we can return a reference from the function by defining a lifetime inside the function signature or use the self lifetime if its a struct method 
+NOTE - we can return a reference from the function to a struct if we're building the struct and returning it at the same time since building and returning won't store anything inside the stack 
+
 
 
 

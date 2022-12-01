@@ -153,7 +153,7 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
         };
         
         match ctx::app::Db::new().await{
-            Ok(mut init_db) => {
+            Ok(mut init_db) => { //// init_db instance must be mutable since we want to mutate its fields
                 init_db.engine = Some(db_engine);
                 init_db.url = Some(db_addr);
                 let mongodb_instance = init_db.GetMongoDbInstance().await; //-- the first argument of this method must be &self in order to have the init_db instance after calling this method, cause self as the first argument will move the instance after calling the related method and we don't have access to any field like init_db.url any more due to moved value error - we must always use & (like &self and &mut self) to borrotw the ownership instead of moving

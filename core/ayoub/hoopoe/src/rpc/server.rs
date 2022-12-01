@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                   capnp rpc server
+    ///////                cap'n proto rpc server
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
     
 

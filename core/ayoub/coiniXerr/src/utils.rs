@@ -461,7 +461,7 @@ impl fmt::Display for AppError{ // implementing the formatter Display trait for 
         NOTE - none struct variants in Storagekey enum allocates zero byte for the current persistent storage once the tag point to their address at a time
         NOTE - the enum size with zero byte for each variants would be the largest size of its variant + 8 bytes tag which would be 8 bytes in overall
         NOTE - an enum is the size of the maximum of its variants plus a discriminant value to know which variant it is, rounded up to be efficiently aligned, the alignment depends on the platform
-        NOTE - an enum size is equals to a variant with largest size + 8 bytes tag (there is only one 8 byte tag required since only one variant will be available at the same time)
+        NOTE - an enum size is equals to a variant with largest size + 8 bytes tag (there is only one 8 byte tag (size of the tag is usize) required since only one variant will be available at the same time)
         NOTE - enum size with a single f64 type variant would be 8 bytes and with four f64 variants would be 16 bytes cause one 8 bytes (the tag) wouldn't be enough because there would be no room for the tag
         NOTE - the size of the following enum is 24 (is equals to its largest variant size which belongs to the Text variant) + 8 (the tag size) bytes 
         
@@ -561,8 +561,91 @@ list![func1, func2, func3] => {
 */
 
 
-#[macro_use]
+
 pub mod macros{
+
+
+    #[macro_export]
+    macro_rules! db {
+
+        ($name:expr, $engine:expr, $host:expr, $port:expr, $username:expr, $password:expr) => {
+            
+
+            use crate::schemas::{Db, Storage, Mode};
+
+            let empty_app_storage = Some( //-- putting the Arc-ed db inside the Option
+                Arc::new( //-- cloning app_storage to move it between threads
+                    Storage{ //-- defining db context 
+                        id: Uuid::new_v4(),
+                        db: Some(
+                            Db{
+                                mode: Mode::Off,
+                                instance: None,
+                                engine: None,
+                                url: None,
+                            }
+                        ),
+                    }
+                )
+            );
+            let app_storage = if engine.as_str() == "mongodb"{
+                info!("➔ 🛢️ switching to mongodb");
+                let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
+                let db_addr = if environment == "dev"{
+                    format!("{}://{}:{}", engine, host, port)
+                } else if environment == "prod"{
+                    format!("{}://{}:{}@{}:{}", engine, username, password, host, port)
+                } else{
+                    "".to_string()
+                };
+                
+                match Db::new().await{
+                    Ok(mut init_db) => { //// init_db instance must be mutable since we want to mutate its fields
+                        init_db.engine = Some(engine);
+                        init_db.url = Some(db_addr);
+                        let mongodb_instance = init_db.GetMongoDbInstance().await; //-- the first argument of this method must be &self in order to have the init_db instance after calling this method, cause self as the first argument will move the instance after calling the related method and we don't have access to any field like init_db.url any more due to moved value error - we must always use & (like &self and &mut self) to borrotw the ownership instead of moving
+                        Some( //-- putting the Arc-ed db inside the Option
+                            Arc::new( //-- cloning app_storage to move it between threads
+                                Storage{ //-- defining db context 
+                                    id: Uuid::new_v4(),
+                                    db: Some(
+                                        Db{
+                                            mode: init_db.mode,
+                                            instance: Some(mongodb_instance),
+                                            engine: init_db.engine,
+                                            url: init_db.url,
+                                        }
+                                    ),
+                                }
+                            )
+                        )
+                    },
+                    Err(e) => {
+                        error!("😕 init db error - {}", e);
+                        empty_app_storage //-- whatever the error is we have to return and empty app storage instance 
+                    }
+                }
+            } else if engine.as_str() == "postgres"{
+                let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");                
+                let db_addr = if environment == "dev"{
+                    format!("{}://{}:{}", engine, host, port)
+                } else if environment == "prod"{
+                    format!("{}://{}:{}@{}:{}", engine, username, password, host, port)
+                } else{
+                    "".to_string()
+                };
+        
+                // TODO 
+                todo!();
+            
+            } else{
+                empty_app_storage
+            };
+        };
+
+    }
+
+
 
     pub fn even(x: i32) -> bool{
         x%2 == 0
@@ -571,7 +654,9 @@ pub mod macros{
     pub fn odd(x: i32) -> bool{
         x%2 != 0
     }
+
     
+
     #[macro_export]
     macro_rules! list {
         ($id1:ident | $id2:ident <- [$start:expr; $end:expr], $cond:expr) => { //-- the match pattern can be any syntax :) - only ident can be followed by some symbols and words like <-, |, @ and etc

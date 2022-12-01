@@ -197,6 +197,7 @@ use crate::actors::{
                 }; 
 use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
 use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
+use crate::utils::*;
 use mongodb::Client;
 //// futures is used for reading and writing streams asyncly from and into buffer using its traits and based on orphan rule TryStreamExt trait is required to use try_next() method on the future object which is solved by using .await on it also try_next() is used on futures stream or chunks to get the next future IO stream and returns an Option in which the chunk might be either some value or none
 //// StreamExt is a trait for streaming utf8 bytes data - RemoteHandle is a handler for future objects which are returned by the remote_handle() method
@@ -250,7 +251,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-    
 
 
 
@@ -270,7 +270,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
     
-    let ampq_addr = env::var("AMQP_ADDR").expect("⚠️ no ampq address variable set");
     let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
     let mut run_time_info = RafaelRt(HashMap::new());
@@ -319,6 +318,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     ///////                 app storage setup
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     
+
+    let _app_storage = utils::macros::db!{
+        db_name,
+        db_engine,
+        db_host,
+        db_port,
+        db_username,
+        db_password
+    };
+    
     let empty_app_storage = Some( //-- putting the Arc-ed db inside the Option
         Arc::new( //-- cloning app_storage to move it between threads
             Storage{ //-- defining db context 
@@ -351,7 +360,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         };
         
         match Db::new().await{
-            Ok(mut init_db) => {
+            Ok(mut init_db) => { //// init_db instance must be mutable since we want to mutate its fields
                 init_db.engine = Some(db_engine);
                 init_db.url = Some(db_addr);
                 let mongodb_instance = init_db.GetMongoDbInstance().await; //-- the first argument of this method must be &self in order to have the init_db instance after calling this method, cause self as the first argument will move the instance after calling the related method and we don't have access to any field like init_db.url any more due to moved value error - we must always use & (like &self and &mut self) to borrotw the ownership instead of moving

@@ -7,9 +7,9 @@
 
 > coiniXerr: ```cargo run --bin coiniXerr```
 
-> hoopoe capnp server: ```cargo run --bin hoopoe-capnp-server```
+> hoopoe cap'n server: ```cargo run --bin hoopoe-capnp-server```
 
-> hoopoe capnp client: ```cargo run --bin hoopoe-capnp-client```
+> hoopoe cap'n client: ```cargo run --bin hoopoe-capnp-client```
 
 > hoopoe rmq publisher/subscriber: ```cargo run --bin hoopoe-rmq```
 
@@ -29,9 +29,9 @@
 
 > coiniXerr: ```cargo run --bin coiniXerr --release```
 
-> hoopoe capnp server: ```cargo run --bin hoopoe-capnp-server --release```
+> hoopoe cap'n server: ```cargo run --bin hoopoe-capnp-server --release```
 
-> hoopoe capnp client: ```cargo run --bin hoopoe-capnp-client --release```
+> hoopoe cap'n client: ```cargo run --bin hoopoe-capnp-client --release```
 
 > hoopoe rmq publisher/subscriber: ```cargo run --bin hoopoe-rmq --release```
 

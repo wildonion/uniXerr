@@ -7,7 +7,7 @@ An Actor, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and Engin
 
 ### 📌 WIP 
 
-* RPC server and client (coiniXerr nodes must communicate with each other through the RPC protocol) with cap'n proto as the serializer protocol
+* implementing cap'n proto serialization rpc server and client (coiniXerr nodes must communicate with each other through the RPC protocol with cap'n proto as the serialization protocol)
 
 * HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
 

@@ -7,8 +7,9 @@
 // https://capnproto.org/
 
 
+// TODO - use cap'n proto doc to create the codec with the schema parser and the compiler (use enum based unique storage key to avoid data collision)
 // TODO - audio/video codec ((de)compression or (de)serializing) like ffmepg or gstreamer protocols and algos and audio and video streaming, media and data channel using webrtc 
-// TODO - codec for blockchain structures like borsh, serde, protobuf and cap'n proto support various endianness which is for structs to utf8 or bson or json and vice versa to map from utf8 into struct; convert from struct into utf8 using a simple union
+// TODO - codec for blockchain structures like borsh, serde, protobuf and cap'n proto serialization support various endianness which is for structs to utf8 or bson or json and vice versa to map from utf8 into struct; convert from struct into utf8 using a simple union
 // NOTE - to send some data back to the user we must serialize that data struct into the json and from there to utf8 to pass through the socket
 // NOTE - to send fetched data from mongodb which is a bson object back to the user we must first deserialize the bson into its related struct and then serialize it to json to send back to the user through the socket
 // NOTE - borsh like codec ops : Box<[u8]> (automatic lifetime) or &'a [u8] <-> vec[u8] <-> struct

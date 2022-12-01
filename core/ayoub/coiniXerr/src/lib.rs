@@ -749,7 +749,9 @@ pub async fn trash(){
     let mut map = HashMap::new();
     map.insert("wildonion".to_string(), "another_wildonion".to_string());
     let none_call: Option<u8> = None;
-    sayHelloAgain(23, |none_call, map|{});
+    sayHelloAgain(23, |none_call, map|{
+        
+    });
 
     let callback = |_| Some(1); // |_| means that the param name can be anything  
     let (
