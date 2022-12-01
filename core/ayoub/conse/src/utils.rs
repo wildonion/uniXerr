@@ -429,3 +429,93 @@ pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8)
 
 
 
+
+
+// ------------------------------ macros
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+#[macro_export]
+macro_rules! db {
+
+    ($name:expr, $engine:expr, $host:expr, $port:expr, $username:expr, $password:expr) => {
+                
+        { //// this is the key! this curly braces is required to use if let statement, use libs and define let inside macro
+            
+            use crate::contexts::app::*;
+            
+            let empty_app_storage = Some( //-- putting the Arc-ed db inside the Option
+                Arc::new( //-- cloning app_storage to move it between threads
+                    Storage{ //-- defining db context 
+                        id: Uuid::new_v4(),
+                        db: Some(
+                            Db{
+                                mode: Mode::Off,
+                                instance: None,
+                                engine: None,
+                                url: None,
+                            }
+                        ),
+                    }
+                )
+            );
+            let app_storage = if $engine.as_str() == "mongodb"{
+                info!("➔ 🛢️ switching to mongodb");
+                let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
+                let db_addr = if environment == "dev"{
+                    format!("{}://{}:{}", $engine, $host, $port)
+                } else if environment == "prod"{
+                    format!("{}://{}:{}@{}:{}", $engine, $username, $password, $host, $port)
+                } else{
+                    "".to_string()
+                };
+                match Db::new().await{
+                    Ok(mut init_db) => { //// init_db instance must be mutable since we want to mutate its fields
+                        init_db.engine = Some($engine);
+                        init_db.url = Some(db_addr);
+                        let mongodb_instance = init_db.GetMongoDbInstance().await; //-- the first argument of this method must be &self in order to have the init_db instance after calling this method, cause self as the first argument will move the instance after calling the related method and we don't have access to any field like init_db.url any more due to moved value error - we must always use & (like &self and &mut self) to borrotw the ownership instead of moving
+                        Some( //-- putting the Arc-ed db inside the Option
+                            Arc::new( //-- cloning app_storage to move it between threads
+                                Storage{ //-- defining db context 
+                                    id: Uuid::new_v4(),
+                                    db: Some(
+                                        Db{
+                                            mode: init_db.mode,
+                                            instance: Some(mongodb_instance),
+                                            engine: init_db.engine,
+                                            url: init_db.url,
+                                        }
+                                    ),
+                                }
+                            )
+                        )
+                    },
+                    Err(e) => {
+                        error!("😕 init db error - {}", e);
+                        empty_app_storage //-- whatever the error is we have to return and empty app storage instance 
+                    }
+                }
+            } else if $engine.as_str() == "postgres"{
+                let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");                
+                if environment == "dev"{
+                    format!("{}://{}:{}", $engine, $host, $port)
+                } else if environment == "prod"{
+                    format!("{}://{}:{}@{}:{}", $engine, $username, $password, $host, $port)
+                } else{
+                    "".to_string()
+                };
+        
+                // TODO 
+                todo!();
+            
+            } else{
+                empty_app_storage
+            };
+
+            app_storage //// returning the created app_storage
+
+        }
+    };
+
+}

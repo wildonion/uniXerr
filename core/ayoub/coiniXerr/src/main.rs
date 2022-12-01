@@ -217,7 +217,7 @@ pub mod constants;
 pub mod schemas;
 pub mod actors;
 pub mod engine;
-pub mod utils;
+pub mod utils; //// by making the utils as the module we're allowed to use its functions and modules and can access all the expored macros without including them with ::
 
 
 
@@ -269,7 +269,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                     .unwrap();
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
-    
+            
+    let db_host = env::var("DB_HOST").expect("⚠️ no db host variable set");
+    let db_port = env::var("DB_PORT").expect("⚠️ no db port variable set");
+    let db_username = env::var("DB_USERNAME").expect("⚠️ no db username variable set");
+    let db_password = env::var("DB_PASSWORD").expect("⚠️ no db password variable set");
     let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
     let mut run_time_info = RafaelRt(HashMap::new());
@@ -311,6 +315,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+                                                                                                                            
+
+
+
 
 
 
@@ -318,8 +326,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     ///////                 app storage setup
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     
-
-    let _app_storage = utils::macros::db!{
+    let app_storage = db!{ //// this publicly has exported inside the utils so we can access it here
         db_name,
         db_engine,
         db_host,
@@ -328,97 +335,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         db_password
     };
     
-    let empty_app_storage = Some( //-- putting the Arc-ed db inside the Option
-        Arc::new( //-- cloning app_storage to move it between threads
-            Storage{ //-- defining db context 
-                id: Uuid::new_v4(),
-                db: Some(
-                    Db{
-                        mode: Mode::Off,
-                        instance: None,
-                        engine: None,
-                        url: None,
-                    }
-                ),
-            }
-        )
-    );
-    let app_storage = if db_engine.as_str() == "mongodb"{
-        info!("➔ 🛢️ switching to mongodb");
-        
-        let db_host = env::var("MONGODB_HOST").expect("⚠️ no db host variable set");
-        let db_port = env::var("MONGODB_PORT").expect("⚠️ no db port variable set");
-        let db_username = env::var("MONGODB_USERNAME").expect("⚠️ no db username variable set");
-        let db_password = env::var("MONGODB_PASSWORD").expect("⚠️ no db password variable set");
-        
-        let db_addr = if environment == "dev"{
-            format!("{}://{}:{}", db_engine, db_host, db_port)
-        } else if environment == "prod"{
-            format!("{}://{}:{}@{}:{}", db_engine, db_username, db_password, db_host, db_port)
-        } else{
-            "".to_string()
-        };
-        
-        match Db::new().await{
-            Ok(mut init_db) => { //// init_db instance must be mutable since we want to mutate its fields
-                init_db.engine = Some(db_engine);
-                init_db.url = Some(db_addr);
-                let mongodb_instance = init_db.GetMongoDbInstance().await; //-- the first argument of this method must be &self in order to have the init_db instance after calling this method, cause self as the first argument will move the instance after calling the related method and we don't have access to any field like init_db.url any more due to moved value error - we must always use & (like &self and &mut self) to borrotw the ownership instead of moving
-                Some( //-- putting the Arc-ed db inside the Option
-                    Arc::new( //-- cloning app_storage to move it between threads
-                        Storage{ //-- defining db context 
-                            id: Uuid::new_v4(),
-                            db: Some(
-                                Db{
-                                    mode: init_db.mode,
-                                    instance: Some(mongodb_instance),
-                                    engine: init_db.engine,
-                                    url: init_db.url,
-                                }
-                            ),
-                        }
-                    )
-                )
-            },
-            Err(e) => {
-                error!("😕 init db error - {}", e);
-                empty_app_storage //-- whatever the error is we have to return and empty app storage instance 
-            }
-        }
-    } else if db_engine.as_str() == "postgres"{
-        
-        let db_host = env::var("POSTGRES_HOST").expect("⚠️ no db host variable set");
-        let db_port = env::var("POSTGRES_PORT").expect("⚠️ no db port variable set");
-        let db_username = env::var("POSTGRES_USERNAME").expect("⚠️ no db username variable set");
-        let db_password = env::var("POSTGRES_PASSWORD").expect("⚠️ no db password variable set");
-        
-        let db_addr = if environment == "dev"{
-            format!("{}://{}:{}", db_engine, db_host, db_port)
-        } else if environment == "prod"{
-            format!("{}://{}:{}@{}:{}", db_engine, db_username, db_password, db_host, db_port)
-        } else{
-            "".to_string()
-        };
-
-        // TODO 
-        todo!();
     
-    } else{
-        empty_app_storage
-    };
 
 
 
 
     
     
-
-
-
-
-
-
-
 
 
 

@@ -18,6 +18,7 @@ use log::{info, error, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::Config;
+use utils::*; //// since utils is a lib thus we have to load all its functions and modules
 
 
 
@@ -33,6 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                   env vars setup
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
@@ -44,9 +46,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                     .unwrap();
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
+    let db_host = env::var("DB_HOST").expect("⚠️ no db host variable set");
+    let db_port = env::var("DB_PORT").expect("⚠️ no db port variable set");
+    let db_username = env::var("DB_USERNAME").expect("⚠️ no db username variable set");
+    let db_password = env::var("DB_PASSWORD").expect("⚠️ no db password variable set");
+    let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let host = env::var("HOST").expect("⚠️ no host variable set");
     let port = env::var("RPC_PORT").expect("⚠️ no rpc port variable set");
     let rpc_addr = format!("{}{}", host, port).as_str();
+
+
+
+
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                 app storage setup
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+    let app_storage = db!{ //// this publicly has exported inside the utils so we can access it here
+        db_name,
+        db_engine,
+        db_host,
+        db_port,
+        db_username,
+        db_password
+    };
 
 
 

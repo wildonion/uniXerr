@@ -60,3 +60,8 @@ path = "src/rpc/client.rs"
 [[bin]]
 name = "hoopoe-capnp-client"
 path = "src/rpc/server.rs"
+
+
+[lib]
+path = "src/lib.rs"
+name = "utils"
