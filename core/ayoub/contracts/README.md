@@ -29,6 +29,6 @@ near create-account donate.hoopoe.testnet --masterAccount hoopoe.testnet --initi
 > We can only have one smart contract per each account.
 
 ```console
-NEAR_ENV=testnet near deploy --wasmFile reserve/out/conse.wasm --accountId conse.testnet
-NEAR_ENV=testnet near deploy --wasmFile donation/out/hoopoe.wasm --accountId hoopoe.testnet
+NEAR_ENV=testnet near deploy --wasmFile reserve/out/conse.wasm --accountId reserve.conse.testnet
+NEAR_ENV=testnet near deploy --wasmFile donation/out/hoopoe.wasm --accountId donate.hoopoe.testnet
 ```
