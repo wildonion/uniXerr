@@ -26,6 +26,8 @@ use lapin::{
     ConnectionProperties,
     Result as LopinResult,
 };
+use utils::*; //// since utils is a lib thus we have to load all its functions and modules
+
 
 
 
@@ -36,9 +38,15 @@ pub mod hooopoeq;
 
 
 
+
+
+
+
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ //// bounding the type that is caused to error to Error, Send and Sync traits to be shareable between threads and have static lifetime across threads and awaits; Box is an smart pointer which has valid lifetime for what's inside of it, we're putting the error part of the Result inside the Box since we have no idea about the size of the error or the type that caused this error happened at compile time thus we have to take a reference to it but without defining a specific lifetime
     
+
+
 
 
 
@@ -56,6 +64,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
     let ampq_addr = env::var("AMQP_ADDR").expect("⚠️ no ampq address variable set");
+    let db_host = env::var("DB_HOST").expect("⚠️ no db host variable set");
+    let db_port = env::var("DB_PORT").expect("⚠️ no db port variable set");
+    let db_username = env::var("DB_USERNAME").expect("⚠️ no db username variable set");
+    let db_password = env::var("DB_PASSWORD").expect("⚠️ no db password variable set");
+    let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
+    let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
+
 
 
 
@@ -98,9 +113,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                     sample_account_id
                                 ).await;
     
-    // ----------------------------------------------------------------------
-    //                  MAKING QUEUES, PUBLISH AND SUBSCRIBE  
-    // ----------------------------------------------------------------------
+
+                                
+
+
+
+
+                                
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////         making queues, publish and subscribe
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
     account //// making the hoop queue for publishing and subscribing process
         .make_queue("hoop")
@@ -113,6 +135,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     account //// the subscriber could be another app written in another lang
         .subscribe("hoop") //// subscribing to the hoop queue
         .await;
+
+
+
+
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                 app storage setup
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+    let app_storage = db!{
+        db_name,
+        db_engine,
+        db_host,
+        db_port,
+        db_username,
+        db_password
+    };
+
+
 
 
 
