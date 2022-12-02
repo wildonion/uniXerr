@@ -14,3 +14,7 @@ An Actor, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and Engin
 * HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
 
 * coiniXerr engines, reset slot, mempool channel, runtime log, consensus and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on `XChaCha20Poly1305` end-to-end encryption
+
+* implementing Rafael runtime and onion actors
+
+* building coiniXerr engines

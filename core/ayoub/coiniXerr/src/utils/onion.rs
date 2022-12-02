@@ -9,6 +9,13 @@
 
 
 
+// actors have:
+//     - task scheduling algos
+//     - worker threadpool
+//     - rpc based pub sub channels for broadcasting messages
+//     - jobq like rabbitmq and celery
+
+
 
 
 

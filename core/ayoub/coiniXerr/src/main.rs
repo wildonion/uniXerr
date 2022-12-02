@@ -84,7 +84,7 @@ Coded by
         about the new actor joining the system also riker actors are Futures and run as Futures on the underlying threadpool
         also all riker data structures are Send Sync and have a valid lifetimes across threads.
 
-    [🚨] in actor programming we have worker threadpool and jobq like rmq or kafak in which their 
+    [🚨] in actor programming we have worker threadpool and jobq like rmq or kafka in which their 
         communication between subs and pubs are based on rpc channels.
   
     [🚨] ActorRef is a lightweight type that is inexpensive to clone and can be used to interact with its underlying Actor or the struct itself, 
