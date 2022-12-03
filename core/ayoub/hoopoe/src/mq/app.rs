@@ -166,20 +166,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                     celery setup
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-    // use celery for producing and consuming async tasks with a distributed message queues (the one that being used inside the rabbitmq)
-    // ... 
-
-
-
-
-
-
-    
-
 
     Ok(())
 
