@@ -5,6 +5,22 @@
 // https://developers.google.com/protocol-buffers/docs/encoding
 // https://www.quora.com/How-do-you-write-a-video-codec
 // https://capnproto.org/
+// DEV.src building compiler sources
+
+/*
+
+
+    BUILDING COMPILER STEPS
+
+        • lexing and tokenization
+        • parsing
+        • building AST
+        • generate IR code for the given AST
+        • optimizations on the generated IR code
+        • generate machine code
+
+
+*/
 
 
 // TODO - create the codec like cap'n proto with the schema parser and the compiler engine (use enum based unique storage key to avoid data collision) using macros

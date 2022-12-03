@@ -4,6 +4,7 @@
 // https://drive.google.com/file/d/1K2uO8D_qLhXWcAHDpICmbfFx3hfQ4Sah/view?usp=share_link -> Models of the Mind
 // https://drive.google.com/file/d/17aF74xeydgx_BulPknWv6NiU4wgTBwfQ/view?usp=share_link -> Descartes' Error
 // https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
+// TODO - compile the whole coded brain into an encoded graph like brain.capnp (cap'n proto schema) in such a way the unconsciousness can decode it 
 // TODO - implement the coiniXerr::utils::scheduler::_async::Actor as uniXerrActor for Neuron in here
 // TODO - implement all cognitive neuroscience concepts and schemas and code the whole brain instead of having neural network like a brain engine using various macro syntax like brain!{}
 // TODO - every neuron can be an actor (or the column of our input matrix) to construct the GNN in an async and multithreading manner in such a way that every actor which is a neuron can communicate with each other to get the data of the next or the last neuron asyncly 
@@ -12,6 +13,21 @@
 //          to show the tips and tricks of the new game based on the history or the behavioural graph of the player
 // ...  
 
+/*
+
+
+
+    decision making process:
+
+        • select an event from the event pool at time T
+        • occure that event inside the brain 
+        • consciousness (the cerebral cortex) must 
+            - interpret that event
+            - choose a response from the generated response pool
+
+
+
+*/
 
 
 
@@ -80,7 +96,9 @@ pub trait Suspend{} //-- a buffer contains unaddressed issues, feelings, pains a
 
 
 
-
+// The parts of the brain that perform the functions that Freud called the "id" are located 
+// mainly in the ERTAS and limbic system, whereas the parts that perform the functions he attributed 
+// to "the repressed" (or the "system unconscious") are located mainly in the basal ganglia and cerebellum.
 
 
 
@@ -91,6 +109,11 @@ pub trait Suspend{} //-- a buffer contains unaddressed issues, feelings, pains a
 // ---------------
 //   STRUCTURES
 // ---------------
+pub struct CerebralCortex; //// this is the where the consciousness is located
+
+pub struct EventPool; //// this is the pool of events that can be occured at a specific time T
+
+
 pub struct BrainContext<Neuron>(pub Vec<Neuron>, pub i64);
 
 

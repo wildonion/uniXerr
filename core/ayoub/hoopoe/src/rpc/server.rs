@@ -18,7 +18,7 @@ use log::{info, error, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::Config;
-use utils::*; //// since utils is a lib thus we have to load all its functions and modules
+use utils::*; //// since utils is a lib thus we can use all its functions and modules by using it in here
 
 
 
@@ -90,7 +90,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     
 
 
-    
+    // start server and get requests from the hoopoe musiem in here
+    // use tarpc?
+    // ... 
 
 
     

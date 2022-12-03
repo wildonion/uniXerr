@@ -18,18 +18,18 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
 
 
     
-    
     // load wasm file => https://procmarco.netlify.app/blog/2021-05-04-a-story-about-async-rust-and-using-send-types/
+    // NOTE - every instance of the server will become a node which will be inside a worker threadpool of the load balancer to handle and balance the incoming request laods to it by the workers
     // TODO - use some kinda register setup process to get and mutate the vars of the env like near registers in its env module for promises or futures
     // TODO - a register contains the current buffer inside the ram related to the passed in id means we have to read the buffer from inside of it related to the passed in id
     // TODO - we have to read the content of a specific register and save it inside a buffer
     // TODO - rafael serverless runtime must be like #[rafael::main] on top of a server instance  
     // TODO - try different IO streaming and future traits on a defined buffer from the following crates like mpsc and Mutex data structures 
     // TODO - networking projects that must build with actors:
-    //      - traffic forwarding tools like ngrok using iptables
-    //      - proxy and load balancer like pingora based on cpu task scheduling, weighted round robin dns, vector clock, event loop and simd vectorization 
-    //      - vpn like v2ray protocols with zero proof of knowledge  
-    //      - binary address transmition protocol like onionary://010101000001:2324
+    //      • traffic forwarding tools like ngrok using iptables
+    //      • proxy and all layers load balancer like pingora based on cpu task scheduling, weighted round robin dns, vector clock, event loop and simd vectorization 
+    //      • vpn like v2ray protocols with zero proof of knowledge  
+    //      • binary address transmition protocol like onionary://010101000001:2324
 
     // near, cloudflare and shuttle are serverless:
     //      - write contract or serverless methods in rust then compile to wasm32-wasi
