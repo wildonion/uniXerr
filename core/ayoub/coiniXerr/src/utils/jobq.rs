@@ -13,7 +13,7 @@
 // ➔ rabbitmq will be used between two services like vps-es in a pub/sub manner and is based on actor design pattern which uses async task or jobq channel algos like celery algos to share and solve tasks between its actors 
 // ➔ task queue will be used to manage tasks from the queue inside a free thread selected from the worker threadpool and also it can be used to broadcast and schedule tasks in a pub/sub manner using tokio mpsc channels
 // ➔ actors use task or job queue channels under the hood like celery which is based on a prod/cons or pub/sub manner to prod tasks and cons tasks from the queue to solve them or schedule them to be executed later by sharing them between threads of the worker threadpool using mpsc channel
-// ➔ use celery for producing and consuming async tasks with a distributed message queues (the one that being used inside the rabbitmq)
+// ➔ celery will be used for producing and consuming async tasks with a distributed message queues (the one that being used inside the rabbitmq)
 // ...
 
 // https://dev.to/zeroassumptions/build-a-job-queue-with-rust-using-aide-de-camp-part-1-4g5m
