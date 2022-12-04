@@ -2,7 +2,6 @@
 
 
 
-
 # define the coiniXerr structures here like transaction
 # ...
 
