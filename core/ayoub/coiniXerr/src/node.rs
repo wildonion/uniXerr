@@ -32,7 +32,7 @@ Coded by
                coiniXerr node design pattern explained
         ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
-        a transaction might be send through a tcp stream to the coiniXerr server and each of which will be handled in parallel
+        a transaction might be send through a tcp, udp and rpc stream to the coiniXerr server and each of which will be handled in parallel
         an actor will be started on successful connection from every peer only in tcp mode. once the transaction has received 
         asynchronously and simultaneously they must be signed in order to send them through the mpsc job queue channel to 
         down side of the mempool channel for mining process and relatively for all users to have a successful transfer. 
@@ -337,7 +337,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                cap'n proto rpc server
+    ///////           cap'n proto and json rpc server
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
     
     // start server and get requests from other rpc nodes in here
@@ -354,7 +354,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                cap'n proto rpc client
+    ///////           cap'n proto and json rpc client
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
     // send requests from here to the other rpc nodes in cap'n proto format
@@ -385,7 +385,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////              starting coiniXerr actor system, storage and server 
+    ///////           starting coiniXerr actor system, storage and tcp server 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     
     let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
