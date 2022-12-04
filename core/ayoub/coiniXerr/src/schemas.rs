@@ -768,7 +768,7 @@ impl RMQAccount{ //// we can't take a reference to self since the producer field
 
 // #[derive(Debug)]    
 // pub enum Topic{
-//     Hoop, //// hoops are the musiem playlist
+//     Hoop,
 //     ReHoop,
 //     Mention,
 //     HashTag,

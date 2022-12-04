@@ -7,6 +7,8 @@ An Actor, Sharded TCP, UDP and RPC Based Design Pattern Runtime, Blockchain and 
 
 ### 📌 WIP 
 
+* implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr 
+
 * implementing cap'n proto serialization RPC server and client, RMQ streaming with celery (coiniXerr nodes must communicate with each other through the RPC protocol with cap'n proto as the serialization protocol)
 
 * implementing JSON-RPC server protocol to communicate with walleXerr
