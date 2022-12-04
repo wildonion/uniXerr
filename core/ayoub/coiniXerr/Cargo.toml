@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 reqwest = { version = "0.11", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 tokio = { version = "1", features = ["full"] }
+tarpc = { version = "0.31", features = ["tokio1"] }
 riker = "0.4.1"
 riker-patterns = "0.4.2"
 serde = {version = "1", features = ["derive"] }
@@ -32,7 +33,8 @@ mongodb = "2"
 async-trait = "0.1.57"
 is_type = "0.2.1"
 lapin = "1.0.0-rc1"
-tonic = "0.8.2"
+capnp = "0.15.1"
+celery = "0.3.1"
 
 
 
@@ -43,7 +45,7 @@ tonic = "0.8.2"
 # we need lib.rs and crate type of cdylib for none binary like .wasm, .so, .dylib and .dll files or for tests
 crate-type = ["cdylib", "rlib"]
 path = "src/lib.rs"
-name = "ex"
+name = "daemon"
 
 
 [build]
@@ -52,6 +54,8 @@ rustflags = ["-C", "link-args=-s"] # c linker to produce shared object file
 
 
 
+
 [[bin]]
 name = "coiniXerr"
-path = "src/main.rs"
+path = "src/node.rs"
+

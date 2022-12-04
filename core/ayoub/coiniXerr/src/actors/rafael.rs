@@ -29,7 +29,7 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
     //      • traffic forwarding tools like ngrok using iptables
     //      • proxy and all layers load balancer like pingora based on cpu task scheduling, weighted round robin dns, vector clock, event loop and simd vectorization 
     //      • vpn like v2ray protocols with zero proof of knowledge  
-    //      • binary address transmition protocol like onionary://010101000001:2324
+    //      • binary address transmition protocol like onionary://010101000001:2324 acts as a message broker like rmq, kafka, load balancer and proxy
 
     // near, cloudflare and shuttle are serverless:
     //      - write contract or serverless methods in rust then compile to wasm32-wasi

@@ -56,107 +56,6 @@ Coded by
 
 
 
-    [🚨] we can save each tokio::spawn() inside a vector of type JoinHandle (like OS threads) to await on them one by one later 
-        on to block their running background task to get the computation result of their async task or we can send their computation 
-        results through the mpsc job queue channel between other tasks.
-
-    [🚨] tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes 
-        an async task of type future of a process and shares it between its threads using its job queue channel protocol so every 
-        type in the task must be Send + Sync + 'static and cloneable.
-
-    [🚨] we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument 
-        and needs to mutate a field like run_time_info add() method in which the info_dict field will be updated. 
-
-    [🚨] to solve above issue we have to put that object inside a Mutex (&mut) to share its ownership (Arc) and protect it between multiple 
-        threads and mutating or mutex acquisition is done by blocking the current thread when calling the lock() method, prevent 
-        from being in a dead lock and shared state situations.
-
-    [🚨] & is used to take a reference or borrow the ownership; for Copy trait bounded type this means coping the type by borrowing 
-        its ownership and &mut is a mutable pointer to that for changing it.
-
-    [🚨] Arc (we use Arc if the type wasn't bounded to Clone trait) is used to share the ownership of data and move it between threads 
-        safely with Mutex; we can change and mutate the data (also inside Arc) by locking the local or current thread at runtime to acquire the mutex.
-
-    [🚨] Box is a smart pointer and is used along with the dyn keyword instread of &dyn to take 
-        a reference to object safe traits which are not bounded to Sized and Copy traits.
-
-    [🚨] when an actor is created, it gets its own mailbox for receiving messages and other interested actors are notified 
-        about the new actor joining the system also riker actors are Futures and run as Futures on the underlying threadpool
-        also all riker data structures are Send Sync and have a valid lifetimes across threads.
-
-    [🚨] in actor programming we have worker threadpool and jobq like rmq or kafka in which their 
-        communication between subs and pubs are based on rpc channels.
-  
-    [🚨] ActorRef is a lightweight type that is inexpensive to clone and can be used to interact with its underlying Actor or the struct itself, 
-        such as sending messages to it also is a reference to the actor.
-
-    [🚨] ActorRef always refers to a specific instance of an actor, when two instances of the same Actor are started, 
-        they're still considered separate actors, each with different ActorRefs.
-
-    [🚨] ActorRefs are inexpensive and they contain a reference to the actor struct itself also can be cloned and sent as a message to another actor.
-
-    [🚨] remote_handle() method turns this future into a future that yields () on completion and sends its output to another future on a separate task
-        and can be used with spawning executors to easily retrieve the result of a future executing on a separate task or thread.
-
-    [🚨] actors can communicate with each other asyncly only by sending defined message events since they are isolated inside the ActorRef and never expose their state or behavior, 
-        they can solve incoming task in their threadpool (inside a free thread) also an actor which might be a channel can broadcast message events 
-        inside the channel so other subscriber actors which are interested to that message event can subscribe to that event. 
-
-    [🚨] since we're using tokio::spawn(async move{}) inside the loop we have to pass what ever we want to use it 
-        inside the loop through the mpsc job queue channel cause async move{} will move all vars from its behind to the new scope
-
-    [🚨] calling between actors and broadcasting message events id sone by calling tell() method on actors
-
-    [🚨] there is no guaranteed order of execution for spawns, given that other threads may steal tasks at any time, however, they are generally prioritized in a LIFO order 
-        on the thread from which they were spawned, other threads always steal from the other end of the deque, like FIFO order, the idea is that recent tasks are most likely to be fresh 
-        in the local CPU's cache, while other threads can steal older stale tasks.
-    
-    [🚨] spawning native threads are too slow since thread handling in rust is depends on user base context switching means that 
-        based on the load of the IO in the app rust might solve the data load inside another cpu core and use multiprocessing approach:
-            • https://www.reddit.com/r/rust/comments/az9ogy/help_am_i_doing_something_wrong_or_do_threads/
-            • https://www.reddit.com/r/rust/comments/cz4bt8/is_there_a_simple_way_to_create_lightweight/
-    
-    [🚨] in building multithreading apps sending data between threads must be done by using jobq channels like mpsc job queue to avoid being in deadlock and race condition situations
-    
-    [🚨] actors are workers which uses jobq algos like mpsc job queue channels like celery algos which is based on pub/sub or prod/cons manner and task scheduling 
-        to send message events or jobs or tasks asyncly between other actors and the system like req/res format 
-        to execute them inside their free thread from the worker threadpool.
-    
-    [🚨] messages or the data must be Send Sync static and Arc<Mutex<Message>> to share between actor threads for mutating
-    
-    [🚨] mpsc job queue means multiple threads can read the data which is Send + Sync + 'static or multiple sender can be cloned but only one thread or receiver can mutate the data
-    
-    [🚨] the three causes of data races
-            • Two or more pointers access the same data at the same time.
-            • At least one of the pointers is being used to write to the data.
-            • There’s no mechanism being used to synchronize access to the data
-    
-    [🚨] the three rules of ownership
-            • Each value in Rust has a variable that’s called its owner.
-            • There can only be one owner at a time.
-            • When the owner goes out of scope, the value will be dropped.
-    
-    [🚨] the two rules of references
-            • At any given time, you can have either one mutable reference or any number of immutable references.
-            • References must always be valid.
-
-    
-    [🚨] a jobq uses channels to share data between threads and one of them is mpsc job queue which means that multiple 
-        sender can be shared between threads but only one consumer can be used by a thread 
-        at a time since the consumer in mpsc job queue is not shareable and cloneable.
-
-    [🚨] we can pass a mutex through the mpsc job queue channel to other threads to allow the thread mutate the content of that 
-        type by locking on that type which prevent other threads from mutating the type.
-
-    [🚨] workers is the number of threads used in a threadpool amd jobs is the number of tasks that must be solved inside the worker threadpool
-    
-    [🚨] jobq channel is an async queue like mpsc that can schedule the received jobs, events or tasks (a method or a closure) 
-        from the sender side of the channel asyncly and execute them inside its worker threadpool, actors use this pattern
-        to transfer their tasks between their worker threadpools.
-
-
-
-
 */
 
 
@@ -195,7 +94,7 @@ use crate::actors::{
                     peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
-use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
+use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, Account, Topic};
 use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
 use mongodb::Client;
 //// futures is used for reading and writing streams asyncly from and into buffer using its traits and based on orphan rule TryStreamExt trait is required to use try_next() method on the future object which is solved by using .await on it also try_next() is used on futures stream or chunks to get the next future IO stream and returns an Option in which the chunk might be either some value or none
@@ -207,7 +106,7 @@ use borsh::{BorshDeserialize, BorshSerialize};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::Config;
-use ex; //// import lib.rs methods
+use daemon; //// import lib.rs methods
 
 
 
@@ -236,9 +135,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-    // ex::trash().await;
-    // ex::mactrait().await;
-    // ex::unsafer().await;
+    // daemon::trash().await;
+    // daemon::mactrait().await;
+    // daemon::unsafer().await;
 
     
 
@@ -268,7 +167,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                     .unwrap();
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
-            
+    let ampq_addr = env::var("AMQP_ADDR").expect("⚠️ no ampq address variable set");
+    let rpc_addr = format!("{}{}", host, port).as_str();
     let db_host = env::var("DB_HOST").expect("⚠️ no db host variable set");
     let db_port = env::var("DB_PORT").expect("⚠️ no db port variable set");
     let db_username = env::var("DB_USERNAME").expect("⚠️ no db username variable set");
@@ -339,8 +239,134 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
+
+
+
+
+
     
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                      rmq setup
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈      
+    ////
+    ////         publisher/subscriber app (rust or js code) 
+    ////                      |
+    ////                       ---- tcp socket
+    ////                                       |
+    ////                              rpc broker channels
+    ////                                       |
+    ////                                        --------- exchange
+    ////                                                     |
+    ////                             routing key ------- |binding| ------- routing key
+    ////                                                     |
+    ////                                             jobq queue buffer
+    ////                                                     |
+    ////                                                      --------- worker threadpool 
+    ////
+    //// ➔ publishers (rust or js code) which is connected to the mq broker can publish messages to a channel 
+    ////    from there (inside the broker channels) messages will be buffered inside a specific queue.
+    //// ➔ subscribers (rust or js code) want to subscribe to a specific message in which they must talk to a channel
+    ////    then the channel will talk to the broker to get the message from a specific queue.
+    //// ➔ rabbitmq uses queues instead of topics means that we can get all messages from a specific queues 
+    ////    instead of subscribing to a specific topic by doing this all consumers can subscribe to a specific queue.  
+    //// ➔ there might be multiple channels each of which are able to talk to a specific queue to get the buffered message from there.
+
+    let sample_account_id = Uuid::new_v4().to_string();
+    let mut account = Account::new(
+                                    &ampq_addr,
+                                    2, 
+                                    sample_account_id
+                                ).await;
     
+
+                                
+
+
+
+
+                                
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////         making queues, publish and subscribe
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+    account //// making the hoop queue for publishing and subscribing process
+        .make_queue("hoop")
+        .await;
+        
+    account //// the publisher could be another app written in another lang
+        .publish(10, "", "hoop") //// publishing 10 times on the passed in queue
+        .await;
+
+    account //// the subscriber could be another app written in another lang
+        .subscribe("hoop") //// subscribing to the hoop queue
+        .await;
+
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                     celery setup
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+    // TODO - implement rmq with celery to handle requests' resource acquisition like fetching/inserting data from/into db and executing an scheduled task inside an API
+    //        celery will be used for producing and consuming async tasks with a distributed message queues (the one that being used inside the rabbitmq)
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                cap'n proto rpc server
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
+    
+    // start server and get requests from other rpc nodes in here
+    // use tarpc?
+    // ... 
+
+
+
+
+
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                cap'n proto rpc client
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+    // send requests from here to the other rpc nodes in cap'n proto format
+    // ...
+    
+
+
+
+
+
+
+
 
 
 
@@ -370,6 +396,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                                     .create()
                                                     .unwrap(); //// unwrapping the last functional method 
     info!("➔ 🟢 actor system, server and storage are set up");
+
+
 
 
 

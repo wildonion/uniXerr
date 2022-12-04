@@ -1,29 +1,39 @@
 
 
 
-// https://drive.google.com/file/d/1K2uO8D_qLhXWcAHDpICmbfFx3hfQ4Sah/view?usp=share_link -> Models of the Mind
-// https://drive.google.com/file/d/17aF74xeydgx_BulPknWv6NiU4wgTBwfQ/view?usp=share_link -> Descartes' Error
-// https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
-// TODO - compile the whole coded brain into an encoded graph like brain.capnp (cap'n proto schema) in such a way the unconsciousness can decode it 
-// TODO - implement the coiniXerr::utils::scheduler::_async::Actor as uniXerrActor for Neuron in here
-// TODO - implement all cognitive neuroscience concepts and schemas and code the whole brain instead of having neural network like a brain engine using various macro syntax like brain!{}
-// TODO - every neuron can be an actor (or the column of our input matrix) to construct the GNN in an async and multithreading manner in such a way that every actor which is a neuron can communicate with each other to get the data of the next or the last neuron asyncly 
-// NOTE - a brain structure can have multiple interfaces like being in void and illusion abstract situations which can be implemented using traits 
-// NOTE - train on ayoub conse PaaS events' phases which will be used to create behavioural graph of each player inside the game 
-//          to show the tips and tricks of the new game based on the history or the behavioural graph of the player
-// ...  
 
 /*
 
 
 
-    decision making process:
+    https://en.wikipedia.org/wiki/Unconscious_mind
+    https://www.sas.upenn.edu/~cavitch/pdf-library/Solms_Unconscious.pdf
+    https://drive.google.com/file/d/1K2uO8D_qLhXWcAHDpICmbfFx3hfQ4Sah/view?usp=share_link -> Models of the Mind
+    https://drive.google.com/file/d/17aF74xeydgx_BulPknWv6NiU4wgTBwfQ/view?usp=share_link -> Descartes' Error
+    https://github.com/wildonion/uniXerr/blob/master/core/recognizer/helper_board
+    TODO - compile the whole coded brain into an encoded graph like brain.capnp (cap'n proto schema) in such a way the unconsciousness can decode it 
+    TODO - implement the coiniXerr::utils::scheduler::_async::Actor as uniXerrActor for Neuron in here
+    TODO - implement all cognitive neuroscience concepts and schemas and code the whole brain instead of having neural network like a brain engine using various macro syntax like brain!{}
+    TODO - every neuron can be an actor (or the column of our input matrix) to construct the GNN in an async and multithreading manner in such a way that every actor which is a neuron can communicate with each other to get the data of the next or the last neuron asyncly 
+    NOTE - a brain structure can have multiple interfaces like being in void and illusion abstract situations which can be implemented using traits 
+    NOTE - train on ayoub conse PaaS events' phases which will be used to create behavioural graph of each player inside the game 
+            to show the tips and tricks of the new game based on the history or the behavioural graph of the player
 
+
+    decision making process will be done through the followings:
         • select an event from the event pool at time T
         • occure that event inside the brain 
         • consciousness (the cerebral cortex) must 
             - interpret that event
             - choose a response from the generated response pool
+
+            
+    unconsciousness which is responsible for cognitions, performing functions, feelings and memories is located in 
+        - extended reticulothalamic activating system (ERTAS)
+        - basal ganglia and cerebellum
+
+    The basal ganglia and cerebellum are major subcortical structures that influence not only movement, but putatively also cognition and affect. 
+    Both structures receive input from and send output to the cerebral cortex. Thus, the basal ganglia and cerebellum form multisynaptic loops with the cerebral cortex.
 
 
 
@@ -96,9 +106,6 @@ pub trait Suspend{} //-- a buffer contains unaddressed issues, feelings, pains a
 
 
 
-// The parts of the brain that perform the functions that Freud called the "id" are located 
-// mainly in the ERTAS and limbic system, whereas the parts that perform the functions he attributed 
-// to "the repressed" (or the "system unconscious") are located mainly in the basal ganglia and cerebellum.
 
 
 

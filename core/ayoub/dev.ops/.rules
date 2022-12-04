@@ -444,7 +444,103 @@ NOTE - semaphores are variables that have been used in tokio channels to manage 
 
 
 
+[🚨] we can save each tokio::spawn() inside a vector of type JoinHandle (like OS threads) to await on them one by one later 
+        on to block their running background task to get the computation result of their async task or we can send their computation 
+        results through the mpsc job queue channel between other tasks.
 
+[🚨] tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes 
+    an async task of type future of a process and shares it between its threads using its job queue channel protocol so every 
+    type in the task must be Send + Sync + 'static and cloneable.
+
+[🚨] we can't borrow data inside Arc as mutable if we have a an object in which one of its method has &mut self as its first argument 
+    and needs to mutate a field like run_time_info add() method in which the info_dict field will be updated. 
+
+[🚨] to solve above issue we have to put that object inside a Mutex (&mut) to share its ownership (Arc) and protect it between multiple 
+    threads and mutating or mutex acquisition is done by blocking the current thread when calling the lock() method, prevent 
+    from being in a dead lock and shared state situations.
+
+[🚨] & is used to take a reference or borrow the ownership; for Copy trait bounded type this means coping the type by borrowing 
+    its ownership and &mut is a mutable pointer to that for changing it.
+
+[🚨] Arc (we use Arc if the type wasn't bounded to Clone trait) is used to share the ownership of data and move it between threads 
+    safely with Mutex; we can change and mutate the data (also inside Arc) by locking the local or current thread at runtime to acquire the mutex.
+
+[🚨] Box is a smart pointer and is used along with the dyn keyword instread of &dyn to take 
+    a reference to object safe traits which are not bounded to Sized and Copy traits.
+
+[🚨] when an actor is created, it gets its own mailbox for receiving messages and other interested actors are notified 
+    about the new actor joining the system also riker actors are Futures and run as Futures on the underlying threadpool
+    also all riker data structures are Send Sync and have a valid lifetimes across threads.
+
+[🚨] in actor programming we have worker threadpool and jobq like rmq or kafka in which their 
+    communication between subs and pubs are based on rpc channels.
+
+[🚨] ActorRef is a lightweight type that is inexpensive to clone and can be used to interact with its underlying Actor or the struct itself, 
+    such as sending messages to it also is a reference to the actor.
+
+[🚨] ActorRef always refers to a specific instance of an actor, when two instances of the same Actor are started, 
+    they're still considered separate actors, each with different ActorRefs.
+
+[🚨] ActorRefs are inexpensive and they contain a reference to the actor struct itself also can be cloned and sent as a message to another actor.
+
+[🚨] remote_handle() method turns this future into a future that yields () on completion and sends its output to another future on a separate task
+    and can be used with spawning executors to easily retrieve the result of a future executing on a separate task or thread.
+
+[🚨] actors can communicate with each other asyncly only by sending defined message events since they are isolated inside the ActorRef and never expose their state or behavior, 
+    they can solve incoming task in their threadpool (inside a free thread) also an actor which might be a channel can broadcast message events 
+    inside the channel so other subscriber actors which are interested to that message event can subscribe to that event. 
+
+[🚨] since we're using tokio::spawn(async move{}) inside the loop we have to pass what ever we want to use it 
+    inside the loop through the mpsc job queue channel cause async move{} will move all vars from its behind to the new scope
+
+[🚨] calling between actors and broadcasting message events id sone by calling tell() method on actors
+
+[🚨] there is no guaranteed order of execution for spawns, given that other threads may steal tasks at any time, however, they are generally prioritized in a LIFO order 
+    on the thread from which they were spawned, other threads always steal from the other end of the deque, like FIFO order, the idea is that recent tasks are most likely to be fresh 
+    in the local CPU's cache, while other threads can steal older stale tasks.
+
+[🚨] spawning native threads are too slow since thread handling in rust is depends on user base context switching means that 
+    based on the load of the IO in the app rust might solve the data load inside another cpu core and use multiprocessing approach:
+        • https://www.reddit.com/r/rust/comments/az9ogy/help_am_i_doing_something_wrong_or_do_threads/
+        • https://www.reddit.com/r/rust/comments/cz4bt8/is_there_a_simple_way_to_create_lightweight/
+
+[🚨] in building multithreading apps sending data between threads must be done by using jobq channels like mpsc job queue to avoid being in deadlock and race condition situations
+
+[🚨] actors are workers which uses jobq algos like mpsc job queue channels like celery algos which is based on pub/sub or prod/cons manner and task scheduling 
+    to send message events or jobs or tasks asyncly between other actors and the system like req/res format 
+    to execute them inside their free thread from the worker threadpool.
+
+[🚨] messages or the data must be Send Sync static and Arc<Mutex<Message>> to share between actor threads for mutating
+
+[🚨] mpsc job queue means multiple threads can read the data which is Send + Sync + 'static or multiple sender can be cloned but only one thread or receiver can mutate the data
+
+[🚨] the three causes of data races
+        • Two or more pointers access the same data at the same time.
+        • At least one of the pointers is being used to write to the data.
+        • There’s no mechanism being used to synchronize access to the data
+
+[🚨] the three rules of ownership
+        • Each value in Rust has a variable that’s called its owner.
+        • There can only be one owner at a time.
+        • When the owner goes out of scope, the value will be dropped.
+
+[🚨] the two rules of references
+        • At any given time, you can have either one mutable reference or any number of immutable references.
+        • References must always be valid.
+
+
+[🚨] a jobq uses channels to share data between threads and one of them is mpsc job queue which means that multiple 
+    sender can be shared between threads but only one consumer can be used by a thread 
+    at a time since the consumer in mpsc job queue is not shareable and cloneable.
+
+[🚨] we can pass a mutex through the mpsc job queue channel to other threads to allow the thread mutate the content of that 
+    type by locking on that type which prevent other threads from mutating the type.
+
+[🚨] workers is the number of threads used in a threadpool amd jobs is the number of tasks that must be solved inside the worker threadpool
+
+[🚨] jobq channel is an async queue like mpsc that can schedule the received jobs, events or tasks (a method or a closure) 
+    from the sender side of the channel asyncly and execute them inside its worker threadpool, actors use this pattern
+    to transfer their tasks between their worker threadpools.
 
         
         

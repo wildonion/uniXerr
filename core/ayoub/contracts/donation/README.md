@@ -1,5 +1,5 @@
 
-# 🧧 Hoopoe Musiem Donation Smart Contract on NEAR
+# 🧧 coiniXerr Donation Smart Contract on NEAR
 
 ### ☢️ Environment Setup
 
