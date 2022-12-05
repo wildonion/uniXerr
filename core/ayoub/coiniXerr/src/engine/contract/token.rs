@@ -6,7 +6,7 @@
 
 // NOTE - all coiniXerr coin holders are uniXerr community members called participants known as validator actors
 // NOTE - validator actors can issue contracts by staking some coins from their coiniXerr balance which can be deposited based on their smart contract tokens (CRC20) ExpTime field
-// NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm which is position clustering coin generation model
+// NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm (rl) which is position clustering coin generation model
 // NOTE - validator actors or voters will vote to a bidded or auctioned contract by staking their coins on the coiniXerr network and get rewarded based on the coiniXerr liquidity or token pool or every tax of the voted transaction of the contract
 // TODO - compile coiniXerr contracts to wasm to run in browser through the loading process of the .wasm or .js compiled file or .so bpf bytecode
 

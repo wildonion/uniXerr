@@ -18,6 +18,7 @@
 
 // https://dev.to/zeroassumptions/build-a-job-queue-with-rust-using-aide-de-camp-part-1-4g5m
 // https://poor.dev/blog/what-job-queue/
+// https://cetra3.github.io/blog/implementing-a-jobq/
 // https://rodent.club/queue-manager/
 // https://cetra3.github.io/blog/implementing-a-jobq-with-tokio/
 // https://tokio.rs/tokio/tutorial/channels

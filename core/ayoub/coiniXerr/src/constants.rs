@@ -5,6 +5,11 @@
 
 
 
+
+
+pub const STORAGE_COST: u128 = 3;
+pub const COMPUTATIONAL_COST: u128 = 2; 
+pub const VALIDATOR_REWARD_COST: u128 = 4;
 pub const MESSAGE_FETCHED_SUCCESS: &str = "Fetched successfully";
 pub const MESSAGE_SPEND_SUCCESS: &str = "Spend successfully";
 pub const MESSAGE_INTERNAL_SERVER_ERROR: &str = "Internal Server Error";

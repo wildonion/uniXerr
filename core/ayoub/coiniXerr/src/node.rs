@@ -32,14 +32,15 @@ Coded by
                coiniXerr node design pattern explained
         ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
-        a transaction might be send through a tcp, udp and rpc stream to the coiniXerr server and each of which will be handled in parallel
-        an actor will be started on successful connection from every peer only in tcp mode. once the transaction has received 
-        asynchronously and simultaneously they must be signed in order to send them through the mpsc job queue channel to 
-        down side of the mempool channel for mining process and relatively for all users to have a successful transfer. 
-        They can only be signed as long as the receiver of the transaction channel or the mempool is waiting for 
-        the new transaction and if the receiver was not able to receive caused by a sudden shutdown, dropped sender 
-        (caused by joining the thread contains sender to stop the task from being processed in background) and 
-        timeout or deadline issue that transaction will not be signed and the transfer process won't be a successful event. 
+        a coiniXerr node is a p2p tcp, udp (using zmq) and rpc (json and capn'n proto) based both server and client at the same time.
+        a transaction can be sent through a tcp, udp (using zmq) and rpc for cap'n proto and json-rpc stream from the walleXerr or another node 
+        and each of which will be handled in parallel using tokio, an actor will be started on successful connection from every peer. 
+        once the transaction has received asynchronously and simultaneously they must be signed in order to send them through 
+        the mpsc job queue channel to down side of the mempool channel for mining process and relatively for all users to have 
+        a successful transfer. They can only be signed as long as the receiver of the transaction channel or the mempool is 
+        waiting for the new transaction and if the receiver was not able to receive caused by a sudden shutdown, dropped sender 
+        (caused by joining the thread contains sender to stop the task from being processed in background) and timeout or deadline 
+        issue that transaction will not be signed and the transfer process won't be a successful event. 
         of course if the transaction is not signed means there will be no mining process cause the receiver is not waiting 
         to receive anything from the sender to put them in a block for mining.
         The main structure of the coiniXerr network is its parachains in which every parachain has its own blockchain stuffs and an
@@ -94,7 +95,7 @@ use crate::actors::{
                     peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
-use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, Account, Topic};
+use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
 use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
 use mongodb::Client;
 //// futures is used for reading and writing streams asyncly from and into buffer using its traits and based on orphan rule TryStreamExt trait is required to use try_next() method on the future object which is solved by using .await on it also try_next() is used on futures stream or chunks to get the next future IO stream and returns an Option in which the chunk might be either some value or none
@@ -115,7 +116,7 @@ pub mod constants;
 pub mod schemas;
 pub mod actors;
 pub mod engine;
-pub mod utils; //// we're importing the utils.rs in here as a public module thus we can access all the modules, functions and macros inside of it in here publicly
+pub mod utils; //// we're importing the utils.rs in here as a public module thus we can access all the modules, functions and macros inside of it publicly
 
 
 
@@ -168,7 +169,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let _handle = log4rs::init_config(config).unwrap();
     dotenv().expect("⚠️ .env file not found");
     let ampq_addr = env::var("AMQP_ADDR").expect("⚠️ no ampq address variable set");
-    let rpc_addr = format!("{}{}", host, port).as_str();
     let db_host = env::var("DB_HOST").expect("⚠️ no db host variable set");
     let db_port = env::var("DB_PORT").expect("⚠️ no db port variable set");
     let db_username = env::var("DB_USERNAME").expect("⚠️ no db username variable set");
@@ -182,7 +182,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let max_block_size = env::var("IO_BUFFER_SIZE").expect("⚠️ please set block size in .env").parse::<usize>().unwrap();
     let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
     let host = env::var("HOST").expect("⚠️ please set host in .env");
+    let rpc_port = env::var("RPC_PORT").expect("⚠️ please set rpc port in .env");
     let coiniXerr_tcp_port = env::var("COINIXERR_TCP_PORT").expect("⚠️ please set coiniXerr tcp port in .env");
+    let rpc_addr = format!("{}{}", host, rpc_port).as_str();
     let (stream_sender, mut stream_receiver) = mpsc::channel::<(
                                                                                                                                 TcpStream, 
                                                                                                                                 Uuid, 
@@ -239,89 +241,57 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-
-
-
-
-
-
     
 
 
 
+
+
+
+
+
+
+
+
+
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                      rmq setup
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈      
-    ////
-    ////         publisher/subscriber app (rust or js code) 
-    ////                      |
-    ////                       ---- tcp socket
-    ////                                       |
-    ////                              rpc broker channels
-    ////                                       |
-    ////                                        --------- exchange
-    ////                                                     |
-    ////                             routing key ------- |binding| ------- routing key
-    ////                                                     |
-    ////                                             jobq queue buffer
-    ////                                                     |
-    ////                                                      --------- worker threadpool 
-    ////
-    //// ➔ publishers (rust or js code) which is connected to the mq broker can publish messages to a channel 
-    ////    from there (inside the broker channels) messages will be buffered inside a specific queue.
-    //// ➔ subscribers (rust or js code) want to subscribe to a specific message in which they must talk to a channel
-    ////    then the channel will talk to the broker to get the message from a specific queue.
-    //// ➔ rabbitmq uses queues instead of topics means that we can get all messages from a specific queues 
-    ////    instead of subscribing to a specific topic by doing this all consumers can subscribe to a specific queue.  
-    //// ➔ there might be multiple channels each of which are able to talk to a specific queue to get the buffered message from there.
-
-    let sample_account_id = Uuid::new_v4().to_string();
-    let mut account = Account::new(
-                                    &ampq_addr,
-                                    2, 
-                                    sample_account_id
-                                ).await;
-    
-
-                                
-
-
-
-
-                                
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////         making queues, publish and subscribe
+    ///////     cap'n proto and json zmq server and client 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-    account //// making the hoop queue for publishing and subscribing process
-        .make_queue("hoop")
-        .await;
-        
-    account //// the publisher could be another app written in another lang
-        .publish(10, "", "hoop") //// publishing 10 times on the passed in queue
-        .await;
-
-    account //// the subscriber could be another app written in another lang
-        .subscribe("hoop") //// subscribing to the hoop queue
-        .await;
-
-
-
-
-
-
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                     celery setup
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-    // TODO - implement rmq with celery to handle requests' resource acquisition like fetching/inserting data from/into db and executing an scheduled task inside an API
-    //        celery will be used for producing and consuming async tasks with a distributed message queues (the one that being used inside the rabbitmq)
-
-
-
-
+    
+    // use tcp and udp protocol to build the server
+    // use zmq for async transaction between nodes 
+    // ...
 
     
+    let context = zmq::Context::new();
+    let responder = context.socket(zmq::REP).unwrap();
+    let requester = context.socket(zmq::REQ).unwrap();
+
+    assert!(responder.bind("tcp://*:5555").is_ok());
+
+    let mut msg = zmq::Message::new();
+    loop {
+        responder.recv(&mut msg, 0).unwrap();
+        println!("Received {}", msg.as_str().unwrap());
+        thread::sleep(Duration::from_millis(1000));
+        responder.send("World", 0).unwrap();
+    }
+
+
+    for request_nbr in 0..10 {
+        println!("Sending Hello {}...", request_nbr);
+        requester.send("Hello", 0).unwrap();
+        requester.recv(&mut msg, 0).unwrap();
+        println!("Received World {}: {}", msg.as_str().unwrap(), request_nbr);
+    }
+
+
+
+
+
+
+
 
 
 
@@ -337,11 +307,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////           cap'n proto and json rpc server
+    ///////      cap'n proto and json rpc server and client 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
     
     // start server and get requests from other rpc nodes in here
-    // use tarpc?
+    // send requests from here to the other rpc nodes in cap'n proto format
+    // tarpc and jsonrpsee?
     // ... 
 
 
@@ -353,18 +324,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////           cap'n proto and json rpc client
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-    // send requests from here to the other rpc nodes in cap'n proto format
-    // ...
-    
-
-
-
-
-
 
 
 
@@ -385,17 +344,68 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////           starting coiniXerr actor system, storage and tcp server 
+    ///////                 starting coiniXerr actor system and storage 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    
-    let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
+
     let unwrapped_storage = app_storage.unwrap(); //-- unwrapping the app storage to create a db instance
     let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
     let coiniXerr_sys = SystemBuilder::new()
                                                     .name("coiniXerr")
                                                     .create()
                                                     .unwrap(); //// unwrapping the last functional method 
-    info!("➔ 🟢 actor system, server and storage are set up");
+    info!("➔ 🟢 actor system and storage are set up");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////            starting coiniXerr tokio tcp and udp server and client  
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    
+    let listener = TcpListener::bind(format!("{}:{}", host, coiniXerr_tcp_port)).await.unwrap();
+    info!("➔ 🟢 tcp listener is ready");
+
+    // ...
+    
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -415,10 +425,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 // when we want to load vars it's ok but if we put the starting the emulator process before loading dotenv we'll face error since dotenv doesn't initialize yet
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////            start transaction emulator
+    ///////            start transaction emulators
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈     
     
-    // utils::api::tx_emulator().await;
+    utils::tx_emulator().await;
+    utils::tx_emulator_udp().await;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -445,6 +471,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let parachain_updated_channel: ChannelRef<ParachainUpdated>            = channel("parachain-updated-channel", &coiniXerr_sys).unwrap(); //// parachain actors which are interested in this message event (the message type is supported by and implemented for all parachain actors) must subscribe to all topics (like updating a parachain) of this event for parachain_updated_channel channel actor
     let mempool_updated_channel: ChannelRef<UpdateValidatorAboutMempoolTx> = channel("mempool-transaction-joined-channel", &coiniXerr_sys).unwrap(); //// validator actors which are interested in this message event (the message type is supported by and implemented for all validator actors) must subscribe to all topics (like incoming a new transaction inside the mempool channel) of this event for mempool_updated_channel channel actor
     let mining_channel: ChannelRef<UpdateValidatorAboutMiningProcess>      = channel("mining-channel", &coiniXerr_sys).unwrap(); //// validator actors which are interested in this message event (the message type is supported by and implemented for all validator actors) must subscribe to all topics (like starting mining process) of this event for mining_channel channel actor
+
+
+
 
 
 
@@ -601,6 +630,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
+
+
+
     
 
 
@@ -642,6 +675,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                 },
                                 None
     );
+
+
 
 
 

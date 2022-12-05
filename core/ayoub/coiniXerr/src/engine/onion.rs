@@ -13,7 +13,7 @@
 //     - task scheduling algos
 //     - worker threadpool
 //     - rpc based pub sub channels for broadcasting messages
-//     - jobq like rabbitmq and celery
+//     - jobq like celery and the one inside the rabbitmq and zmq 
 
 
 
