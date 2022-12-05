@@ -32,7 +32,7 @@ clap = "4"
 mongodb = "2"
 async-trait = "0.1.57"
 is_type = "0.2.1"
-capnp = "0.15.1"
+capnp = "0.15.2"
 zmq = "0.10.0"
 
 
