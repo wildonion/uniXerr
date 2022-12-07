@@ -16,6 +16,7 @@
 // ➔ celery will be used for producing and consuming async tasks with a distributed message queues (the one that being used inside the rabbitmq)
 // ...
 
+// https://github.com/codepr/tasq
 // https://dev.to/zeroassumptions/build-a-job-queue-with-rust-using-aide-de-camp-part-1-4g5m
 // https://poor.dev/blog/what-job-queue/
 // https://cetra3.github.io/blog/implementing-a-jobq/

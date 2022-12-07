@@ -394,9 +394,18 @@ NOTE - stack data types implemented copy trait thus no need to clone them like &
 NOTE - traits must be inside box or take a reference to them since they don't have know size at compile time thus they couldn't be a field of the struct directyly
 NOTE - we can return a reference from the function by defining a lifetime inside the function signature or use the self lifetime if its a struct method 
 NOTE - we can return a reference from the function to a struct if we're building the struct and returning it at the same time since building and returning won't store anything inside the stack 
-NOTE - semaphores are variables that have been used in tokio channels to manage thread resources acquisition
-
-
+NOTE - semaphores are variables that have been used in tokio channels to manage thread resources acquisition like the one inside the Mutex structure
+NOTE - we can stream over any kind of data using zmq means we can stream video and audio through the zmq socket also a p2p musiem streaming 
+NOTE - actors are worker threadpool with a built in job or task queue and a mailbox to send and receive messages from other actors asyncly, also they can schedule a message to be executed later or broadcasted to a specific channel. 
+NOTE - message queues like ZMQ can use actors behind the scene for real-time future object streaming in such a away that the message sender (publisher) can be a response actor and the receiver (subscriber) can be a request actor which can subscribe to the messages received from the publisher and solve them inside its worker theadpool. 
+NOTE - The received message from the subscriber can be scheduled to be executed later using a task queue  like celery or another riker actor.
+NOTE - tokio can spawn async tasks inside its worker green threadpool instead of using native threads which has a little building in jobq channels to move tasks between its threads.
+NOTE - channels in multithreading concepts like mpsc, one shot, broadcast and watch can be used to share tasks between threads and their concepts are same with pub/sub or prod/cons channels in message queues but message queues are using rpc or socket under the hood.
+NOTE - thread safe data types are Arc<Mutex<T>> + Send + Sync and can be shared between worker threadpool safely (deadlock avoidable) using jobq channels (mpsc, oneshot, watch)
+NOTE - the concepts of the channels can be used in multithreading field like mpsc which is used to share a thread safe data between multitple threads in a safe manner that only one consumer can mutate it at the same time although in socket field there is only one socket or a system can mutate the data received by the publisher or the sender socket channel.
+NOTE - every channels either jobq or a socket one can follow the one of the rules of mpsc, one shot, broadcast and watch at a time.
+NOTE - tasks received from receivers that want to be shared between threads (using jobq channels) of an actor worker threadpool must be safe to send (Arc-ed)
+NOTE - jobq channels can be used to share data between threads and also schedule a task to be executed later by poping it out of the queue and they can also be used with message queue like zmq  
 
 
 
@@ -438,17 +447,13 @@ NOTE - semaphores are variables that have been used in tokio channels to manage 
 
 
 
-    
+
         
-        
-
-
-
 [🚨] we can save each tokio::spawn() inside a vector of type JoinHandle (like OS threads) to await on them one by one later 
-        on to block their running background task to get the computation result of their async task or we can send their computation 
-        results through the mpsc job queue channel between other tasks.
+    on to block their running background task to get the computation result of their async task or we can send their computation 
+    results through the mpsc job queue channel between other tasks.
 
-[🚨] tokio::spawn() is an asynchronous multithreaded (green threads) and event loop based task spawner and scheduler which takes 
+[🚨] tokio::spawn() is an asynchronous multithreaded (green threads) worker and event loop based task spawner and scheduler which takes 
     an async task of type future of a process and shares it between its threads using its job queue channel protocol so every 
     type in the task must be Send + Sync + 'static and cloneable.
 

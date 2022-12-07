@@ -717,11 +717,27 @@ pub async fn trash(){
         };
         some_u8_number // the some_u8_number scope is still valid in here and we can return
     }).await;
+    
     ( // building and calling the closure at the same time; the return type of this closure is a future which must be awaited later on
         |age| async move{ 
             age
         }
     )(32).await;
+
+    
+
+    let names = (
+        (|x| async move{ //// the return body is a future object which must be solved later using .await and move will move everything from the last scope into its scope  
+            let names = (0..x)
+                .into_iter()
+                .map(|index|{
+                    let name: String = "wildonion".to_string();
+                    name
+                })
+                .collect::<Vec<String>>();
+            names
+        })
+    )(23).await;
 
 
 
@@ -906,6 +922,50 @@ pub async fn mactrait(){
 
 pub async fn unsafer(){
 
+
+
+    ////////////////////////////////////////////////////////////////
+    //                  std::ptr::eq examples
+    //////////////////////////////////////////////////////////////// 
+    struct W(i32);
+    let w = W(324);
+    let a = &w as &dyn Sync; //// //// casting the &w to a reference to the Sync trait and since traits have no size thus we have to use &dyn; we can cast here since trait Sync is implemented for the W struct (if we want to cast to a trait the trait must be implement it for the type)
+    let b = &w.0 as &dyn Sync; //// casting the &w.0 to a reference to the Sync trait and since traits have no size thus we have to use &dyn; we can cast here since trait Sync is implemented for the W struct (if we want to cast to a trait the trait must be implement it for the type) 
+    // it'll return false since `a` is pointing to the location of `w` which is an instance of the `W` 
+    // and `b` is pointing to the location of 123 which these are located in two different areas inside the stack.
+    // also objects and pointers have equal addresses but traits have different ones
+    println!("{}", std::ptr::eq(a, b)); //// comparing two raw pointers by they address (if they are raw compiler will coerce them into raw like *const T)
+
+    struct Wrapper { member: i32 }
+    trait Trait {}
+    impl Trait for Wrapper {}
+    impl Trait for i32 {}
+
+    let wrapper = Wrapper { member: 10 };
+
+    // Pointers have equal addresses.
+    assert!(std::ptr::eq(
+        &wrapper as *const Wrapper as *const u8, //// to convert an instance to the u8 we have to first convert it to the struct itself first
+        &wrapper.member as *const i32 as *const u8 //// to convert the number to the u8 we have to first convert it to the i32 itself first
+    ));
+
+    // Objects have equal addresses, but `Trait` has different implementations.
+    assert!(!std::ptr::eq(
+        &wrapper as &dyn Trait, //// casting the wrapper to the Trait trait we can do this, since Trait is implemented for the underlying type or Wrapper struct (if we want to cast to a trait the trait must be implmeneted for the type) 
+        &wrapper.member as &dyn Trait,
+    ));
+    assert!(!std::ptr::eq(
+        &wrapper as &dyn Trait as *const dyn Trait, //// we have to first cast the wrapper into the &dyn Trait then into the raw pointer of the dyn Trait
+        &wrapper.member as &dyn Trait as *const dyn Trait,
+    ));
+
+    // Converting the reference to a `*const u8` compares by address.
+    assert!(std::ptr::eq(
+        &wrapper as &dyn Trait as *const dyn Trait as *const u8,
+        &wrapper.member as &dyn Trait as *const dyn Trait as *const u8,
+    ));
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
 
 
