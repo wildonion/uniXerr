@@ -30,10 +30,9 @@
             
     unconsciousness which is responsible for cognitions, performing functions, feelings and memories is located in 
         - extended reticulothalamic activating system (ERTAS)
-        - basal ganglia and cerebellum
-
-    The basal ganglia and cerebellum are major subcortical structures that influence not only movement, but putatively also cognition and affect. 
-    Both structures receive input from and send output to the cerebral cortex. Thus, the basal ganglia and cerebellum form multisynaptic loops with the cerebral cortex.
+        - basal ganglia and cerebellum:
+            the basal ganglia and cerebellum are major subcortical structures that influence not only movement, but putatively also cognition and affect. 
+            Both structures receive input from and send output to the cerebral cortex. Thus, the basal ganglia and cerebellum form multisynaptic loops with the cerebral cortex.
 
 
 

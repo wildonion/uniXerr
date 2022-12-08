@@ -264,7 +264,7 @@ pub async fn trash(){
 
 
     // =============================================================================================================================
-    
+    //// in order to change the content of a type using its pointer we have to define the pointer as mutable
     /*
 	
         let mut my_name = "Pascal".to_string();
@@ -385,11 +385,13 @@ pub async fn trash(){
     // =============================================================================================================================
     // =============================================================================================================================
     //                                                 GENERIC AND LIFETIMES
-    // we can return the reference from function with the lifetime of the passed in args or with a static ref
 	// =============================================================================================================================
     // =============================================================================================================================
     // =============================================================================================================================
-	// NOTE - generic types in function signature can be bounded to lifetimes and traits so we can use the lifetime to avoid having dangling pointer of the generic type in function body and traits to extend the type interface
+    // ➔ we can return the reference from function with the lifetime of the passed in args, with a static ref or a specific lifetiem
+    // ➔ the generic type of a structure must be used for one of its field since compiler allocated some sapce for it and if we don't
+    //    use it it'll be unused which the won't compile hence to fix the issue we must put the generic type inside a PhantomData struct
+	// ➔ generic types in function signature can be bounded to lifetimes and traits so we can use the lifetime to avoid having dangling pointer of the generic type in function body and traits to extend the type interface
 
 	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //-- based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we wanto to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field
 	    fn into(self) -> Vec<u8> {
@@ -659,7 +661,7 @@ pub async fn trash(){
 
     
     // =============================================================================================================================
-    // closure coding - trait must be inside Box or use with &dyn Trait if they want to be a type    
+    // closure coding - trait must be inside Box or use with &dyn Trait if they want to be referenced
     pub struct Complex{
         pub callback: Box<dyn FnOnce(Option<String>) -> u8>,
         pub labeled_block: bool,
@@ -923,33 +925,48 @@ pub async fn mactrait(){
 pub async fn unsafer(){
 
 
-
+    
     ////////////////////////////////////////////////////////////////
-    //                  std::ptr::eq examples
-    //////////////////////////////////////////////////////////////// 
+    //                      fat pointer examples
+    ////////////////////////////////////////////////////////////////
+    // accessing the value of a pointer is unsafe and we have to use unsafe{*pointer}
+    // https://stackoverflow.com/questions/57754901/what-is-a-fat-pointer
+    // pointers to the dynamic size types like traits and slices like &str and &[T] are fat pointers 
+    // they contains extra 8 bytes (or usize) to store the length of the referenced type and because 
+    // of this the address of the objects and pointers are different with the traits addresses since 
+    // the address of traits contains 16 hex chars which will be 16 * 4 bytes long hence the pointer 
+    // of none traits and traits are not equals.
     struct W(i32);
     let w = W(324);
-    let a = &w as &dyn Sync; //// //// casting the &w to a reference to the Sync trait and since traits have no size thus we have to use &dyn; we can cast here since trait Sync is implemented for the W struct (if we want to cast to a trait the trait must be implement it for the type)
-    let b = &w.0 as &dyn Sync; //// casting the &w.0 to a reference to the Sync trait and since traits have no size thus we have to use &dyn; we can cast here since trait Sync is implemented for the W struct (if we want to cast to a trait the trait must be implement it for the type) 
+    let a = &w as &dyn Sync; //// casting the &w to a reference to the Sync trait and since traits have no size thus we have to use &dyn or *const dyn Trait for raw pointer casting; we can cast here since trait Sync is implemented for the W struct (if we want to cast to a trait the trait must be implement it for the type)
+    let b = &w.0 as &dyn Sync; //// casting the &w.0 to a reference to the Sync trait and since traits have no size thus we have to use &dyn or *const dyn Trait for raw pointer casting; we can cast here since trait Sync is implemented for the W struct (if we want to cast to a trait the trait must be implement it for the type) 
     // it'll return false since `a` is pointing to the location of `w` which is an instance of the `W` 
     // and `b` is pointing to the location of 123 which these are located in two different areas inside the stack.
     // also objects and pointers have equal addresses but traits have different ones
     println!("{}", std::ptr::eq(a, b)); //// comparing two raw pointers by they address (if they are raw compiler will coerce them into raw like *const T)
+    let a = &w as &dyn Sync;
+    let b = &w as *const dyn Sync;
+    let c = &w as *const W as *const dyn Sync as *const u8;
+    //// 0x00007ffe673ace7c is not the same as 0x7ffe673ace7c ////
+    println!("{:#?}", c); //// 0x00007ffe673ace7c : this pointer is 8 bytes (every 2 char in hex is 1 byte and every char is 4 bits) long since it's pointing to the location of a trait
+    println!("{:#?}", &c); //// 0x7ffe673ace7c : this will print the address of &w or c which is casted to a *const u8 it has no extra size at the begening like the above address since it's not a dynmic size type like above Sync trait but the rest is the same of above trait address    
+    println!("{:p}", c); //// 0x7ffe673ace7c : this will print the address of &w or c which is casted to a *const u8 it has no extra size at the begening like the above address since it's not a dynmic size type like above Sync trait but the rest is the same of above trait address  
+    println!("{:p}", &c); //// 0x7ffe673ace80 :  this is the address of the c pointer or &c
+
 
     struct Wrapper { member: i32 }
     trait Trait {}
     impl Trait for Wrapper {}
     impl Trait for i32 {}
-
     let wrapper = Wrapper { member: 10 };
 
-    // Pointers have equal addresses.
+    //// raw pointers and objects have equal addresses
     assert!(std::ptr::eq(
         &wrapper as *const Wrapper as *const u8, //// to convert an instance to the u8 we have to first convert it to the struct itself first
         &wrapper.member as *const i32 as *const u8 //// to convert the number to the u8 we have to first convert it to the i32 itself first
     ));
 
-    // Objects have equal addresses, but `Trait` has different implementations.
+    //// `Trait` has different implementations
     assert!(!std::ptr::eq(
         &wrapper as &dyn Trait, //// casting the wrapper to the Trait trait we can do this, since Trait is implemented for the underlying type or Wrapper struct (if we want to cast to a trait the trait must be implmeneted for the type) 
         &wrapper.member as &dyn Trait,
@@ -959,9 +976,8 @@ pub async fn unsafer(){
         &wrapper.member as &dyn Trait as *const dyn Trait,
     ));
 
-    // Converting the reference to a `*const u8` compares by address.
     assert!(std::ptr::eq(
-        &wrapper as &dyn Trait as *const dyn Trait as *const u8,
+        &wrapper as &dyn Trait as *const dyn Trait as *const u8, //// casting wrapper to &dyn Trait first then to raw pointer of dyn Trait finally to raw pointer of u8
         &wrapper.member as &dyn Trait as *const dyn Trait as *const u8,
     ));
     ////////////////////////////////////////////////////////////////

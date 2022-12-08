@@ -235,6 +235,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
+
+
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                             bootstrapping the app 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -275,7 +279,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //                    STARTING TRANSACTION EMULATORS
     // ----------------------------------------------------------------------    
     // if dotenv initialization is before the starting the emulator process means we're ok since the whole env file will be loaded into the ram and 
-    // when we want to load vars it's ok but if we put the starting the emulator process before loading dotenv we'll face error since dotenv doesn't initialize yet
+    // when we want to load vars it's ok but if we put the starting the emulator process before loading dotenv we'll face error since dotenv doesn't initialize yet.
 
     utils::tx_emulator().await;
     utils::tx_emulator_udp().await;
@@ -325,6 +329,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
+
+
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////          coiniXerr nodes and walleXerr communications using cap'n proto serialization based on rpc and zmq protocols
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -335,6 +343,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// ZeroMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
     //// multiple endpoints bound to the socket, thus allowing many-to-many relationships.
     //
+    // 
     //// zmq contexts are thread safe data types means we can clone them to share between threads (they are Arc-ed) 
     //// and also they avoid deadlocks since zmq socket protocols use actors under the hood means 
     //// both senders and receivers are actors which use a buit in jobq to handle incoming tasks and jobs. 
@@ -353,19 +362,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     // TODO - fix p2p nat issue with upnp and ngrok
     //  ...
     
-    responder.recv(&mut msg, 0).unwrap(); //// this node receive from other node
-    info!("➔ 🟢 Received {}", msg.as_str().unwrap());
-    responder.send("World", 0).unwrap(); //// this node send to other node
+    responder.recv(&mut msg, 0).unwrap(); //// this node receives cap'n proto transaction data from other node (client)
+    info!("➔ 🟢 Received from clients or other nodes {}", msg.as_str().unwrap());
+    responder.send("➔ 🟢 Sending World to clients or other nodes", 0).unwrap(); //// this node sends cap'n proto transaction data to other node (client)
 
-    requester.send("Hello", 0).unwrap(); //// this node 
-    requester.recv(&mut msg, 0).unwrap();
-    info!("Received World {}", msg.as_str().unwrap());
-
-
+    requester.send("➔ 🟢 Sending Hello to servers or other nodes ", 0).unwrap(); //// this node sends cap'n proto transaction data from other node (server)
+    info!("➔🟢 Received World from servers or other nodes {}", msg.as_str().unwrap());
+    requester.recv(&mut msg, 0).unwrap(); //// this node receives cap'n proto transaction data to other node (server)
 
     // -----------------------------------------------------------------------------------------------
     //          RPC SERVER AND CLIENT USING CAP'N PROTO SERIALIZATION (DESIGNED FOR waleXerr)
     // -----------------------------------------------------------------------------------------------
+    
+    
+    
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc
     // start server and get requests from other rpc nodes in here
     // send requests from here to the other rpc nodes in cap'n proto format
