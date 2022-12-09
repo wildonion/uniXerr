@@ -336,32 +336,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////          coiniXerr nodes and walleXerr communications using cap'n proto serialization based on rpc and zmq protocols
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    
-    // ---------------------------------------------------------------------------------------------------------------------------
-    //          ZMQ PUBLISHER AND SUBSCRIBER USING CAP'N PROTO SERIALIZATION (DESIGNED FOR coiniXerr NODES COMMUNICATION)
-    // ---------------------------------------------------------------------------------------------------------------------------
     //// ZeroMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
     //// multiple endpoints bound to the socket, thus allowing many-to-many relationships.
-    //
     // 
     //// zmq contexts are thread safe data types means we can clone them to share between threads (they are Arc-ed) 
     //// and also they avoid deadlocks since zmq socket protocols use actors under the hood means 
     //// both senders and receivers are actors which use a buit in jobq to handle incoming tasks and jobs. 
-    
-    let zmq_ctx = zmq::Context::new(); 
-    let responder = zmq_ctx.socket(zmq::REP).unwrap(); //// server
-    let requester = zmq_ctx.socket(zmq::REQ).unwrap(); //// client 
-    let mut msg = zmq::Message::new(); //// a message is a single frame which can be any type, either received or created locally and then sent over the wire through the zmq socket
-    assert!(responder.bind(zmq_addr.as_str()).is_ok());
-    assert!(requester.connect(zmq_addr.as_str()).is_ok());
-    info!("➔ 🟢 zmq is ready on tcp");
+    // 
+    //// ZeroMQ creates queues per underlying connection of each socket type if your socket is connected to three peer sockets, 
+    //// then there are three messages queues behind the scenes, queues are created as individual peers connect to the bound socket 
+
+    // ---------------------------------------------------------------------------------------------------------------------------
+    //        ZMQ P2P PUBLISHER AND SUBSCRIBER USING CAP'N PROTO SERIALIZATION (DESIGNED FOR coiniXerr NODES COMMUNICATION)
+    // ---------------------------------------------------------------------------------------------------------------------------
 
     // TODO - send and receive async transaction between coiniXerr nodes
     // TODO - use cap'n proto as the serialization protocol for transaction encoding
     // TODO - validating incoming transaction tasks using validator actors  
     // TODO - fix p2p nat issue with upnp and ngrok
     //  ...
-    
+
+    let zmq_ctx = zmq::Context::new(); 
+    let responder = zmq_ctx.socket(zmq::REP).unwrap(); //// server
+    let requester = zmq_ctx.socket(zmq::REQ).unwrap(); //// client 
+    let mut msg = zmq::Message::new(); //// a message is a single frame which can be any type, either received or created locally and then sent over the wire through the zmq socket
+    assert!(responder.bind(zmq_addr.as_str()).is_ok());
+    assert!(requester.connect(zmq_addr.as_str()).is_ok());
+
+    // -------------------------------------------------------------------
+    //                     PUBLISHING AND SUBSCRIBING 
+    // -------------------------------------------------------------------
+
     responder.recv(&mut msg, 0).unwrap(); //// this node receives cap'n proto transaction data from other node (client)
     info!("➔ 🟢 Received from clients or other nodes {}", msg.as_str().unwrap());
     responder.send("➔ 🟢 Sending World to clients or other nodes", 0).unwrap(); //// this node sends cap'n proto transaction data to other node (client)
@@ -374,13 +379,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //          RPC SERVER AND CLIENT USING CAP'N PROTO SERIALIZATION (DESIGNED FOR waleXerr)
     // -----------------------------------------------------------------------------------------------
     
-    
-    
-    // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc
-    // start server and get requests from other rpc nodes in here
-    // send requests from here to the other rpc nodes in cap'n proto format
-    // ... 
-    
+    // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc    
     for worker in 0..10{ //// spawning tokio green threads for 10 workers
         tokio::spawn(async move{ //// spawning tokio worker green threadpool to solve async task
     

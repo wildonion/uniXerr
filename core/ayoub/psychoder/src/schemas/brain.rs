@@ -20,20 +20,6 @@
             to show the tips and tricks of the new game based on the history or the behavioural graph of the player
 
 
-    decision making process will be done through the followings:
-        • select an event from the event pool at time T
-        • occure that event inside the brain 
-        • consciousness (the cerebral cortex) must 
-            - interpret that event
-            - choose a response from the generated response pool
-
-            
-    unconsciousness which is responsible for cognitions, performing functions, feelings and memories is located in 
-        - extended reticulothalamic activating system (ERTAS)
-        - basal ganglia and cerebellum:
-            the basal ganglia and cerebellum are major subcortical structures that influence not only movement, but putatively also cognition and affect. 
-            Both structures receive input from and send output to the cerebral cortex. Thus, the basal ganglia and cerebellum form multisynaptic loops with the cerebral cortex.
-
 
 
 */
@@ -112,13 +98,30 @@ pub trait Suspend{} //-- a buffer contains unaddressed issues, feelings, pains a
 
 
 
+
 // ---------------
 //   STRUCTURES
 // ---------------
-pub struct CerebralCortex; //// this is the where the consciousness is located
 
+
+//// decision making process will be done through the followings:
+////      • select an event from the event pool at time T
+////      • occure that event inside the brain using unconsciousness structures
+////      • consciousness (the cerebral cortex) must 
+////           - interpret that event
+////           - choose a response from the generated response pool
 pub struct EventPool; //// this is the pool of events that can be occured at a specific time T
 
+pub struct CerebralCortex; //// this is the where the consciousness is located
+
+pub struct ERTAS; //// this is the extended reticulothalamic activating system responsibles for awareness and awakeness and is located in the upper brain stem well below the cortex
+
+//// BasalGanglia and Cerebellum structures receive input from and send output to the cerebral cortex which is the location of consciousness
+//// they are responsible for cognitions, performing functions, feelings and memories (memories can't be retrieved consciously) thus, 
+//// the basal ganglia and cerebellum form multisynaptic loops with the cerebral cortex.
+pub struct BasalGanglia; //// the unconsciousness engine
+
+pub struct Cerebellum; //// the unconsciousness engine
 
 pub struct BrainContext<Neuron>(pub Vec<Neuron>, pub i64);
 

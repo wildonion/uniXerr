@@ -433,7 +433,6 @@ pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8)
 
 pub mod DbORM{
 
-
     use super::*; //// loading all the super modules in here
 
 

@@ -1040,7 +1040,6 @@ https://without.boats/blog/
 https://docs.rust-embedded.org/book/
 https://stackoverflow.com/questions/41081240/idiomatic-callbacks-in-rust
 https://stackoverflow.com/questions/27831944/how-do-i-store-a-closure-in-a-struct-in-rust
-https://rust-hosted-langs.github.io/book/introduction.html
 https://fasterthanli.me/articles/peeking-inside-a-rust-enum
 https://dhghomon.github.io/easy_rust/Chapter_1.html
 https://www.youtube.com/watch?v=mwuCMDSZdiQ&ab_channel=ErikDotDev
@@ -1104,6 +1103,7 @@ https://book.avr-rust.com/001-introduction.html
 https://kerkour.com/rust-functional-programming
 https://blog.subnetzero.io/post/building-language-vm-part-01/
 https://rust-hosted-langs.github.io/book/
+https://benkonz.github.io/building-a-brainfuck-compiler-with-rust-and-llvm/
 https://opensource.com/article/19/3/rust-virtual-machine
 https://medium.com/iridium-vm/so-you-want-to-build-a-language-vm-in-rust-part-09-15d90084002
 https://medium.com/clevyio/using-rust-and-nom-to-create-an-open-source-programming-language-for-chatbots-12fe67582af5
