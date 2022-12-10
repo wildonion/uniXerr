@@ -217,6 +217,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
+
+
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////           app storage setup
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+    let app_storage = db!{ //// this publicly has exported inside the utils so we can access it here
+        db_name,
+        db_engine,
+        db_host,
+        db_port,
+        db_username,
+        db_password
+    };
+    let unwrapped_storage = app_storage.unwrap(); //-- unwrapping the app storage to create a db instance
+    let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
+
+
+
+
                                                                                  
                                                                                                                             
 
@@ -227,6 +253,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
+
+
+
+
+
+
+    
 
 
 
@@ -317,21 +351,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                             bootstrapping the app 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    
-    // ----------------------------------------------------------------------
-    //                          DEFINING APP STORAGE
-    // ----------------------------------------------------------------------
-
-    let app_storage = db!{ //// this publicly has exported inside the utils so we can access it here
-        db_name,
-        db_engine,
-        db_host,
-        db_port,
-        db_username,
-        db_password
-    };
-    let unwrapped_storage = app_storage.unwrap(); //-- unwrapping the app storage to create a db instance
-    let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr ACTOR SYSTEM
