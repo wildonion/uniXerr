@@ -440,7 +440,7 @@ pub mod DbORM{
     #[async_trait]
     pub trait ConseModel{
 
-        type Storage<'s>; //// this is the app storage with the 's lifetime which must be used to make queries
+        type Storage<'s>; //// GAT with lifetime; this is the app storage with the 's lifetime which must be used to make queries
 
         async fn fetch(&self);
         async fn insert(&mut self);

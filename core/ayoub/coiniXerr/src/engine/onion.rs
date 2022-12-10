@@ -11,8 +11,8 @@
 
 // actors have:
 //     - task scheduling algos
-//     - worker threadpool
-//     - rpc based pub sub channels for broadcasting messages
+//     - worker threadpool like tokio::spawn()
+//     - pub sub channels for broadcasting messages
 //     - jobq like celery and the one inside the rabbitmq and zmq 
 
 
