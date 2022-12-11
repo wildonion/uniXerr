@@ -32,7 +32,15 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     //// ➔ every sender and receiver socket type in ZMQ is an actor since actors use worker threadpool
     ////    (like tokio::spawn() worker green based threadpool + tokio channels for sharing messages between threads), 
     ////    jobq channels, pub/sub channels to communicate with another actor and task scheduling 
-    ////    and mailbox to communicate with each other under the hood.    
+    ////    and mailbox to communicate with each other under the hood.
+    //
+    //// ➔ ZeroMQ patterns are:
+    ////      • Request-reply, which connects a set of clients to a set of services. This is a remote procedure call and task distribution pattern.
+    ////      • Pub-sub, which connects a set of publishers to a set of subscribers. This is a data distribution pattern.
+    ////      • Pipeline, which connects nodes in a fan-out/fan-in pattern that can have multiple steps and loops. This is a parallel task distribution and collection pattern.
+    ////      • Exclusive pair, which connects two sockets exclusively. This is a pattern for connecting two threads in a process, not to be confused with “normal” pairs of sockets.
+    ////      • Client-server, which allows a single ZeroMQ server talk to one or more ZeroMQ clients. The client always starts the conversation, after which either peer can send messages asynchronously, to the other.
+    ////      • Radio-dish, which used for one-to-many distribution of data from a single publisher to multiple subscribers in a fan out fashion.    
     
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
