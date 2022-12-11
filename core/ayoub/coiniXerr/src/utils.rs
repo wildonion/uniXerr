@@ -418,12 +418,31 @@ impl fmt::Display for AppError{ // implementing the formatter Display trait for 
 
 
 
+
+
+
+
+
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+///////             sending fake transaction to the coiniXerr rpc server  
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+
+pub async fn rpc_tx_emulatro() -> (){
+
+}
+
+
+
+
+
+
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 ///////             sending fake transaction to the coiniXerr tcp server  
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-//// can't use .await inside the pool.execute(move || {}); since it's a sync task scheduler and unlike tokio it's body won't return an async block future object 
+//// can't use .await inside the pool.execute(move || {}); 
+//// since it's a sync task scheduler and unlike tokio it's body won't return an async block future object 
 
-pub async fn tx_emulator() -> (){
+pub async fn tcp_tx_emulator() -> (){
     
     let mut time = 0;
     let tcp_host = env::var("HOST").expect("⚠️ please set host in .env");
@@ -466,7 +485,7 @@ pub async fn tx_emulator() -> (){
 // since the UDP protocol doesn't have any capabilities to detect a broken connection 
 // the server needs to be run first, otherwise the client will block forever.
     
-pub async fn tx_emulator_udp() -> (){
+pub async fn udp_tx_emulator() -> (){
         
     let mut time = 0;
     let tcp_host = env::var("HOST").expect("⚠️ please set host in .env");

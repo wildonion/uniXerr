@@ -435,13 +435,15 @@ pub mod DbORM{
 
     use super::*; //// loading all the super modules in here
 
-
-
+    
     #[async_trait]
     pub trait ConseModel{
-
+        
         type Storage<'s>; //// GAT with lifetime; this is the app storage with the 's lifetime which must be used to make queries
-
+        
+        //// Self referes to the implementor which is a structure contains the model that this orm has implemented for 
+        //// we must return the structure itself in each method call!
+        
         async fn fetch(&self);
         async fn insert(&mut self);
         async fn filter(&self);

@@ -513,6 +513,7 @@ dependencies = [
  "futures-util",
  "hex",
  "is_type",
+ "lazy_static",
  "log",
  "log4rs",
  "mongodb",

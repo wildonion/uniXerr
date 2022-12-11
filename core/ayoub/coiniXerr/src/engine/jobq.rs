@@ -1,10 +1,13 @@
 
 
 
-// ----------------------------------------------------------------------------------------------------------------------
-// a job or async task queue like mpsc and the one inside the rabbitmq actors from scrach using the scheduler threadpools
-// ----------------------------------------------------------------------------------------------------------------------
 
+
+
+
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+///////        a job or async task queue like mpsc and the one inside the rabbitmq actors from scrach using the worker threadpools  
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
 // ➔ vector of || async move{} of events for an event manager struct like riker scheduling logic and vector clock schemas and call new event every 5 seconds from vector of event of closures

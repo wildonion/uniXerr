@@ -5,14 +5,16 @@
 
 
 
-//// onion actor
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+///////                 onion actor implementations from scratch  
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 
 
 
 // actors have:
 //     - task scheduling algos
 //     - worker threadpool like tokio::spawn()
-//     - pub sub channels for broadcasting messages
+//     - pub sub channels for broadcasting messages and tasks scheduling
 //     - jobq like celery and the one inside the rabbitmq and zmq 
 
 

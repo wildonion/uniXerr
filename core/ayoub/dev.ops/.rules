@@ -407,6 +407,9 @@ NOTE - jobq channels can be used to share data between threads and also schedule
 NOTE - fat pointer will be used to take a reference to the dynamic size types like traits and slices to the String (&str<T>) and Vec (&[T]) which contains the length of the dynamic types also
 NOTE - pointers to the dynamic size types like traits and slices like &str and &[T] are fat pointers they contains extra 8 bytes (or usize) to store the length of the referenced type and because of this the address of the objects and pointers are different with the traits addresses since the address of traits contains 16 hex chars which will be 16 * 4 bytes long hence the pointer of none traits and traits are not equals  
 NOTE - traits must be referenced either by &dyn Trait or Box<dyn Trait> which dyn keyword is fixed in both usage
+NOTE - tokio channels are being used between multiple threads which shares Arc<Mutex<T>> between threads safety
+NOTE - pub/sub channels are being used to send async tasks between two services actors which can also schedule the task to be executed later  
+
 
 
 
