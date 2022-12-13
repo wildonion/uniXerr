@@ -50,8 +50,6 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
 
-    let unwrapped_storage = storage.unwrap(); //-- unwrapping the app storage to create a db instance
-    let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
     let coiniXerr_sys = SystemBuilder::new()
                                                     .name("coiniXerr")
                                                     .create()
