@@ -185,6 +185,20 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would
 
     let mutexed_receiver = Mutex::new(receiver); //-- putting the &receiver in its borrowed form inside the Mutex to get its data by locking on it inside other threads since the Sync is not implemented for the receiver and in order to get its data inside other threads we have to make cloneable using Arc and some kina syncable using Mutext
     let arced_mutexed_receiver = Arc::new(mutexed_receiver); //-- putting the &mutexed_receiver in its borrowed form inside the Arc
+    //// we can't use env::var() to make a rust constant type since by
+    //// all vars inside the env file will be loaded at runtime into the ram
+    //// not at compile time also const does not only mean a constant, it means a compile-time constant, 
+    //// a value determined at compile-time and inscribed in the read-only memory of the program.
+    //
+    //// static means a global variable, with a lifetime that will span the entire program,
+    //// and must be initialized from a constant, in order to be available from the start of the program
+    //// otherwise the compiler says: attempt to use a non-constant value in a constant.
+    //
+    //// for statics to be mutable in rust, you need to wrap them in 
+    //// a Mutex to follow rust's whole thing of guaranteeing thread safety
+    //// by doing this that static type will be Sync-ed which avoids concurrent modifications
+    //// or put a mut keyword before the name which is required to be Sync to avoid concurrent modifications
+    //// otherwise we have to use unsafe block.
     pub static mut MULT_OF_ALL_SUM: f64 = 1.0;
     let mut mult_of_all_sum: &'static f64 = &1.0;
     let mut rayon_workers = Vec::new();
@@ -637,7 +651,7 @@ pub enum Storagekey{ //-- defining an enum based unique storage key for every ou
 // TODO - a proc macro attribute to convert a trait into a module and its methods into static methods of that module and add extra args like the ones for nft_on_transfer() and nft_on_approve() methods when the user is implementing these methods
 // TODO - VM, interpreter and #[wowasm] proc macro attribute to write smart contracts with wo syntax to compile to wasm to run on near
 // NOTE - we can use [], {} or () to call macros
-// NOTE - #[derive(Trait, SomeMacro)] bounds a struct to a trait or a macro
+// NOTE - #[derive(Trait, SomeMacro)] bounds a struct to a trait or a macro and it must be used on top of the structs and enums and their fields
 // NOTE - #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate
 // ...
 

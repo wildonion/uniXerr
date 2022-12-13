@@ -12,9 +12,9 @@ use crate::*;
 
 pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, String>){
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                 coiniXerr walleXerr communications using cap'n proto serialization based on RPC protocol
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////                        walleXerr cap'n proto requests on RPC stream
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
@@ -36,8 +36,15 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     //          RPC SERVER AND CLIENT USING CAP'N PROTO SERIALIZATION (DESIGNED FOR waleXerr)
     // -----------------------------------------------------------------------------------------------
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc    
-    //// in RPC both server and client know the exact structure of the request and response 
+    //// in RPC both server and client know the exact structure of the request and response
     //// for realtime streaming which will be defined by the cap'n proto serialization schemas.
+    //
+    //// RPC allows us to directyly call methods on other machines and it's a 
+    //// bidirectional full-duplex streaming in which the client can request and 
+    //// the server can respond simultaneously and at the same time. 
+
+    // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
+    // ... 
 
     for worker in 0..10{ //// spawning tokio green threads for 10 workers
         tokio::spawn(async move{ //// spawning tokio worker green threadpool to solve async task

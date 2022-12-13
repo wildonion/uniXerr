@@ -7,9 +7,7 @@ An Actor, p2p, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and 
 
 ### 📌 WIP 
 
-* implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
-
-* implementing cap'n proto serialization RPC server (`rpc.server.rs`) and ZMQ (`zmq.p2p.rs`) streaming (coiniXerr nodes and the walleXerr must communicate with each other through the ZMQ and RPC with cap'n proto as the serialization protocol)
+* complete `rpc.server.rs`, `zmq.p2p.rs` and `tcp.server.rs` streaming
 
 * complete `rpc_tx_emulator` method
 
@@ -19,6 +17,8 @@ An Actor, p2p, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and 
 
 * implementing Rafael runtime and onion actors
 
-* use `tcp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the TCP socket
+* use `tcp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the TCP Protocol
+
+* use `udp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the UDP Protocol
 
 * use `rpc_tx_emulator` method to send fake transactions to the coiniXerr nodes through the RPC Protocol

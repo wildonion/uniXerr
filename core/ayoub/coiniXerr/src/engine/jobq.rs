@@ -53,8 +53,12 @@ use crate::*;
 pub type Task = Job; //// the type of the Task is of type Job structure
 
 
-pub struct Job; // the job that must be received by the receiver
+pub struct Job{ // the job that must be received by the receiver
+    pub id: Uuid,
+} 
 
-pub struct Queue; // a queue which contains all the incoming jobs from the sender 
+pub struct Queue{ // a queue which contains all the incoming jobs from the sender 
+    pub tasks: Vec<Task>,   
+}
 
 pub struct JobHandler; // a threadpool structure to handle the poped-out job from the queue

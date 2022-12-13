@@ -16,30 +16,34 @@ use crate::*;
 
 pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, String>){
     
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                 coiniXerr nodes communications using cap'n proto serialization based on ZMQ protocol
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// ➔ ZeroMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////                 coiniXerr nodes cap'n proto pub/sub on ZMQ stream
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    //// ➔ ZMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
     ////    multiple endpoints bound to the socket, thus allowing many-to-many relationships.
     // 
     //// ➔ ZMQ contexts are thread safe data types means we can clone them to share between threads (they are Arc-ed) 
     ////    and also they avoid deadlocks since ZMQ socket protocols use actors under the hood means 
     ////    both senders and receivers are actors which use a buit in jobq to handle incoming tasks and jobs. 
     // 
-    //// ➔ ZeroMQ creates queues (actor) per underlying connection of each socket type if your socket is connected to three peer sockets, 
+    //// ➔ ZMQ creates queues (actor) per underlying connection of each socket type if your socket is connected to three peer sockets, 
     ////    then there are three messages queues behind the scenes, queues are created as individual peers connect to the bound socket   
     //
-    //// ➔ every sender and receiver socket type in ZMQ is an actor since actors use worker threadpool
+    //// ➔ every ZMQ sender and receiver socket type is an actor which sends and receive in parallel manner since actors use worker threadpool
     ////    (like tokio::spawn() worker green based threadpool + tokio channels for sharing messages between threads), 
-    ////    jobq channels, pub/sub channels to communicate with another actor and task scheduling 
+    ////    job or task queue channels, pub/sub channels for broadcasting messages to other actors, task scheduling 
     ////    and mailbox to communicate with each other under the hood.
     //
-    //// ➔ ZeroMQ patterns are:
+    //// ➔ RPC allows us to directyly call methods on other machines and it's a 
+    ////    bidirectional full-duplex streaming in which the client can request and 
+    ////    the server can respond simultaneously and at the same time.  
+    //
+    //// ➔ ZMQ patterns are:
     ////      • Request-reply, which connects a set of clients to a set of services. This is a remote procedure call and task distribution pattern.
     ////      • Pub-sub, which connects a set of publishers to a set of subscribers. This is a data distribution pattern.
     ////      • Pipeline, which connects nodes in a fan-out/fan-in pattern that can have multiple steps and loops. This is a parallel task distribution and collection pattern.
     ////      • Exclusive pair, which connects two sockets exclusively. This is a pattern for connecting two threads in a process, not to be confused with “normal” pairs of sockets.
-    ////      • Client-server, which allows a single ZeroMQ server talk to one or more ZeroMQ clients. The client always starts the conversation, after which either peer can send messages asynchronously, to the other.
+    ////      • Client-server, which allows a single ZMQ server talk to one or more ZMQ clients. The client always starts the conversation, after which either peer can send messages asynchronously, to the other.
     ////      • Radio-dish, which used for one-to-many distribution of data from a single publisher to multiple subscribers in a fan out fashion.    
     
     // ----------------------------------------------------------------------

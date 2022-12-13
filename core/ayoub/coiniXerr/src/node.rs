@@ -164,8 +164,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////           app storage setup
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    
-    let app_storage: Option<Arc<Storage>> = db!{ //// this publicly has exported inside the utils so we can access it here
+
+    let app_storage: Option<Arc<Storage>> = db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
         env_vars.get("DB_NAME").unwrap().to_string(),
         env_vars.get("DB_ENGINE").unwrap().to_string(),
         env_vars.get("DB_HOST").unwrap().to_string(),

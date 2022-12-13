@@ -13,9 +13,9 @@ use crate::*;
 
 pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, String>){
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                   coiniXerr nodes communications using borsh and serde serializations based on TCP protocol
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////                  coiniXerr nodes borsh and serde requests on TCP stream
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
@@ -221,6 +221,8 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
                                 }, 
                                 None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None
                             );
+
+
 
 
 
@@ -521,8 +523,6 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
 
 
 
-
-
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                                 waiting to receive stream and other setups asynchronously 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -686,8 +686,6 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
             } {} //-- the while match must be a block which will return true on its Ok() arm and false on its Err arm
         }); //-- awaiting on tokio::spawn() will block the current task which is running in the background
     }
-
-
 
 
 

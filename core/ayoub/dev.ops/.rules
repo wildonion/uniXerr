@@ -396,7 +396,7 @@ NOTE - semaphores are variables that have been used in tokio channels to manage 
 NOTE - we can stream over any kind of data using zmq means we can stream video and audio through the zmq socket also a p2p musiem streaming 
 NOTE - actors are worker threadpool with a built in job or task queue and a mailbox to send and receive messages from other actors asyncly, also they can schedule a message to be executed later or broadcasted to a specific channel. 
 NOTE - message queues like ZMQ can use actors behind the scene for real-time future object streaming in such a away that the message sender (publisher) can be a response actor and the receiver (subscriber) can be a request actor which can subscribe to the messages received from the publisher and solve them inside its worker theadpool. 
-NOTE - The received message from the subscriber can be scheduled to be executed later using a task queue  like celery or another riker actor.
+NOTE - the received message from the subscriber can be scheduled to be executed later using a task queue  like celery or another riker actor.
 NOTE - tokio can spawn async tasks inside its worker green threadpool instead of using native threads which has a little building in jobq channels to move tasks between its threads.
 NOTE - channels in multithreading concepts like mpsc, one shot, broadcast and watch can be used to share tasks between threads and their concepts are same with pub/sub or prod/cons channels in message queues but message queues are using rpc or socket under the hood.
 NOTE - thread safe data types are Arc<Mutex<T>> + Send + Sync and can be shared between worker threadpool safely (deadlock avoidable) using jobq channels (mpsc, oneshot, watch)
@@ -408,7 +408,9 @@ NOTE - fat pointer will be used to take a reference to the dynamic size types li
 NOTE - pointers to the dynamic size types like traits and slices like &str and &[T] are fat pointers they contains extra 8 bytes (or usize) to store the length of the referenced type and because of this the address of the objects and pointers are different with the traits addresses since the address of traits contains 16 hex chars which will be 16 * 4 bytes long hence the pointer of none traits and traits are not equals  
 NOTE - traits must be referenced either by &dyn Trait or Box<dyn Trait> which dyn keyword is fixed in both usage
 NOTE - tokio channels are being used between multiple threads which shares Arc<Mutex<T>> between threads safety
-NOTE - pub/sub channels are being used to send async tasks between two services actors which can also schedule the task to be executed later  
+NOTE - pub/sub channels are being used to send async tasks between two services actors which can also schedule the task to be executed later
+NOTE - Option requires the type to be Sized because it allocates on the stack. All type parameters to a concrete type definition are bound to Sized by default. Some types choose to opt out with a ?Sized bound but Option does not.
+
 
 
 
