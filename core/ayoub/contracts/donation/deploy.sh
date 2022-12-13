@@ -11,7 +11,7 @@ read NETWORK
 echo "--------------------- NEAR MASTER ACCOUNT DEPLOYMENT ---------------------"
 echo "[?] Master Account ID - Logged In Account; With .testnet >>>"
 read OWNER_ID # NOTE - the account id to (re)deploy the contract on which is the owner or the signer of the contract
-NEAR_ENV=$NETWORK near deploy --wasmFile out/hoopoe.wasm --accountId $OWNER_ID
+NEAR_ENV=$NETWORK near deploy --wasmFile out/donation.wasm --accountId $OWNER_ID
 
 
 
@@ -30,5 +30,5 @@ then
 else
     echo "[...] Deploying on Sub Master Account"
     near create-account $SUB_MASTER_CONTRACT_ID.$OWNER_ID --masterAccount $OWNER_ID --initialBalance 25
-    NEAR_ENV=$NETWORK near deploy --wasmFile out/hoopoe.wasm --accountId $SUB_MASTER_CONTRACT_ID.$OWNER_ID
+    NEAR_ENV=$NETWORK near deploy --wasmFile out/donation.wasm --accountId $SUB_MASTER_CONTRACT_ID.$OWNER_ID
 fi

@@ -372,6 +372,50 @@ pub fn string_to_static_str(s: String) -> &'static str { //-- the lifetime of th
 
 
 
+
+// ------------------------------ coiniXerr Db ORM 
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+pub mod DbORM{
+
+    use super::*; //// loading all the super modules in here which are all loaded module into the utils.rs
+
+    //// following trait is not object safe trait since we're 
+    //// returning Self from each method and also we have the 
+    //// &self in first parameter.
+    #[async_trait]
+    pub trait StorageModel{ //// StorageModel trait for mongo structures based on ORM pattern
+        
+        type AppStorage; //// this is the app storage GAT which must be used to make queries
+
+        //// Self referes to the implementor which is the structure contains the fields related to the db model 
+        //// that this orm has implemented for we must return the structure itself in each method call to be able
+        //// to call the struct methods later.
+        //
+        //// every trait method that returns Self would have to also specify where Self: Sized  
+        //// since we don't know the actual size of the Self or the structure in here cause 
+        //// it'll be specified at runtime thus we have to tell the compiler
+        //// that hey remember that the Self is a Sized one compile it!
+        
+        async fn save(&self, app_storage: Self::AppStorage) -> Result<mongodb::results::InsertOneResult, mongodb::error::Error>;
+        async fn fetch(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
+        async fn filter(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
 // ------------------------------ utility methods and structs
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------

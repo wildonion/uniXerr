@@ -9,7 +9,7 @@ An Actor, p2p, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and 
 
 * complete `rpc.server.rs`, `zmq.p2p.rs` and `tcp.server.rs` streaming
 
-* complete `rpc_tx_emulator` method
+* complete `rpc_tx_emulator` method and other `StorageModel` ORM trait methods
 
 * HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
 

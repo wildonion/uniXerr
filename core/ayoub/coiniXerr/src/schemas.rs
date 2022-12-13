@@ -231,6 +231,44 @@ pub struct InsertParachainInfo{
     pub next_parachain_id: Option<Uuid>, //-- next parachain uuid
     pub current_block: Option<Block>,
 }
+
+#[async_trait]
+impl StorageModel for InsertParachainInfo{
+
+    type AppStorage = Option<Arc<Storage>>; //// the type of the AppStorage GAT is the Arc-ed Storage inside the Option since we don't know the exact engine in runtime 
+
+    async fn save(&self, app_storage: Self::AppStorage) -> Result<mongodb::results::InsertOneResult, mongodb::error::Error>{ 
+        let data = InsertParachainInfo{ //// building the instance from self since insert_one() method gets T not &T
+            //// we must clone each field to prevent the self ownership from moving 
+            //// since Copy is not implemented for InsertParachainInfo struct.
+            id: self.id,
+            slot: self.slot.clone(),
+            blockchain: self.blockchain.clone(),
+            next_parachain_id: self.next_parachain_id.clone(),
+            current_block: self.current_block.clone(),
+        };
+        let unwrapped_storage = app_storage.unwrap(); //-- unwrapping the app storage to create a db instance
+        let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
+        let parachains = db_instance.clone().database(daemon::get_env_vars().await.get("DB_NAME").unwrap()).collection::<schemas::InsertParachainInfo>("parachains");
+        match parachains.insert_one(data.clone(), None).await{ //-- serializing the user doc which is of type RegisterRequest into the BSON to insert into the mongodb
+            Ok(insert_result) => Ok(insert_result),
+            Err(e) => Err(e)
+        }
+    } 
+
+    async fn fetch(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
+
+        todo!()
+
+    }
+
+    async fn filter(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
+
+        todo!()
+
+    }
+
+}
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
@@ -383,7 +421,7 @@ impl Node{
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 // NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
-unsafe impl Send for TransactionMem {} //-- due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads
+unsafe impl Send for TransactionMem {} //-- due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads and avoid concurrent mutations.
 union TransactionMem{
     pub data: *mut self::Transaction, //-- defining the data as a raw mutable pointer to a mutable Transaction object, changing the data will change the Transaction object and vice versa
     pub buffer: *const u8,

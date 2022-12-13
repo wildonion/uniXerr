@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-export WASM_NAME=hoopoe.wasm
+export WASM_NAME=donation.wasm
 RUSTFLAGS='-C link-args=-s' rustup target add wasm32-unknown-unknown
 cargo build --target wasm32-unknown-unknown --release
 sudo mkdir out && sudo chown -R root:root out && sudo chmod 777 -R out 

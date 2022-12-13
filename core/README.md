@@ -14,4 +14,4 @@
 
 #### `recommender`: AI models responsible for uniXerr recommendation system.
 
-#### `ayoub`: Distributed services: Conse PaaS, coiniXerr blockchain and FaaS Rafael Runtime, hoopoe, NEAR smart contracts and Psychoder.
+#### `ayoub`: Distributed services including Conse PaaS, coiniXerr blockchain and FaaS Rafael Runtime, NEAR smart contracts and Psychoder.

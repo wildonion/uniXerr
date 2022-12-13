@@ -2,6 +2,8 @@
     <img src="https://github.com/wildonion/uniXerr/blob/master/board/drawing/uniXerr_R50.png"
 </p>
 
+> 🌐 See the [Wiki](https://github.com/wildonion/uniXerr/wiki) to understand how stuff works!
+
 # AI Core Development Guide
 
 ###### ⚠️ If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.

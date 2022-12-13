@@ -20,9 +20,7 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
-
-    let unwrapped_storage = storage.unwrap(); //-- unwrapping the app storage to create a db instance
-    let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
+    
     let coiniXerr_sys = SystemBuilder::new()
                                                     .name("coiniXerr")
                                                     .create()
@@ -837,10 +835,11 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
         );
 
         // ----------------------------------------------------------------------
-        //                 INSERTING THE PARACHAIN INTO THE DB
+        //      INSERTING THE PARACHAIN INTO THE DB USING StorageModel ORM
         // ----------------------------------------------------------------------
         
-        let parachains = db_instance.clone().database(env_vars.get("DB_NAME").unwrap()).collection::<schemas::InsertParachainInfo>("parachains");
+        //// StorageModel trait is implemented for the InsertParachainInfo struct
+        //// thus we can call its ORM methods on each instance of the InsertParachainInfo struct. 
         let parachain_info = schemas::InsertParachainInfo{
             //// we're cloning each field since we're inside the loop and we want to prevent ownership moving
             id: Uuid::new_v4(),
@@ -849,11 +848,14 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
             next_parachain_id: Some(default_parachain_uuid.clone()), //// this is the uuid of the next parachain which is linked to this parachain since connected parachains form a circular pattern
             current_block: Some(current_block.clone()),
         };
-        match parachains.insert_one(parachain_info, None).await{ //-- serializing the user doc which is of type RegisterRequest into the BSON to insert into the mongodb
+        //// calling the save() method of the StorageModel ORM on the parachain_info instance
+        //// we have to pass the storage instance each time we're calling one of the ORM method
+        //// since we can't save the initialized storage some where inside the struct or the trait
+        //// because we can't create instance from the traits!
+        match parachain_info.save(storage.clone()).await{
             Ok(insert_result) => info!("➔ 🛢️🧣 inserted new parachain into db with uuid [{}] and mongodb id [{}]", default_parachain_uuid.clone(), insert_result.inserted_id.as_object_id().unwrap()),
             Err(e) => error!("😕 error inserting parachain with id [{}]: {}", default_parachain_uuid, e)
-        }
-
+        };
 
     }
 
