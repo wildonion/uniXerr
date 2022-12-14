@@ -29,6 +29,7 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     let runtime_instance = run_time_info.run(); //-- run() method is the method of the Rafael serverless trait
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //-- we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
+    let rpc_addr = env_vars.get("RPC_ADDR").unwrap().as_str();
 
     // -----------------------------------------------------------------------------------------------
     //          RPC SERVER AND CLIENT USING CAP'N PROTO SERIALIZATION (DESIGNED FOR waleXerr)

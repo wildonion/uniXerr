@@ -40,7 +40,6 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize}; //-- self referes
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet}; //-- LookupMap and UnorderedMap are non-iterable implementations of a map that stores their contents directly on the trie - LazyOption stores a value in the storage lazily! 
 use near_sdk::json_types::{Base64VecU8, U128, U64}; //-- Base64VecU8 is used to serialize/deserialize Vec<u8> to base64 string
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::serde_json::json;
 use near_sdk::{ 
                 serde_json,
                 promise_result_as_success, //-- returns the result of the promise if successful, otherwise returns None
@@ -48,7 +47,7 @@ use near_sdk::{
                 Gas, ext_contract, PromiseResult, env, near_bindgen, assert_one_yocto, //-- we're using the assert_one_yocto() function from the near_sdk cause it's using the env::panic_str() one the background 
                 AccountId, Balance, CryptoHash, Promise, //-- Promise struct is needed to handle async cross contract calls or message passing between contract actors
                 PanicOnDefault, PromiseOrValue, BorshStorageKey //-- PanicOnDefault macro must be used in case that the contract is required to be initialized with init methods which will be paniced on implemnted Default trait for the contract
-            }; 
+            };
 
 
 
@@ -67,14 +66,14 @@ use near_sdk::{
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
-pub struct Conse{
+pub struct Donation{
     pub owner_id: AccountId,
 }
 
 
 
 #[near_bindgen]
-impl Conse{
+impl Donation{
 
     #[init]
     pub fn new(owner_id: AccountId) -> Self{ //// owner_id is the one who initialized this method

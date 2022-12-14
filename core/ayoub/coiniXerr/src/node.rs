@@ -187,7 +187,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr RPC PROTOCOL
     // ----------------------------------------------------------------------
-    //// env_vars doesn't implement Copy trait thus we have to clone it to prevent ownership moving also for the app_storage
+    //// env_vars and app_storage doesn't implement Copy trait thus 
+    //// we have to clone it to prevent ownership moving.
 
     rpc::bootstrap(app_storage.clone(), env_vars.clone()).await;
     

@@ -68,13 +68,17 @@
             |  |               |  |  [Promise Message Passing (futures or receipts) Between Contract Actors Based on Pre-defined Actions]  |  |               |  |
             |  | Alice Account |  |         <---------- promise or future object contains data like funding balance ---------->            |  |  Bob Account  |  |
             |  |   ----------  |  |                                                                                                        |  |   ----------  |  |
-            |  |  |contract A| |  |                       ---------------- [MPSC CHANNEL] ----------------                                 |  |  |contract B| |  |
+            |  |  |contract A| |  |                       ---------------- [RPC CHANNEL] ----------------                                  |  |  |contract B| |  |
             |  | / ----------  |  |                                                                                                        |  | / ----------  |  |
             |  / ---------------  |                                                                                                        |  / ---------------  |
              / -------------------                                                                                                         / -------------------
            /                                                                                                                             /
          /                                                                                                                             /
     contract-A.wasm                                                                                                               contract-B.wasm
+
+
+
+☢️ every contract actor account communicates with other account using their actor address through the RPC channel in json format. 
 
 
 

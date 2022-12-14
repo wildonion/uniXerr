@@ -25,7 +25,7 @@
 
 > psychoder: ```cargo run --bin psychoder --release```
 
-# 🗒 Notes
+# 📇 Notes
 
 * To see all binaries: ```cargo run --bin```
 

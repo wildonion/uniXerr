@@ -59,6 +59,7 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     let runtime_instance = run_time_info.run(); //-- run() method is the method of the Rafael serverless trait
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //-- we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
+    let zmq_addr = env_vars.get("ZMQ_ADDR").unwrap().as_str();
     
     // ---------------------------------------------------------------------------------------------------------------------------
     //        ZMQ P2P PUBLISHER AND SUBSCRIBER USING CAP'N PROTO SERIALIZATION (DESIGNED FOR coiniXerr NODES COMMUNICATION)
@@ -74,7 +75,9 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     // TODO - use cap'n proto as the serialization protocol for transaction encoding
     // TODO - a coiniXerr node can subscribes to the new transaction topic for verifying process 
     // TODO - a new transaction coming from the walleXerr will be published to the channel with new-tx topic for verifying and mining process 
-    //  ...
+    // ...
+
+    publisher.connect(zmq_addr).unwrap(); 
 
 
 
