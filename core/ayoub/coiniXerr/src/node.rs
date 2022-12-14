@@ -98,7 +98,7 @@ use daemon; //// import lib.rs methods
 
 
 
-#[path="cips/tcp.server.rs"]
+#[path="cips/tcp.p2p.rs"]
 pub mod tcp;
 #[path="cips/zmq.p2p.rs"]
 pub mod nonemq;

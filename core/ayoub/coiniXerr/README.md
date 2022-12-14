@@ -7,7 +7,9 @@ An Actor, p2p, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and 
 
 ### 📌 WIP 
 
-* complete `rpc.server.rs`, `zmq.p2p.rs` and `tcp.server.rs` streaming
+* complete `rpc.server.rs`, `zmq.p2p.rs` and `tcp.p2p.rs` streaming 
+
+* broadcast other node state to the network on TCP stream in `tcp.p2p.rs`
 
 * complete `rpc_tx_emulator` method and other `StorageModel` ORM trait methods
 

@@ -112,7 +112,6 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     //// can map on that future without having to explicitly block on the response 
     //// which can be solved using `.await`.
     // 
-    //
     //// sender param must be None inside the tell() method if we're sending message to the actor from the main()
     //// sender param must be the actor caller iteself if we're returning a future objectr as a response from the result of calling the ask() function 
 
@@ -692,7 +691,11 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////   waiting to receive signed transactions asynchronously from the sender to push them inside the current block - this buffer zone is the transaction mempool channel
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-
+    //// mempool channel is sepecific to each node 
+    //// means that only the node itself can see
+    //// what's happening inside the mempool
+    ////cause it's the transactions' buffer.
+ 
     while let Some((transaction, validator, coiniXerr_actor_system)) = mempool_receiver.recv().await{ //-- waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously 
         info!("➔ 📥 receiving new transaction and its related validator to push inside the current block");
         let mutex_transaction = transaction.lock().unwrap().clone();

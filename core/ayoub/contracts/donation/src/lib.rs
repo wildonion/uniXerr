@@ -55,7 +55,8 @@ use near_sdk::{
 
 
 
-            
+// https://github.com/Bitdad-Dev/bitzio-nft-near-contracts
+
 
 
 
@@ -76,7 +77,7 @@ pub struct Conse{
 impl Conse{
 
     #[init]
-    pub fn new(owner_id: AccountId) -> Self{
+    pub fn new(owner_id: AccountId) -> Self{ //// owner_id is the one who initialized this method
 
         Self{
             owner_id,

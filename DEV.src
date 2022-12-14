@@ -1092,7 +1092,6 @@ https://kerkour.com/rust-fearless-concurrency
 https://veykril.github.io/tlborm/
 https://rust-cli.github.io/book/
 https://nomicon.io/RuntimeSpec/ -> use near design pattern cause it's a sharded based blockchain
-https://github.com/Bitdad-Dev/bitzio-nft-near-contracts/blob/master/NEAR.rules -> near design pattern explained 
 https://stackoverflow.com/questions/41823321/how-to-get-pointer-offset-of-an-enum-member-in-bytes
 https://stackoverflow.com/questions/27324821/why-does-an-enum-require-extra-memory-size
 https://docs.tendermint.com/master/
@@ -1108,7 +1107,6 @@ https://opensource.com/article/19/3/rust-virtual-machine
 https://medium.com/iridium-vm/so-you-want-to-build-a-language-vm-in-rust-part-09-15d90084002
 https://medium.com/clevyio/using-rust-and-nom-to-create-an-open-source-programming-language-for-chatbots-12fe67582af5
 https://crates.io/crates/hotham -> VR engine in rust
-https://github.com/Bitdad-Dev/bitzio-nft-near-contracts
 https://www.i-programmer.info/programming/theory.html
 https://www.i-programmer.info/babbages-bag/
 https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md#the-misconceptions
