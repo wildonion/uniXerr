@@ -78,7 +78,9 @@
 
 
 
-☢️ every contract actor account communicates with other account using their actor address through the RPC channel in json format. 
+☢️ every contract actor account communicates with other account using their actor address 
+    through the RPC channel in json format, by using RPC protocol we can call each contract method
+    directly from other contracts. 
 
 
 

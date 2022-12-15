@@ -422,6 +422,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afaa14ddcf4553e700608c1c0ee3ca1f4cf673470462b99ff6dd6bedcdb6c6ce"
 
 [[package]]
+name = "capnpc"
+version = "0.15.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "476b328e8298e5454f9d72b53a15da8d8725e572bc3d43e4e4cdb77a49093ee9"
+dependencies = [
+ "capnp",
+]
+
+[[package]]
 name = "cc"
 version = "1.0.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -506,6 +515,7 @@ dependencies = [
  "bcrypt",
  "borsh",
  "capnp",
+ "capnpc",
  "chrono",
  "clap",
  "dotenv",

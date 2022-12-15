@@ -13,6 +13,16 @@
 
 
 
+    for worker in 0..10{ //// spawning tokio green threads for 10 workers
+        tokio::spawn(async move{ //// spawning tokio worker green threadpool to solve async task
+            
+            //// any heavy logic here that must be shared using tokio channels inside a threadpool  
+            //// ...
+            
+        });
+    }
+
+
 
     let mut tokio_async_worker = AsyncWorker::new();
     let mut native_sync_worker = NativeSyncWorker::spawn(n_workers);

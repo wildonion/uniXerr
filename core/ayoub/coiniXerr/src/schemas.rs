@@ -256,13 +256,13 @@ impl StorageModel for InsertParachainInfo{
         }
     } 
 
-    async fn fetch(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
+    async fn fetch(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
 
         todo!()
 
     }
 
-    async fn filter(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
+    async fn filter(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
 
         todo!()
 
@@ -301,6 +301,7 @@ pub struct Block{
 }
 
 impl Block{
+
     pub fn push_transaction(&mut self, transaction: Transaction) -> Self{ //-- the first param is a mutable pointer to every field of the struct
         self.transactions.push(transaction);
         Block{ //-- don't return &self when constructing the struct cause we'll face lifetime issue for struct fields - &mut T is not bounded to Copy trait due to ownership and borrowing rules which we can't have multiple mutable pointer at the same time
@@ -315,6 +316,21 @@ impl Block{
             is_valid: self.is_valid,
         }
     }
+
+    pub fn serialize_block(&self) -> String{ //// this method will be used for generating the hash of the block from the json string of the block or the instance of the Block struct
+        //// all the block data (self) must be convert to the string first
+        //// in order to generate its hash.
+        serde_json::to_string(&self).unwrap()
+    }
+     
+    pub fn generate_hash(&self) -> String{
+
+        // TODO - generate the hash of the block using argon2
+        // ...
+        todo!()
+
+    } 
+
 }
 
 impl Default for Block{

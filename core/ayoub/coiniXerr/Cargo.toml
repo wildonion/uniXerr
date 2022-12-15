@@ -38,6 +38,10 @@ async-trait = "0.1.58"
 
 
 
+[build-dependencies]
+capnpc = "0.15.2"
+
+
 
 [lib]
 # libraries don't have entry points, you can't run them,they're used for functionality sharing like binding a .wasm into js codes

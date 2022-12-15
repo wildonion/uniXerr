@@ -69,7 +69,6 @@ use std::rc::{Rc, Weak};
 use std::cell::RefCell;
 use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net 
 use std::collections::{HashMap, HashSet};
-use dotenv::dotenv;
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
@@ -98,11 +97,9 @@ use daemon; //// import lib.rs methods
 
 
 
-#[path="cips/tcp.p2p.rs"]
+#[path="tlps/tcp.server.rs"]
 pub mod tcp;
-#[path="cips/zmq.p2p.rs"]
-pub mod nonemq;
-#[path="cips/rpc.server.rs"]
+#[path="tlps/rpc.server.rs"]
 pub mod rpc;
 pub mod constants;
 pub mod schemas;
@@ -191,12 +188,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// we have to clone it to prevent ownership moving.
 
     rpc::bootstrap(app_storage.clone(), env_vars.clone()).await;
-    
-    // ----------------------------------------------------------------------
-    //                    STARTING coiniXerr ZMQ PROTOCOL
-    // ----------------------------------------------------------------------
-
-    nonemq::bootstrap(app_storage.clone(), env_vars.clone()).await;
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr TCP PROTOCOL

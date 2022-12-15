@@ -400,8 +400,8 @@ pub mod DbORM{
         //// that hey remember that the Self is a Sized one compile it!
         
         async fn save(&self, app_storage: Self::AppStorage) -> Result<mongodb::results::InsertOneResult, mongodb::error::Error>;
-        async fn fetch(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
-        async fn filter(&self, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
+        async fn fetch(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
+        async fn filter(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
 
     }
 

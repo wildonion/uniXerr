@@ -5,8 +5,6 @@
 
 
 
-use crate::*;
-
 
 
 
@@ -22,3 +20,5 @@ pub const MESSAGE_ACCESS_DENIED: &str = "Access Denied";
 pub const MESSAGE_NOT_ENOUGH_COINS: &str = "Not enough coins";
 pub const AUTHORIZATION: &str = "Authorization";
 pub const EMPTY: &str = "";
+pub const NEW_TRANSACTION_TOPIC: &str = "new transaction";
+pub const VERIFYING_TRANSACTION_TOPIC: &str = "verifyin new transaction";
