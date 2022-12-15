@@ -44,9 +44,9 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
                                                                                                                                             )>(buffer_size); //-- transaction mempool channel using mpsc channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
 
 
-    // ---------------------------------------------------------------
-    //    STARTING ACTORS TO RECEIVING ASYNCLY FROM MEMPOOL CHANNELS
-    // ---------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    //    STARTING ACTORS TO SEND TRANSACTIONS ASYNCLY TO MEMPOOL CHANNELS
+    // -----------------------------------------------------------------------
     let (
             mut current_slot, 
             validator_joined_channel, 

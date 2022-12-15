@@ -46,7 +46,7 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                           vars initialization
+    ///////                           env vars initialization
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
     let coiniXerr_sys = SystemBuilder::new()
@@ -64,10 +64,10 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
     
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////        ZMQ pub/sub stream to broadcast actor events to the whole networks and other noses using cap'n proto serialization
+    ///////              ZMQ pub/sub stream to broadcast actors' events to the whole networks using cap'n proto serialization
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// ➔ we'll use the ZMQ pub/sub to broadcast the network events 
-    ////    from RPC or tokio TCP to other ndoes.
+    //// ➔ we'll use the ZMQ pub/sub to broadcast the network events from RPC or tokio TCP to other ndoes
+    ////    also when a socket is bound to an endpoint it automatically starts accepting connections.
     // 
     //// ➔ ZMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
     ////    multiple endpoints bound to the socket, thus allowing many-to-many relationships.
@@ -81,12 +81,15 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
     //
     //// ➔ every ZMQ sender and receiver socket type is an actor which sends and receive in parallel manner since actors use worker threadpool
     ////    (like tokio::spawn() worker green based threadpool + tokio channels for sharing messages between threads), 
-    ////    job or task queue channels, pub/sub channels for broadcasting messages to other actors, task scheduling 
-    ////    and mailbox to communicate with each other under the hood.
+    ////    job or task queue channels for task scheduling, pub/sub channels for broadcasting messages to other actors  
+    ////    and mailbox to communicate with each other and outside of the actor system under the hood.
     //
     //// ➔ RPC allows us to directyly call methods on other machines and it's a 
     ////    bidirectional full-duplex streaming in which the client can request and 
     ////    the server can respond simultaneously and at the same time.  
+    //
+    //// ➔ ZMQ supports N-to-N pattern means a publisher will accept any number of subscribers 
+    ////    and the subscriber can connect to multiple publishers.
     //
     //// ➔ ZMQ patterns are:
     ////      • Request-reply, which connects a set of clients to a set of services. This is a remote procedure call and task distribution pattern.
@@ -99,40 +102,49 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
     // ---------------------------------------------------------------------------------------------------------------------------
     //        ZMQ P2P PUBLISHER AND SUBSCRIBER USING CAP'N PROTO SERIALIZATION (DESIGNED FOR coiniXerr NODES COMMUNICATION)
     // ---------------------------------------------------------------------------------------------------------------------------
-    // https://zeromq.org/socket-api/
     
     let zmq_ctx = zmq::Context::new(); 
     let publisher = zmq_ctx.socket(zmq::XPUB).unwrap(); //// the publisher actor node
     let subscriber = zmq_ctx.socket(zmq::XSUB).unwrap(); //// the subscriber actor node 
     let mut msg = zmq::Message::new(); //// a message is a single frame which can be any type, either received or created locally and then sent over the wire through the zmq socket
 
+    //// both publisher and subscriber are inside the node
+    //// means that the publisher can be the subscriber too
+    //// to subscriber what has been just published.
     publisher
-        .bind(zmq_addr.as_str())
-        .unwrap();
-    publisher
-        .connect(zmq_addr.as_str())
+        .bind(zmq_addr.as_str()) //// binding the publisher to the passed in address
         .unwrap();
 
     subscriber
-        .bind(zmq_addr.as_str())
+        .connect(zmq_addr.as_str()) //// connecting the subscriber to the passed in address
         .unwrap();
-    subscriber
-        .connect(zmq_addr.as_str())
-        .unwrap();
-
-
+    
 
     // TODO - use cap'n proto as the serialization protocol for event encoding
     // TODO - broadcast actors' events to other nodes using publisher
-    // TODO - subscribe to actors' events using the subscriber 
-    // TODO - use libp2p over zmq
+    // TODO - subscribe to actors' events using the subscriber
+    // TODO - test the p2p behavior of the node using zmq pub/sub n-to-n pattern
     // ...
 
 
 
 
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////           libp2p pub/sub stream to broadcast actors' events to the whole networks
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    
+    // ...
+
+
+
+
+
+
+
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                        building coiniXerr events channels 
+    ///////                     building actor coiniXerr events channels 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
     let validator_joined_channel: ChannelRef<ValidatorJoined>              = channel("validator-joined-channel", &coiniXerr_sys).unwrap(); //// validator actors which are interested in this message event (the message type is supported by and implemented for all validator actors) must subscribe to all topics (like joining a new validator) of this event for validator_joined_channel channel actor
@@ -409,13 +421,13 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
 
 
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////   waiting to receive signed transactions asynchronously from the sender to push them inside the current block - this buffer zone is the transaction mempool channel
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////           waiting to receive signed transactions asynchronously from the sender to push them inside the current block
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     //// mempool channel is sepecific to each node 
     //// means that only the node itself can see
     //// what's happening inside the mempool
-    ////cause it's the transactions' buffer.
+    //// cause it's the transactions' buffer.
  
     while let Some((transaction, validator, coiniXerr_actor_system)) = mempool_receiver.recv().await{ //-- waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously 
         info!("➔ 📥 receiving new transaction and its related validator to push inside the current block");
