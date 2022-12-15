@@ -8,17 +8,17 @@ An Actor, p2p, Sharded ZMQ Pub/Sub and RPC Based Design Pattern Runtime, Blockch
 
 ### 📇 Notes
 
-* coiniXerr nodes communicate with each other through the ZMQ p2p pub/sub with the cap'n proto as the serialization protocol
+* Actors' events can be broadcasted to the whole network through the ZMQ p2p pub/sub with the cap'n proto as the serialization protocol.
 
-* coiniXerr nodes communicate with each other through the tokio TCP with borsh and serde as the serialization protocol
+* walleXerr communicates with coiniXerr network through the RPC stream with the cap'n proto as the serialization protocol.
 
-* walleXerr communicates with coiniXerr nodes through the RPC stream with the cap'n proto as the serialization protocol
+* A transaction can also be sent through a TCP stream from a TCP client.
 
-* use `tcp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the TCP Protocol
+* use `tcp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the TCP Protocol.
 
-* use `udp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the UDP Protocol
+* use `udp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the UDP Protocol.
 
-* use `rpc_tx_emulator` method to send fake transactions to the coiniXerr nodes through the RPC Protocol
+* use `rpc_tx_emulator` method to send fake transactions to the coiniXerr nodes through the RPC Protocol.
 
 
 ### 📌 WIP 

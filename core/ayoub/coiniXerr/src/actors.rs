@@ -63,9 +63,9 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
 
     
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////        ZMQ pub/sub stream to broadcast network actor events to other nodes using cap'n proto serialization
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////        ZMQ pub/sub stream to broadcast actor events to the whole networks and other noses using cap'n proto serialization
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// ➔ we'll use the ZMQ pub/sub to broadcast the network events 
     ////    from RPC or tokio TCP to other ndoes.
     // 
@@ -122,8 +122,10 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
 
 
 
-    // TODO - use cap'n proto as the serialization protocol for transaction encoding
-    // TODO - broadcast actor events to other nodes
+    // TODO - use cap'n proto as the serialization protocol for event encoding
+    // TODO - broadcast actors' events to other nodes using publisher
+    // TODO - subscribe to actors' events using the subscriber 
+    // TODO - use libp2p over zmq
     // ...
 
 
