@@ -178,26 +178,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////          bootstrapping the node based on defined CIPS
+    ///////                       bootstrapping TLPS
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-    // ----------------------------------------------------------------------
-    //                    STARTING coiniXerr RPC PROTOCOL
-    // ----------------------------------------------------------------------
-    //// env_vars and app_storage doesn't implement Copy trait thus 
-    //// we have to clone it to prevent ownership moving.
-
-    rpc::bootstrap(app_storage.clone(), env_vars.clone()).await;
+    //// env_vars and app_storage don't implement Copy trait thus 
+    //// we have to clone them to prevent ownership moving.
     
     // ----------------------------------------------------------------------
-    //                    STARTING coiniXerr TCP PROTOCOL
+    //                    STARTING coiniXerr RPC SERVER
     // ----------------------------------------------------------------------
+    //// used to send transaction from the walleXerr
+    
+    rpc::bootstrap(app_storage.clone(), env_vars.clone()).await; //// capn'p proto rpc
+    
+    // ----------------------------------------------------------------------
+    //                    STARTING coiniXerr TCP SERVER
+    // ----------------------------------------------------------------------
+    //// used to send transaction from a TCP client 
 
-    tcp::bootstrap(app_storage.clone(), env_vars.clone()).await;
-
-
-
-
+    tcp::bootstrap(app_storage.clone(), env_vars.clone()).await; //// tokio tcp 
+    
 
 
 

@@ -60,6 +60,7 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     //          RPC SERVER USING CAP'N PROTO SERIALIZATION
     // -----------------------------------------------------------
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc    
+    // https://capnproto.org/language.html
     //// in RPC both server and client know the exact structure of the request and response
     //// for realtime streaming which will be defined by the cap'n proto serialization schemas.
     //
@@ -69,8 +70,8 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
 
 
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
-    // TODO - every RPC server is a validator actor which must be built using Validator struct (help from tcp.p2p.rs)
-    // TODO - we must send the new decoded transaction and the created validator to the downside of the mempool channel for mining process
+    // TODO - every RPC server is a validator actor which must be built using Validator struct (see tcp.server.rs)
+    // TODO - we must send the new decoded transaction and the created validator to the downside of the mempool channel for mining and verifying process
     // ... 
 
     

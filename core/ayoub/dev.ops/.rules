@@ -538,7 +538,6 @@ NOTE - Option requires the type to be Sized because it allocates on the stack. A
         • At any given time, you can have either one mutable reference or any number of immutable references.
         • References must always be valid.
 
-
 [🚨] a jobq uses channels to share data between threads and one of them is mpsc job queue which means that multiple 
     sender can be shared between threads but only one consumer can be used by a thread 
     at a time since the consumer in mpsc job queue is not shareable and cloneable.
@@ -552,7 +551,33 @@ NOTE - Option requires the type to be Sized because it allocates on the stack. A
     from the sender side of the channel asyncly and execute them inside its worker threadpool, actors use this pattern
     to transfer their tasks between their worker threadpools.
 
-        
-        
-        
-        
+[🚨] we'll use the ZMQ pub/sub to broadcast the network events from RPC or tokio TCP to other ndoes
+   also when a socket is bound to an endpoint it automatically starts accepting connections.
+ 
+[🚨] ZMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
+   multiple endpoints bound to the socket, thus allowing many-to-many relationships means a publisher 
+   will accept any number of subscribers and the subscriber can connect to multiple publishers.
+ 
+[🚨] ZMQ contexts are thread safe data types means we can clone them to share between threads (they are Arc-ed) 
+   and also they avoid deadlocks since ZMQ socket protocols use actors under the hood means 
+   both senders and receivers are actors which use a buit in jobq to handle incoming tasks and jobs. 
+ 
+[🚨] ZMQ creates queues (actor) per underlying connection of each socket type if your socket is connected to three peer sockets, 
+   then there are three messages queues behind the scenes, queues are created as individual peers connect to the bound socket   
+
+[🚨] every ZMQ sender and receiver socket type is an actor which sends and receive in parallel manner since actors use worker threadpool
+   (like tokio::spawn() worker green based threadpool + tokio channels for sharing messages between threads), 
+   job or task queue channels for task scheduling, pub/sub channels for broadcasting messages to other actors  
+   and mailbox to communicate with each other and outside of the actor system under the hood.
+
+[🚨] RPC allows us to directyly call methods on other machines and it's a 
+   bidirectional full-duplex streaming in which the client can request and 
+   the server can respond simultaneously and at the same time.  
+
+[🚨] in decentralized networks we must use pub/sub pattern in a p2p manner to communicate with other peers or nodes in which
+    a publisher which is an actor and can be any data type like a socket connection can publish a message to the subscribers 
+    by broadcasting the message to the channel, the channel can be an RPC, a socket or a structure, the subscriber which is 
+    an actor too like socket connection can subscribe to the topic that has been published to the channel if actors are two 
+    machines like two smart contracts, in order to call each other methods directly we must use socket or an RPC channels 
+    and if they are in the same machine, to call eacth other methods we can use tokio channels like mpsc, 
+    watch and single shot to broadcast messages or call their methods. 

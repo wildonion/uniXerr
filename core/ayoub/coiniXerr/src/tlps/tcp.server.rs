@@ -186,7 +186,7 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
             let mut runtime_info = cloned_arc_mutex_runtime_info_object.lock().unwrap().to_owned(); //-- in order to use the to_owned() method we have to implement the Clone trait for the Runtime struct since this method will make a clone from the instance - unlocking, unwrapping and cloning (by using to_ownded() method) the runtim_info object in every iteration of incoming stream inside the local thread to convert it to an instance of the RafaelRt struct
             RafaelRt::add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
                 runtime_info, //-- passing the mutable runtime_info object for adding new metadata into its hash map field
-                MetaData{
+                MetaData{ //// this metadata will be used for selecting new validators inside a shard
                     id: Uuid::new_v4(),
                     node_addr: Some(addr), //-- the ip address of the validator node 
                     actor: validator_actor.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration

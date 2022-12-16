@@ -150,15 +150,24 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
         pub addr: SocketAddr, 
         pub cost_per_api_call: u128, //// this is based on the load of the weights
         #[serde(skip_serializing_if="Option::is_none")]
-        pub weights: Option<Vec<SocketAddr>>,
+        pub weights: Option<Vec<SocketAddr>>, //// this is the number of requests that this node is handling right now 
         pub init_at: i64,
     }
     
     
 
     #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Debug)]
-    pub struct LoadBalancer{
+    pub struct Container{
+        pub id: String,
         pub nodes: Vec<Node>,
+    }
+
+
+
+    #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Debug)]
+    pub struct Pod{ //// a pod is a load balancer which can have one or more containers 
+        pub id: String,
+        pub containers: Vec<Container>,
     }
 
 

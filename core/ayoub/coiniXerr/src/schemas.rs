@@ -86,7 +86,7 @@ pub struct Slot{ //-- pool of validators for slot auctions
     pub id: Uuid,
     pub name: String,
     pub voters: Vec<Voter>, //-- auction voters for this slot
-    pub epoch: u32, //-- number of created blocks to generate new slot auction process 
+    pub epoch: u32, //-- one epoch is the time taken to process 600k blocks which might takes 1 day or less depends on the coiniXerr network performence, after end of each epoch a new slot auction process will be started 
 } 
 
 impl Slot{
@@ -420,7 +420,10 @@ impl Node{
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                        Transaction Schema
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// TODO - End-to-End Encryption tools
+// TODO - End-to-End Encryption tools and functions
+//              https://crates.io/crates/noise-protocol -> alternative to tls
+//              https://crates.io/crates/libsodium-sys -> cryptography lib
+//              https://libsodium.gitbook.io/doc/
 //              https://github.com/skerkour/black-hat-rust/tree/main/ch_11
 //              https://cryptobook.nakov.com/
 //              https://medium.com/@panghalamit/whatsapp-s-end-to-end-encryption-how-does-it-work-80020977caa0

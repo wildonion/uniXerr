@@ -11,6 +11,8 @@
 
 
 
+
+
 use crate::*;
 pub mod peer;
 pub mod parathread;
@@ -24,9 +26,11 @@ pub mod unixerr;
 
 
 
-//// starting coiniXerr actors, broadcast events using ZMQ pub/sub 
-//// and receiving asyncly from the mempool channel.
-pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
+//// coiniXerr daemonization is the backbone of the coiniXerr network
+//// consists of a secured p2p communication between nodes using libp2p, 
+//// coiniXerr actors setup, broadcasting events using libp2p pub/sub streams 
+//// and receiving asyncly from the mempool channel for mining and verifying process. 
+pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// the mempool_receiver must be mutable since reading from the channel is a mutable process
         Arc<Mutex<Transaction>>, 
         Arc<Mutex<ActorRef<<Validator as Actor>::Msg>>>, //// we're getting the mailbox type of Validator actor first by casting it into an Actor then getting its Msg mailbox which is of type ValidatorMsg  
         //// passing the coiniXerr actor system through the mpsc channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
@@ -41,7 +45,7 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
       Uuid,
       Arc<Mutex<RafaelRt>>,
       ActorSystem
-    ){
+    ){ //// the return type is a tuple
 
 
 
@@ -58,84 +62,16 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<(
     let runtime_instance = run_time_info.run(); //-- run() method is the method of the Rafael serverless trait
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //-- we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
     let buffer_size = daemon::get_env_vars().await.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
-    let zmq_addr = daemon::get_env_vars().await.get("ZMQ_ADDR").unwrap().to_string();
-
-
-    
-
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////              ZMQ pub/sub stream to broadcast actors' events to the whole networks using cap'n proto serialization
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// ➔ we'll use the ZMQ pub/sub to broadcast the network events from RPC or tokio TCP to other ndoes
-    ////    also when a socket is bound to an endpoint it automatically starts accepting connections.
-    // 
-    //// ➔ ZMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
-    ////    multiple endpoints bound to the socket, thus allowing many-to-many relationships.
-    // 
-    //// ➔ ZMQ contexts are thread safe data types means we can clone them to share between threads (they are Arc-ed) 
-    ////    and also they avoid deadlocks since ZMQ socket protocols use actors under the hood means 
-    ////    both senders and receivers are actors which use a buit in jobq to handle incoming tasks and jobs. 
-    // 
-    //// ➔ ZMQ creates queues (actor) per underlying connection of each socket type if your socket is connected to three peer sockets, 
-    ////    then there are three messages queues behind the scenes, queues are created as individual peers connect to the bound socket   
-    //
-    //// ➔ every ZMQ sender and receiver socket type is an actor which sends and receive in parallel manner since actors use worker threadpool
-    ////    (like tokio::spawn() worker green based threadpool + tokio channels for sharing messages between threads), 
-    ////    job or task queue channels for task scheduling, pub/sub channels for broadcasting messages to other actors  
-    ////    and mailbox to communicate with each other and outside of the actor system under the hood.
-    //
-    //// ➔ RPC allows us to directyly call methods on other machines and it's a 
-    ////    bidirectional full-duplex streaming in which the client can request and 
-    ////    the server can respond simultaneously and at the same time.  
-    //
-    //// ➔ ZMQ supports N-to-N pattern means a publisher will accept any number of subscribers 
-    ////    and the subscriber can connect to multiple publishers.
-    //
-    //// ➔ ZMQ patterns are:
-    ////      • Request-reply, which connects a set of clients to a set of services. This is a remote procedure call and task distribution pattern.
-    ////      • Pub-sub, which connects a set of publishers to a set of subscribers. This is a data distribution pattern.
-    ////      • Pipeline, which connects nodes in a fan-out/fan-in pattern that can have multiple steps and loops. This is a parallel task distribution and collection pattern.
-    ////      • Exclusive pair, which connects two sockets exclusively. This is a pattern for connecting two threads in a process, not to be confused with “normal” pairs of sockets.
-    ////      • Client-server, which allows a single ZMQ server talk to one or more ZMQ clients. The client always starts the conversation, after which either peer can send messages asynchronously, to the other.
-    ////      • Radio-dish, which used for one-to-many distribution of data from a single publisher to multiple subscribers in a fan out fashion.    
-
-    // ---------------------------------------------------------------------------------------------------------------------------
-    //        ZMQ P2P PUBLISHER AND SUBSCRIBER USING CAP'N PROTO SERIALIZATION (DESIGNED FOR coiniXerr NODES COMMUNICATION)
-    // ---------------------------------------------------------------------------------------------------------------------------
-    
-    let zmq_ctx = zmq::Context::new(); 
-    let publisher = zmq_ctx.socket(zmq::XPUB).unwrap(); //// the publisher actor node
-    let subscriber = zmq_ctx.socket(zmq::XSUB).unwrap(); //// the subscriber actor node 
-    let mut msg = zmq::Message::new(); //// a message is a single frame which can be any type, either received or created locally and then sent over the wire through the zmq socket
-
-    //// both publisher and subscriber are inside the node
-    //// means that the publisher can be the subscriber too
-    //// to subscriber what has been just published.
-    publisher
-        .bind(zmq_addr.as_str()) //// binding the publisher to the passed in address
-        .unwrap();
-
-    subscriber
-        .connect(zmq_addr.as_str()) //// connecting the subscriber to the passed in address
-        .unwrap();
-    
-
-    // TODO - use cap'n proto as the serialization protocol for event encoding
-    // TODO - broadcast actors' events to other nodes using publisher
-    // TODO - subscribe to actors' events using the subscriber
-    // TODO - test the p2p behavior of the node using zmq pub/sub n-to-n pattern
-    // ...
 
 
 
 
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////           libp2p pub/sub stream to broadcast actors' events to the whole networks
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////           setting up libp2p pub/sub stream to broadcast actors' events to the whole networks
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     
     // ...
-
 
 
 

@@ -36,7 +36,6 @@ pub async fn get_env_vars() -> HashMap<String, String>{
     let max_block_size = env::var("MAX_BLOCK_SIZE").expect("⚠️ please set block size in .env");
     let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
     let host = env::var("HOST").expect("⚠️ please set host in .env");
-    let zmq_addr = env::var("ZMQ_ADDR").expect("⚠️ no zmq addr variable set");
     let rpc_addr = env::var("RPC_ADDR").expect("⚠️ no rpc addr variable set");
     let tcp_addr = env::var("TCP_ADDR").expect("⚠️ no tcp addr variable set");
 
@@ -49,7 +48,6 @@ pub async fn get_env_vars() -> HashMap<String, String>{
     vars.insert("DB_NAME".to_string(), db_name);
     vars.insert("ENVIRONMENT".to_string(), environment);
     vars.insert("RPC_ADDR".to_string(), rpc_addr);
-    vars.insert("ZMQ_ADDR".to_string(), zmq_addr);
     vars.insert("TCP_ADDR".to_string(), tcp_addr);
     vars.insert("HOST".to_string(), host);
     vars.insert("BUFFER_SIZE".to_string(), buffer_size);

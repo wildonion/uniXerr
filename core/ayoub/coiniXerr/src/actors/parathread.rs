@@ -322,7 +322,8 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                 let next_parachain = self.get_next_parachain().unwrap(); //// getting the next parachain field
                 let actor_system = &_ctx.system; //// getting the borrowed form of the actor system from the _ctx
 
-                // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot 
+                // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
+                // TODO - when we reached 600k blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot  (next epoch)
                 // ....
                 
                 //// resetting the slot field of the next parachain but untouched other fields using ask() function 
@@ -364,6 +365,7 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                 info!("➔ ⭕ got a reset wave sent from parachain with id [{}] to this parachain with id [{}]", waver_id, self.id);
 
                 // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
+                // TODO - when we reached 600k blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot (next epoch)
                 // ....
                 
                 _sender
@@ -378,6 +380,7 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                 info!("➔ ⭕ got a reset wave sent from system to this parachain with [{}]", self.id);
 
                 // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
+                // TODO - when we reached 600k created blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot (next epoch)
                 // ....
 
                 _sender
