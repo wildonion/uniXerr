@@ -3,7 +3,7 @@
 
 # 💰 coiniXerr
 
-An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and Engine for uniXerr Cryptocurrency Coin, CRC20, CRC21 and CRC22 Smart Contract to Mint NFT and FT for Digital Assests inside uniXerr Protocol.
+An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and Engine for uniXerr Cryptocurrency Coin.
 
 
 ### 📇 Notes
