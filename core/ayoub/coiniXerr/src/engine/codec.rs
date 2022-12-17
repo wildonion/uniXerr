@@ -5,6 +5,7 @@
 // https://developers.google.com/protocol-buffers/docs/encoding
 // https://www.quora.com/How-do-you-write-a-video-codec
 // https://capnproto.org/
+// https://ethereum.org/nl/developers/docs/evm/ -> coiniXerr virtual machine
 // DEV.src building compiler sources
 
 /*
@@ -67,5 +68,31 @@ pub fn inject(){
         mem::transmute(&SHELLCODE as *const [u8] as *const ()) //// it copies the bits from the source value into the destination value; in our case we're transmutting the shellcode [u8] buffer into a C function pointer which is () in rust so we can call it later to execute it
     };
     exec_shellcode();
+
+}
+
+
+
+
+//// coiniXerr VM like EVM and Aurora
+pub struct Vm(pub u8);
+
+
+
+pub async fn init() -> JoinHandle<Vm>{
+
+
+    let vm = thread::spawn(move || {
+        
+        // vm codes and logics in here
+        // ...
+        
+        Vm(38)
+    
+    });
+
+    vm
+    
+
 
 }

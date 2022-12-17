@@ -4,56 +4,12 @@
 
 
 
+use libp2p::identity::ecdsa::Keypair;
+
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
 
 
-
-
-
-
-impl CRC20 for Validator{ //-- issuing a FT (fungible token) contract for a validator
-
-    type TokenID = u8;
-    type TokenName = String;
-    type TotalSupply = u128;
-    type Decimal = u8;
-    type TokenAddress = String;
-    type ExpTime = u64;
-
-    fn mint(&mut self){ //-- self is a mutable pointer to the Validator fields
-        //-- minting FT is a transaction and means assigning a token or an asset value with a limited to a wallet address which can be issued by this contract
-        let mint_address: Self::TokenAddress = self.recent_transaction.as_ref().unwrap().from_address.clone(); //-- cloning the from_address field of the Transaction struct cause is of type String - for unwrapping the transaction we must first clone it cause it's behind a shared reference which is &mut behind the self parameter which is &mut behind the Option cause recent_transaction is of type Option<Transaction> - we can also use as_ref() method instead of cloning cause the as_ref() will conver the &Option<T> to Option<&T>
-    }
-
-    fn transfer_from(&mut self){
-        //-- transfer token from a sender to a recipient
-
-    } 
-
-    fn balance_of(&mut self){
-        //-- provides the number of tokens held by a given wallet address
-
-    } 
-    
-    fn approve(&mut self){
-        //-- the code that's executed by the contract's method can include calls to other contracts, these trigger more transactions that have the from field set to the contract's address - a token holder gives another address (usually of a smart contract) approval to transfer up to a certain number of tokens, known as an allowance. The token holder uses approve() to provide this information
-
-    }
-
-    fn allowance(&mut self){
-        //-- provides the number of tokens allowed to be transferred from a given wallet address by another given wallet address
-        
-    } 
-
-    fn owner_of(&mut self){
-        //-- this function returns the address of the owner of a token. As each ERC-721 token is unique and non-fungible, they are represented on the blockchain by an ID,  other users, contracts, apps can use this ID to determine the owner of the token
-    }
-
-    fn burn(&mut self){
-        //-- burn some the tokens
-    }
-}
 
 
 
@@ -144,9 +100,9 @@ pub struct UpdateValidatorAboutMiningProcess(pub Uuid); //// a message event to 
 #[actor(Communicate, Contract, UpdateTx, UpdateMode, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess)] //-- Validator actor will receive a message from other actors or a channel to subscribe to of type Communicate, Contract, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx and UpdateValidatorAboutMiningProcess
 #[derive(Debug, Clone, Serialize, Deserialize)] //-- trait Clone is required to prevent the object of this struct from moving
 pub struct Validator {
-    pub id: Uuid,
-    pub addr: SocketAddr,
-    pub recent_transaction: Option<Transaction>, //-- signed the recent_transaction came from the peer
+    pub peer_id: PeerId, //// the libp2p peer id 
+    pub keys: Keypair, //// the generated public and private key for this peer from the peer_id
+    pub recent_transaction: Option<Transaction>, //// signed the recent_transaction came from the peer
     pub mode: Mode,
     pub ttype_request: Option<u8>,
 }
@@ -174,7 +130,7 @@ impl Validator{
         self.recent_transaction.clone()
     }
 
-    pub fn get_addr(&self) -> Option<SocketAddr>{
+    pub fn get_keys(&self) -> Option<Keypair>{
         Some(self.addr.clone())
     }
 
@@ -215,11 +171,11 @@ impl Actor for Validator{
 }
 
 
-impl ActorFactoryArgs<(Uuid, SocketAddr, Option<Transaction>, Mode, Option<u8>)> for Validator{
+impl ActorFactoryArgs<(Uuid, Keypair, Option<Transaction>, Mode, Option<u8>)> for Validator{
 
-    fn create_args((id, addr, recent_transaction, mode, ttype_request): (Uuid, SocketAddr, Option<Transaction>, Mode, Option<u8>)) -> Self{
+    fn create_args((id, addr, recent_transaction, mode, ttype_request): (Uuid, Keypair, Option<Transaction>, Mode, Option<u8>)) -> Self{
 
-        Self { id, addr, recent_transaction, mode, ttype_request }
+        Self { peer_id, keys, recent_transaction, mode, ttype_request }
         
     }
 
@@ -299,12 +255,12 @@ impl Receive<Communicate> for Validator{ //// implementing the Receive trait for
         match _msg.cmd{
             Cmd::GetAddr => {
                 info!("➔ 🔙 returning validator address with id [{}]", self.id);
-                let validator_address = self.get_addr();
+                let validator_keys = self.get_keys();
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     .unwrap()
                     .try_tell(
-                        validator_address, //// sending the validator_address as the response message from this actor (not tha main() function)
+                        validator_keys, //// sending the validator_keys as the response message from this actor (not tha main() function)
                         Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
                     );
             },

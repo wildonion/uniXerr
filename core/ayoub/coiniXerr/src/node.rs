@@ -55,6 +55,7 @@ use async_trait::async_trait;
 use lazy_static::lazy_static;
 use std::fmt;
 use is_type::Is;
+use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use log::{info, error, LevelFilter};
 use tokio::net::{TcpListener, TcpStream, UdpSocket}; //-- async tcp listener and stream
@@ -72,6 +73,14 @@ use std::collections::{HashMap, HashSet};
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
+use libp2p::{
+    transport::{Transport, MemoryTransport}, Multiaddr,
+    gossipsub::{Gossipsub, GossipsubEvent, Topic},
+    identity,
+    mdns::{Mdns, MdnsEvent},
+    swarm::{NetworkBehaviourEventProcess, Swarm},
+    NetworkBehaviour, PeerId, MessageAuthenticity,
+};
 use crate::actors::{
                     parathread::{Parachain, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events

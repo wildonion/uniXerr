@@ -3,6 +3,8 @@
 
 
 
+use libp2p::identity::Keypair;
+
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
 
@@ -92,9 +94,9 @@ pub struct Slot{ //-- pool of validators for slot auctions
 impl Slot{
 
     //// we've cloned the self.validators and current_validators to prevent ownership moving
-    pub fn get_validator(&self, validator_addr: SocketAddr) -> Option<Validator>{
+    pub fn get_validator(&self, validator_peer_id: PeerId) -> Option<Validator>{
         let current_voters = self.voters.clone();
-        let index = current_voters.iter().position(|v| v.owner.addr == validator_addr); //-- this user has already participated in this event
+        let index = current_voters.iter().position(|v| v.owner.peer_id == validator_peer_id); //-- this user has already participated in this event
         if index != None{
             Some(current_voters[index.unwrap()].clone().owner) //// returning the validator of the passed in socket address
         } else{
@@ -102,14 +104,14 @@ impl Slot{
         }
     }
 
-    pub fn add_validator(&mut self, pid: Uuid, validator_addr: SocketAddr) -> Self{
+    pub fn add_validator(&mut self, pid: Uuid, validator_peer_id: PeerId, validator_keys: Keypair) -> Self{
         
         //// building a new voter to push into the voters 
         let new_voter = Voter{
             parachain_id: pid,
             owner: Validator{
-                id: Uuid::new_v4(),
-                addr: validator_addr,
+                peer_id: validator_peer_id,
+                keys: validator_keys,
                 recent_transaction: None, //// it must be filled inside the stream channel the receiver side once the his/her incoming transaction gets signed
                 mode: ValidatorMode::Mine,
                 ttype_request: None, //// it must be filled inside the transaction mempool channel the receiver side once the transaction arrived
@@ -427,7 +429,7 @@ impl Node{
 //              https://github.com/skerkour/black-hat-rust/tree/main/ch_11
 //              https://cryptobook.nakov.com/
 //              https://medium.com/@panghalamit/whatsapp-s-end-to-end-encryption-how-does-it-work-80020977caa0
-//      • Signature: Ed25519 -> tx hash
+//      • Signature: Ed25519 -> tx hash like the one used in creating validator peer id
 //      • Encryption: XChaCha20Poly1305
 //      • Key Exchange: X25519 -> handshake = agent private key + client public key : agent wants to communicate with client
 //      • Key Derivation Function: blake2b or argon2 : derives one or more secret key from a secret value such as a master key like creating a password from a secret key

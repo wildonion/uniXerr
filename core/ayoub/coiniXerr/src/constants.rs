@@ -1,14 +1,15 @@
 
 
 
+use crate::*;
 
 
-
-
-
-
-
-
+//// Lazy is loaded from the once_cell::sync which is a thread safe structure
+//// which we can create static type from it.
+pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519); //// generating a thread safe static keypair (public and private)
+pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //// generating a thread safe peer id from the generated keypair
+pub static PARACHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("parachains"));
+pub static BLOCK_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("blocks"));
 pub const STORAGE_COST: u128 = 3;
 pub const COMPUTATIONAL_COST: u128 = 2; 
 pub const VALIDATOR_REWARD_COST: u128 = 4;

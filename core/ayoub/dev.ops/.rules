@@ -580,4 +580,4 @@ NOTE - Option requires the type to be Sized because it allocates on the stack. A
     an actor too like socket connection can subscribe to the topic that has been published to the channel if actors are two 
     machines like two smart contracts, in order to call each other methods directly we must use socket or an RPC channels 
     and if they are in the same machine, to call eacth other methods we can use tokio channels like mpsc, 
-    watch and single shot to broadcast messages or call their methods. 
+    watch, oneshot and broadcast to broadcast messages or call their methods. 

@@ -8,7 +8,7 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockch
 
 ### 📇 Notes
 
-* Actors' events can be broadcasted to the whole network through the libp2p pub/sub with the cap'n proto as the serialization protocol.
+* Actors' events can be broadcasted to the whole network through the libp2p pub/sub.
 
 * walleXerr communicates with coiniXerr network through the RPC stream with the cap'n proto as the serialization protocol.
 
@@ -20,13 +20,9 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockch
 
 * use `rpc_tx_emulator` method to send fake transactions to the coiniXerr nodes through the RPC Protocol.
 
-* 
-
 ### 📌 WIP 
 
 * complete `actor.rs`, `rpc.server.rs and `tcp.server.rs` streaming 
-
-* broadcast other node state to the network on TCP stream in `tcp.p2p.rs`
 
 * complete `rpc_tx_emulator` method and other `StorageModel` ORM trait methods
 

@@ -9,9 +9,9 @@ use crate::*;
 
 
 
-//// in here we'll create the validator actor from the connected peer
-//// then send all the decoded transactions along with the created validator 
-//// to the downside of the mempool channel for mining and veifying process.
+//// in here we'll send all the decoded transactions 
+//// to the downside of the mempool channel 
+//// for mining and veifying process.
 pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, String>){
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -70,11 +70,9 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
 
 
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
-    // TODO - every RPC server is a validator actor which must be built using Validator struct (see tcp.server.rs)
-    // TODO - we must send the new decoded transaction and the created validator to the downside of the mempool channel for mining and verifying process
+    // TODO - we must send the new decoded transaction to the downside of the mempool channel for mining and verifying process
     // ... 
 
-    
 
 
 

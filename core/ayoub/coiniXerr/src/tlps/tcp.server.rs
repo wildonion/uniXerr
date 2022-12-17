@@ -8,9 +8,9 @@ use crate::*;
 
 
 
-//// in here we'll create the validator actor from the connected peer
-//// then send all the decoded transactions along with the created validator 
-//// to the downside of the mempool channel for mining and veifying process.
+//// in here we'll send all the decoded transactions 
+//// to the downside of the mempool channel 
+//// for mining and veifying process.
 pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, String>){
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -60,8 +60,11 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
             validator_joined_channel, 
             validator_updated_channel,
             default_parachain_uuid,
-            arc_mutex_runtime_info_object,
-            coiniXerr_sys
+            cloned_arc_mutex_runtime_info_object,
+            coiniXerr_sys,
+            meta_data_uuid,
+            cloned_arc_mutex_validator_actor,
+            cloned_arc_mutex_validator_update_channel
         ) = actors::daemonize(mempool_receiver, storage.clone()).await;
     
     // ----------------------------------------------------------------------
@@ -86,147 +89,14 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                     starting validator actors for incoming transactions' bytes through a tcp streamer 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// every coiniXerr ndoe is a tokio tcp peer which is an actor validator or a publisher and subscriber at the same time
-    //// with some predefined behavior inside the network using riker.
-    //
     //// we can use riker actors to schedule messages received from other coiniXerr nodes for later
     //// execution and also for broadcasting them to other actors through the defined riker channels; 
     //// since actors use worker threadpool (like tokio::spawn() worker green based threadpool), 
     //// jobq channels, pub/sub channels and mailbox to communicate with each other under the hood.
     
-    while let Ok((stream, addr)) = listener.accept().await{ //-- await suspends the accept() function execution to solve the future but allows other code blocks to run  
+    while let Ok((stream, addr)) = listener.accept().await{ //-- await suspends the accept() function execution to solve the future but allows other code blocks to run      
         info!("➔ 🪢 connection stablished from {}", addr);
-        let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy of) runtime info object to prevent ownership moving in every iteration between threads
-        let stream_sender = stream_sender.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy of) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock
-        
-        // ----------------------------------------------------------------------
-        //               BUILDING VALIDATOR ACTOR FOR THIS STREAM
-        // ----------------------------------------------------------------------
-        
-        let default_parachain_slot = current_slot.clone();
-        let stream_validator = default_parachain_slot.clone().get_validator(addr.clone()); // TODO - validator uniqueness
-        
-        //// means we don't find any validator inside the default parachain slot  
-        if let None = stream_validator{ 
-            current_slot = default_parachain_slot
-                                                .clone()
-                                                .add_validator( //// this method will return the updated slot
-                                                    default_parachain_uuid, 
-                                                    addr.clone() //// socket address can be a unique identifier for the connected validator since it has a unique port each time that a validator gets slided into the network 
-                                                );
-        }
-        
-        let validator = Validator{ //// we have to clone the stream_validator in each arm to prevent ownership moving since we're lossing the ownership in each arm
-            id: match stream_validator.clone(){
-                Some(v) => v.id,
-                None => Uuid::new_v4(),
-            },
-            addr: match stream_validator.clone(){
-                Some(v) => v.addr,
-                None => addr.clone(),
-            },
-            recent_transaction: match stream_validator.clone(){
-                Some(v) => v.recent_transaction,
-                None => None,
-            },
-            mode: match stream_validator.clone(){
-                Some(v) => v.mode,
-                None => ValidatorMode::Mine,
-            },
-            ttype_request: match stream_validator.clone(){
-                Some(v) => v.ttype_request,
-                None => None,
-            }
-        };
-
-        info!("➔ 👷🏼‍♂️ building validator actor for this peer");
-        let validator_props = Props::new_args::<Validator, _>( //// prop types are inside Arc and Mutex thus we can clone them and move them between threads  
-                                                                                                            (
-                                                                                                                validator.id.clone(), 
-                                                                                                                validator.addr, 
-                                                                                                                validator.recent_transaction, 
-                                                                                                                validator.mode, 
-                                                                                                                validator.ttype_request
-                                                                                                            )
-                                                                                                        );
-        let validator_actor = coiniXerr_sys.clone().actor_of_props::<Validator>("validator", validator_props.clone()).unwrap(); //-- initializing the validator actor with its props; ActorRef is of type ValidatorMsg means that we can communicate with another actor or the actor itself by sending Validator iteself as a message - props are Clone and Send and we can share them between threads
-        let validator_actor = validator_actor.clone(); //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration - trait Clone is implemented for Validator actor struct since the type is Send + Sync across threads
-        let validator_updated_channel = validator_updated_channel.clone();  //-- cloning (making a deep copy of) the channel actor will prevent the object from moving in every iteration - trait Clone is implemented for channel actor struct since the type is Send + Sync across threads
-        
-        // ---------------------------------------------------------------------------------
-        //              BROADCASTING NEW VALIDATOR TO OTHER VALIDATOR ACTORS
-        // ---------------------------------------------------------------------------------
-
-        validator_joined_channel.tell( //// telling the channel that we want to publish something
-                                    Publish{
-                                        msg: ValidatorJoined(validator.id.clone()), //// publishing the ValidatorJoined message event to the validator_joined_channel channel 
-                                        topic: "<new validator joined>".into(), //// setting the topic to <new validator joined> so all subscribers of this channel (all validator actors) can subscribe and react to this topic of this message event
-                                    }, 
-                                    None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None
-                                );
-        
-        // ---------------------------------------------------------------------------------
-        //                 CREATED VALIDATOR SUBSCRIBES TO NEW VALIDATOR TOPIC
-        // ---------------------------------------------------------------------------------
-
-        validator_joined_channel.tell( //// telling the channel that an actor wants to subscribe to a topic - whenever a validator join current validator can subscribe to the related topic
-                                    Subscribe{ 
-                                        actor: Box::new(validator_actor.clone()), //// validator_actor wants to subscribe to - since in subscribing a message the subscriber or the actor must be bounded to Send trait thus we must either take a reference to it like &dyn Tell<Msg> + Send or put it inside the Box like Box<dyn Tell<Msg> + Send> to avoid using lifetime directly since the Box is a smart pointer and has its own lifetime     
-                                        topic: "<new validator joined>".into() //// <new validator joined> topic
-                                    },
-                                    None
-        );
-
-        // ----------------------------------------------------------------------
-        //                  SAVING RUNTIME INFO FOR THIS STREAM
-        // ----------------------------------------------------------------------
-        info!("➔ 💾 saving runtime info");
-        let meta_data_uuid = {
-            let listener_address = format!("{:p}", &listener);
-            let mut runtime_info = cloned_arc_mutex_runtime_info_object.lock().unwrap().to_owned(); //-- in order to use the to_owned() method we have to implement the Clone trait for the Runtime struct since this method will make a clone from the instance - unlocking, unwrapping and cloning (by using to_ownded() method) the runtim_info object in every iteration of incoming stream inside the local thread to convert it to an instance of the RafaelRt struct
-            RafaelRt::add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
-                runtime_info, //-- passing the mutable runtime_info object for adding new metadata into its hash map field
-                MetaData{ //// this metadata will be used for selecting new validators inside a shard
-                    id: Uuid::new_v4(),
-                    node_addr: Some(addr), //-- the ip address of the validator node 
-                    actor: validator_actor.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
-                    link_to_server: Some(LinkToService(listener_address)), //-- this is the location address of the tcp listener inside the ram 
-                    last_crash: None,
-                    first_init: Some(chrono::Local::now().naive_local().timestamp()),
-                    error: None,
-                }
-            )
-        };
-        
-        // ----------------------------------------------------------------------
-        //                    LOGGING RAFAEL RUNTIME INSTANCE
-        // ----------------------------------------------------------------------
-
-        let rafael_event_log = EventLog{
-            time: Some(chrono::Local::now().timestamp_nanos()),
-            event: EventVariant::Runime(vec![
-                RuntimeLog{
-                    id: Uuid::new_v4().to_string(),
-                    path: "/var/log/coiniXerr/runtime/rafael.log".to_string(), // TODO - save the log in /var/log/coiniXerr/runtime/
-                    requested_at: Some(chrono::Local::now().timestamp_nanos()),
-                    content: Box::new([]), // TODO - log content 
- 
-                }
-            ])
-        };
-        info!("➔ 🎞️ rafael runtime instance log {}", rafael_event_log); //-- it'll log to the console like RAFAEL_EVENT_JSON:{"time": 167836438974, "event": "event name, "data": [{...RuntimeLog_instance...}] or [{...ServerlessLog_instance...}]}
-
-        // --------------------------------------------------------------------------------------------------------------------------------------------
-        //                 SENDING THE STREAM, RUNTIME, VALIDATOR, VALIDATOR UPDATE CHANNEL AND ACTOR SYSTEM TO DOWN SIDE OF THE CHANNEL 
-        // --------------------------------------------------------------------------------------------------------------------------------------------
-
-        let arc_mutex_validator_actor = Arc::new(Mutex::new(validator_actor)); //-- creating an Arc object which is inside a Mutex to share and mutate data between threads cause Validator actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the validator_actor object inside a mutex to be updatable between threads
-        let cloned_arc_mutex_validator_actor = Arc::clone(&arc_mutex_validator_actor); //-- we're borrowing the ownership of the Arc-ed and Mutex-ed validator_actor object to move it between threads without loosing the ownership 
-        
-        //// putting the validator_updated_channel inside the Arc<Mutex<...>> to send it through the stream mpsc channel
-        let arc_mutex_validator_update_channel = Arc::new(Mutex::new(validator_updated_channel));
-        let cloned_arc_mutex_validator_update_channel = Arc::clone(&arc_mutex_validator_update_channel);   
-
+        let stream_sender = stream_sender.clone(); //-- we're using mpsc channel to send data between tokio tasks and each task or stream needs its own sender; based on multi producer and single consumer pattern we can achieve this by cloning (making a deep copy of) the sender for each incoming stream means sender can be owned by multiple threads but only one of them can have the receiver at a time to acquire the mutex lock        
         info!("➔ 📼 sending stream setups through the channel");
         stream_sender.send((stream, 
                             meta_data_uuid, 
