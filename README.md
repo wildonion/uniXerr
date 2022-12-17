@@ -134,98 +134,98 @@ pip install uniXerr
 
 ### 📌 Position Clustering Process
 
-[Dataloader Object - MinMax Scaler](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_dataloader-DATALOADER.pth)
+[Dataloader Object - MinMax Scaler](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_dataloader-DATALOADER.pth)
 
-[Fake Dataset for Offline Training](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features.csv)
+[Fake Dataset for Offline Training](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features.csv)
 
 > 📊 Plotted Dataset before Clustering using PCA - Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/server/dataset/pca_pc_beforeClustering.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pca_pc_beforeClustering.png">
 </p>
 
 > 📊 Plotted Dataset before Clustering using TSNE - Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/server/dataset/tsne_pc_beforeClustering.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/dataset/tsne_pc_beforeClustering.png">
 </p>
     
-[Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled-latent.csv)
+[Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features_labeled-latent.csv)
 
-[Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled-raw.csv)
+[Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features_labeled-raw.csv)
 
-[VAE Pre-trained Model - Normal PDF](https://github.com/wildonion/uniXerr/blob/master/piper/position_clustering/utils/pc_model_vae.pth)
+[VAE Pre-trained Model - Normal PDF](https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model_vae.pth)
 
 > 📊 Clusters Found by KMeans on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_clustering/utils/clusters-kmeans-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-latent.png">
 </p>
 
 > 📊 Clusters Found by KMeans on Position Clustering Dataset - Plotted using PCA | Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_clustering/utils/clusters-kmeans-pca-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-pca-raw.png">
 </p>
 
 > 📊 Clusters Found by KMeans on Position Clustering Dataset - Plotted using TSNE | Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_clustering/utils/clusters-kmeans-tsne-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-tsne-raw.png">
 </p>
 
 > 📊 VAE Model Training Loss 
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_clustering/utils/pc_model_loss.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model_loss.png">
 </p>
 
 ### 📌 Position Classification Process
 
-[Training Dataloader Object of Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled_training_tensors-latent-DATALOADER.pth)
+[Training Dataloader Object of Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features_labeled_training_tensors-latent-DATALOADER.pth)
 
-[Testing Dataloader Object of Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled_testing_tensors-latent-DATALOADER.pth)
+[Testing Dataloader Object of Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features_labeled_testing_tensors-latent-DATALOADER.pth)
 
-[Training Dataloader Object of Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled_training_tensors-raw-DATALOADER.pth)
+[Training Dataloader Object of Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features_labeled_training_tensors-raw-DATALOADER.pth)
 
-[Testing Dataloader Object of Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/dataset/pc_features_labeled_testing_tensors-raw-DATALOADER.pth)
+[Testing Dataloader Object of Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features_labeled_testing_tensors-raw-DATALOADER.pth)
 
 > 📊 Percentage of Positions before Classification on Clustered Dataset Based on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/server/dataset/pp_pc_beforeClassification-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pp_pc_beforeClassification-latent.png">
 </p>
 
 > 📊 Percentage of Positions before Classification on Clustered Dataset Based on Position Clustering data
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/server/dataset/pp_pc_beforeClassification-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pp_pc_beforeClassification-raw.png">
 </p>
 
-[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_classifier-latent.pth)
+[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_classifier-latent.pth)
 
-[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_classifier-raw.pth)
+[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_classifier-raw.pth)
 
 > 📊 Classifier Model Training Accuracy - Clustered Dataset Based on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_training_acc-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_acc-latent.png">
 </p>
 
 > 📊 Classifier Model Testing Accuracy - Clustered Dataset Based on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_testing_acc-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_testing_acc-latent.png">
 </p>
 
 > 📊 Classifier Model Training Loss - Clustered Dataset Based on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_training_loss-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_loss-latent.png">
 </p>
 
 > 📊 Classifier Model Training Accuracy - Clustered Dataset Based on Position Clustering data
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_training_acc-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_acc-raw.png">
 </p>
 
 > 📊 Classifier Model Testing Accuracy - Clustered Dataset Based on Position Clustering data
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_testing_acc-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_testing_acc-raw.png">
 </p>
 
 > 📊 Classifier Model Training Loss - Clustered Dataset Based on Position Clustering data
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/piper/position_classification/utils/pc_model_training_loss-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_loss-raw.png">
 </p>
 
-[Classification Results on Arbitrary Inputs - Classified using Pre-trained Model of Clustered Dataset Based on Latent Space of Pre-trained VAE model and Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/server/db/_imported/)
+[Classification Results on Arbitrary Inputs - Classified using Pre-trained Model of Clustered Dataset Based on Latent Space of Pre-trained VAE model and Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/piper/db/_imported/)
