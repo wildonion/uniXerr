@@ -52,9 +52,12 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
             validator_joined_channel, 
             validator_updated_channel,
             default_parachain_uuid,
-            arc_mutex_runtime_info_object,
-            coiniXerr_sys
-        ) = actors::daemonize(mempool_receiver, storage.clone()).await;
+            cloned_arc_mutex_runtime_info_object,
+            coiniXerr_sys,
+            meta_data_uuid,
+            cloned_arc_mutex_validator_actor,
+            cloned_arc_mutex_validator_update_channel
+    ) = actors::daemonize(mempool_receiver, storage.clone()).await;
 
     // -----------------------------------------------------------       
     //          RPC SERVER USING CAP'N PROTO SERIALIZATION

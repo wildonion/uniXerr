@@ -16,10 +16,14 @@
 use log4rs::config::runtime;
 
 use crate::*;
+
+use self::peer::ValidatorMsg;
 pub mod peer;
 pub mod parathread;
 pub mod rafael;
 pub mod unixerr;
+
+
 
 
 
@@ -41,12 +45,15 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
         //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
     )>,
     storage: Option<Arc<Storage>>
-) -> (Slot, 
-      ChannelRef<ValidatorJoined>, 
-      ChannelRef<ValidatorUpdated>, 
-      Uuid,
-      Arc<Mutex<RafaelRt>>,
-      ActorSystem
+) -> ( //// returning types inside the Arc<Mutex<T>> will allow us to share the type between threads safely
+        Slot, 
+        ChannelRef<ValidatorJoined>,
+        Uuid,
+        Arc<Mutex<RafaelRt>>,
+        Uuid,
+        Arc<Mutex<ActorRef<ValidatorMsg>>>,
+        Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
+        ActorSystem
     ){ //// the return type is a tuple of current slot, actor validaor channels, parachain uuid, runtime and the actor system
 
 
@@ -210,8 +217,6 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
 
 
 
-
-
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                           parachain subscribers 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -347,24 +352,25 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
                 );
 
 
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////           setting up libp2p pub/sub stream to broadcast actors' events to the whole networks
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    
-    // TODO - use peer id and keypair to create a unique validator actor
+
+    // TODO - libp2p setup here
+    // pub struct Lazy<T, F = fn() -> T>; ????
     // ...
 
-    let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy of) runtime info object to prevent ownership moving in every iteration between threads
-    
     // ----------------------------------------------------------------------
     //         BUILDING VALIDATOR ACTOR FOR THIS STREAM USING PEER ID
     // ----------------------------------------------------------------------
     
+    let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy of) runtime info object to prevent ownership moving in every iteration between threads
     let default_parachain_slot = current_slot.clone();
-    let stream_validator = default_parachain_slot.clone().get_validator(addr.clone());
+    let peer_validator = default_parachain_slot.clone().get_validator(addr.clone());
     let validator_keys = *KEYS; //// dereferencing the generated keypair for this peer
     //// means we don't find any validator inside the default parachain slot  
-    if let None = stream_validator{ 
+    if let None = peer_validator{ 
         current_slot = default_parachain_slot
                                             .clone()
                                             .add_validator( //// this method will return the updated slot
@@ -374,24 +380,24 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
                                             );
     }
     
-    let validator = Validator{ //// we have to clone the stream_validator in each arm to prevent ownership moving since we're lossing the ownership in each arm
-        peer_id: match stream_validator.clone(){
+    let validator = Validator{ //// we have to clone the peer_validator in each arm to prevent ownership moving since we're lossing the ownership in each arm
+        peer_id: match peer_validator.clone(){
             Some(v) => v.peer_id,
-            None => Uuid::new_v4(),
+            None => *PEER_ID, //// if there was not peer_id we'll use the one inside the constant
         },
-        keys: match stream_validator.clone(){
+        keys: match peer_validator.clone(){
             Some(v) => v.keys,
-            None => addr.clone(),
+            None => *KEYS, //// if there was not keypair we'll use the one inside the constant
         },
-        recent_transaction: match stream_validator.clone(){
+        recent_transaction: match peer_validator.clone(){
             Some(v) => v.recent_transaction,
             None => None,
         },
-        mode: match stream_validator.clone(){
+        mode: match peer_validator.clone(){
             Some(v) => v.mode,
             None => ValidatorMode::Mine,
         },
-        ttype_request: match stream_validator.clone(){
+        ttype_request: match peer_validator.clone(){
             Some(v) => v.ttype_request,
             None => None,
         }
@@ -670,10 +676,12 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
     //// and the coiniXerr actor system. 
     (   
         current_slot.clone(), 
-        validator_joined_channel.clone(), 
-        validator_updated_channel.clone(),
+        validator_joined_channel.clone(),
         default_parachain_uuid.clone(),
-        arc_mutex_runtime_info_object.clone(),
+        cloned_arc_mutex_runtime_info_object.clone(),
+        meta_data_uuid.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
         coiniXerr_sys.clone()
     )
 
