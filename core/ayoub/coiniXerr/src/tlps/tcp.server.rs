@@ -89,10 +89,6 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                     starting validator actors for incoming transactions' bytes through a tcp streamer 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// we can use riker actors to schedule messages received from other coiniXerr nodes for later
-    //// execution and also for broadcasting them to other actors through the defined riker channels; 
-    //// since actors use worker threadpool (like tokio::spawn() worker green based threadpool), 
-    //// jobq channels, pub/sub channels and mailbox to communicate with each other under the hood.
     
     while let Ok((stream, addr)) = listener.accept().await{ //-- await suspends the accept() function execution to solve the future but allows other code blocks to run      
         info!("➔ 🪢 connection stablished from {}", addr);
