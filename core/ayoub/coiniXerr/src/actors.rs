@@ -30,10 +30,19 @@ pub mod unixerr;
 
 
 
-
-
-
-
+//// in decentralized networks we must use pub/sub pattern in a p2p manner to communicate with other peers or nodes in which
+//// a publisher which is an actor and can be any data type like a socket connection can publish a message to the subscribers 
+//// by broadcasting the message to the channel, the channel can be an RPC, a socket or a structure like tokio channels, 
+//// the subscriber which is an actor too, like a socket connection can subscribe to the topic that has been published to the 
+//// channel if actors are two machines like two smart contracts, in order to call each other methods directly we must use 
+//// socket or an RPC channels and if they are in the same machine, to call eacth other methods we can use tokio channels like 
+//// mpsc, watch, oneshot and broadcast to broadcast messages or call their methods.
+//
+//// libp2p nodes and message queues like ZMQ are based on actors since actors use worker threadpool 
+//// (like tokio::spawn() green based worker threadpool + tokio channels for sharing messages and tasks between threads), 
+//// job or task queue for task scheduling, pub/sub channels for broadcasting messages to other actors and mailbox 
+//// to receive from other actor or outside of the actor system under the hood.
+//
 //// coiniXerr daemonization is the backbone of the coiniXerr network
 //// consists of a secured p2p communication between nodes using libp2p, 
 //// coiniXerr actors setup, broadcasting events using libp2p pub/sub streams 
@@ -358,7 +367,10 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////           setting up libp2p pub/sub stream to broadcast actors' events to the whole networks
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    
+    //// every node or peer is a validator actor which is known by
+    //// a keypair (public and private) and the generated
+    //// peer_id from that keypair.
+ 
     // TODO - libp2p setup here
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/file-sharing.rs
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/chat-tokio.rs
@@ -693,5 +705,7 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
         cloned_arc_mutex_validator_update_channel.clone(),
         coiniXerr_sys.clone()
     )
+
+
 
 } 

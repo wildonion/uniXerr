@@ -395,6 +395,20 @@ pub async fn trash(){
     //    use it it'll be unused which the won't compile hence to fix the issue we must put the generic type inside a PhantomData struct
 	// ➔ generic types in function signature can be bounded to lifetimes and traits so we can use the lifetime to avoid having dangling pointer of the generic type in function body and traits to extend the type interface
 
+
+    pub struct GenFn<T, F = fn() -> T>{ //// F generic type is a function pointe or fn()
+        pub one_field: T,
+        pub sec_field: F,
+    }
+    fn ret_var() -> u8{
+        23
+    }
+    let instance = GenFn{
+        one_field: "another_wildonion".to_string(),
+        sec_field: ret_var,
+    };
+
+
 	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //-- based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we wanto to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field
 	    fn into(self) -> Vec<u8> {
             self.arr.to_vec()
