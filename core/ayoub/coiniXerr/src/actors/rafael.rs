@@ -187,7 +187,7 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
         pub actor: ActorRef<<Validator as Actor>::Msg>, //-- validator actor with the mailbox of type Msg; aslo Validator actor should implements the Debug and Clone trait also
         pub link_to_server: Option<LinkToService>, //-- we've just saved the location address of the socket service inside the memory
         pub error: Option<AppError>, //-- any runtime error caused either by the runtime itself or the storage crash
-        pub node_addr: Option<SocketAddr>, //-- socket address of this node
+        pub node_peer_id: Option<PeerId>, //-- the peer_id of this node
         pub last_crash: Option<i64>, //-- last crash timestamp
         pub first_init: Option<i64>, //-- first initialization timestamp 
     }

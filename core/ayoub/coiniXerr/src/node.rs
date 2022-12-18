@@ -51,8 +51,9 @@ Coded by
 // #![allow(unused)] //-- will let the unused vars be there - we have to put this on top of everything to affect the whole crate
 // #![macro_use] //-- apply the macro_use attribute to the root cause it's an inner attribute and will be effect on all things inside this crate
 
-//// sync means that the type is a thread safe type and can be shared between threads safety
-//// also can be mutated by blocking that thread that wants to mutate it. 
+//// sync creates are types that are thread safe and can be shared between threads safety
+//// since types can be shareable if they are bounded to Send Sync and have valid lifetimes
+//// also can be mutated by blocking the thread that wants to mutate it. 
 use async_trait::async_trait;
 use lazy_static::lazy_static;
 use std::fmt;
@@ -208,6 +209,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     tcp::bootstrap(app_storage.clone(), env_vars.clone()).await; //// tokio tcp 
     
+
 
 
 

@@ -13,15 +13,17 @@
 
 
 
-use log4rs::config::runtime;
+
+
 
 use crate::*;
 
-use self::peer::ValidatorMsg;
 pub mod peer;
 pub mod parathread;
 pub mod rafael;
 pub mod unixerr;
+
+
 
 
 
@@ -356,10 +358,14 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////           setting up libp2p pub/sub stream to broadcast actors' events to the whole networks
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
+    
     // TODO - libp2p setup here
-    // pub struct Lazy<T, F = fn() -> T>; ????
+    // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/file-sharing.rs
+    // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/chat-tokio.rs
+    // https://blog.logrocket.com/how-to-build-a-blockchain-in-rust/#peer-to-peer-basics
+    // https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust/ 
     // ...
+    
 
     // ----------------------------------------------------------------------
     //         BUILDING VALIDATOR ACTOR FOR THIS STREAM USING PEER ID
@@ -367,19 +373,23 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
     
     let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy of) runtime info object to prevent ownership moving in every iteration between threads
     let default_parachain_slot = current_slot.clone();
-    let peer_validator = default_parachain_slot.clone().get_validator(addr.clone());
-    let validator_keys = *KEYS; //// dereferencing the generated keypair for this peer
-    //// means we don't find any validator inside the default parachain slot  
-    if let None = peer_validator{ 
+    let peer_validator = default_parachain_slot.clone().get_validator(*PEER_ID); //// passing the current peer_id of this node to get the validator info
+    if let None = peer_validator{ //// means we don't find any validator inside the default parachain slot  
         current_slot = default_parachain_slot
                                             .clone()
-                                            .add_validator( //// this method will return the updated slot
+                                            //// this method will return the updated slot by adding new validator info to the parachain slot 
+                                            //// adding a new validator with the generated peer_id and key pairs of this node 
+                                            .add_validator( 
                                                 default_parachain_uuid, 
-                                                addr.clone(), //// peer_id can be a unique identifier for the connected validator since it has a unique id each time that a validator gets slided into the network 
-                                                validator_keys //// generated keypair
+                                                *PEER_ID, //// dereferencing the peer_id for this peer also peer_id can be a unique identifier for the connected validator since it has a unique id each time that a validator gets slided into the network 
+                                                *KEYS //// dereferencing the generated keypair for this peer
                                             );
     }
     
+    //// building a validator instance from the peer_validator 
+    //// returned from the default_parachain_slot, we have to
+    //// set each field to a default value if the returned validator
+    //// was None.  
     let validator = Validator{ //// we have to clone the peer_validator in each arm to prevent ownership moving since we're lossing the ownership in each arm
         peer_id: match peer_validator.clone(){
             Some(v) => v.peer_id,
@@ -406,8 +416,8 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
     info!("➔ 👷🏼‍♂️ building validator actor for this peer");
     let validator_props = Props::new_args::<Validator, _>( //// prop types are inside Arc and Mutex thus we can clone them and move them between threads  
                                                                                                         (
-                                                                                                            validator.id.clone(), 
-                                                                                                            validator.addr, 
+                                                                                                            validator.peer_id.clone(), 
+                                                                                                            validator.keys, 
                                                                                                             validator.recent_transaction, 
                                                                                                             validator.mode, 
                                                                                                             validator.ttype_request
@@ -446,15 +456,14 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
     // ----------------------------------------------------------------------
     info!("➔ 💾 saving runtime info");
     let meta_data_uuid = {
-        let listener_address = format!("{:p}", &listener);
         let mut runtime_info = cloned_arc_mutex_runtime_info_object.lock().unwrap().to_owned(); //-- in order to use the to_owned() method we have to implement the Clone trait for the Runtime struct since this method will make a clone from the instance - unlocking, unwrapping and cloning (by using to_ownded() method) the runtim_info object in every iteration of incoming stream inside the local thread to convert it to an instance of the RafaelRt struct
         RafaelRt::add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
             runtime_info, //-- passing the mutable runtime_info object for adding new metadata into its hash map field
             MetaData{ //// this metadata will be used for selecting new validators inside a shard
                 id: Uuid::new_v4(),
-                node_addr: Some(addr), //-- the ip address of the validator node 
+                node_peer_id: Some(*PEER_ID), //// this is the peer_id of this node 
                 actor: validator_actor.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
-                link_to_server: Some(LinkToService(listener_address)), //-- this is the location address of the tcp listener inside the ram 
+                link_to_server: None,
                 last_crash: None,
                 first_init: Some(chrono::Local::now().naive_local().timestamp()),
                 error: None,

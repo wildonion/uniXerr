@@ -946,8 +946,8 @@ pub async fn unsafer(){
     // https://stackoverflow.com/questions/57754901/what-is-a-fat-pointer
     // pointers to the dynamic size types like traits and slices like &str and &[T] are fat pointers 
     // they contains extra 8 bytes (or usize) to store the length of the referenced type and because 
-    // of this the address of the objects and pointers are different with the traits addresses since 
-    // the address of traits contains 16 hex chars which will be 16 * 4 bytes long hence the pointer 
+    // of this the address of the other objects and pointers are different with the traits addresses since 
+    // the address of traits contains 16 hex chars which will be 16 * 4 bits or 8 bytes long hence the pointer 
     // of none traits and traits are not equals.
     struct W(i32);
     let w = W(324);
@@ -961,7 +961,7 @@ pub async fn unsafer(){
     let b = &w as *const dyn Sync;
     let c = &w as *const W as *const dyn Sync as *const u8;
     //// 0x00007ffe673ace7c is not the same as 0x7ffe673ace7c ////
-    println!("{:#?}", c); //// 0x00007ffe673ace7c : this pointer is 8 bytes (every 2 char in hex is 1 byte and every char is 4 bits) long since it's pointing to the location of a trait
+    println!("{:#?}", c); //// 0x00007ffe673ace7c : this pointer is 8 bytes (every 2 char in hex is 1 byte and every char is 4 bits thus 16 chars has 64 bits or 8 bytes long) long since it's pointing to the location of a trait
     println!("{:#?}", &c); //// 0x7ffe673ace7c : this will print the address of &w or c which is casted to a *const u8 it has no extra size at the begening like the above address since it's not a dynmic size type like above Sync trait but the rest is the same of above trait address    
     println!("{:p}", c); //// 0x7ffe673ace7c : this will print the address of &w or c which is casted to a *const u8 it has no extra size at the begening like the above address since it's not a dynmic size type like above Sync trait but the rest is the same of above trait address  
     println!("{:p}", &c); //// 0x7ffe673ace80 :  this is the address of the c pointer or &c

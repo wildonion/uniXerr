@@ -22,7 +22,7 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockch
 
 ### 📌 WIP 
 
-* complete `actor.rs`, `rpc.server.rs and `tcp.server.rs` streaming 
+* complete `actor.rs`, `rpc.server.rs and `tcp.server.rs` streaming TODOs
 
 * complete `rpc_tx_emulator` method and other `StorageModel` ORM trait methods
 

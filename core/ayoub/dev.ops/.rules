@@ -408,7 +408,7 @@ NOTE - fat pointer will be used to take a reference to the dynamic size types li
 NOTE - pointers to the dynamic size types like traits and slices like &str and &[T] are fat pointers they contains extra 8 bytes (or usize) to store the length of the referenced type and because of this the address of the objects and pointers are different with the traits addresses since the address of traits contains 16 hex chars which will be 16 * 4 bytes long hence the pointer of none traits and traits are not equals  
 NOTE - traits must be referenced either by &dyn Trait or Box<dyn Trait> which dyn keyword is fixed in both usage
 NOTE - tokio channels are being used between multiple threads which shares Arc<Mutex<T>> between threads safety
-NOTE - pub/sub channels are being used to send async tasks between two services actors which can also schedule the task to be executed later
+NOTE - pub/sub channels are being used to send async tasks between two services actors through the RPC, socket or struct which can also schedule the task to be executed later
 NOTE - Option requires the type to be Sized because it allocates on the stack. All type parameters to a concrete type definition are bound to Sized by default. Some types choose to opt out with a ?Sized bound but Option does not.
 
 
