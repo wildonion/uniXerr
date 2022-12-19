@@ -568,7 +568,8 @@ NOTE - Option requires the type to be Sized because it allocates on the stack. A
 [🚨] every ZMQ and libp2p node, sender and receiver or socket type is an actor which sends and receive in parallel manner since actors use worker threadpool
    (like tokio::spawn() green based worker threadpool + tokio channels for sharing messages and tasks between threads), 
    job or task queue for task scheduling, pub/sub channels for broadcasting messages to other actors  
-   and mailbox to receive from other actor or outside of the actor system under the hood.
+   and mailbox to receive from other actor or outside of the actor system under the hood hence we can 
+   build something like libp2p using ZMQ socket actors. 
 
 [🚨] RPC allows us to directyly call methods on other machines and it's a 
    bidirectional full-duplex streaming in which the client can request and 

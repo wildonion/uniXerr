@@ -378,6 +378,7 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
     // https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust/ 
     // ...
     
+    info!("➔ 🎡 peer id for this node [{}]", PEER_ID);
 
     // ----------------------------------------------------------------------
     //         BUILDING VALIDATOR ACTOR FOR THIS STREAM USING PEER ID

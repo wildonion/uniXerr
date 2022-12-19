@@ -209,7 +209,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     tcp::bootstrap(app_storage.clone(), env_vars.clone()).await; //// tokio tcp 
     
-
+    // ----------------------------------------------------------------------
+    //                    STARTING coiniXerr P2P STACKS
+    // ----------------------------------------------------------------------
+    //// used to communicate with other coiniXerr nodes
+    
+    // ..
 
 
 

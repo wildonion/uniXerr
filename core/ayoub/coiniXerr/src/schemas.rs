@@ -22,6 +22,41 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//                                                        P2P Schemas                      
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+#[derive(Debug, Serialize, Deserialize)] //// we'll use serde serialization and deserialization traits for json ops
+pub struct ChainResponse{ //// local chain response from other peer - used for if someone sends us their local blockchain and use to send them our local chain
+    pub blocks: Vec, //// blocks from other peers
+    pub receiver: String, //// the receiver node (peer_id) of the incoming chain or blocks
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LocalChainRequest{ //// local chain request from a specific peer
+    pub from_peer_id: String, //// a peer sends a request to get the local chain from other peers
+}
+
+
+
+
+
+
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
