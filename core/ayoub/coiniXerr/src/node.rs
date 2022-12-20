@@ -169,26 +169,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-
-    
-
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////           app storage setup
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-    let app_storage: Option<Arc<Storage>> = db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
-        env_vars.get("DB_NAME").unwrap().to_string(),
-        env_vars.get("DB_ENGINE").unwrap().to_string(),
-        env_vars.get("DB_HOST").unwrap().to_string(),
-        env_vars.get("DB_PORT").unwrap().to_string(),
-        env_vars.get("DB_USERNAME").unwrap().to_string(),
-        env_vars.get("DB_PASSWORD").unwrap().to_string()
-    };
-
-
-
-
-
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                       bootstrapping TLPS
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -200,14 +180,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     // ----------------------------------------------------------------------
     //// used to send transaction from the walleXerr
     
-    rpc::bootstrap(app_storage.clone(), env_vars.clone()).await; //// capn'p proto rpc
+    rpc::bootstrap(*APP_STORAGE, env_vars.clone()).await; //// capn'p proto rpc
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr TCP SERVER
     // ----------------------------------------------------------------------
     //// used to send transaction from a TCP client 
 
-    tcp::bootstrap(app_storage.clone(), env_vars.clone()).await; //// tokio tcp 
+    tcp::bootstrap(*APP_STORAGE, env_vars.clone()).await; //// tokio tcp 
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr P2P STACKS

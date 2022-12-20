@@ -12,6 +12,23 @@ pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519);
 pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //// generating a thread safe peer id from the generated keypair
 pub static PARACHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("parachains"));
 pub static BLOCK_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("blocks"));
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+///////           app storage setup
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| async{
+    db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
+        daemon::get_env_vars().await.get("DB_NAME").unwrap().to_string(),
+        daemon::get_env_vars().await.get("DB_ENGINE").unwrap().to_string(),
+        daemon::get_env_vars().await.get("DB_HOST").unwrap().to_string(),
+        daemon::get_env_vars().await.get("DB_PORT").unwrap().to_string(),
+        daemon::get_env_vars().await.get("DB_USERNAME").unwrap().to_string(),
+        daemon::get_env_vars().await.get("DB_PASSWORD").unwrap().to_string()
+    }
+});
+
+
+
+
 pub const STORAGE_COST: u128 = 3;
 pub const COMPUTATIONAL_COST: u128 = 2; 
 pub const VALIDATOR_REWARD_COST: u128 = 4;

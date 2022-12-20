@@ -274,7 +274,7 @@ impl StorageModel for InsertParachainInfo{
 
     type AppStorage = Option<Arc<Storage>>; //// the type of the AppStorage GAT is the Arc-ed Storage inside the Option since we don't know the exact engine in runtime 
 
-    async fn save(&self, app_storage: Self::AppStorage) -> Result<mongodb::results::InsertOneResult, mongodb::error::Error>{ 
+    async fn save(&self) -> Result<mongodb::results::InsertOneResult, mongodb::error::Error>{ 
         let data = InsertParachainInfo{ //// building the instance from self since insert_one() method gets T not &T
             //// we must clone each field to prevent the self ownership from moving 
             //// since Copy is not implemented for InsertParachainInfo struct.
@@ -284,7 +284,7 @@ impl StorageModel for InsertParachainInfo{
             next_parachain_id: self.next_parachain_id.clone(),
             current_block: self.current_block.clone(),
         };
-        let unwrapped_storage = app_storage.unwrap(); //-- unwrapping the app storage to create a db instance
+        let unwrapped_storage = *APP_STORAGE; //-- unwrapping the app storage to create a db instance
         let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
         let parachains = db_instance.clone().database(daemon::get_env_vars().await.get("DB_NAME").unwrap()).collection::<schemas::InsertParachainInfo>("parachains");
         match parachains.insert_one(data.clone(), None).await{ //-- serializing the user doc which is of type RegisterRequest into the BSON to insert into the mongodb
@@ -293,13 +293,13 @@ impl StorageModel for InsertParachainInfo{
         }
     } 
 
-    async fn fetch(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
+    async fn fetch(&self, query: &str) -> Result<Self, mongodb::error::Error> where Self: Sized{
 
         todo!()
 
     }
 
-    async fn filter(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized{
+    async fn filter(&self, query: &str) -> Result<Self, mongodb::error::Error> where Self: Sized{
 
         todo!()
 

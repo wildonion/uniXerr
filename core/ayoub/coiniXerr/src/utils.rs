@@ -405,9 +405,9 @@ pub mod DbORM{
         //// it'll be specified at runtime thus we have to tell the compiler
         //// that hey remember that the Self is a Sized one compile it!
         
-        async fn save(&self, app_storage: Self::AppStorage) -> Result<mongodb::results::InsertOneResult, mongodb::error::Error>;
-        async fn fetch(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
-        async fn filter(&self, query: &str, app_storage: Self::AppStorage) -> Result<Self, mongodb::error::Error> where Self: Sized;
+        async fn save(&self) -> Result<mongodb::results::InsertOneResult, mongodb::error::Error>;
+        async fn fetch(&self, query: &str) -> Result<Self, mongodb::error::Error> where Self: Sized;
+        async fn filter(&self, query: &str) -> Result<Self, mongodb::error::Error> where Self: Sized;
 
     }
 

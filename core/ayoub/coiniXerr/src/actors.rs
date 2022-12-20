@@ -47,15 +47,17 @@ pub mod unixerr;
 //// consists of a secured p2p communication between nodes using libp2p, 
 //// coiniXerr actors setup, broadcasting events using libp2p pub/sub streams 
 //// and receiving asyncly from the mempool channel for mining and verifying process. 
-pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// the mempool_receiver must be mutable since reading from the channel is a mutable process
-        Arc<Mutex<Transaction>>, 
-        Arc<Mutex<ActorRef<<Validator as Actor>::Msg>>>, //// we're getting the mailbox type of Validator actor first by casting it into an Actor then getting its Msg mailbox which is of type ValidatorMsg  
-        //// passing the coiniXerr actor system through the mpsc channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
-        //// no need to put ActorSystem inside the Arc since it's bounded to Clone trait itself and also we don't want to change it thus there is no Mutex guard is needed
-        ActorSystem 
-        //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
-    )>,
-    storage: Option<Arc<Storage>>
+pub async fn daemonize(
+    mut mempool_receiver: 
+        tokio::sync::mpsc::Receiver<( //// the mempool_receiver must be mutable since reading from the channel is a mutable process
+            Arc<Mutex<Transaction>>, 
+            Arc<Mutex<ActorRef<<Validator as Actor>::Msg>>>, //// we're getting the mailbox type of Validator actor first by casting it into an Actor then getting its Msg mailbox which is of type ValidatorMsg  
+            //// passing the coiniXerr actor system through the mpsc channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
+            //// no need to put ActorSystem inside the Arc since it's bounded to Clone trait itself and also we don't want to change it thus there is no Mutex guard is needed
+            ActorSystem 
+            //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
+        )>,
+        storage: Option<Arc<Storage>>
 ) -> ( //// returning types inside the Arc<Mutex<T>> will allow us to share the type between threads safely
         Slot, 
         ChannelRef<ValidatorJoined>,
@@ -684,7 +686,7 @@ pub async fn daemonize(mut mempool_receiver: tokio::sync::mpsc::Receiver<( //// 
         //// we have to pass the storage instance each time we're calling one of the ORM method
         //// since we can't save the initialized storage some where inside the struct or the trait
         //// because we can't create instance from the traits!
-        match parachain_info.save(storage.clone()).await{
+        match parachain_info.save().await{
             Ok(insert_result) => info!("➔ 🛢️🧣 inserted new parachain into db with uuid [{}] and mongodb id [{}]", default_parachain_uuid.clone(), insert_result.inserted_id.as_object_id().unwrap()),
             Err(e) => error!("😕 error inserting parachain with id [{}]: {}", default_parachain_uuid, e)
         };
