@@ -724,6 +724,16 @@ pub async fn trash(){
         )(Some("wildonion".to_string())),
     };
 
+    //// if let unpacking
+    if let Complex{ 
+        callback, 
+        labeled_block,
+        long_block,
+        callback_result 
+    } = comp{
+    	println!("unpacking is ok!");
+    }
+    //// let else example
     let Complex{ 
         callback, 
         labeled_block,
