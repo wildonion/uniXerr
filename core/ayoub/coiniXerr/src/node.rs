@@ -172,8 +172,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                       bootstrapping TLPS
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// env_vars and app_storage don't implement Copy trait thus 
-    //// we have to clone them to prevent ownership moving.
+    //// env_vars doesn't implement Copy trait thus 
+    //// we have to clone it to prevent ownership moving.
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr RPC SERVER
