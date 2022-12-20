@@ -62,7 +62,9 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     // -----------------------------------------------------------       
     //          RPC SERVER USING CAP'N PROTO SERIALIZATION
     // -----------------------------------------------------------
-    // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc    
+    // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc
+    // https://capnproto.org/rpc.html
+    // https://capnproto.org/encoding.html
     // https://capnproto.org/language.html
     //// in RPC both server and client know the exact structure of the request and response
     //// for realtime streaming which will be defined by the cap'n proto serialization schemas.
