@@ -71,7 +71,7 @@ pub async fn upload_img(req: Request<Body>) -> GenericResult<hyper::Response<Bod
                     let event_id = format!("{}", req.param("eventId").unwrap()); //-- we must create the url param using format!() since this macro will borrow the req object and doesn't move it so we can access the req object later to handle incoming multipart data
                     let event_object_id = ObjectId::from_str(&event_id).unwrap(); //-- always pass by reference to not to lose ownership of the type
 
-                    match req.into_multipart(){ //-- converting the request object into multipart content type to get the inomcing IO streaming of bytes of the uploaded file - some where the RequestMultipartExt trait has implemented for the request object so we can call the into_multipart() method on the req object
+                    match req.into_multipart(){ ///// converting the request object into multipart content type to get the inomcing IO streaming of bytes of the uploaded file - some where the RequestMultipartExt trait has implemented for the request object so we can call the into_multipart() method on the req object
                         Ok(payload) => {
 
 
@@ -92,7 +92,7 @@ pub async fn upload_img(req: Request<Body>) -> GenericResult<hyper::Response<Bod
                                         let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nano to sec
                                         match events.find_one_and_update(doc!{"_id": event_object_id}, doc!{
                                             "$set": {
-                                                "image_path": filepath.unwrap(),
+                                                "image_path": filepath.unwrap_or("".to_string()), //// we unwrap the filepath otherwise fill the field with an empty string
                                                 "updated_at": Some(now),
                                             }}, Some(update_option)).await.unwrap(){
                                                 Some(event_doc) => { 

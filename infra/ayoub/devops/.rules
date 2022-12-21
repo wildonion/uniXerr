@@ -410,7 +410,7 @@ NOTE - traits must be referenced either by &dyn Trait or Box<dyn Trait> which dy
 NOTE - tokio channels are being used between multiple threads which shares Arc<Mutex<T>> between threads safety
 NOTE - pub/sub channels are being used to send async tasks between two services actors through the RPC, socket or struct which can also schedule the task to be executed later
 NOTE - Option requires the type to be Sized because it allocates on the stack. All type parameters to a concrete type definition are bound to Sized by default. Some types choose to opt out with a ?Sized bound but Option does not.
-
+NOTE - pointers takes usize bytes (depends on os arch either 32 bits or 64 bits) also fat pointers takes 8 bytes since they contains extra 4 bytes to store the length of the dynamic types 
 
 
 
@@ -565,25 +565,14 @@ NOTE - Option requires the type to be Sized because it allocates on the stack. A
 [🚨] ZMQ creates queues (actor) per underlying connection of each socket type if your socket is connected to three peer sockets, 
    then there are three messages queues behind the scenes, queues are created as individual peers connect to the bound socket   
 
-[🚨] every ZMQ and libp2p node, sender and receiver or socket type is an actor which sends and receive in parallel manner since actors use worker threadpool
-   (like tokio::spawn() green based worker threadpool + tokio channels for sharing messages and tasks between threads), 
-   job or task queue for task scheduling, pub/sub channels for broadcasting messages to other actors  
-   and mailbox to receive from other actor or outside of the actor system under the hood hence we can 
-   build something like libp2p using ZMQ socket actors. 
-
-[🚨] RPC allows us to directyly call methods on other machines and it's a 
-   bidirectional full-duplex streaming in which the client can request and 
-   the server can respond simultaneously and at the same time.  
-
-[🚨] in decentralized networks we must use pub/sub pattern in a p2p manner to communicate with other peers or nodes in which
-    a publisher which is an actor and can be any data type like a socket connection can publish a message to the subscribers 
-    by broadcasting the message to the channel, the channel can be an RPC, a socket or a structure like tokio channels, the subscriber which is 
-    an actor too, like a socket connection can subscribe to the topic that has been published to the channel if actors are two 
-    machines like two smart contracts, in order to call each other methods directly we must use socket or an RPC channels 
-    and if they are in the same machine, to call eacth other methods we can use tokio channels like mpsc, 
-    watch, oneshot and broadcast to broadcast messages or call their methods.
-
-[🚨] every peer or node or socket connection in libp2p or zmq is an actor by which all the messages and tasks between 
-    them will be handled inside worker threadpool and transferred using pub/sub channels like socket, 
-    RPC or tokio like channels (if actors are in same machine).
+[🚨] in distributed networks in order all nodes can participate in network events we must use pub/sub pattern 
+    to broadcast an event through a channel like RPC using the publishers, since each node is an encoded 
+    actor object using capnp or protobuf and has a pre defined methods like smart contract actor methdos thus  
+    to communicate with other node or actors and call each other methods directly on different machines 
+    without proxying they must use pub/sub channels, and if they are on the same machine they can use 
+    tokio channels like mpsc, watch, oneshot and broadcast; aslo actors use worker threadpool 
+    (like tokio::spawn() green based worker threadpool + tokio channels for sharing messages and tasks between threads), 
+    job or task queue for task scheduling, pub/sub channels for broadcasting messages to other actors 
+    like socket, RPC or tokio like channels (if actors are in same machine) and mailbox 
+    to receive from other actor or outside of the actor system under the hood.
     

@@ -62,18 +62,10 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     // -----------------------------------------------------------       
     //          RPC SERVER USING CAP'N PROTO SERIALIZATION
     // -----------------------------------------------------------
+    
+    
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc
-    // https://capnproto.org/rpc.html
-    // https://capnproto.org/encoding.html
     // https://capnproto.org/language.html
-    //// in RPC both server and client know the exact structure of the request and response
-    //// for realtime streaming which will be defined by the cap'n proto serialization schemas.
-    //
-    //// RPC allows us to directyly call methods on other machines and it's a 
-    //// bidirectional full-duplex streaming in which the client can request and 
-    //// the server can respond simultaneously and at the same time. 
-
-
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
     // TODO - we must send the new decoded transaction to the downside of the mempool channel for mining and verifying process
     // ... 

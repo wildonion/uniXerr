@@ -28,20 +28,18 @@ pub mod unixerr;
 
 
 
-
-
-
-//// in decentralized networks we must use pub/sub pattern in a p2p manner to communicate with other peers or nodes in which
-//// a publisher which is an actor and can be any data type like a socket connection can publish a message to the subscribers 
-//// by broadcasting the message to the channel, the channel can be an RPC, a socket or a structure like tokio channels, 
-//// the subscriber which is an actor too, like a socket connection can subscribe to the topic that has been published to the 
-//// channel if actors are two machines like two smart contracts, in order to call each other methods directly we must use 
-//// socket or an RPC channels and if they are in the same machine, to call eacth other methods we can use tokio channels like 
-//// mpsc, watch, oneshot and broadcast to broadcast messages or call their methods.
-//
-//// libp2p nodes and message queues sockets like ZMQ are based on actors since actors use worker threadpool 
-//// (like tokio::spawn() green based worker threadpool + tokio channels for sharing messages and tasks between threads), 
-//// job or task queue for task scheduling, pub/sub channels for broadcasting messages to other actors 
+//// in distributed networks in order all nodes can participate in network events we must use 
+//// a distributed object protocol like Cap'n Proto RPC with a pub/sub pattern to broadcast an 
+//// event through an RPC channel using the publishers, since each node is an encoded actor 
+//// object using capnp or protobuf and has a pre defined methods like smart contract actor 
+//// methdos thus to communicate with other node or actors and call each other methods directly 
+//// on different machines without proxying they must use pub/sub channels since in RPC both 
+//// server and client know the exact structure of the request and response for realtime 
+//// streaming which will be defined by the Cap'n Proto serialization schemas, and if they are on 
+//// the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast; 
+//// aslo actors use worker threadpool (like tokio::spawn() green based worker threadpool + 
+//// tokio channels for sharing messages and tasks between threads), job or task queue for 
+//// task scheduling, pub/sub channels for broadcasting messages to other actors 
 //// like socket, RPC or tokio like channels (if actors are in same machine) and mailbox 
 //// to receive from other actor or outside of the actor system under the hood.
 //

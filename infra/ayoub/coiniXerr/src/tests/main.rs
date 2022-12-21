@@ -969,7 +969,7 @@ pub async fn unsafer(){
     // accessing the value of a pointer is unsafe and we have to use unsafe{*pointer}
     // https://stackoverflow.com/questions/57754901/what-is-a-fat-pointer
     // pointers to the dynamic size types like traits and slices like &str and &[T] are fat pointers 
-    // they contains extra 8 bytes (or usize) to store the length of the referenced type and because 
+    // they contains extra bytes (or usize) to store the length of the referenced type and because 
     // of this the address of the other objects and pointers are different with the traits addresses since 
     // the address of traits contains 16 hex chars which will be 16 * 4 bits or 8 bytes long hence the pointer 
     // of none traits and traits are not equals.

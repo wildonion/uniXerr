@@ -3,8 +3,8 @@
 
 
 // https://developers.google.com/protocol-buffers/docs/encoding
+// https://capnproto.org/encoding.html
 // https://www.quora.com/How-do-you-write-a-video-codec
-// https://capnproto.org/
 // https://ethereum.org/nl/developers/docs/evm/ -> coiniXerr virtual machine
 // DEV.src building compiler sources
 
