@@ -31,3 +31,5 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockch
 * coiniXerr engines, reset slot, mempool channel, runtime log, consensus, transaction and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on `XChaCha20Poly1305` end-to-end encryption
 
 * implementing Rafael runtime and onion actors
+
+* unique scaling mechanism like NEAR Nightshade sharding

@@ -6,7 +6,8 @@
 //      • traffic forwarding tools like ngrok using iptables
 //      • proxy and all layers load balancer like pingora based on cpu task scheduling, weighted round robin dns, vector clock, event loop and simd vectorization 
 //      • vpn like v2ray protocols with zero proof of knowledge  
-//      • binary address transmition protocol like onionary://010101000001:2324 and v2ray mKCP which acts as a middleware like rmq, zmq and kafka brokers or a load balancer and proxy
+//      • binary address transmition protocol like onionary://010101000001:2324, v2ray mKCP and libp2p multiplexing protocols
+//        which acts as a middleware like rmq, zmq and kafka brokers or a load balancer and proxy.
 
 
 
@@ -38,9 +39,10 @@ pub mod unixerr;
 //// socket or an RPC channels and if they are in the same machine, to call eacth other methods we can use tokio channels like 
 //// mpsc, watch, oneshot and broadcast to broadcast messages or call their methods.
 //
-//// libp2p nodes and message queues like ZMQ are based on actors since actors use worker threadpool 
+//// libp2p nodes and message queues sockets like ZMQ are based on actors since actors use worker threadpool 
 //// (like tokio::spawn() green based worker threadpool + tokio channels for sharing messages and tasks between threads), 
-//// job or task queue for task scheduling, pub/sub channels for broadcasting messages to other actors and mailbox 
+//// job or task queue for task scheduling, pub/sub channels for broadcasting messages to other actors 
+//// like socket, RPC or tokio like channels (if actors are in same machine) and mailbox 
 //// to receive from other actor or outside of the actor system under the hood.
 //
 //// coiniXerr daemonization is the backbone of the coiniXerr network
@@ -373,6 +375,7 @@ pub async fn daemonize(
     //// a keypair (public and private) and the generated
     //// peer_id from that keypair.
  
+    // TODO - musiem file sharing
     // TODO - libp2p setup here
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/file-sharing.rs
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/chat-tokio.rs

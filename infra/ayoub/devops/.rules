@@ -582,3 +582,8 @@ NOTE - Option requires the type to be Sized because it allocates on the stack. A
     machines like two smart contracts, in order to call each other methods directly we must use socket or an RPC channels 
     and if they are in the same machine, to call eacth other methods we can use tokio channels like mpsc, 
     watch, oneshot and broadcast to broadcast messages or call their methods.
+
+[🚨] every peer or node or socket connection in libp2p or zmq is an actor by which all the messages and tasks between 
+    them will be handled inside worker threadpool and transferred using pub/sub channels like socket, 
+    RPC or tokio like channels (if actors are in same machine).
+    

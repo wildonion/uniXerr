@@ -75,6 +75,9 @@ pub fn inject(){
 
 
 //// coiniXerr VM like EVM and Aurora
+//// this VM must compile the rust code
+//// into wasm or something that can be 
+//// read by the coiniXerr clients like walleXerr.
 pub struct Vm(pub u8);
 
 

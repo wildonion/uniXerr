@@ -22,10 +22,10 @@ import os
 import time
 import sys
 from piper.loader import ClusteringDatasetLoader, ClassificationDatasetLoader
-from core.position_clustering.model import trainer as position_clustering_trainer
-from core.position_clustering.cluster import labels
-from core.position_classification.model import trainer as position_classification_trainer
-from core.position_classification.classifier import predictor
+from infra.position_clustering.model import trainer as position_clustering_trainer
+from infra.position_clustering.cluster import labels
+from infra.position_classification.model import trainer as position_classification_trainer
+from infra.position_classification.classifier import predictor
 
 
 

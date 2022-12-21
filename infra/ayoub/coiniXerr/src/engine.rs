@@ -5,7 +5,7 @@
 
 
 pub mod consensus;
-pub mod codec;
+pub mod cvm;
 pub mod hexy;
 pub mod onion;
 pub mod worker;

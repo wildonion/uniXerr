@@ -12,6 +12,7 @@ pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519);
 pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //// generating a thread safe peer id from the generated keypair
 pub static PARACHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("parachains"));
 pub static BLOCK_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("blocks"));
+pub static UPDATE_NETWORK: Lazy<Topic> = Lazy::new(|| Topic::new("update-network"));
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
