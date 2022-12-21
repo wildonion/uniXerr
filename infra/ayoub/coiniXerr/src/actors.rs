@@ -36,7 +36,8 @@ pub mod unixerr;
 //// on different machines without proxying they must use pub/sub channels since in RPC both 
 //// server and client know the exact structure of the request and response for realtime 
 //// streaming which will be defined by the Cap'n Proto serialization schemas, and if they are on 
-//// the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast; 
+//// the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast;
+//// each of which shares a Send and Sync (Arc<Mutex<T>>) data between tokio worker threadpool
 //// aslo actors use worker threadpool (like tokio::spawn() green based worker threadpool + 
 //// tokio channels for sharing messages and tasks between threads), job or task queue for 
 //// task scheduling, pub/sub channels for broadcasting messages to other actors 
