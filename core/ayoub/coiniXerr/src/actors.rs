@@ -6,7 +6,7 @@
 //      • traffic forwarding tools like ngrok using iptables
 //      • proxy and all layers load balancer like pingora based on cpu task scheduling, weighted round robin dns, vector clock, event loop and simd vectorization 
 //      • vpn like v2ray protocols with zero proof of knowledge  
-//      • binary address transmition protocol like onionary://010101000001:2324 acts as a message broker like rmq, zmq, kafka, load balancer and proxy
+//      • binary address transmition protocol like onionary://010101000001:2324 and v2ray mKCP which acts as a middleware like rmq, zmq and kafka brokers or a load balancer and proxy
 
 
 
