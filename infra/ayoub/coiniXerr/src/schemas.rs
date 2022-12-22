@@ -3,7 +3,7 @@
 
 
 
-use libp2p::identity::Keypair;
+
 
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
@@ -27,7 +27,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[derive(Debug, Serialize, Deserialize)] //// we'll use serde serialization and deserialization traits for json ops
 pub struct ChainResponse{ //// local chain response from other peer - used for if someone sends us their local blockchain and use to send them our local chain
-    pub blocks: Vec, //// blocks from other peers
+    pub blocks: Vec<Block>, //// blocks from other peers
     pub receiver: String, //// the receiver node (peer_id) of the incoming chain or blocks
 }
 
@@ -129,7 +129,7 @@ pub struct Slot{ //-- pool of validators for slot auctions
 impl Slot{
 
     //// we've cloned the self.validators and current_validators to prevent ownership moving
-    pub fn get_validator(&self, validator_peer_id: PeerId) -> Option<Validator>{
+    pub fn get_validator(&self, validator_peer_id: String) -> Option<Validator>{
         let current_voters = self.voters.clone();
         let index = current_voters.iter().position(|v| v.owner.peer_id == validator_peer_id); //-- this user has already participated in this event
         if index != None{
@@ -139,14 +139,13 @@ impl Slot{
         }
     }
 
-    pub fn add_validator(&mut self, pid: Uuid, validator_peer_id: PeerId, validator_keys: Keypair) -> Self{
+    pub fn add_validator(&mut self, pid: Uuid, validator_peer_id: String) -> Self{
         
         //// building a new voter to push into the voters 
         let new_voter = Voter{
             parachain_id: pid,
             owner: Validator{
                 peer_id: validator_peer_id,
-                keys: validator_keys,
                 recent_transaction: None, //// it must be filled inside the stream channel the receiver side once the his/her incoming transaction gets signed
                 mode: ValidatorMode::Mine,
                 ttype_request: None, //// it must be filled inside the transaction mempool channel the receiver side once the transaction arrived
@@ -284,9 +283,9 @@ impl StorageModel for InsertParachainInfo{
             next_parachain_id: self.next_parachain_id.clone(),
             current_block: self.current_block.clone(),
         };
-        let unwrapped_storage = *APP_STORAGE; //-- unwrapping the app storage to create a db instance
+        let unwrapped_storage = APP_STORAGE.clone().unwrap(); //-- unwrapping the app storage to create a db instance
         let db_instance = unwrapped_storage.get_db().await.unwrap(); //-- getting the db inside the app storage; it might be None
-        let parachains = db_instance.clone().database(daemon::get_env_vars().await.get("DB_NAME").unwrap()).collection::<schemas::InsertParachainInfo>("parachains");
+        let parachains = db_instance.clone().database(daemon::get_env_vars().get("DB_NAME").unwrap()).collection::<schemas::InsertParachainInfo>("parachains");
         match parachains.insert_one(data.clone(), None).await{ //-- serializing the user doc which is of type RegisterRequest into the BSON to insert into the mongodb
             Ok(insert_result) => Ok(insert_result),
             Err(e) => Err(e)

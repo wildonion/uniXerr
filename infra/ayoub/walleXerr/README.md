@@ -12,3 +12,4 @@ coiniXerr Wallet Front-end Written in Yew
 
 * add `XChaCha20Poly1305` end-to-end encryption between walleXerr and the coiniXerr RPC server
 
+* the `ttype` must be `0x00` which is a regular transaction.

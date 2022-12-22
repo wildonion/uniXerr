@@ -9,16 +9,11 @@
 use std::collections::HashMap;
 use std::env;
 use dotenv::dotenv;
-use riker::actors::*;
-use riker::system::ActorSystem;
-use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
 
 
 
 
-
-
-pub async fn get_env_vars() -> HashMap<String, String>{
+pub fn get_env_vars() -> HashMap<String, String>{
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                    env vars setup
@@ -32,7 +27,7 @@ pub async fn get_env_vars() -> HashMap<String, String>{
     let db_password = env::var("DB_PASSWORD").expect("⚠️ no db password variable set");
     let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
-    let buffer_size = env::var("BUFFER_SIZE").expect("⚠️ please set buffer size in .env");
+    let buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ please set buffer size in .env");
     let max_block_size = env::var("MAX_BLOCK_SIZE").expect("⚠️ please set block size in .env");
     let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
     let host = env::var("HOST").expect("⚠️ please set host in .env");

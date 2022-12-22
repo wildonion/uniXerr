@@ -4,7 +4,7 @@
 
 
 
-use libp2p::identity::ecdsa::Keypair;
+
 
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
@@ -50,7 +50,7 @@ pub struct UpdateTx { //-- update transaction message to tell the actor to updat
 
 #[derive(Clone, Debug)] //-- bounding to Clone and the Debug trait
 pub struct UpdateMode { //-- update mode message to tell the actor to update the validator mode with the new one
-    pub id: Uuid,
+    pub id: String,
     pub mode: Option<ValidatorMode>,
 }
 
@@ -63,23 +63,22 @@ pub struct Communicate{
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, Default)]
 pub enum Cmd{
     #[default] //// enum data types can only have one field as the default value
-    GetValidatorUuid, //// Mine field is the default value; utf8 encoded variant is 0
-    GetAddr, //// utf8 encoded variant is 1
-    GetRecentTx, //// utf8 encoded variant is 2
-    GetMode, //// utf8 encoded variant is 3
+    GetValidatorPeerId, //// Mine field is the default value; utf8 encoded variant is 0
+    GetRecentTx, //// utf8 encoded variant is 1
+    GetMode, //// utf8 encoded variant is 2
 }
 
 #[derive(Clone, Debug)]
-pub struct ValidatorJoined(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about joining a new validator - first element of this struct is the validator uuid
+pub struct ValidatorJoined(pub String); //// a message event to broadcast it by the channel to all validator subscriber actors about joining a new validator - first element of this struct is the validator String
 
 #[derive(Clone, Debug)]
-pub struct ValidatorUpdated(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about udpating a validator - first element of this struct is the validator uuid
+pub struct ValidatorUpdated(pub String); //// a message event to broadcast it by the channel to all validator subscriber actors about udpating a validator - first element of this struct is the validator String
 
 #[derive(Clone, Debug)]
-pub struct UpdateValidatorAboutMempoolTx(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about incoming a new transaction inside the mempool - first element of this struct is the transaction uuid
+pub struct UpdateValidatorAboutMempoolTx(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about incoming a new transaction inside the mempool - first element of this struct is the transaction Uuid
 
 #[derive(Clone, Debug)]
-pub struct UpdateValidatorAboutMiningProcess(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about mining process - first element of this struct is the block uuid
+pub struct UpdateValidatorAboutMiningProcess(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about mining process - first element of this struct is the block Uuid
 
 
 
@@ -98,10 +97,9 @@ pub struct UpdateValidatorAboutMiningProcess(pub Uuid); //// a message event to 
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 #[actor(Communicate, Contract, UpdateTx, UpdateMode, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess)] //-- Validator actor will receive a message from other actors or a channel to subscribe to of type Communicate, Contract, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx and UpdateValidatorAboutMiningProcess
-#[derive(Debug, Clone, Serialize, Deserialize)] //-- trait Clone is required to prevent the object of this struct from moving
+#[derive(Debug, Serialize, Deserialize, Clone)] //-- trait Clone is required to prevent the object of this struct from moving
 pub struct Validator {
-    pub peer_id: PeerId, //// the libp2p peer id 
-    pub keys: Keypair, //// the generated public and private key for this peer from the peer_id
+    pub peer_id: String, //// the libp2p peer id 
     pub recent_transaction: Option<Transaction>, //// signed the recent_transaction came from the peer
     pub mode: Mode,
     pub ttype_request: Option<u8>,
@@ -118,8 +116,8 @@ impl Validator{
         self.mode = mode;
     }
 
-    pub fn get_uuid(&self) -> Option<Uuid>{
-        Some(self.id.clone())
+    pub fn get_peer_id(&self) -> Option<String>{
+        Some(self.peer_id.clone())
     }
 
     pub fn get_mode(&self) -> Option<ValidatorMode>{
@@ -128,10 +126,6 @@ impl Validator{
 
     pub fn get_recent_transaction(&self) -> Option<Transaction>{
         self.recent_transaction.clone()
-    }
-
-    pub fn get_keys(&self) -> Option<Keypair>{
-        Some(self.addr.clone())
     }
 
 }
@@ -171,11 +165,11 @@ impl Actor for Validator{
 }
 
 
-impl ActorFactoryArgs<(Uuid, Keypair, Option<Transaction>, Mode, Option<u8>)> for Validator{
+impl ActorFactoryArgs<(String, Option<Transaction>, Mode, Option<u8>)> for Validator{
 
-    fn create_args((id, addr, recent_transaction, mode, ttype_request): (Uuid, Keypair, Option<Transaction>, Mode, Option<u8>)) -> Self{
+    fn create_args((peer_id, recent_transaction, mode, ttype_request): (String, Option<Transaction>, Mode, Option<u8>)) -> Self{
 
-        Self { peer_id, keys, recent_transaction, mode, ttype_request }
+        Self { peer_id, recent_transaction, mode, ttype_request }
         
     }
 
@@ -253,19 +247,8 @@ impl Receive<Communicate> for Validator{ //// implementing the Receive trait for
     
         info!("➔ 📩 message info received with id [{}] and command [{:?}]", _msg.id, _msg.cmd);
         match _msg.cmd{
-            Cmd::GetAddr => {
-                info!("➔ 🔙 returning validator address with id [{}]", self.id);
-                let validator_keys = self.get_keys();
-                _sender
-                    .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
-                    .unwrap()
-                    .try_tell(
-                        validator_keys, //// sending the validator_keys as the response message from this actor (not tha main() function)
-                        Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
-                    );
-            },
             Cmd::GetMode => {
-                info!("➔ 🔙 returning validator mode with id [{}]", self.id);
+                info!("➔ 🔙 returning validator mode with peer_id [{}]", self.peer_id);
                 let validator_mode = self.get_mode();
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
@@ -276,7 +259,7 @@ impl Receive<Communicate> for Validator{ //// implementing the Receive trait for
                     );
             },
             Cmd::GetRecentTx => {
-                info!("➔ 🔙 returning the recent transaction of the validator with id [{}]", self.id);
+                info!("➔ 🔙 returning the recent transaction of the validator with peer_id [{}]", self.peer_id);
                 let validator_recent_transaction = self.get_recent_transaction();
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
@@ -286,14 +269,14 @@ impl Receive<Communicate> for Validator{ //// implementing the Receive trait for
                         Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
                     );
             },
-            _ => { //// Get Uuid
-                info!("➔ 🔙 returning the slot of the parachain with id [{}]", self.id);
-                let validator_uuid = self.get_uuid();
+            _ => { //// Get String
+                info!("➔ 🔙 returning the slot of the parachain with peer_id [{}]", self.peer_id);
+                let validator_peer_id = self.get_peer_id();
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     .unwrap()
                     .try_tell(
-                        validator_uuid, //// sending the validator_uuid as the response message from this actor (not tha main() function)
+                        validator_peer_id, //// sending the validator_peer_id as the response message from this actor (not tha main() function)
                         Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
                     );
             }

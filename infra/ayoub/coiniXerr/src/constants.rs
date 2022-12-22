@@ -12,21 +12,30 @@ pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519);
 pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //// generating a thread safe peer id from the generated keypair
 pub static PARACHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("parachains"));
 pub static BLOCK_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("blocks"));
-pub static UPDATE_NETWORK: Lazy<Topic> = Lazy::new(|| Topic::new("update-network"));
+pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); //// this is the topic about network status and updates
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| async{
-    db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
-        daemon::get_env_vars().await.get("DB_NAME").unwrap().to_string(),
-        daemon::get_env_vars().await.get("DB_ENGINE").unwrap().to_string(),
-        daemon::get_env_vars().await.get("DB_HOST").unwrap().to_string(),
-        daemon::get_env_vars().await.get("DB_PORT").unwrap().to_string(),
-        daemon::get_env_vars().await.get("DB_USERNAME").unwrap().to_string(),
-        daemon::get_env_vars().await.get("DB_PASSWORD").unwrap().to_string()
-    }
+pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| {
+    let app_storage_future = async{
+        db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
+            daemon::get_env_vars().get("DB_NAME").unwrap().to_string(),
+            daemon::get_env_vars().get("DB_ENGINE").unwrap().to_string(),
+            daemon::get_env_vars().get("DB_HOST").unwrap().to_string(),
+            daemon::get_env_vars().get("DB_PORT").unwrap().to_string(),
+            daemon::get_env_vars().get("DB_USERNAME").unwrap().to_string(),
+            daemon::get_env_vars().get("DB_PASSWORD").unwrap().to_string()
+        }    
+    };
+    block_on(app_storage_future)
 });
 
+
+
+
+pub type MainResult<T, E> = std::result::Result<T, E>;
+pub type GenericError = Box<dyn std::error::Error + Send + Sync>;
+pub type GenericResult<T, E> = std::result::Result<T, E>;
 
 
 

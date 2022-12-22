@@ -1,23 +1,12 @@
 
 
 
-// https://stackoverflow.com/questions/50297252/actors-thread-based-vs-event-driven
-// TODO - networking projects that must build with actors:
-//      • traffic forwarding tools like ngrok using iptables
-//      • proxy and all layers load balancer like pingora based on cpu task scheduling, weighted round robin dns, vector clock, event loop and simd vectorization 
-//      • vpn like v2ray protocols with zero proof of knowledge  
-//      • binary address transmition protocol like onionary://010101000001:2324, v2ray mKCP and libp2p multiplexing protocols
-//        which acts as a middleware like rmq, zmq and kafka brokers or a load balancer and proxy.
-
-
-
-
-
-
 
 
 
 use crate::*;
+use self::peer::ValidatorMsg;
+
 
 pub mod peer;
 pub mod parathread;
@@ -28,21 +17,32 @@ pub mod unixerr;
 
 
 
-//// in distributed networks in order all nodes can participate in network events we must use 
-//// a distributed object protocol like Cap'n Proto RPC with a pub/sub pattern to broadcast an 
-//// event through an RPC channel using the publishers, since each node is an encoded actor 
-//// object using capnp or protobuf and has a pre defined methods like smart contract actor 
-//// methdos thus to communicate with other node or actors and call each other methods directly 
-//// on different machines without proxying they must use pub/sub channels since in RPC both 
-//// server and client know the exact structure of the request and response for realtime 
-//// streaming which will be defined by the Cap'n Proto serialization schemas, and if they are on 
-//// the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast;
-//// each of which shares a Send and Sync (Arc<Mutex<T>>) data between tokio worker threadpool
-//// aslo actors use worker threadpool (like tokio::spawn() green based worker threadpool + 
+
+
+
+
+
+//// the backbone of the libp2p is something like ZMQ with pub/sub 
+//// socket connections each of which is an actor communicate 
+//// with each other using a socket or an RPC channels.
+//
+//// each lip2p node is a ZMQ socket which is an actor with concepts of
+//// worker threadpool (like tokio::spawn() green based worker threadpool + 
 //// tokio channels for sharing messages and tasks between threads), job or task queue for 
 //// task scheduling, pub/sub channels for broadcasting messages to other actors 
 //// like socket, RPC or tokio like channels (if actors are in same machine) and mailbox 
 //// to receive from other actor or outside of the actor system under the hood.
+//
+//// in distributed networks like the one we build with libp2p, every node or socket is a pub/sub actor 
+//// which will communicate with each other through message passing protocols like ZMQ sockets or RPC channels.
+//// since each node is an actor object with pre defined methods encoded with a distributed object protocol 
+//// like Cap'n Proto RPC or Protobuf gRPC hence to communicate with other node or actors 
+//// and call each other methods directly on different machines without proxying they must use pub/sub 
+//// channels through RPC like the one in chatroom, file sharing, twitter push update notifications.  
+//// by using Cap'n Proto or Protobuf as the object serialization both pub/sub actors knwo the exact 
+//// structure of the realtime request/response streaming between them and if they are on 
+//// the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast to
+//// share an encoded, Send and Sync (Arc<Mutex<T>>) data between tokio workers' threadpool.
 //
 //// coiniXerr daemonization is the backbone of the coiniXerr network
 //// consists of a secured p2p communication between nodes using libp2p, 
@@ -65,8 +65,8 @@ pub async fn daemonize(
         Uuid,
         Arc<Mutex<RafaelRt>>,
         Uuid,
-        Arc<Mutex<ActorRef<ValidatorMsg>>>,
         Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
+        Arc<Mutex<ActorRef<ValidatorMsg>>>, //// the validator actor
         ActorSystem
     ){ //// the return type is a tuple of current slot, actor validaor channels, parachain uuid, runtime and the actor system
 
@@ -84,7 +84,7 @@ pub async fn daemonize(
     let mut runtime_info = RafaelRt(HashMap::new());
     let runtime_instance = runtime_info.run(); //-- run() method is the method of the Rafael serverless trait
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //-- we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
-    let buffer_size = daemon::get_env_vars().await.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
+    let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
 
 
 
@@ -378,11 +378,13 @@ pub async fn daemonize(
     // TODO - libp2p setup here
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/file-sharing.rs
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/chat-tokio.rs
+    // https://github.com/libp2p/rust-libp2p/blob/master/examples/gossipsub-chat.rs
     // https://blog.logrocket.com/how-to-build-a-blockchain-in-rust/#peer-to-peer-basics
     // https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust/ 
     // ...
     
-    info!("➔ 🎡 peer id for this node [{}]", PEER_ID);
+    let this_peer_id = PEER_ID.to_string(); //// dereferencing the peer_id for this peer also peer_id can be a unique identifier for the connected validator since it has a unique id each time that a validator gets slided into the network
+    info!("➔ 🎡 peer id for this node [{}]", this_peer_id);
 
     // ----------------------------------------------------------------------
     //         BUILDING VALIDATOR ACTOR FOR THIS STREAM USING PEER ID
@@ -390,7 +392,7 @@ pub async fn daemonize(
     
     let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy of) runtime info object to prevent ownership moving in every iteration between threads
     let default_parachain_slot = current_slot.clone();
-    let peer_validator = default_parachain_slot.clone().get_validator(*PEER_ID); //// passing the current peer_id of this node to get the validator info
+    let peer_validator = default_parachain_slot.clone().get_validator(this_peer_id.clone()); //// passing the current peer_id of this node to get the validator info
     if let None = peer_validator{ //// means we don't find any validator inside the default parachain slot  
         current_slot = default_parachain_slot
                                             .clone()
@@ -398,8 +400,7 @@ pub async fn daemonize(
                                             //// adding a new validator with the generated peer_id and key pairs of this node 
                                             .add_validator( 
                                                 default_parachain_uuid, 
-                                                *PEER_ID, //// dereferencing the peer_id for this peer also peer_id can be a unique identifier for the connected validator since it has a unique id each time that a validator gets slided into the network 
-                                                *KEYS //// dereferencing the generated keypair for this peer
+                                                this_peer_id.clone(), 
                                             );
     }
     
@@ -410,11 +411,7 @@ pub async fn daemonize(
     let validator = Validator{ //// we have to clone the peer_validator in each arm to prevent ownership moving since we're lossing the ownership in each arm
         peer_id: match peer_validator.clone(){
             Some(v) => v.peer_id,
-            None => *PEER_ID, //// if there was not peer_id we'll use the one inside the constant
-        },
-        keys: match peer_validator.clone(){
-            Some(v) => v.keys,
-            None => *KEYS, //// if there was not keypair we'll use the one inside the constant
+            None => this_peer_id.clone(), //// if there was not peer_id we'll use the one inside the constant
         },
         recent_transaction: match peer_validator.clone(){
             Some(v) => v.recent_transaction,
@@ -434,7 +431,6 @@ pub async fn daemonize(
     let validator_props = Props::new_args::<Validator, _>( //// prop types are inside Arc and Mutex thus we can clone them and move them between threads  
                                                                                                         (
                                                                                                             validator.peer_id.clone(), 
-                                                                                                            validator.keys, 
                                                                                                             validator.recent_transaction, 
                                                                                                             validator.mode, 
                                                                                                             validator.ttype_request
@@ -450,7 +446,7 @@ pub async fn daemonize(
 
     validator_joined_channel.tell( //// telling the channel that we want to publish something
                                 Publish{
-                                    msg: ValidatorJoined(validator.id.clone()), //// publishing the ValidatorJoined message event to the validator_joined_channel channel 
+                                    msg: ValidatorJoined(validator.peer_id.clone()), //// publishing the ValidatorJoined message event to the validator_joined_channel channel 
                                     topic: "<new validator joined>".into(), //// setting the topic to <new validator joined> so all subscribers of this channel (all validator actors) can subscribe and react to this topic of this message event
                                 }, 
                                 None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None
@@ -478,7 +474,7 @@ pub async fn daemonize(
             runtime_info, //-- passing the mutable runtime_info object for adding new metadata into its hash map field
             MetaData{ //// this metadata will be used for selecting new validators inside a shard
                 id: Uuid::new_v4(),
-                node_peer_id: Some(*PEER_ID), //// this is the peer_id of this node 
+                node_peer_id: Some(this_peer_id.clone()), //// this is the peer_id of this node 
                 actor: validator_actor.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
                 link_to_server: None,
                 last_crash: None,
@@ -535,7 +531,7 @@ pub async fn daemonize(
         info!("➔ 🪙 new transaction {:?} in mempool", mutex_transaction);
         let mutex_validator_actor = validator.lock().unwrap().clone();
 
-        let current_uuid_remote_handle: RemoteHandle<Uuid> = ask(&coiniXerr_actor_system, &mutex_validator_actor, ValidatorCommunicate{id: Uuid::new_v4(), cmd: ValidatorCmd::GetValidatorUuid}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the uuid of the passed in validator actor and return the result or response as a future object
+        let current_uuid_remote_handle: RemoteHandle<Uuid> = ask(&coiniXerr_actor_system, &mutex_validator_actor, ValidatorCommunicate{id: Uuid::new_v4(), cmd: ValidatorCmd::GetValidatorPeerId}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the uuid of the passed in validator actor and return the result or response as a future object
         let current_validator_uuid = current_uuid_remote_handle.await; //// getting the uuid of the current validator which has passed in to the stream mpsc channel
         info!("➔ 👷🏼‍♂️ validator actor with id [{}] and info {:?} in mempool", current_validator_uuid, mutex_validator_actor);
         
@@ -544,7 +540,7 @@ pub async fn daemonize(
         // ----------------------------------------------------------------------
 
         //// since we're not sending following messages from another actor actually we're sending from the main() and main() is not an actor thus the sender in tell() method must be None
-        if mutex_transaction.ttype == 0x00{ //-- regular transaction
+        if mutex_transaction.ttype == 0x00{ //-- regular transaction comming from walleXerr
             ///// tell the validator actor from the main() that we have the message of type Contract with the 0x00 ttype
             mutex_validator_actor.tell(Contract{id: Uuid::new_v4(), ttype: 0x00}, None); //// 0x00 means regular transaction like transferring tokens
         } else if mutex_transaction.ttype == 0xFF{ //-- CRC21 smart contract transaction
@@ -587,9 +583,9 @@ pub async fn daemonize(
         //                  CONSENSUS AND BUILDING BLOCKS PROCESS
         // ----------------------------------------------------------------------
 
-        while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().await.get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //-- returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().await.get("MAX_BLOCK_SIZE")
+        while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //-- returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
             current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent ownership moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
-            if std::mem::size_of_val(&current_block) > daemon::get_env_vars().await.get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){
+            if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){
                 // TODO - calculate the block and merkle_root hash
                 // TODO - consensus and block validation process here
                 // ...
@@ -706,8 +702,8 @@ pub async fn daemonize(
         default_parachain_uuid.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
         coiniXerr_sys.clone()
     )
 

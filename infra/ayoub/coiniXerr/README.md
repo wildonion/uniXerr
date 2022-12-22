@@ -3,7 +3,9 @@
 
 # 💰 coiniXerr
 
-An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain and Engine for uniXerr Cryptocurrency Coin.
+An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Zero Proof of Knowledge Blockchain for uniXerr Cryptocurrency Coin.
+
+> The whole coiniXerr node can be executed from the kernel using `BPF` technology which is balzingly fast! 💥 
 
 
 ### 📇 Notes
@@ -22,7 +24,7 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockch
 
 ### 📌 WIP 
 
-* complete `actor.rs`, `rpc.server.rs and `tcp.server.rs` streaming TODOs
+* complete `actor.rs`, `rpc.server.rs` and `tcp.server.rs` streaming TODOs
 
 * complete `rpc_tx_emulator` method and other `StorageModel` ORM trait methods
 

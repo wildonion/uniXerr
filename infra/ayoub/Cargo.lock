@@ -964,6 +964,7 @@ dependencies = [
  "futures",
  "futures-util",
  "hex",
+ "hyper",
  "is_type",
  "lazy_static",
  "libp2p",

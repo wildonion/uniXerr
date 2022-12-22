@@ -56,14 +56,14 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     //    STARTING ACTORS TO SEND TRANSACTIONS ASYNCLY TO MEMPOOL CHANNELS
     // -----------------------------------------------------------------------
     let (
-            mut current_slot, 
-            validator_joined_channel, 
-            default_parachain_uuid,
-            cloned_arc_mutex_runtime_info_object,
-            meta_data_uuid,
-            cloned_arc_mutex_validator_actor,
-            cloned_arc_mutex_validator_update_channel,
-            coiniXerr_sys,
+        mut current_slot, 
+        validator_joined_channel, 
+        default_parachain_uuid,
+        cloned_arc_mutex_runtime_info_object,
+        meta_data_uuid,
+        cloned_arc_mutex_validator_actor,
+        cloned_arc_mutex_validator_update_channel,
+        coiniXerr_sys,
     ) = actors::daemonize(mempool_receiver, storage.clone()).await;
     
     // ----------------------------------------------------------------------
@@ -95,9 +95,9 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
         info!("➔ 📼 sending stream setups through the channel");
         stream_sender.send((stream, 
                             meta_data_uuid, 
-                            cloned_arc_mutex_runtime_info_object, 
-                            cloned_arc_mutex_validator_actor, 
-                            cloned_arc_mutex_validator_update_channel, 
+                            cloned_arc_mutex_runtime_info_object.clone(), 
+                            cloned_arc_mutex_validator_update_channel.clone(), 
+                            cloned_arc_mutex_validator_actor.clone(), 
                             coiniXerr_sys.clone()
                         )).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid, cloned validator, coiniXerr actor system and the validator update channel through the mpsc channel 
             
@@ -218,11 +218,11 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
 
                         let validator_update_channel = cloned_arc_mutex_validator_update_channel.lock().unwrap().clone(); //// cloning will return the T from MutexGuard
                         let current_validator = cloned_arc_mutex_validator_actor.lock().unwrap().clone(); //// cloning will return the T from MutexGuard
-                        let current_uuid_remote_handle: RemoteHandle<Uuid> = ask(&coiniXerr_actor_system, &current_validator, ValidatorCommunicate{id: Uuid::new_v4(), cmd: ValidatorCmd::GetValidatorUuid}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the uuid of the passed in validator actor and return the result or response as a future object
-                        let current_validator_uuid = current_uuid_remote_handle.await; //// getting the uuid of the current validator which has passed in to the stream mpsc channel
+                        let current_peer_id_remote_handle: RemoteHandle<String> = ask(&coiniXerr_actor_system, &current_validator, ValidatorCommunicate{id: Uuid::new_v4(), cmd: ValidatorCmd::GetValidatorPeerId}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the uuid of the passed in validator actor and return the result or response as a future object; the passed in Uuid is the Uuid of the generated command 
+                        let current_validator_peer_id = current_peer_id_remote_handle.await; //// getting the peer_id of the current validator which has passed in to the stream mpsc channel
                         validator_update_channel.tell( //// telling the channel that we want to publish something
                                                     Publish{
-                                                        msg: ValidatorUpdated(current_validator_uuid.clone()), //// publishing the ValidatorUpdated message event to the validator_updated_channel channel 
+                                                        msg: ValidatorUpdated(current_validator_peer_id.clone()), //// publishing the ValidatorUpdated message event to the validator_updated_channel channel 
                                                         topic: "<validator state updated with recent transaction>".into(), //// setting the topic to <validator state updated> so all subscribers of this channel (all parachain actors) can subscribe and react to this topic of this message event
                                                     }, 
                                                     None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None

@@ -56,7 +56,7 @@ Coded by
 //// also can be mutated by blocking the thread that wants to mutate it. 
 use async_trait::async_trait;
 use lazy_static::lazy_static;
-use std::fmt;
+use std::mem;
 use is_type::Is;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
@@ -65,32 +65,31 @@ use tokio::net::{TcpListener, TcpStream, UdpSocket}; //-- async tcp listener and
 use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method asyncly which has been implemented for the object of TcpStream (these trait have been implemented for TcpStream structure)
 use tokio::sync::mpsc; //-- to share values between multiple async tasks spawned by the tokio spawner which is based on green threads so shared state can be change only one at a time inside a thread 
 use uuid::Uuid;
-use std::{fmt::Write, num::ParseIntError};
+use std::{fmt, fmt::Write, num::ParseIntError};
 use std::sync::{Arc, Mutex, mpsc as std_mpsc, mpsc::channel as heavy_mpsc}; //-- communication between threads is done using mpsc job queue channel and end of the channel can only be owned by one thread at the time to avoid being in deadlock and race condition situations, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
 use std::time::{Instant, Duration};
 use std::{env, thread::{self, JoinHandle}};
 use std::rc::{Rc, Weak};
 use std::cell::RefCell;
-use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net 
+use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net
 use std::collections::{HashMap, HashSet};
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
 use libp2p::{
-    transport::{Transport, MemoryTransport}, Multiaddr,
-    gossipsub::{Gossipsub, GossipsubEvent, Topic},
-    identity,
-    mdns::{Mdns, MdnsEvent},
-    swarm::{NetworkBehaviourEventProcess, Swarm},
-    NetworkBehaviour, PeerId, MessageAuthenticity,
-};
+    gossipsub::{
+      MessageId, 
+      Gossipsub, GossipsubEvent, GossipsubMessage, IdentTopic as Topic, MessageAuthenticity,
+      ValidationMode,
+    }, gossipsub, identity, identity::Keypair, mdns, swarm::NetworkBehaviour, swarm::SwarmEvent, PeerId, Swarm,
+  };
+use crate::engine::cvm::*;
 use crate::actors::{
                     parathread::{Parachain, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
 use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
-use crate::engine::contract::token::CRC20; //-- based on orphan rule we must use CRC20 here to use the mint() and other methods implemented for the validator actor
 use crate::constants::*;
 use crate::utils::DbORM::StorageModel;
 use mongodb::Client;
@@ -131,8 +130,6 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 
 
 
-
-
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ //// bounding the type that is caused to error to Error, Send and Sync traits to be shareable between threads and have static lifetime across threads and awaits; Box is an smart pointer which has valid lifetime for what's inside of it, we're putting the error part of the Result inside the Box since we have no idea about the size of the error or the type that caused this error happened at compile time thus we have to take a reference to it but without defining a specific lifetime
     
@@ -146,7 +143,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     ///////                  getting env vars
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     
-    let env_vars = daemon::get_env_vars().await;
+    let env_vars = daemon::get_env_vars();
 
 
 
@@ -169,6 +166,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                       bootstrapping TLPS
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -179,15 +177,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //                    STARTING coiniXerr RPC SERVER
     // ----------------------------------------------------------------------
     //// used to send transaction from the walleXerr
+    //// actor daemonization will be bootstrapped by starting the TCP server
     
-    rpc::bootstrap(*APP_STORAGE, env_vars.clone()).await; //// capn'p proto rpc
+    rpc::bootstrap(APP_STORAGE.clone(), env_vars.clone()).await; //// capn'p proto RPC
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr TCP SERVER
     // ----------------------------------------------------------------------
     //// used to send transaction from a TCP client 
-
-    tcp::bootstrap(*APP_STORAGE, env_vars.clone()).await; //// tokio tcp 
+    //// actor daemonization will be bootstrapped by starting the RPC server
+    
+    tcp::bootstrap(APP_STORAGE.clone(), env_vars.clone()).await; //// tokio TCP 
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr P2P STACKS
@@ -195,6 +195,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// used to communicate with other coiniXerr nodes
     
     // ..
+
+
+
+
+    
+    
+    
+
+
 
 
 

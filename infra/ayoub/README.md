@@ -27,9 +27,11 @@
 
 # 📇 Notes
 
+* Remember that `.env` file and the compiled app must be in the same palce. 
+
 * To see all binaries: ```cargo run --bin```
 
-* Give the permission to the root using ```sudo chown -R root:root . && sudo chmod -R 777 .``` command
+* Give the permission to the root using ```sudo chown -R root:root . && sudo chmod -R 777 .``` command.
 
 * To update a user access level to dev first signup the user using `/auth/signup` API inside the `PaaS` then run the binary like so: `./app wildonion 0`
 

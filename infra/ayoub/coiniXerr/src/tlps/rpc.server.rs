@@ -50,13 +50,12 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     let (
             mut current_slot, 
             validator_joined_channel, 
-            validator_updated_channel,
             default_parachain_uuid,
             cloned_arc_mutex_runtime_info_object,
-            coiniXerr_sys,
             meta_data_uuid,
             cloned_arc_mutex_validator_actor,
-            cloned_arc_mutex_validator_update_channel
+            cloned_arc_mutex_validator_update_channel,
+            coiniXerr_sys,
     ) = actors::daemonize(mempool_receiver, storage.clone()).await;
 
     // -----------------------------------------------------------       
