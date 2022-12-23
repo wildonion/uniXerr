@@ -3,7 +3,7 @@
 
 # 🏗 Conse PaaS
 
-Conse is a Game Event Manager Platform. 
+Conse is an AI based Game Event Manager Platform. 
 
 ### 📌 WIP
 

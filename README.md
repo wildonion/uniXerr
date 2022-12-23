@@ -4,9 +4,9 @@
 
 > 🌐 See the [Wiki](https://github.com/wildonion/uniXerr/wiki) to understand how stuff works!
 
-> 🧱 🪙 [coiniXerr Blockchain](https://github.com/wildonion/uniXerr/tree/master/core/ayoub/coiniXerr)
+> 🧱 🪙 [coiniXerr Blockchain](https://github.com/wildonion/uniXerr/tree/master/infra/ayoub/coiniXerr)
 
-> 💳 [walleXerr](https://github.com/wildonion/uniXerr/tree/master/core/ayoub/walleXerr)
+> 💳 [walleXerr](https://github.com/wildonion/uniXerr/tree/master/infra/ayoub/walleXerr)
 
 # AI Core Development Guide
 
@@ -156,26 +156,26 @@ pip install uniXerr
 
 [Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pc_features_labeled-raw.csv)
 
-[VAE Pre-trained Model - Normal PDF](https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model_vae.pth)
+[VAE Pre-trained Model - Normal PDF](https://github.com/wildonion/uniXerr/blob/master/infra/position_clustering/utils/pc_model_vae.pth)
 
 > 📊 Clusters Found by KMeans on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_clustering/utils/clusters-kmeans-latent.png">
 </p>
 
 > 📊 Clusters Found by KMeans on Position Clustering Dataset - Plotted using PCA | Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-pca-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_clustering/utils/clusters-kmeans-pca-raw.png">
 </p>
 
 > 📊 Clusters Found by KMeans on Position Clustering Dataset - Plotted using TSNE | Standard Scaler
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/clusters-kmeans-tsne-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_clustering/utils/clusters-kmeans-tsne-raw.png">
 </p>
 
 > 📊 VAE Model Training Loss 
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_clustering/utils/pc_model_loss.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_clustering/utils/pc_model_loss.png">
 </p>
 
 ### 📌 Position Classification Process
@@ -198,38 +198,38 @@ pip install uniXerr
     <img src="https://github.com/wildonion/uniXerr/blob/master/piper/dataset/pp_pc_beforeClassification-raw.png">
 </p>
 
-[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_classifier-latent.pth)
+[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Latent Space of Pre-trained VAE model](https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_classifier-latent.pth)
 
-[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_classifier-raw.pth)
+[Classifier Pre-trained Model - Trained and Tested on Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_classifier-raw.pth)
 
 > 📊 Classifier Model Training Accuracy - Clustered Dataset Based on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_acc-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_training_acc-latent.png">
 </p>
 
 > 📊 Classifier Model Testing Accuracy - Clustered Dataset Based on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_testing_acc-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_testing_acc-latent.png">
 </p>
 
 > 📊 Classifier Model Training Loss - Clustered Dataset Based on Latent Space of Pre-trained VAE model
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_loss-latent.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_training_loss-latent.png">
 </p>
 
 > 📊 Classifier Model Training Accuracy - Clustered Dataset Based on Position Clustering data
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_acc-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_training_acc-raw.png">
 </p>
 
 > 📊 Classifier Model Testing Accuracy - Clustered Dataset Based on Position Clustering data
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_testing_acc-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_testing_acc-raw.png">
 </p>
 
 > 📊 Classifier Model Training Loss - Clustered Dataset Based on Position Clustering data
 <p align="center">
-    <img src="https://github.com/wildonion/uniXerr/blob/master/core/position_classification/utils/pc_model_training_loss-raw.png">
+    <img src="https://github.com/wildonion/uniXerr/blob/master/infra/position_classification/utils/pc_model_training_loss-raw.png">
 </p>
 
 [Classification Results on Arbitrary Inputs - Classified using Pre-trained Model of Clustered Dataset Based on Latent Space of Pre-trained VAE model and Clustered Dataset Based on Position Clustering data](https://github.com/wildonion/uniXerr/blob/master/piper/db/_imported/)
