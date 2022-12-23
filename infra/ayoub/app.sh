@@ -14,12 +14,6 @@ elif [[ $App == "coiniXerr" ]]; then
     sudo cp target/release/coiniXerr ./coiniXerr
     sudo pm2 delete coiniXerr
     sudo pm2 start coiniXerr --name coiniXerr
-elif [[ $App == "coiniXerr" ]]; then
-    cargo build --bin stem --release
-    sudo rm stem
-    sudo cp target/release/stem ./stem
-    sudo pm2 delete stem
-    sudo pm2 start stem --name stem
 else
     echo "Invalid App Name!"
 fi

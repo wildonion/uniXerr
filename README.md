@@ -4,7 +4,9 @@
 
 > 🌐 See the [Wiki](https://github.com/wildonion/uniXerr/wiki) to understand how stuff works!
 
-> 🧱 [coiniXerr Blockchain](https://github.com/wildonion/uniXerr/tree/master/core/ayoub/coiniXerr)
+> 🧱 🪙 [coiniXerr Blockchain](https://github.com/wildonion/uniXerr/tree/master/core/ayoub/coiniXerr)
+
+> 💳 [walleXerr](https://github.com/wildonion/uniXerr/tree/master/core/ayoub/walleXerr)
 
 # AI Core Development Guide
 

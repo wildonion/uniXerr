@@ -4,10 +4,6 @@ members = [
     "walleXerr",
     "coiniXerr",
     "conse",
-    "stem",
-    "contracts/reserve",
-    "contracts/donation"
-
 ]
 
 
