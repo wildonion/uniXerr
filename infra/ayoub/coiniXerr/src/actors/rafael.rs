@@ -143,7 +143,13 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
     }
     
 
-
+    ////TODO - proxy and load balancer for all layers like pingora based on:
+    //              • cpu task scheduling, 
+    //              • v2ray protocols
+    //              • weighted round robin dns, 
+    //              • vector clock, 
+    //              • event loop
+    //              • simd vectorization
     #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Debug)]
     pub struct Node{ //// this contains server info 
         pub dns: String,

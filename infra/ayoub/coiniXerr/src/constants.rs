@@ -4,6 +4,10 @@
 use crate::*;
 
 
+
+
+
+
 //// Lazy is just like lazy_static! macro 
 //// which is a thread safe structure
 //// that we can create static type.
@@ -13,6 +17,7 @@ pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //
 pub static PARACHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("parachains"));
 pub static BLOCK_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("blocks"));
 pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); //// this is the topic about network status and updates
+
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -27,8 +32,32 @@ pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| {
             daemon::get_env_vars().get("DB_PASSWORD").unwrap().to_string()
         }    
     };
-    block_on(app_storage_future)
+    block_on(app_storage_future) //// blocking the current thread to solve the future object
 });
+
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+///////    mempool channel initialization
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//// mempool channel is an mpsc job queue channel which 
+//// all transactions must be sent through this channel for mining process.
+//// to follow Rust's whole thing of guaranteeing thread safety for mutation 
+//// we need to wrap our data in a Mutex and also the data must be Send and Sync.
+pub static MEMPOOL_CHANNEL
+            : 
+            Lazy<(
+                Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, 
+                Receiver<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>
+            )> = 
+                Lazy::new(|| {
+                    mpsc::channel::<(
+                        Arc<Mutex<Transaction>>, 
+                        Arc<Mutex<ActorRef<<Validator as Actor>::Msg>>>, //// we're getting the mailbox type of Validator actor first by casting it into an Actor then getting its Msg mailbox which is of type ValidatorMsg  
+                        //// passing the coiniXerr actor system through the mpsc channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
+                        //// no need to put ActorSystem inside the Arc since it's bounded to Clone trait itself and also we don't want to change it thus there is no Mutex guard is needed
+                        ActorSystem 
+                        //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
+                    )>(daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap()) //-- transaction mempool channel using mpsc channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
+                });
 
 
 
@@ -36,9 +65,6 @@ pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| {
 pub type MainResult<T, E> = std::result::Result<T, E>;
 pub type GenericError = Box<dyn std::error::Error + Send + Sync>;
 pub type GenericResult<T, E> = std::result::Result<T, E>;
-
-
-
 pub const STORAGE_COST: u128 = 3;
 pub const COMPUTATIONAL_COST: u128 = 2; 
 pub const VALIDATOR_REWARD_COST: u128 = 4;

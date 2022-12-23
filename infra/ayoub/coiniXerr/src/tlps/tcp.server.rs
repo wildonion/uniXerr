@@ -11,7 +11,18 @@ use crate::*;
 //// in here we'll send all the decoded transactions 
 //// to the downside of the mempool channel 
 //// for mining and veifying process.
-pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, String>){
+pub async fn bootstrap(
+        storage: Option<Arc<Storage>>, 
+        env_vars: HashMap<String, String>,
+        current_slot: Slot, 
+        validator_joined_channel: ChannelRef<ValidatorJoined>,
+        default_parachain_uuid: Uuid,
+        cloned_arc_mutex_runtime_info_object: Arc<Mutex<RafaelRt>>,
+        meta_data_uuid: Uuid,
+        cloned_arc_mutex_validator_update_channel: Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
+        cloned_arc_mutex_validator_actor: Arc<Mutex<ActorRef<ValidatorMsg>>>, //// the validator actor
+        coiniXerr_sys: ActorSystem
+    ){
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////            TCP stream to decode incoming transactions using borsh and serde from TCP clients
@@ -22,16 +33,14 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
     // ----------------------------------------------------------------------
 
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
+    let (mempool_sender, mempool_receiver) = *MEMPOOL_CHANNEL;
     let tcp_addr = env_vars.get("TCP_ADDR").unwrap().as_str();
     
     // ----------------------------------------------------------------------
-    //            DEFINING MEMPOOL AND TCP STREAMER MPSC CHANNELS
+    //                  DEFINING TCP STREAMER MPSC CHANNELS
     // ----------------------------------------------------------------------
     //// following channels will be used to share data between tokio threads
-    //// also inside each node; mempool channel is an mpsc job queue channel which 
-    //// all transactions must be sent through this channel for mining process.
-    //// to follow Rust's whole thing of guaranteeing thread safety for mutation 
-    //// we need to wrap our data in a Mutex and also the data must be Send and Sync.
+    //// also inside each node
     
     let (stream_sender, mut stream_receiver) = mpsc::channel::<(
                                                                                                                                 TcpStream, 
@@ -44,27 +53,6 @@ pub async fn bootstrap(storage: Option<Arc<Storage>>, env_vars: HashMap<String, 
                                                                                                                                 ActorSystem 
                                                                                                                                 //// there is no need to pass other actor channels through stream channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
                                                                                                                             )>(buffer_size); //-- mpsc channel to send the incoming stream, the generated uuid of the runtime info object and the runtime info object itself to multiple threads through the channel for each incoming connection from the socket
-    let (mempool_sender, mut mempool_receiver) = mpsc::channel::<(
-                                                                                                                                Arc<Mutex<Transaction>>, 
-                                                                                                                                Arc<Mutex<ActorRef<<Validator as Actor>::Msg>>>, //// we're getting the mailbox type of Validator actor first by casting it into an Actor then getting its Msg mailbox which is of type ValidatorMsg  
-                                                                                                                                //// passing the coiniXerr actor system through the mpsc channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
-                                                                                                                                //// no need to put ActorSystem inside the Arc since it's bounded to Clone trait itself and also we don't want to change it thus there is no Mutex guard is needed
-                                                                                                                                ActorSystem 
-                                                                                                                                //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
-                                                                                                                            )>(buffer_size); //-- transaction mempool channel using mpsc channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
-    // -----------------------------------------------------------------------
-    //    STARTING ACTORS TO SEND TRANSACTIONS ASYNCLY TO MEMPOOL CHANNELS
-    // -----------------------------------------------------------------------
-    let (
-        mut current_slot, 
-        validator_joined_channel, 
-        default_parachain_uuid,
-        cloned_arc_mutex_runtime_info_object,
-        meta_data_uuid,
-        cloned_arc_mutex_validator_actor,
-        cloned_arc_mutex_validator_update_channel,
-        coiniXerr_sys,
-    ) = actors::daemonize(mempool_receiver, storage.clone()).await;
     
     // ----------------------------------------------------------------------
     //                       STARTING TOKIO TCP SERVER

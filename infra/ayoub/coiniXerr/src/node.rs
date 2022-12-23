@@ -112,6 +112,8 @@ use daemon; //// import lib.rs methods
 pub mod tcp;
 #[path="tlps/rpc.server.rs"]
 pub mod rpc;
+#[path="tlps/p2p.pubsub.rs"]
+pub mod p2p;
 pub mod constants;
 pub mod schemas;
 pub mod actors;
@@ -167,11 +169,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+    ///////                 starting actors
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    //// we'll start all the coiniXerr actors 
+    //// to send transactions asyncly from 
+    //// different TLPs to downside of the
+    //// mempool channel.
+    
+    let (
+        mut current_slot, 
+        validator_joined_channel, 
+        default_parachain_uuid,
+        cloned_arc_mutex_runtime_info_object,
+        meta_data_uuid,
+        cloned_arc_mutex_validator_actor,
+        cloned_arc_mutex_validator_update_channel,
+        coiniXerr_sys,
+    ) = actors::daemonize(mempool_receiver, storage.clone()).await;
+
+
+
+
+
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                       bootstrapping TLPS
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// env_vars doesn't implement Copy trait thus 
-    //// we have to clone it to prevent ownership moving.
+    //// all passed in vars don't implement Copy trait thus 
+    //// we have to clone them to prevent ownership moving.
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr RPC SERVER
@@ -179,7 +205,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// used to send transaction from the walleXerr
     //// actor daemonization will be bootstrapped by starting the TCP server
     
-    rpc::bootstrap(APP_STORAGE.clone(), env_vars.clone()).await; //// capn'p proto RPC
+    rpc::bootstrap(
+        APP_STORAGE.clone(), 
+        env_vars.clone(),
+        current_slot.clone(),
+        validator_joined_channel.clone(),
+        default_parachain_uuid.clone(),
+        cloned_arc_mutex_runtime_info_object.clone(),
+        meta_data_uuid.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
+        coiniXerr_sys.clone()
+      ).await; //// capn' proto RPC
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr TCP SERVER
@@ -187,14 +224,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// used to send transaction from a TCP client 
     //// actor daemonization will be bootstrapped by starting the RPC server
     
-    tcp::bootstrap(APP_STORAGE.clone(), env_vars.clone()).await; //// tokio TCP 
+    tcp::bootstrap(
+        APP_STORAGE.clone(), 
+        env_vars.clone(),
+        current_slot.clone(),
+        validator_joined_channel.clone(),
+        default_parachain_uuid.clone(),
+        cloned_arc_mutex_runtime_info_object.clone(),
+        meta_data_uuid.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
+        coiniXerr_sys.clone()
+      ).await; //// tokio TCP 
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr P2P STACKS
     // ----------------------------------------------------------------------
     //// used to communicate with other coiniXerr nodes
     
-    // ..
+    p2p::bootstrap(
+        APP_STORAGE.clone(), 
+        env_vars.clone(),
+        current_slot.clone(),
+        validator_joined_channel.clone(),
+        default_parachain_uuid.clone(),
+        cloned_arc_mutex_runtime_info_object.clone(),
+        meta_data_uuid.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
+        coiniXerr_sys.clone()
+    ).await; //// libp2p stack
 
 
 
@@ -202,6 +261,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     
     
     
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////                 bootstrapping coiniXerr VM
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
