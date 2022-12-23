@@ -4,9 +4,11 @@
 
 > 🌐 See the [Wiki](https://github.com/wildonion/uniXerr/wiki) to understand how stuff works!
 
-> 🧱 🪙 [coiniXerr Blockchain](https://github.com/wildonion/uniXerr/tree/master/infra/ayoub/coiniXerr)
+* 🧱 🪙 [coiniXerr Blockchain](https://github.com/wildonion/uniXerr/tree/master/infra/ayoub/coiniXerr)
 
-> 💳 [walleXerr](https://github.com/wildonion/uniXerr/tree/master/infra/ayoub/walleXerr)
+* 💳 [walleXerr](https://github.com/wildonion/uniXerr/tree/master/infra/ayoub/walleXerr)
+
+* 🎲 [Conse PaaS](https://github.com/wildonion/uniXerr/tree/master/infra/ayoub/conse)
 
 # AI Core Development Guide
 
