@@ -11,7 +11,6 @@ use self::peer::ValidatorMsg;
 pub mod peer;
 pub mod parathread;
 pub mod rafael;
-pub mod unixerr;
 
 
 
@@ -374,6 +373,10 @@ pub async fn daemonize(
     //// a keypair (public and private) and the generated
     //// peer_id from that keypair.
  
+
+
+
+    
     // TODO - musiem file sharing
     // TODO - libp2p setup here
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/file-sharing.rs
@@ -383,6 +386,11 @@ pub async fn daemonize(
     // https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust/ 
     // ...
     
+    
+
+
+
+
     let this_peer_id = PEER_ID.to_string(); //// dereferencing the peer_id for this peer also peer_id can be a unique identifier for the connected validator since it has a unique id each time that a validator gets slided into the network
     info!("➔ 🎡 peer id for this node [{}]", this_peer_id);
 

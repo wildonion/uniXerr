@@ -79,9 +79,9 @@ impl Actor{
 
     }
 
-    pub async fn communicate(){ // each actor (neuron in uniXerr brain schema) can communicate with each other through some kinda channel (synapse)
+    pub async fn communicate(){
 
-        todo!() // ➔ use the jobqs algos the ones inside jobq.rs for communicating between neuron actors
+        todo!() // ➔ use the jobqs algos the ones inside jobq.rs for communication between actors
 
     }
 

@@ -20,9 +20,5 @@
 // https://drive.google.com/file/d/1n_7VZtBk5Vy_RLyb2IXNtWKurZ9NSwyn/view?usp=sharing
 
 
-
-pub mod tensor;
 pub mod shortening;
-pub mod gradient;
-pub mod activations;
 pub mod psychovision;

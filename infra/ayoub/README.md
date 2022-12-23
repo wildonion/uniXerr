@@ -9,7 +9,7 @@
 
 > waleXerr ui: ```cargo run --bin walleXerr```
 
-> psychoder: ```cargo run --bin psychoder```
+> stem: ```cargo run --bin stem```
 
 ## 🧪 Test Conse Server
 
@@ -23,7 +23,7 @@
 
 > waleXerr ui: ```cargo run --bin walleXerr --release```
 
-> psychoder: ```cargo run --bin psychoder --release```
+> stem: ```cargo run --bin stem --release```
 
 # 📇 Notes
 

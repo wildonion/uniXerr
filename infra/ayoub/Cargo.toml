@@ -4,7 +4,7 @@ members = [
     "walleXerr",
     "coiniXerr",
     "conse",
-    "psychoder",
+    "stem",
     "contracts/reserve",
     "contracts/donation"
 

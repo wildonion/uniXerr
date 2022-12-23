@@ -981,7 +981,7 @@ pub async fn unsafer(){
     // and `b` is pointing to the location of 123 which these are located in two different areas inside the stack.
     // also objects and pointers have equal addresses but traits have different ones
     println!("{}", std::ptr::eq(a, b)); //// comparing two raw pointers by they address (if they are raw compiler will coerce them into raw like *const T)
-    let a = &w as &dyn Sync;
+    let a = &w as &dyn Sync; //// Sync trait has implemented for the W so we can cast its instance to the trait and `a` will be a fat pointer
     let b = &w as *const dyn Sync;
     let c = &w as *const W as *const dyn Sync as *const u8;
     //// 0x00007ffe673ace7c is not the same as 0x7ffe673ace7c ////
@@ -997,13 +997,13 @@ pub async fn unsafer(){
     impl Trait for i32 {}
     let wrapper = Wrapper { member: 10 };
 
-    //// raw pointers and objects have equal addresses
+    //// raw pointers and objects have equal addresses in their size
     assert!(std::ptr::eq(
         &wrapper as *const Wrapper as *const u8, //// to convert an instance to the u8 we have to first convert it to the struct itself first
         &wrapper.member as *const i32 as *const u8 //// to convert the number to the u8 we have to first convert it to the i32 itself first
     ));
 
-    //// `Trait` has different implementations
+    //// `Trait` has different implementations since their pointers will store extra size about their length so they have 8 bytes long
     assert!(!std::ptr::eq(
         &wrapper as &dyn Trait, //// casting the wrapper to the Trait trait we can do this, since Trait is implemented for the underlying type or Wrapper struct (if we want to cast to a trait the trait must be implmeneted for the type) 
         &wrapper.member as &dyn Trait,

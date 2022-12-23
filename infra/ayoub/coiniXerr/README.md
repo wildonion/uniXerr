@@ -5,7 +5,7 @@
 
 An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Zero Proof of Knowledge Blockchain for uniXerr Cryptocurrency Coin.
 
-> The whole coiniXerr node can be executed from the kernel using `BPF` technology which is balzingly fast! 💥 
+> The whole coiniXerr node can be executed from the kernel using **BPF** technology which is balzingly fast! 💥 
 
 
 ### 📇 Notes

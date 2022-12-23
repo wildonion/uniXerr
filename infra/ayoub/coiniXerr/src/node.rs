@@ -83,7 +83,7 @@ use libp2p::{
       ValidationMode,
     }, gossipsub, identity, identity::Keypair, mdns, swarm::NetworkBehaviour, swarm::SwarmEvent, PeerId, Swarm,
   };
-use crate::engine::cvm::*;
+use crate::engine::cvm;
 use crate::actors::{
                     parathread::{Parachain, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
@@ -202,7 +202,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     
     
     
-
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////                 bootstrapping coiniXerr VM
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    //// used to compile the whole node into the BPF bytecode
+    //// so we can execute it from the kernel.
+    
+    cvm::bpf::loader().await;
+    
+    
+    
+    
 
 
 

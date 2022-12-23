@@ -15,11 +15,11 @@ elif [[ $App == "coiniXerr" ]]; then
     sudo pm2 delete coiniXerr
     sudo pm2 start coiniXerr --name coiniXerr
 elif [[ $App == "coiniXerr" ]]; then
-    cargo build --bin psychoder --release
-    sudo rm psychoder
-    sudo cp target/release/psychoder ./psychoder
-    sudo pm2 delete psychoder
-    sudo pm2 start psychoder --name psychoder
+    cargo build --bin stem --release
+    sudo rm stem
+    sudo cp target/release/stem ./stem
+    sudo pm2 delete stem
+    sudo pm2 start stem --name stem
 else
     echo "Invalid App Name!"
 fi
