@@ -148,11 +148,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let env_vars = daemon::get_env_vars();
 
 
+      
 
 
 
 
-
+    
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////             logging setup
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -186,7 +187,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         cloned_arc_mutex_validator_actor,
         cloned_arc_mutex_validator_update_channel,
         coiniXerr_sys,
-    ) = actors::daemonize(mempool_receiver, storage.clone()).await;
+    ) = actors::daemonize(storage.clone()).await;
 
 
 

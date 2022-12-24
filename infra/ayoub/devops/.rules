@@ -550,34 +550,4 @@ NOTE - pointers takes usize bytes (depends on os arch either 32 bits or 64 bits)
 [🚨] jobq channel is an async queue like mpsc that can schedule the received jobs, events or tasks (a method or a closure) 
     from the sender side of the channel asyncly and execute them inside its worker threadpool, actors use this pattern
     to transfer their tasks between their worker threadpools.
-
-[🚨] we'll use the ZMQ pub/sub to broadcast the network events from RPC or tokio TCP to other ndoes
-   also when a socket is bound to an endpoint it automatically starts accepting connections.
- 
-[🚨] ZMQ sockets may be connected to multiple endpoints, while simultaneously accepting incoming connections from 
-   multiple endpoints bound to the socket, thus allowing many-to-many relationships means a publisher 
-   will accept any number of subscribers and the subscriber can connect to multiple publishers.
- 
-[🚨] ZMQ contexts are thread safe data types means we can clone them to share between threads (they are Arc-ed) 
-   and also they avoid deadlocks since ZMQ socket protocols use actors under the hood means 
-   both senders and receivers are actors which use a buit in jobq to handle incoming tasks and jobs. 
- 
-[🚨] ZMQ creates queues (actor) per underlying connection of each socket type if your socket is connected to three peer sockets, 
-   then there are three messages queues behind the scenes, queues are created as individual peers connect to the bound socket   
-
-[🚨] in distributed networks in order all nodes can participate in network events we must use 
-    a distributed object protocol like Cap'n Proto RPC with a pub/sub pattern to broadcast an 
-    event through an RPC channel using the publishers, since each node is an encoded actor 
-    object using capnp or protobuf and has a pre defined methods like smart contract actor 
-    methdos thus to communicate with other node or actors and call each other methods directly 
-    on different machines without proxying they must use pub/sub channels since in RPC both 
-    server and client know the exact structure of the request and response for realtime 
-    streaming which will be defined by the Cap'n Proto serialization schemas, and if they are on 
-    the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast;
-    each of which shares a Send and Sync (Arc<Mutex<T>>) data between tokio worker threadpool
-    aslo actors use worker threadpool (like tokio::spawn() green based worker threadpool + 
-    tokio channels for sharing messages and tasks between threads), job or task queue for 
-    task scheduling, pub/sub channels for broadcasting messages to other actors 
-    like socket, RPC or tokio like channels (if actors are in same machine) and mailbox 
-    to receive from other actor or outside of the actor system under the hood.
     

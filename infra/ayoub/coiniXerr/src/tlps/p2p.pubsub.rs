@@ -20,9 +20,9 @@ use crate::*;
 //// each lip2p node is a ZMQ socket which is an actor with concepts of
 //// worker threadpool (like tokio::spawn() green based worker threadpool + 
 //// tokio channels for sharing messages and tasks between threads), job or task queue for 
-//// task scheduling, pub/sub channels for broadcasting messages to other actors 
-//// like socket, RPC or tokio like channels (if actors are in same machine) and mailbox 
-//// to receive from other actor or outside of the actor system under the hood.
+//// async task scheduling, pub/sub channels like socket, RPC or tokio channels 
+//// (if actors are in same machine) for broadcasting async messages to other actors 
+//// and mailbox to receive from other actor or outside of the actor system under the hood.
 //
 //// in distributed networks like the one we build with libp2p, every node or socket is a pub/sub actor 
 //// which will communicate with each other through message passing protocols like ZMQ sockets or RPC channels.
@@ -52,21 +52,35 @@ pub async fn bootstrap(
     ){
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////           setting up libp2p pub/sub stream to broadcast actors' events to the whole networks
+    ///////         setting up libp2p pub/sub stream to broadcast actors' events to the whole networks
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
- 
+    //// libp2p uses message queues and actors to handle the incoming data
+    //// from other socket node actors inside a worker threadpool, also for 
+    //// socket node actor communiactions and call their methods directly 
+    //// it'll use RPC channels in a pub/sub manner with capnp
+    //// or protobuf as the serialization protocol.
+    //
+    //// each instance of the socket connections or node or peer
+    //// is an actor that it can handle incoming async packet from other
+    //// nodes through the RPC pub/sub channel in a worker threadpool
+    //// also it has a message queue like ZMQ which can schedule 
+    //// the execution process of a packet inside other node.
+    //
+    //// topics are channels that will be broadcasted to the network
+    //// using publishers so subscribers that are interested to those
+    //// topics can subscribe to. 
+
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
 
-    let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let (mempool_sender, mempool_receiver) = *MEMPOOL_CHANNEL;
+    let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
 
 
 
 
     // TODO - musiem file sharing
-    // TODO - libp2p setup here
     // https://blog.logrocket.com/how-to-build-a-blockchain-in-rust/#peer-to-peer-basics
     // https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust/
     // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/file-sharing.rs

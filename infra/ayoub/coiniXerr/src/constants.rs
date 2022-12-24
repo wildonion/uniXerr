@@ -45,8 +45,8 @@ pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| {
 pub static MEMPOOL_CHANNEL
             : 
             Lazy<(
-                Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, 
-                Receiver<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>
+                tokio::sync::mpsc::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, 
+                tokio::sync::mpsc::Receiver<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>
             )> = 
                 Lazy::new(|| {
                     mpsc::channel::<(

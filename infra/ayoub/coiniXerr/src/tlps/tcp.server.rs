@@ -25,22 +25,23 @@ pub async fn bootstrap(
     ){
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////            TCP stream to decode incoming transactions using borsh and serde from TCP clients
+    ///////          TCP stream to decode incoming transactions using borsh and serde from TCP clients
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
 
-    let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let (mempool_sender, mempool_receiver) = *MEMPOOL_CHANNEL;
+    let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let tcp_addr = env_vars.get("TCP_ADDR").unwrap().as_str();
     
     // ----------------------------------------------------------------------
     //                  DEFINING TCP STREAMER MPSC CHANNELS
     // ----------------------------------------------------------------------
-    //// following channels will be used to share data between tokio threads
-    //// also inside each node
+    //// following channels will be used to share 
+    //// data between tokio threads
+    //// also inside each node.
     
     let (stream_sender, mut stream_receiver) = mpsc::channel::<(
                                                                                                                                 TcpStream, 
