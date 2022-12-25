@@ -34,4 +34,4 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Zero Pr
 
 * implementing Rafael runtime and onion actors
 
-* unique scaling mechanism like NEAR Nightshade sharding
+* refer to [NEAR Rules](https://github.com/wildonion/smarties/blob/main/contracts/near/NEAR.rules) for implementing unique scaling mechanism like `nightshade sharding`
