@@ -699,8 +699,6 @@ pub enum Storagekey{ //-- defining an enum based unique storage key for every ou
 // TODO - build function like macro like query!() and custom inner and outter trait like proc macro attributes and derive like; on structs, fields, modules and functions like #[near_bindgen] and #[borsh_skip] proc macro attribute, #[custom(token_stream)] and #[derive(Clone)] style 
 // TODO - write proc macro attributes like #[tokio::main(flavor="multi_thread", worker_threads=10)] and derives with TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes  
 // TODO - a proc macro attribute to convert a trait into a module and its methods into static methods of that module and add extra args like the ones for nft_on_transfer() and nft_on_approve() methods when the user is implementing these methods
-// TODO - VM, interpreter and #[wowasm] proc macro attribute to write smart contracts with wo syntax to compile to wasm to run on near
-// NOTE - we can use [], {} or () to call macros
 // NOTE - #[derive(Trait, SomeMacro)] bounds a struct to a trait or a macro and it must be used on top of the structs and enums and their fields
 // NOTE - #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate
 // ...
@@ -945,7 +943,7 @@ macro_rules! exam {
 
 
 #[macro_export]
-macro_rules! wowasm {
+macro_rules! gendeh {
     ($iden:ident, $ty: tt) => {
         pub struct $iden(pub $ty);
         impl Default for $iden{
@@ -962,7 +960,7 @@ macro_rules! wowasm {
     }
 }
 //////
-/// wowasm!{bindgen, id} //-- bindgen is the name of the struct and id is the name of the field
+/// gendeh!{bindgen, id} //-- bindgen is the name of the struct and id is the name of the field
 //////
 
 

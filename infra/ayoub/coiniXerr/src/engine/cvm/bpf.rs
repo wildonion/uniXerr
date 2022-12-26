@@ -45,9 +45,10 @@ pub mod mem_poisoning{
 //// with BPF VM we can compile the whole node 
 //// into an .elf or .so which contains the 
 //// bytecode that can be executed from 
-//// linux kernel.
+//// the linux kernel.
 pub async fn loader(){
 
+    // TODO - build macros inside the utils.rs 
     // https://blog.redsift.com/labs/writing-bpf-code-in-rust/
     // bpf loader
     // ... 

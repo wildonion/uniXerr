@@ -14,6 +14,10 @@ elif [[ $App == "coiniXerr" ]]; then
     sudo cp target/release/coiniXerr ./coiniXerr
     sudo pm2 delete coiniXerr
     sudo pm2 start coiniXerr --name coiniXerr
+elif [[ $App == "walleXerr" ]]; then
+    rustup target add wasm32-unknown-unknown # compilation target for browser-based WebAssembly
+    cargo install --locked trunk wasm-bindgen-cli
+    trunk build --release
 else
     echo "Invalid App Name!"
 fi

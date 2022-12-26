@@ -22,17 +22,18 @@ pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); ////
 ///////           app storage setup
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| {
-    let app_storage_future = async{
-        db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
-            daemon::get_env_vars().get("DB_NAME").unwrap().to_string(),
-            daemon::get_env_vars().get("DB_ENGINE").unwrap().to_string(),
-            daemon::get_env_vars().get("DB_HOST").unwrap().to_string(),
-            daemon::get_env_vars().get("DB_PORT").unwrap().to_string(),
-            daemon::get_env_vars().get("DB_USERNAME").unwrap().to_string(),
-            daemon::get_env_vars().get("DB_PASSWORD").unwrap().to_string()
-        }    
-    };
-    block_on(app_storage_future) //// blocking the current thread to solve the future object
+    block_on(
+        async{
+            db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
+                daemon::get_env_vars().get("DB_NAME").unwrap().to_string(),
+                daemon::get_env_vars().get("DB_ENGINE").unwrap().to_string(),
+                daemon::get_env_vars().get("DB_HOST").unwrap().to_string(),
+                daemon::get_env_vars().get("DB_PORT").unwrap().to_string(),
+                daemon::get_env_vars().get("DB_USERNAME").unwrap().to_string(),
+                daemon::get_env_vars().get("DB_PASSWORD").unwrap().to_string()
+            }    
+        }
+    ) //// blocking the current thread to solve the future object
 });
 
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈

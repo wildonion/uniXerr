@@ -13,25 +13,19 @@
 
 
 
-
-pub mod env{ //-- rafael env which contains runtime functions and actors to mutate the state of the runtime object like near-sdk env
+//// rafael serverless FaaS env which contains runtime functions 
+//// and actors to mutate the state of the runtime 
+//// object like near-sdk env
+pub mod env{
 
 
     
-    // load wasm file => https://procmarco.netlify.app/blog/2021-05-04-a-story-about-async-rust-and-using-send-types/
-    // NOTE - every instance of the server will become a node which will be inside a worker threadpool of the load balancer to handle and balance the incoming request laods to it by the workers
     // TODO - use some kinda register setup process to get and mutate the vars of the env like near registers in its env module for promises or futures
     // TODO - a register contains the current buffer inside the ram related to the passed in id means we have to read the buffer from inside of it related to the passed in id
     // TODO - we have to read the content of a specific register and save it inside a buffer
     // TODO - rafael serverless runtime must be like #[rafael::main] on top of a server instance  
     // TODO - try different IO streaming and future traits on a defined buffer from the following crates like mpsc and Mutex data structures 
 
-    
-
-    // near, cloudflare and shuttle are serverless:
-    //      - write contract or serverless methods in rust then compile to wasm32-wasi
-    //      - deploy using cli to the runtime which will balance requests using a high performence proxy like pingora, k8s and krustlet 
-    //      - load the deployed file in js and call its methods
 
 
 
@@ -149,7 +143,7 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
     //              • weighted round robin dns, 
     //              • vector clock, 
     //              • event loop
-    //              • simd vectorization
+    //              • simd divide and conquer based vectorization 
     #[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize, Clone, Debug)]
     pub struct Node{ //// this contains server info 
         pub dns: String,
@@ -264,7 +258,7 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
 
         fn run(&mut self) -> Self; // NOTE - the type that this trait which must be implemented for must be defined as mutable - the return type is the type that this trait will be implemented for
         fn stop(&mut self) -> Self; 
-        fn build(&mut self) -> Self; //-- building a wasm file from the rust code (yew and wasi)
+        fn load(&mut self) -> Self //-- loading any wasm file in coiniXerr node like STEM project code
         fn schedule(&self) -> Self; 
         fn callback(&self) -> Self;
         fn refund(&mut self) -> Self; //-- &mut self is because we want to mutate the state if the runtime by refunding an account
@@ -304,13 +298,21 @@ pub mod env{ //-- rafael env which contains runtime functions and actors to muta
 
         }
 
-        fn build(&mut self) -> Self {
-            
-            // TODO - build the walleXerr app using build.sh script inside the walleXerr app  
+        fn load(&mut self) -> Self{
+
+            // near, cloudflare and shuttle are serverless:
+            //      - write contract or serverless or faas methods in rust then compile to wasm
+            //      - deploy using cli to the runtime server which
+            //      - high performence proxy like pingora, k8s and krustlet will balance the requests  
+            //      - load the deployed code in js and call its methods
+            // https://crates.io/crates/wasmtime
+            // https://wasmer.io/
+            // TODO - loading any compiled wasm file inside the coiniXerr p2p BPF node 
+            //        like STEM project code for AI logics inside the coiniXerr node 
             // ...
-            
+
             todo!()
-        
+
         }
 
         fn stop(&mut self) -> Self{
