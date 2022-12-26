@@ -23,7 +23,7 @@ pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); ////
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| {
     block_on(
-        async{
+        async{ //// since we're using mongodb async lib we need to initialize it inside an async block or method thus in here we have to initialize the db inside an async block 
             db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
                 daemon::get_env_vars().get("DB_NAME").unwrap().to_string(),
                 daemon::get_env_vars().get("DB_ENGINE").unwrap().to_string(),

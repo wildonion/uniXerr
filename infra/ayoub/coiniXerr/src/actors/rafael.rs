@@ -152,6 +152,7 @@ pub mod env{
         #[serde(skip_serializing_if="Option::is_none")]
         pub weights: Option<Vec<SocketAddr>>, //// this is the number of requests that this node is handling right now 
         pub init_at: i64,
+        pub requests: Vec<hyper::Request<Body>>, //// all the incoming http hyper requests to this node
     }
     
     
@@ -258,7 +259,7 @@ pub mod env{
 
         fn run(&mut self) -> Self; // NOTE - the type that this trait which must be implemented for must be defined as mutable - the return type is the type that this trait will be implemented for
         fn stop(&mut self) -> Self; 
-        fn load(&mut self) -> Self //-- loading any wasm file in coiniXerr node like STEM project code
+        fn load(&mut self) -> Self; //-- loading any wasm file in coiniXerr node like STEM project code
         fn schedule(&self) -> Self; 
         fn callback(&self) -> Self;
         fn refund(&mut self) -> Self; //-- &mut self is because we want to mutate the state if the runtime by refunding an account
