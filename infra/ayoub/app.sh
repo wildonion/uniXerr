@@ -9,15 +9,18 @@ if [[ $App == "conse" ]]; then
     sudo pm2 delete conse
     sudo pm2 start conse --name conse
 elif [[ $App == "coiniXerr" ]]; then
+    cargo install cargo-bpf
     cargo build --bin coiniXerr --release
     sudo rm coiniXerr
     sudo cp target/release/coiniXerr ./coiniXerr
     sudo pm2 delete coiniXerr
     sudo pm2 start coiniXerr --name coiniXerr
+    cargo bpf build # build into the BPF
+    cargo bpf load target/release/bpf-programs/coiniXerr/coiniXerr.elf
 elif [[ $App == "walleXerr" ]]; then
     rustup target add wasm32-unknown-unknown # compilation target for browser-based WebAssembly
     cargo install --locked trunk wasm-bindgen-cli
-    trunk build --release
+    cd walleXerr && trunk build --release
 else
     echo "Invalid App Name!"
 fi

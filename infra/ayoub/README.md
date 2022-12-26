@@ -2,30 +2,19 @@
 
 > To Run and Setup each Service: ```sudo chmod +x app.sh && ./app.sh```
 
-# ☢️ Run in Dev Mode
-
-> conse PaaS: ```cargo run --bin conse``` 
-
-> coiniXerr: ```cargo run --bin coiniXerr```
 
 ## 🧪 Test Conse Server
 
 ```cargo test --bin conse```
 
-# ☣️ Build for Production
-
-> conse PaaS: ```cargo run --bin conse --release``` 
-
-> coiniXerr: ```cargo run --bin coiniXerr --release```
-
 # 📇 Notes
 
-* Install protobuf for `libp2p`: ```sudo apt install -y protobuf-compiler```
+* Install **capnproto**: ```sudo apt-get install capnproto```
 
-* Remember that `.env` file and the compiled app must be in the same palce. 
+* Install **protobuf** for `libp2p`: ```sudo apt install -y protobuf-compiler```
+
+* Remember that `.env` file and the compiled apps must be in the same palce. 
 
 * To see all binaries: ```cargo run --bin```
 
 * Give the permission to the root using ```sudo chown -R root:root . && sudo chmod -R 777 .``` command.
-
-* To update a user access level to dev first signup the user using `/auth/signup` API inside the `PaaS` then run the binary like so: `./app wildonion 0`

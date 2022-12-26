@@ -5,6 +5,8 @@
 
 Conse is an AI based Crypto Game Event Manager Platform on top of coiniXerr blockchain. 
 
+> To update a user access level to dev first signup the user using `/auth/signup` API inside the `PaaS` then run the binary like so: `./app wildonion 0`
+
 ### 📌 WIP
 
 * HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
