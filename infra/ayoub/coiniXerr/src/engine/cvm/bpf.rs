@@ -44,8 +44,9 @@ pub mod mem_poisoning{
 
 //// with BPF VM we can compile the whole node 
 //// into an .elf or .so which contains the 
-//// bytecode that can be executed from 
-//// the linux kernel.
+//// BPF bytecode that can be executed from 
+//// the linux kernel. LLVM13 is needed 
+//// to compile BPF bytecode.
 pub async fn loader(){
 
     // TODO - build macros inside the utils.rs 

@@ -24,6 +24,13 @@ use crate::*;
 //// (if actors are in same machine) for broadcasting async messages to other actors 
 //// and mailbox to receive from other actor or outside of the actor system under the hood.
 //
+//// actors publisher can either broadcast topics through the RPC or socket 
+//// to be subscribed by other actors inside other device or they can use 
+//// tokio channels to broadcast to other actors inside the same machine.
+//
+//// the reason actors use RPC for communication is because with RPC we can directly call 
+//// the method of an encoded object using cap'n proto or protobuf from the different devices.
+//
 //// in distributed networks like the one we build with libp2p, every node or socket is a pub/sub actor 
 //// which will communicate with each other through message passing protocols like ZMQ sockets or RPC channels.
 //// since each node is an actor object with pre defined methods encoded with a distributed object protocol 
@@ -64,7 +71,8 @@ pub async fn bootstrap(
     //// is an actor that it can handle incoming async packet from other
     //// nodes through the RPC pub/sub channel in a worker threadpool
     //// also it has a message queue like ZMQ which can schedule 
-    //// the execution process of a packet inside other node.
+    //// the execution process of a packet inside other node
+    //// using pub/sub broadcasting topic pattern.
     //
     //// topics are channels that will be broadcasted to the network
     //// using publishers so subscribers that are interested to those
@@ -74,19 +82,10 @@ pub async fn bootstrap(
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
 
-    let (mempool_sender, mempool_receiver) = *MEMPOOL_CHANNEL;
+    let (mempool_sender, mempool_receiver) = &*MEMPOOL_CHANNEL;
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
 
 
-
-
-    // TODO - musiem file sharing
-    // https://blog.logrocket.com/how-to-build-a-blockchain-in-rust/#peer-to-peer-basics
-    // https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust/
-    // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/file-sharing.rs
-    // https://github.com/libp2p/rust-libp2p/blob/f6f42968e21d6fa1defa0e4ba7392f1823ee055e/examples/chat-tokio.rs
-    // https://github.com/libp2p/rust-libp2p/blob/master/examples/gossipsub-chat.rs 
-    // ...
 
 
 

@@ -21,8 +21,8 @@ pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); ////
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| {
-    block_on(
+pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| { //// the new() method takes a closure so we can pass a function which returns a type that must be staticly initialized
+    block_on( //// despite the tokio runtime methods the block_on() will block the current thread to complete the future 
         async{ //// since we're using mongodb async lib we need to initialize it inside an async block or method thus in here we have to initialize the db inside an async block 
             db!{ //// this publicly has exported from the utils in here so we can access it here; db macro must be inside an async block or method since there is some async method in it
                 daemon::get_env_vars().get("DB_NAME").unwrap().to_string(),

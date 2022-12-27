@@ -86,7 +86,7 @@ use libp2p::{
 use crate::engine::cvm;
 use crate::actors::{
                     parathread::{Parachain, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
-                    peer::{Validator, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
+                    peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
 use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
@@ -187,9 +187,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         cloned_arc_mutex_validator_actor,
         cloned_arc_mutex_validator_update_channel,
         coiniXerr_sys,
-    ) = actors::daemonize(storage.clone()).await;
+    ) = actors::daemonize().await;
 
 
+    
 
 
 
@@ -214,10 +215,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         default_parachain_uuid.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_update_channel.clone(),
         cloned_arc_mutex_validator_actor.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
         coiniXerr_sys.clone()
-      ).await; //// capn' proto RPC
+      ).await; //// cap'n proto RPC
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr TCP SERVER
@@ -233,8 +234,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         default_parachain_uuid.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_update_channel.clone(),
         cloned_arc_mutex_validator_actor.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
         coiniXerr_sys.clone()
       ).await; //// tokio TCP 
     
@@ -251,8 +252,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         default_parachain_uuid.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_update_channel.clone(),
         cloned_arc_mutex_validator_actor.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
         coiniXerr_sys.clone()
     ).await; //// libp2p stack
 

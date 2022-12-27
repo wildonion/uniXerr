@@ -32,7 +32,7 @@ pub async fn bootstrap(
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
 
-    let (mempool_sender, mempool_receiver) = *MEMPOOL_CHANNEL;
+    let (mempool_sender, mempool_receiver) = &*MEMPOOL_CHANNEL;
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let tcp_addr = env_vars.get("TCP_ADDR").unwrap().as_str();
     
@@ -85,8 +85,8 @@ pub async fn bootstrap(
         stream_sender.send((stream, 
                             meta_data_uuid, 
                             cloned_arc_mutex_runtime_info_object.clone(), 
-                            cloned_arc_mutex_validator_update_channel.clone(), 
                             cloned_arc_mutex_validator_actor.clone(), 
+                            cloned_arc_mutex_validator_update_channel.clone(), 
                             coiniXerr_sys.clone()
                         )).await.unwrap(); //-- sending the stream, the cloned runtime info and metadata uuid, cloned validator, coiniXerr actor system and the validator update channel through the mpsc channel 
             

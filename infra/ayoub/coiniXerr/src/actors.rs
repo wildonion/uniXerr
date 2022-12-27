@@ -24,7 +24,7 @@ pub mod rafael;
 //// consists of a secured p2p communication between nodes using libp2p, 
 //// coiniXerr actors setup, broadcasting events using libp2p pub/sub streams 
 //// and receiving asyncly from the mempool channel for mining and verifying process. 
-pub async fn daemonize(storage: Option<Arc<Storage>>) 
+pub async fn daemonize() 
     -> ( //// returning types inside the Arc<Mutex<T>> will allow us to share the type between threads safely
         Slot, 
         ChannelRef<ValidatorJoined>,
@@ -42,7 +42,6 @@ pub async fn daemonize(storage: Option<Arc<Storage>>)
     ///////                           env vars initialization
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
-    let (mempool_sender, mempool_receiver) = *MEMPOOL_CHANNEL;
     let coiniXerr_sys = SystemBuilder::new()
                                                     .name("coiniXerr")
                                                     .create()
@@ -52,8 +51,29 @@ pub async fn daemonize(storage: Option<Arc<Storage>>)
     let runtime_instance = runtime_info.run(); //-- run() method is the method of the Rafael serverless trait
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //-- we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
     let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
-
-
+    //// if the type doesn't implement the Copy trait 
+    //// thus we can't move out of dereference by using *
+    //// cause it'll be moved and we have to either 
+    //// borrow the dereferenced type using & or clone 
+    //// it also we can't move a shared reference into 
+    //// new scopes since it's a shared reference and 
+    //// is being used by other scopes if we do that 
+    //// we'll face dangling pointer issue which 
+    //// rust doesn't like it!
+    let storage = APP_STORAGE.clone(); //// cloning it in order not to move since Copy trait is not implemented for the dereferenced type or Option<Arc<schemas::Storage>> thus we have to either borrow it in case that the clone is also not implemented or clone it
+    //// since we're using mpsc job queue channel we can't move
+    //// the receiver between threads or into new scopes since 
+    //// it's a multiple producer (we can clone the sender) 
+    //// and single consumer structure the Clone trait is 
+    //// not implemented for the receiver hence we can't clone the 
+    //// MEMPOOL_CHANNEL at all and we have to borrow the 
+    //// dereferenced type of it.
+    //
+    //// Clone trait is not implemented for receiver thus
+    //// the Copy trait can't be implemented also since 
+    //// Clone is a supertrait of Copy and because of this
+    //// we can't dereference the MEMPOOL_CHANNEL at all!
+    let (mempool_sender, mempool_receiver) = &*MEMPOOL_CHANNEL;
 
 
 
@@ -476,7 +496,7 @@ pub async fn daemonize(storage: Option<Arc<Storage>>)
  
     while let Some((transaction, 
                     validator, 
-                    coiniXerr_actor_system)) = mempool_receiver.recv().await{ //-- waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously 
+                    coiniXerr_actor_system)) = mempool_receiver.recv().await{ //-- waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously also reading from the receiver is a mutable process
         info!("➔ 📥 receiving new transaction and its related validator to push inside the current block");
         let mutex_transaction = transaction.lock().unwrap().clone();
         info!("➔ 🪙 new transaction {:?} in mempool", mutex_transaction);
