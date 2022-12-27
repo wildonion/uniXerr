@@ -85,7 +85,7 @@ use libp2p::{
   };
 use crate::engine::cvm;
 use crate::actors::{
-                    parathread::{Parachain, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
+                    parathread::{Parachain, ParachainMsg, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
@@ -139,15 +139,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     
 
           
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////    mempool channel initialization
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////           mempool job queue channel initialization
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// mempool channel is broadcast job queue channel which 
     //// all transactions must be sent through this channel for mining process.
     //// to follow Rust's whole thing of guaranteeing thread safety for mutation 
     //// we need to wrap our data in a Mutex and also the data must be Send and Sync.
 
-    let (mempool_sender, mempool_receiver) = broadcast::channel::<(
+    let (mempool_sender, mut mempool_receiver) = broadcast::channel::<(
                                                                     Arc<Mutex<Transaction>>, 
                                                                     Arc<Mutex<ActorRef<<Validator as Actor>::Msg>>>, //// we're getting the mailbox type of Validator actor first by casting it into an Actor then getting its Msg mailbox which is of type ValidatorMsg  
                                                                     //// passing the coiniXerr actor system through the broadcast channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
@@ -192,7 +192,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                 starting actors
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
+    //// by starting actors coiniXerr node state will be 
+    //// initialized and the last state types will be
+    //// returned here to pass them to different TLPs. 
+    
     let (
         mut current_slot, 
         validator_joined_channel, 
@@ -202,6 +205,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         cloned_arc_mutex_validator_actor,
         cloned_arc_mutex_validator_update_channel,
         coiniXerr_sys,
+        parachain_updated_channel,
+        parachain_1,
+        parachain_0,
+        mining_channel,
+        mempool_updated_channel,
+        blockchain,
+        mut current_block,
     ) = actors::daemonize().await;
 
 
@@ -477,8 +487,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         };
 
     }
-
-
 
 
 

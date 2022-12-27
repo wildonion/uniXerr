@@ -33,8 +33,15 @@ pub async fn daemonize()
         Uuid,
         Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
         Arc<Mutex<ActorRef<ValidatorMsg>>>, //// the validator actor
-        ActorSystem
-    ){ //// the return type is a tuple of current slot, actor validaor channels, parachain uuid, runtime and the actor system
+        ActorSystem,
+        ActorRef<ChannelMsg<ParachainUpdated>>,
+        ActorRef<ParachainMsg>,
+        ActorRef<ParachainMsg>,
+        ActorRef<ChannelMsg<UpdateValidatorAboutMiningProcess>>,
+        ActorRef<ChannelMsg<UpdateValidatorAboutMempoolTx>>,
+        Chain,
+        Block,
+    ){ 
 
 
 
@@ -476,10 +483,7 @@ pub async fn daemonize()
     let cloned_arc_mutex_validator_update_channel = Arc::clone(&arc_mutex_validator_update_channel);
 
 
-    //// returning the tuple of current slot, 
-    //// validator joined channel, validator updated channel 
-    //// default parachain uuid, arc and mutex-ed rafael runtime
-    //// and the coiniXerr actor system. 
+
     (   
         current_slot.clone(), 
         validator_joined_channel.clone(),
@@ -488,7 +492,14 @@ pub async fn daemonize()
         meta_data_uuid.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
         cloned_arc_mutex_validator_actor.clone(),
-        coiniXerr_sys.clone()
+        coiniXerr_sys.clone(),
+        parachain_updated_channel.clone(),
+        parachain_1.clone(),
+        parachain_0.clone(),
+        mining_channel.clone(),
+        mempool_updated_channel.clone(),
+        blockchain.clone(),
+        current_block.clone(),
     )
 
 
