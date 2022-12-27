@@ -32,7 +32,7 @@
 
 /* 
     
-        JOBQ CHANNLE ALGORITHMS
+        TOKIO JOBQ CHANNLE ALGORITHMS
 
     mpsc: multi-producer, single-consumer channel. Many values can be sent.
     oneshot: single-producer, single consumer channel. A single value can be sent.

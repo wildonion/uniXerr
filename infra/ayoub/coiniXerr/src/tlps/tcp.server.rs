@@ -12,6 +12,7 @@ use crate::*;
 //// to the downside of the mempool channel 
 //// for mining and veifying process.
 pub async fn bootstrap(
+        mempool_sender: broadcast::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, //// we'll use this sender to send transactions to downside of the mempool channel for mining process
         storage: Option<Arc<Storage>>, 
         env_vars: HashMap<String, String>,
         current_slot: Slot, 
@@ -31,8 +32,7 @@ pub async fn bootstrap(
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
-
-    let (mempool_sender, mempool_receiver) = &*MEMPOOL_CHANNEL;
+    
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let tcp_addr = env_vars.get("TCP_ADDR").unwrap().as_str();
     
@@ -237,7 +237,7 @@ pub async fn bootstrap(
                         let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&utf_bytes_dereference_from_box).unwrap(); //-- deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
                         let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //-- putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
                         let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //-- cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
-                        mempool_sender.send((cloned_arc_mutex_transaction, cloned_arc_mutex_validator_actor.clone(), coiniXerr_actor_system.clone())).await.unwrap(); //-- sending signed transaction plus the validator actor info through the mpsc job queue channel asynchronously for mining process - we must clone the cloned_arc_mutex_validator_actor in each iteration to prevent ownership moving
+                        mempool_sender.send((cloned_arc_mutex_transaction, cloned_arc_mutex_validator_actor.clone(), coiniXerr_actor_system.clone())).unwrap(); //-- sending signed transaction plus the validator actor info through the mpsc job queue channel asynchronously for mining process - we must clone the cloned_arc_mutex_validator_actor in each iteration to prevent ownership moving
                         true
                     } else{
                         

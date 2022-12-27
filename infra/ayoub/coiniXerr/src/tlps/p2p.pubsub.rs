@@ -42,10 +42,15 @@ use crate::*;
 //// the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast to
 //// share an encoded, Send and Sync (Arc<Mutex<T>>) data between tokio workers' threadpool.
 //
+//// tokio channels will be used to share Arc<Mutex<data>> between multiple threads 
+//// and ZMQ socket actors supports multiple connection types which can be used 
+//// to communicate with other device socket actors. 
+//
 //// in here we'll send all the decoded transactions 
 //// to the downside of the mempool channel 
 //// for mining and veifying process.
 pub async fn bootstrap(
+        mempool_sender: broadcast::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, //// we'll use this sender to send transactions to downside of the mempool channel for mining process
         storage: Option<Arc<Storage>>, 
         env_vars: HashMap<String, String>,
         current_slot: Slot, 
@@ -76,13 +81,12 @@ pub async fn bootstrap(
     //
     //// topics are channels that will be broadcasted to the network
     //// using publishers so subscribers that are interested to those
-    //// topics can subscribe to. 
+    //// topics can subscribe to.
 
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
     // ----------------------------------------------------------------------
 
-    let (mempool_sender, mempool_receiver) = &*MEMPOOL_CHANNEL;
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
 
 

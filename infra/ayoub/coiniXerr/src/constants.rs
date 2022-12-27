@@ -39,26 +39,33 @@ pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| { //// the new
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////    mempool channel initialization
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//// mempool channel is an mpsc job queue channel which 
+//// mempool channel is broadcast job queue channel which 
 //// all transactions must be sent through this channel for mining process.
 //// to follow Rust's whole thing of guaranteeing thread safety for mutation 
 //// we need to wrap our data in a Mutex and also the data must be Send and Sync.
+//
+//// Clone trait is not implemented for receiver thus
+//// the Copy trait can't be implemented also since 
+//// Clone is a supertrait of Copy and because of this
+//// we can't move out of MEMPOOL_CHANNEL by deferencing it at all!
 pub static MEMPOOL_CHANNEL
             : 
             Lazy<(
-                tokio::sync::mpsc::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, 
-                tokio::sync::mpsc::Receiver<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>
+                tokio::sync::broadcast::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, 
+                tokio::sync::broadcast::Receiver<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>
             )> = 
                 Lazy::new(|| {
-                    mpsc::channel::<(
+                    broadcast::channel::<(
                         Arc<Mutex<Transaction>>, 
                         Arc<Mutex<ActorRef<<Validator as Actor>::Msg>>>, //// we're getting the mailbox type of Validator actor first by casting it into an Actor then getting its Msg mailbox which is of type ValidatorMsg  
-                        //// passing the coiniXerr actor system through the mpsc channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
+                        //// passing the coiniXerr actor system through the broadcast channel since tokio::spawn(async move{}) inside the loop will move all vars, everything from its behind to the new scope and takes the ownership of them in first iteration and it'll gets stucked inside the second iteration since there is no var outside the loop so we can use it! hence we have to pass the var through the channel to have it inside every iteration of the `waiting-on-channel-process` loop
                         //// no need to put ActorSystem inside the Arc since it's bounded to Clone trait itself and also we don't want to change it thus there is no Mutex guard is needed
                         ActorSystem 
                         //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
-                    )>(daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap()) //-- transaction mempool channel using mpsc channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
+                    )>(daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap()) //-- transaction mempool channel using broadcast channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
                 });
+
+
 
 
 
