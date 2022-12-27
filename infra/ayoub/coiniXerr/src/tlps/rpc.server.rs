@@ -40,7 +40,11 @@ pub async fn bootstrap(
     // -----------------------------------------------------------       
     //          RPC SERVER USING CAP'N PROTO SERIALIZATION
     // -----------------------------------------------------------
+    //// with RPC we can call a method of an encoded actor object
+    //// using cap'n proto directly from other devices.
     
+
+
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc
     // https://capnproto.org/language.html

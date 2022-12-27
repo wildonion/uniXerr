@@ -142,8 +142,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////           mempool job queue channel initialization
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    //// mempool channel is broadcast job queue channel which 
-    //// all transactions must be sent through this channel for mining process.
+    //// mempool channel is a broadcast job queue channel with 
+    //// multi-producer and multi-consumer in which many values 
+    //// can be sent and each receiver sees every value thus 
+    //// all transactions must be sent through this 
+    //// channel for mining process.
+    //
     //// to follow Rust's whole thing of guaranteeing thread safety for mutation 
     //// we need to wrap our data in a Mutex and also the data must be Send and Sync.
 

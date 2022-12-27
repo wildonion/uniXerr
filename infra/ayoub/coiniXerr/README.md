@@ -24,13 +24,9 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Zero Pr
 
 ### 📌 WIP 
 
-* complete `rpc.server.rs`, `tcp.server.rs` and `p2p.pubsub.rs` streaming TODOs
-
-* complete `rpc_tx_emulator` method and other `StorageModel` ORM trait methods
-
 * HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
 
-* coiniXerr engine BPF, reset slot, mempool channel, runtime log, consensus, transaction and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on `XChaCha20Poly1305` end-to-end encryption
+* `StorageModel` ORM trait methods, reset slot, mempool channel, runtime log, consensus, transaction and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on `XChaCha20Poly1305` end-to-end encryption
 
 * implementing Rafael runtime and onion actors
 

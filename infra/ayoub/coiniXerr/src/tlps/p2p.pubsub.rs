@@ -64,7 +64,7 @@ pub async fn bootstrap(
     ){
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////         setting up libp2p pub/sub stream to broadcast actors' events to the whole networks
+    ///////         libp2p pub/sub stream to broadcast actors' events and topics to the whole networks
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// libp2p uses message queues and actors to handle the incoming data
     //// from other socket node actors inside a worker threadpool, also for 
@@ -91,7 +91,8 @@ pub async fn bootstrap(
 
 
 
-
+    // TODO - AppBehaviour, gossipsub and swarm config and tokio select!
+    // ...  
 
 
 
