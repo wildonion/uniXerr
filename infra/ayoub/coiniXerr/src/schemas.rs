@@ -92,9 +92,9 @@ pub enum EventType{
 //// in contrast to Transport which defines how to send bytes on the network, 
 //// NetworkBehaviour defines what bytes to send and to whom.
 pub struct AppBehaviour{
-    pub app: App,
-    pub gossibsub: Gossipsub,
-    pub mdns: mdns::async_io::Behaviour,
+    pub app: App, //// this is the instance of the App
+    pub gossibsub: Gossipsub, //// gossipsub protocol for p2p pub/sub: https://docs.libp2p.io/concepts/pubsub/overview/
+    pub mdns: mdns::async_io::Behaviour, //// mDNS protocol is used to discover other nodes on the local network that support libp2p
     //// unbounded sender has no limit in buffer size also
     //// we'll use the following channels the response_sender and init_sender 
     //// to send the local chain and a boolean of the lazy initialization 
