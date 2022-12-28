@@ -30,6 +30,38 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
+
+
+
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//                                                        App Schema                      
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//// App is the whole blockchain concepts that will be used in 
+//// AppBehaviour structure which is the whole concepts of p2p 
+//// and the network stacks inside the coiniXerr node.
+pub struct App{
+    pub parathread: Parachain, 
+}
+
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                        P2P Schemas                      
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -39,16 +71,38 @@ pub struct ChainResponse{ //// local chain response from other peer - used for i
     pub receiver: String, //// the receiver node (peer_id) of the incoming chain or blocks
 }
 
+//// if we send a LocalChainRequest with the peer_id 
+//// of another node in the system, this will trigger 
+//// that they send us their chain back.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalChainRequest{ //// local chain request from a specific peer
     pub from_peer_id: String, //// a peer sends a request to get the local chain from other peers
 }
 
+//// for handling incoming messages, lazy initialization, and keyboard-input by the client's user
+//// we've used the following enum which helps us send events across the application 
+//// to keep our application state in sync with incoming and outgoing network traffic.
+pub enum EventType{ 
+    LocalChainResponse(ChainResponse), //// the response of the local chain request
+    Input(String), //// keyboard inputs
+    Init, //// lazy initialization
+}
 
-
-
-
-
+//// NetworkBehaviour defines the behaviour of the local node on the network
+//// in contrast to Transport which defines how to send bytes on the network, 
+//// NetworkBehaviour defines what bytes to send and to whom.
+pub struct AppBehaviour{
+    pub app: App,
+    pub gossibsub: Gossipsub,
+    pub mdns: mdns::async_io::Behaviour,
+    //// unbounded sender has no limit in buffer size also
+    //// we'll use the following channels the response_sender and init_sender 
+    //// to send the local chain and a boolean of the lazy initialization 
+    //// between multiple threads and scopes of different 
+    //// parts of the app respectively.   
+    pub response_sender: mpsc::UnboundedSender<ChainResponse>,
+    pub init_sender: mpsc::UnboundedSender<bool>,
+}
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 

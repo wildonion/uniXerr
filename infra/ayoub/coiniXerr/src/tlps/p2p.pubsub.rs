@@ -91,7 +91,7 @@ pub async fn bootstrap(
 
 
 
-    // TODO - AppBehaviour, gossipsub and swarm config and tokio select!
+    // TODO - AppBehaviour, gossipsub + swarm config and tokio select!
     // ...  
 
 

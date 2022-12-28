@@ -65,6 +65,8 @@ use tokio::net::{TcpListener, TcpStream, UdpSocket}; //-- async tcp listener and
 use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method asyncly which has been implemented for the object of TcpStream (these trait have been implemented for TcpStream structure)
 use tokio::sync::{mpsc, broadcast}; //// to broadcast transactions to from multiple senders to multiple receivers
 use uuid::Uuid;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::{fmt, fmt::Write, num::ParseIntError};
 use std::sync::{Arc, Mutex, mpsc as std_mpsc, mpsc::channel as heavy_mpsc}; //-- communication between threads is done using mpsc job queue channel and end of the channel can only be owned by one thread at the time to avoid being in deadlock and race condition situations, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
 use std::time::{Instant, Duration};
@@ -78,9 +80,8 @@ use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
 use libp2p::{
     gossipsub::{
-      MessageId, 
-      Gossipsub, GossipsubEvent, GossipsubMessage, IdentTopic as Topic, MessageAuthenticity,
-      ValidationMode,
+      MessageId, Gossipsub, GossipsubEvent, GossipsubMessage, 
+      IdentTopic as Topic, MessageAuthenticity, ValidationMode,
     }, gossipsub, identity, identity::Keypair, mdns, swarm::NetworkBehaviour, swarm::SwarmEvent, PeerId, Swarm,
   };
 use crate::engine::cvm;
@@ -119,6 +120,8 @@ pub mod schemas;
 pub mod actors;
 pub mod engine;
 pub mod utils; //// we're importing the utils.rs in here as a public module thus we can access all the modules, functions and macros inside of it publicly
+
+
 
 
 
@@ -491,8 +494,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         };
 
     }
-
-
 
 
 
