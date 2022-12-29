@@ -5,6 +5,9 @@
 
 
 
+
+
+
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
 
@@ -33,27 +36,6 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                        App Schema                      
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//// App is the whole blockchain concepts that will be used in 
-//// AppBehaviour structure which is the whole concepts of p2p 
-//// and the network stacks inside the coiniXerr node.
-pub struct App{
-    pub parathread: Parachain, 
-}
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-
-
-
-
-
-
-
-
 
 
 
@@ -66,7 +48,7 @@ pub struct App{
 //                                                        P2P Schemas                      
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[derive(Debug, Serialize, Deserialize)] //// we'll use serde serialization and deserialization traits for json ops
-pub struct ChainResponse{ //// local chain response from other peer - used for if someone sends us their local blockchain and use to send them our local chain
+pub struct P2PChainResponse{ //// local chain response from other peer - used for if someone sends us their local blockchain and use to send them our local chain
     pub blocks: Vec<Block>, //// blocks from other peers
     pub receiver: String, //// the receiver node (peer_id) of the incoming chain or blocks
 }
@@ -75,33 +57,68 @@ pub struct ChainResponse{ //// local chain response from other peer - used for i
 //// of another node in the system, this will trigger 
 //// that they send us their chain back.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct LocalChainRequest{ //// local chain request from a specific peer
+pub struct P2PLocalChainRequest{ //// local chain request from a specific peer
     pub from_peer_id: String, //// a peer sends a request to get the local chain from other peers
 }
 
 //// for handling incoming messages, lazy initialization, and keyboard-input by the client's user
 //// we've used the following enum which helps us send events across the application 
 //// to keep our application state in sync with incoming and outgoing network traffic.
-pub enum EventType{ 
-    LocalChainResponse(ChainResponse), //// the response of the local chain request
+pub enum P2PEventType{ 
+    LocalChainResponse(P2PChainResponse), //// the response of the local chain request
     Input(String), //// keyboard inputs
     Init, //// lazy initialization
 }
 
 //// NetworkBehaviour defines the behaviour of the local node on the network
 //// in contrast to Transport which defines how to send bytes on the network, 
-//// NetworkBehaviour defines what bytes to send and to whom.
-pub struct AppBehaviour{
-    pub app: App, //// this is the instance of the App
+//// NetworkBehaviour defines what bytes to send and to whom 
+//// which in our case is based on gossipsub protocol. 
+#[derive(NetworkBehaviour)] //// implementing the NetworkBehaviour trait for the P2PAppBehaviour struct
+pub struct P2PAppBehaviour{
     pub gossibsub: Gossipsub, //// gossipsub protocol for p2p pub/sub: https://docs.libp2p.io/concepts/pubsub/overview/
-    pub mdns: mdns::async_io::Behaviour, //// mDNS protocol is used to discover other nodes on the local network that support libp2p
+    pub mdns: mdns::Mdns, //// mDNS protocol is used to discover other nodes on the local network that support libp2p
     //// unbounded sender has no limit in buffer size also
     //// we'll use the following channels the response_sender and init_sender 
     //// to send the local chain and a boolean of the lazy initialization 
     //// between multiple threads and scopes of different 
     //// parts of the app respectively.   
-    pub response_sender: mpsc::UnboundedSender<ChainResponse>,
+    #[behaviour(ignore)]
+    pub response_sender: mpsc::UnboundedSender<P2PChainResponse>,
+    #[behaviour(ignore)]
     pub init_sender: mpsc::UnboundedSender<bool>,
+}
+
+impl P2PAppBehaviour{
+
+    pub async fn new(
+        response_sender: mpsc::UnboundedSender<P2PChainResponse>, 
+        init_sender: mpsc::UnboundedSender<bool>) -> Self //// it'll return a new app behaviour 
+    {
+
+        let gossibsub_config = gossipsub::GossipsubConfigBuilder::default()
+            .heartbeat_interval(Duration::from_secs(10)) //// hearbeat every 10 seconds
+            .validation_mode(ValidationMode::Strict) //// this requires the message author to be a valid PeerId and to be present as well as the sequence number aslo all messages must have valid signatures
+            .build()
+            .unwrap();
+    
+        let mut behaviour = Self{
+            gossibsub: Gossipsub::new( //// building a gossipsub network behaviour
+                MessageAuthenticity::Signed(
+                    KEYS.clone()), //// since the Clone trait is implemented for Topic struct hence we can clone the KEYS to dereference it   
+                    gossibsub_config).unwrap(),
+            mdns: mdns::Mdns::new(mdns::MdnsConfig::default()).await.unwrap(), //// building a default mdns
+            response_sender,
+            init_sender,
+        };
+
+        behaviour.gossibsub.subscribe(&PARACHAIN_TOPIC.clone());
+        behaviour.gossibsub.subscribe(&BLOCK_TOPIC.clone());
+
+
+        behaviour
+    }
+
 }
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈

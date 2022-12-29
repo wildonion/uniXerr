@@ -89,15 +89,83 @@ pub async fn bootstrap(
 
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
 
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////         scaffolding p2p network stacks, services and requirements
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    
+    // -----------------------------------------------------
+    //         INITIALIZING MPSC JOB QUEUE CHANNELS 
+    // -----------------------------------------------------
 
+    info!("➔ 🎡 peer id for this node [{}]", PEER_ID.clone());
+    //// since receiving is a mutable process
+    //// we've defined the receiver as mutable.
+    //
+    //// passing data between threads can be done by using 
+    //// tokio job queue channels like the following channels
+    //// which can be used to broadcast network events like 
+    //// local chain response comming from other nodes and 
+    //// lazy initialization of the node between different 
+    //// parts of the app like other threads and scopes.
+    let (response_sender, mut response_receiver) = mpsc::unbounded_channel::<P2PChainResponse>();
+    let (init_sender, mut init_receiver) = mpsc::unbounded_channel::<bool>();
+    
+    // -------------------------------------------------------------------------------
+    //         CREATING A SECURED MULTIPLEX PROTCOL USING TOKIO TCP AND NOISE   
+    // -------------------------------------------------------------------------------
+    //// creating a tokio-based TCP transport use noise for authenticated
+    //// encryption based on keypairs and Mplex for multiplexing 
+    //// of substreams on a TCP stream.
+    //
+    //// stream multiplexer protocol will be used to send 
+    //// stream of information over a communication link 
+    //// at the same time in the form of a 
+    //// single and complex signal.
+    
+    let transport = libp2pTCP::tokio::Transport::new(libp2pTCP::Config::default().nodelay(true))
+                                                                    .upgrade(upgrade::Version::V1)
+                                                                    .authenticate(NoiseAuthenticated::xx(&KEYS.clone()).unwrap()) //// making tokio TCP mplex channel secure using generated public and private key based on noise protocol
+                                                                    .multiplex(mplex::MplexConfig::new())
+                                                                    .boxed(); //// put the setup config inside the Box which is a smart pointer to the config that handles the lifetime automatically
 
-    // TODO - AppBehaviour, gossipsub + swarm config and tokio select!
-    // ...  
+    
+    // -----------------------------------------
+    //         BUILDING THE APP BEHAVIOUR   
+    // -----------------------------------------
+    let behaviour = P2PAppBehaviour::new(response_sender, init_sender).await;
 
+    // -----------------------------------------------------------------------------------------------
+    //        BUILDING THE SWARM MODULE FROM THE CREATED BEHAVIOUR, TRANSPORT AND THE PEER ID   
+    // -----------------------------------------------------------------------------------------------
+    //// creating a new SwarmBuilder based on tokio executor 
+    //// from the given transport, behaviour and local peer_id.
+    //
+    //// swarm module will be the engine of the p2p network stacks
+    //// which by starting it we can handle all the incoming events
+    //// inside the node.
+    
+    let mut swarm = Swarm::new(transport, 
+                                                              behaviour, 
+                                               PEER_ID.clone());
 
+    // --------------------------------------------------------
+    //     READING FULL LINES FROM THE STDIN FOR USER INPUT   
+    // --------------------------------------------------------
+    let mut stdin = std::io::BufReader::new(std::io::stdin()).lines().fuse(); //// fuse() will create an iterator which will be ended after the first None
 
-
-
-
+    // -----------------------------------------
+    //        STARTING THE CREATED SWARM 
+    // -----------------------------------------
+    
+    Swarm::listen_on(
+        &mut swarm,
+        "/ip4/0.0.0.0/tcp/0"
+            .parse()
+            .expect("can get a local socket"),
+    )
+    
+    // event driven code flow here 
+    // tokio loop selec here
+    // ...
 
 }

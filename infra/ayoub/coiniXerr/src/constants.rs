@@ -50,7 +50,7 @@ pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| { //// the new
 //// we can't move out of MEMPOOL_CHANNEL by deferencing it at all!
 //
 //// shared reference is being used by other threads and scopes 
-//// and they must be dereferenced either by cloning or *; 
+//// and they must be dereferenced for usage either by cloning or *; 
 //// also it can't be dereferenced it the Clone trait is not 
 //// implemented for that since Clone is a supertrait of the Copy.
 

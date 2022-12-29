@@ -73,30 +73,38 @@ use std::time::{Instant, Duration};
 use std::{env, thread::{self, JoinHandle}};
 use std::rc::{Rc, Weak};
 use std::cell::RefCell;
+use std::io::BufRead; //// based on orphan rule this trait is rquired to be imported to call the lines() method on BufReader<Stdin> structure
 use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net
 use std::collections::{HashMap, HashSet};
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
+//// loading all the required network stacks
+//// to build a p2p blockchain node.
 use libp2p::{
+    futures::StreamExt,
+    core::upgrade,
+    gossipsub, identity, identity::Keypair, 
+    mdns, mplex, noise::{X25519Spec, NoiseAuthenticated}, swarm::{Swarm, NetworkBehaviour, SwarmEvent, SwarmBuilder},
+    tcp as libp2pTCP, Multiaddr, PeerId, Transport,
     gossipsub::{
       MessageId, Gossipsub, GossipsubEvent, GossipsubMessage, 
       IdentTopic as Topic, MessageAuthenticity, ValidationMode,
-    }, gossipsub, identity, identity::Keypair, mdns, swarm::NetworkBehaviour, swarm::SwarmEvent, PeerId, Swarm,
-  };
+    }
+};
 use crate::engine::cvm;
 use crate::actors::{
                     parathread::{Parachain, ParachainMsg, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
-use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode};
+use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, P2PChainResponse, P2PLocalChainRequest, P2PEventType, P2PAppBehaviour};
 use crate::constants::*;
 use crate::utils::DbORM::StorageModel;
 use mongodb::Client;
 //// futures is used for reading and writing streams asyncly from and into buffer using its traits and based on orphan rule TryStreamExt trait is required to use try_next() method on the future object which is solved by using .await on it also try_next() is used on futures stream or chunks to get the next future IO stream and returns an Option in which the chunk might be either some value or none
-//// StreamExt is a trait for streaming utf8 bytes data - RemoteHandle is a handler for future objects which are returned by the remote_handle() method
-use futures::{Future, StreamExt, FutureExt, executor::block_on, future::RemoteHandle}; 
+//// StreamExt, FutureExt,  is a trait for streaming utf8 bytes data - RemoteHandle is a handler for future objects which are returned by the remote_handle() method
+use futures::{Future, executor::block_on, future::RemoteHandle}; 
 use serde::{Deserialize, Serialize};
 use rand::Rng;
 use borsh::{BorshDeserialize, BorshSerialize};
