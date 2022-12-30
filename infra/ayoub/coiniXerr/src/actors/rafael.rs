@@ -119,6 +119,7 @@ pub mod env{
         pub content: Box<[u8]>, //-- the array of utf8 bytes contains the content of the log inside the Box
     }
     
+    #[deprecated]
     #[derive(Serialize, Deserialize, Clone, Debug)]
     pub struct LinkToService(pub String); // NOTE - LinkToService contains the address of the socket service located inside the memory with usize as its size, u64 bits or 8 bytes or 32 btis or 4 bytes (based on arch)
     

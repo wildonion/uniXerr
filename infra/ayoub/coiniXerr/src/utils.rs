@@ -13,7 +13,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-
+//// for sharing data between threads safeyly the data must be inside Arc<Mutex<Data>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime 
 //// future objects must be Send and static and types that must be shared between threads must be send sync and static 
 //// Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
 type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //-- capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
@@ -639,7 +639,7 @@ pub async fn udp_tx_emulator() -> (){
         NOTE - none struct variants in Storagekey enum allocates zero byte for the current persistent storage once the tag point to their address at a time
         NOTE - the enum size with zero byte for each variants would be the largest size of its variant + 8 bytes tag which would be 8 bytes in overall
         NOTE - an enum is the size of the maximum of its variants plus a discriminant value to know which variant it is, rounded up to be efficiently aligned, the alignment depends on the platform
-        NOTE - an enum size is equals to a variant with largest size + 8 bytes tag (there is only one 8 byte tag (size of the tag is usize) required since only one variant will be available at the same time)
+        NOTE - an enum size is equals to a variant or the type with largest size + 8 bytes tag (there is only one 8 byte tag (size of the tag is usize) required since only one variant will be available at the same time)
         NOTE - enum size with a single f64 type variant would be 8 bytes and with four f64 variants would be 16 bytes cause one 8 bytes (the tag) wouldn't be enough because there would be no room for the tag
         NOTE - the size of the following enum is 24 (is equals to its largest variant size which belongs to the Text variant) + 8 (the tag size) bytes 
         

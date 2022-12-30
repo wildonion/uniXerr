@@ -107,7 +107,7 @@ use crate::actors::{
                     peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
-use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, P2PChainResponse, P2PLocalChainRequest, P2PEventType, P2PAppBehaviour};
+use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, P2PChainResponse, P2PLocalChainRequest, P2PAppBehaviourEvent, P2PAppBehaviour};
 use crate::constants::*;
 use crate::utils::DbORM::StorageModel;
 use mongodb::Client;
