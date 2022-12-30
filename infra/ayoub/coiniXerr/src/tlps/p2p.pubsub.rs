@@ -96,19 +96,19 @@ pub async fn bootstrap(
     // -----------------------------------------------------
     //         INITIALIZING MPSC JOB QUEUE CHANNELS 
     // -----------------------------------------------------
-
-    info!("➔ 🎡 peer id for this node [{}]", PEER_ID.clone());
     //// since receiving is a mutable process
     //// we've defined the receiver as mutable.
     //
     //// passing data between threads can be done by using 
-    //// tokio job queue channels like the following channels
+    //// tokio job queue channels like the following mpsc channels
     //// which can be used to broadcast network events like 
     //// local chain response comming from other nodes and 
     //// lazy initialization of the node between different 
     //// parts of the app like other threads and scopes.
-    let (response_sender, mut response_receiver) = mpsc::unbounded_channel::<P2PChainResponse>();
-    let (init_sender, mut init_receiver) = mpsc::unbounded_channel::<bool>();
+
+    info!("➔ 🎡 peer id for this node [{}]", PEER_ID.clone());
+    let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
+    let (init_sender, mut init_receiver) = mpsc::channel::<bool>(buffer_size);
     
     // -------------------------------------------------------------------------------
     //         CREATING A SECURED MULTIPLEX PROTCOL USING TOKIO TCP AND NOISE   
@@ -121,16 +121,24 @@ pub async fn bootstrap(
     //// stream of information over a communication link 
     //// at the same time in the form of a 
     //// single and complex signal.
-    
+    //
+    //// since dynamic type sizes are not specified at compile time in order 
+    //// to pass them into other scopes and threads they must be referenced during the app
+    //// either directly using & with a valid lifetime or by putting them 
+    //// inside the Box which has a lifetime on its own. 
+
+    let auth_keys = NoiseKeypair::<X25519Spec>::new()
+                                                .into_authentic(&KEYS.clone())
+                                                .unwrap();
     let transport = libp2pTCP::tokio::Transport::new(libp2pTCP::Config::default().nodelay(true))
-                                                                    .upgrade(upgrade::Version::V1)
-                                                                    .authenticate(NoiseAuthenticated::xx(&KEYS.clone()).unwrap()) //// making tokio TCP mplex channel secure using generated public and private key based on noise protocol
-                                                                    .multiplex(mplex::MplexConfig::new())
-                                                                    .boxed(); //// put the setup config inside the Box which is a smart pointer to the config that handles the lifetime automatically
+                                                .upgrade(upgrade::Version::V1)
+                                                .authenticate(NoiseConfig::xx(auth_keys).into_authenticated()) //// making tokio TCP mplex channel secure using generated public and private key based on noise protocol
+                                                .multiplex(mplex::MplexConfig::new())
+                                                .boxed(); //// put the setup config inside the Box which is a smart pointer to the config that handles the lifetime automatically
 
     
     // -----------------------------------------
-    //         BUILDING THE APP BEHAVIOUR   
+    //      BUILDING THE NETWORK BEHAVIOUR   
     // -----------------------------------------
     let behaviour = P2PAppBehaviour::new(response_sender, init_sender).await;
 
@@ -144,28 +152,43 @@ pub async fn bootstrap(
     //// which by starting it we can handle all the incoming events
     //// inside the node.
     
-    let mut swarm = Swarm::new(transport, 
-                                                              behaviour, 
-                                               PEER_ID.clone());
+    let mut swarm = SwarmBuilder::with_tokio_executor(
+                                                        transport, 
+                                                        behaviour, 
+                                            PEER_ID.clone()
+                                            )
+                                            .build();
 
     // --------------------------------------------------------
     //     READING FULL LINES FROM THE STDIN FOR USER INPUT   
     // --------------------------------------------------------
-    let mut stdin = std::io::BufReader::new(std::io::stdin()).lines().fuse(); //// fuse() will create an iterator which will be ended after the first None
+    let mut stdin = tokio::io::BufReader::new(tokio::io::stdin()).lines();
 
     // -----------------------------------------
     //        STARTING THE CREATED SWARM 
     // -----------------------------------------
     
-    Swarm::listen_on(
-        &mut swarm,
+    swarm.listen_on(
+        //// the /ip4/0.0.0.0 informs us that we want any 
+        //// address of the IPv4 protocol, and /tcp/0 
+        //// tells us we want to send TCP packets to any port.
         "/ip4/0.0.0.0/tcp/0"
             .parse()
-            .expect("can get a local socket"),
-    )
+            .unwrap(),
+    ).unwrap();
     
+    //// spawning an async task or a future object thaT 
+    //// can be handled in the background using 
+    //// tokio worker green threadpool.
+    tokio::spawn(async move{ 
+        info!("➔ 🎡 sending init event to downside of the mpsc channel");
+        init_sender.send(true).unwrap();
+    });
+
+
     // event driven code flow here 
-    // tokio loop selec here
+    // using tokio event loop
+    // build EventLoop struct
     // ...
 
 }

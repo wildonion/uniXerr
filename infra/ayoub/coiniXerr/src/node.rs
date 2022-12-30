@@ -62,10 +62,18 @@ use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use log::{info, error, LevelFilter};
 use tokio::net::{TcpListener, TcpStream, UdpSocket}; //-- async tcp listener and stream
-use tokio::io::{AsyncReadExt, AsyncWriteExt}; //-- read from the input and write to the output - AsyncReadExt and AsyncWriteExt are traits which are implemented for an object of type TcpStream and based on orphan rule we must use them here to use the read() and write() method asyncly which has been implemented for the object of TcpStream (these trait have been implemented for TcpStream structure)
+///// read from the input and write to the output - AsyncReadExt and AsyncWriteExt 
+//// are traits which are implemented for an object of type TcpStream and based 
+//// on orphan rule we must use them here to use the read() and write() method 
+//// asyncly which has been implemented for the object of TcpStream (these trait 
+//// have been implemented for TcpStream structure) also The BufReader struct adds buffering to any reader.
+//
+//// based on orphan rule AsyncBufReadExt trait is rquired 
+//// to be imported to call the lines() method 
+//// on Lines<BufReader<Stdin>> structure.
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt}; 
 use tokio::sync::{mpsc, broadcast}; //// to broadcast transactions to from multiple senders to multiple receivers
 use uuid::Uuid;
-use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::{fmt, fmt::Write, num::ParseIntError};
 use std::sync::{Arc, Mutex, mpsc as std_mpsc, mpsc::channel as heavy_mpsc}; //-- communication between threads is done using mpsc job queue channel and end of the channel can only be owned by one thread at the time to avoid being in deadlock and race condition situations, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
@@ -73,7 +81,6 @@ use std::time::{Instant, Duration};
 use std::{env, thread::{self, JoinHandle}};
 use std::rc::{Rc, Weak};
 use std::cell::RefCell;
-use std::io::BufRead; //// based on orphan rule this trait is rquired to be imported to call the lines() method on BufReader<Stdin> structure
 use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net
 use std::collections::{HashMap, HashSet};
 use riker::actors::*;
@@ -82,10 +89,12 @@ use riker_patterns::ask::*; //// used to ask any actor to give us the info about
 //// loading all the required network stacks
 //// to build a p2p blockchain node.
 use libp2p::{
-    futures::StreamExt,
+    gossipsub,
+    futures::StreamExt, //// trait for streams
     core::upgrade,
-    gossipsub, identity, identity::Keypair, 
-    mdns, mplex, noise::{X25519Spec, NoiseAuthenticated}, swarm::{Swarm, NetworkBehaviour, SwarmEvent, SwarmBuilder},
+    identity, identity::Keypair, 
+    mdns, mplex, noise::{Keypair as NoiseKeypair, X25519Spec, NoiseConfig}, 
+    swarm::{Swarm, behaviour, NetworkBehaviour, SwarmEvent, SwarmBuilder},
     tcp as libp2pTCP, Multiaddr, PeerId, Transport,
     gossipsub::{
       MessageId, Gossipsub, GossipsubEvent, GossipsubMessage, 

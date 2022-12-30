@@ -696,11 +696,14 @@ pub enum Storagekey{ //-- defining an enum based unique storage key for every ou
 // https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/macros.html
 // https://blog.logrocket.com/procedural-macros-in-rust/
 // https://danielkeep.github.io/tlborm/book/mbe-macro-rules.html
-// TODO - build function like macro like query!() and custom inner and outter trait like proc macro attributes and derive like; on structs, fields, modules and functions like #[near_bindgen] and #[borsh_skip] proc macro attribute, #[custom(token_stream)] and #[derive(Clone)] style 
-// TODO - write proc macro attributes like #[tokio::main(flavor="multi_thread", worker_threads=10)] and derives with TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes  
-// TODO - a proc macro attribute to convert a trait into a module and its methods into static methods of that module and add extra args like the ones for nft_on_transfer() and nft_on_approve() methods when the user is implementing these methods
-// NOTE - #[derive(Trait, SomeMacro)] or #[MyMacro(Trait, AnotherTrait)] bounds a struct to a trait or a macro and it must be used on top of the structs and enums and their fields
-// NOTE - #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate
+  
+//// ➔ trait based proc macro attribute:
+////    derive like macros like #[derive(Trait)] to bound a struct to the trait which delegates trait implementation for the struct which contains the trait methods that will extend the interface of the type
+////    cutom like macros like #[custom(out="code.wasm"] or #[near_bindgen] #[cfg(os)] or #[deprecated()] on top of struct or enum fields
+////    convert a trait into a module that will extend the trait methods like near #[ex_contract(contract_name)] proc macro 
+////    #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate
+////    TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes
+
 // ...
 
 

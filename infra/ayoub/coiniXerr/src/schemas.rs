@@ -70,56 +70,81 @@ pub enum P2PEventType{
     Init, //// lazy initialization
 }
 
-//// NetworkBehaviour defines the behaviour of the local node on the network
+//// NetworkBehaviour trait defines the behaviour of the local node on the network
 //// in contrast to Transport which defines how to send bytes on the network, 
 //// NetworkBehaviour defines what bytes to send and to whom 
-//// which in our case is based on gossipsub protocol. 
+//// which in our case is based on gossipsub and mdns protocol. 
 #[derive(NetworkBehaviour)] //// implementing the NetworkBehaviour trait for the P2PAppBehaviour struct
+#[behaviour(out_event = "P2PAppBehaviourEvent")]
 pub struct P2PAppBehaviour{
-    pub gossibsub: Gossipsub, //// gossipsub protocol for p2p pub/sub: https://docs.libp2p.io/concepts/pubsub/overview/
-    pub mdns: mdns::Mdns, //// mDNS protocol is used to discover other nodes on the local network that support libp2p
-    //// unbounded sender has no limit in buffer size also
+    pub gossipsub: Gossipsub, //// gossipsub protocol for p2p pub/sub: https://docs.libp2p.io/concepts/pubsub/overview/
+    pub mdns: mdns::tokio::Behaviour, //// mDNS protocol is used to discover other nodes on the local network that support libp2p
     //// we'll use the following channels the response_sender and init_sender 
     //// to send the local chain and a boolean of the lazy initialization 
     //// between multiple threads and scopes of different 
     //// parts of the app respectively.   
+    //
+    //// struct members that don't implement NetworkBehaviour 
+    //// must be annotated with #[behaviour(ignore)]
     #[behaviour(ignore)]
-    pub response_sender: mpsc::UnboundedSender<P2PChainResponse>,
+    pub response_sender: mpsc::Sender<P2PChainResponse>,
     #[behaviour(ignore)]
-    pub init_sender: mpsc::UnboundedSender<bool>,
+    pub init_sender: mpsc::Sender<bool>,
 }
 
 impl P2PAppBehaviour{
 
     pub async fn new(
-        response_sender: mpsc::UnboundedSender<P2PChainResponse>, 
-        init_sender: mpsc::UnboundedSender<bool>) -> Self //// it'll return a new app behaviour 
+        response_sender: mpsc::Sender<P2PChainResponse>, 
+        init_sender: mpsc::Sender<bool>) -> Self //// it'll return a new app behaviour 
     {
 
-        let gossibsub_config = gossipsub::GossipsubConfigBuilder::default()
+        let gossipsub_config = gossipsub::GossipsubConfigBuilder::default()
             .heartbeat_interval(Duration::from_secs(10)) //// hearbeat every 10 seconds
             .validation_mode(ValidationMode::Strict) //// this requires the message author to be a valid PeerId and to be present as well as the sequence number aslo all messages must have valid signatures
             .build()
             .unwrap();
-    
+
+        //// building the network behaviour
+        //// based on gossipsub and mdns protcols.
         let mut behaviour = Self{
-            gossibsub: Gossipsub::new( //// building a gossipsub network behaviour
+            gossipsub: Gossipsub::new( //// building a gossipsub network behaviour
                 MessageAuthenticity::Signed(
                     KEYS.clone()), //// since the Clone trait is implemented for Topic struct hence we can clone the KEYS to dereference it   
-                    gossibsub_config).unwrap(),
-            mdns: mdns::Mdns::new(mdns::MdnsConfig::default()).await.unwrap(), //// building a default mdns
+                    gossipsub_config).unwrap(),
+            mdns: mdns::Behaviour::new(mdns::Config::default()).unwrap(), //// building a default mdns
             response_sender,
             init_sender,
         };
 
-        behaviour.gossibsub.subscribe(&PARACHAIN_TOPIC.clone());
-        behaviour.gossibsub.subscribe(&BLOCK_TOPIC.clone());
-
+        //// subscribing to parachain and block topics
+        //// using gossip protocol.
+        behaviour.gossipsub.subscribe(&PARACHAIN_TOPIC.clone()).unwrap();
+        behaviour.gossipsub.subscribe(&BLOCK_TOPIC.clone()).unwrap();
 
         behaviour
+
     }
 
 }
+
+#[allow(clippy::large_enum_variant)] //// this will allow large size differences between enum variants
+pub enum P2PAppBehaviourEvent {
+    Gossipsub(GossipsubEvent),
+    Mdns(mdns::Event),
+}
+
+impl From<GossipsubEvent> for P2PAppBehaviourEvent {
+    fn from(event: GossipsubEvent) -> Self {
+        P2PAppBehaviourEvent::Gossipsub(event)
+    }
+}
+
+impl From<mdns::Event> for P2PAppBehaviourEvent{
+    fn from(event: mdns::Event) -> Self{
+        P2PAppBehaviourEvent::Mdns(event)
+    }
+} 
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
