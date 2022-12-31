@@ -88,6 +88,7 @@ pub async fn bootstrap(
     // ----------------------------------------------------------------------
 
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
+    let swarm_addr = env_vars.get("SWARM_ADDR").unwrap().as_str();
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////         scaffolding p2p network stacks, services and requirements
@@ -127,6 +128,7 @@ pub async fn bootstrap(
     //// either directly using & with a valid lifetime or by putting them 
     //// inside the Box which has a lifetime on its own. 
 
+    info!("➔ 🔌🔐 building a secured transport protocol using noise and tokio TCP");
     let auth_keys = NoiseKeypair::<X25519Spec>::new()
                                                 .into_authentic(&KEYS.clone())
                                                 .unwrap();
@@ -140,6 +142,8 @@ pub async fn bootstrap(
     // -----------------------------------------
     //      BUILDING THE NETWORK BEHAVIOUR   
     // -----------------------------------------
+
+    info!("➔ 🔩 generating a new p2p app behaviour");
     let behaviour = P2PAppBehaviour::new(response_sender, init_sender).await;
 
     // -----------------------------------------------------------------------------------------------
@@ -152,6 +156,7 @@ pub async fn bootstrap(
     //// which by starting it we can handle all the incoming events
     //// inside the node.
     
+    info!("➔ 🌪️ building swarm module based on secured transport channel and the generated behaviour");
     let mut swarm = SwarmBuilder::with_tokio_executor(
                                                         transport, 
                                                         behaviour, 
@@ -162,6 +167,8 @@ pub async fn bootstrap(
     // --------------------------------------------------------
     //     READING FULL LINES FROM THE STDIN FOR USER INPUT   
     // --------------------------------------------------------
+
+    info!("➔ ⌨️ reading from stdin");
     let mut stdin = tokio::io::BufReader::new(tokio::io::stdin()).lines();
 
     // -----------------------------------------
@@ -172,16 +179,15 @@ pub async fn bootstrap(
         //// the /ip4/0.0.0.0 informs us that we want any 
         //// address of the IPv4 protocol, and /tcp/0 
         //// tells us we want to send TCP packets to any port.
-        "/ip4/0.0.0.0/tcp/0"
-            .parse()
-            .unwrap(),
+        swarm_addr,
     ).unwrap();
+    info!("➔ 👂 swarm is listening on {}", swarm_addr);
     
     //// spawning an async task or a future object thaT 
     //// can be handled in the background using 
     //// tokio worker green threadpool.
     tokio::spawn(async move{ 
-        info!("➔ 🎡 sending init event to downside of the mpsc channel");
+        info!("➔ 📻 sending init event to downside of the mpsc channel");
         init_sender.send(true).unwrap();
     });
 

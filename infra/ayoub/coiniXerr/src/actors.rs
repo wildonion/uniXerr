@@ -25,7 +25,7 @@ pub mod rafael;
 //// coiniXerr actors setup, broadcasting events using libp2p pub/sub streams 
 //// and receiving asyncly from the mempool channel for mining and verifying process. 
 pub async fn daemonize() 
-    -> ( //// returning types inside the Arc<Mutex<T>> will allow us to share the type between threads safely
+    -> ( //// returning types inside the Arc<Mutex<T>> will allow us to share the type between threads safely with a valid lifetime using tokio job queue channels
         Slot, 
         ChannelRef<ValidatorJoined>,
         Uuid,

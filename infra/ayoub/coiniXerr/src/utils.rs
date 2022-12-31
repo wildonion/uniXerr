@@ -13,7 +13,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-//// for sharing data between threads safeyly the data must be inside Arc<Mutex<Data>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime 
+//// for sharing data between threads safeyly the data must be inside Arc<Mutex<Data>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
 //// future objects must be Send and static and types that must be shared between threads must be send sync and static 
 //// Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
 type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //-- capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop

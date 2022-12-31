@@ -33,6 +33,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     let host = env::var("HOST").expect("⚠️ please set host in .env");
     let rpc_addr = env::var("RPC_ADDR").expect("⚠️ no rpc addr variable set");
     let tcp_addr = env::var("TCP_ADDR").expect("⚠️ no tcp addr variable set");
+    let swarm_addr = env::var("SWARM_ADDR").expect("⚠️ no swarm addr variable set");
 
 
     vars.insert("DB_HOST".to_string(), db_host);
@@ -47,6 +48,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     vars.insert("HOST".to_string(), host);
     vars.insert("BUFFER_SIZE".to_string(), buffer_size);
     vars.insert("MAX_BLOCK_SIZE".to_string(), max_block_size);
+    vars.insert("SWARM_ADDR".to_string(), swarm_addr);
 
     vars
 
