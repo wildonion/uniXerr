@@ -185,10 +185,36 @@ pub async fn bootstrap(
         init_sender.send(true).unwrap();
     });
 
-
-    // event driven code flow here 
-    // using tokio event loop
-    // build EventLoop struct
+    // -----------------------------------------
+    //             EVENT LOOP PROCESS 
+    // -----------------------------------------
+    //// in event driven coding there is an event loop
+    //// which constantly chanage the code flow of the app 
+    //// when some async I/O events happen in which the pulled 
+    //// async I/O event out of the queue will be placed onto 
+    //// the function execution stack to be executed whenever 
+    //// whenever the function stack becomes empty this can be done
+    //// using tokio::select! macro which waits on multiple 
+    //// concurrent branches and async computations, returning 
+    //// when the first branch or a single computation completes, 
+    //// cancelling the remaining branches or async computations.
+    //
+    //// tokio solves async tasks or future objects selected 
+    //// from the event loop in the background 
+    //// inside worker green threadpool.
+    //
+    //// if we want to have concurrent and parallelism at the same time
+    //// we can spawn each async expressin using tokio::spawn() and pass the
+    //// returned join handle to select! macro.
+            
+    // TODO - build event loop struct
     // ...
+            
+            
+            
+            
+            
+            
+            
 
 }
