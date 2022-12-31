@@ -42,7 +42,7 @@ use crate::*;
 //// the same machine they can use tokio channels like mpsc, watch, oneshot and broadcast to
 //// share an encoded, Send and Sync (Arc<Mutex<T>>) data between tokio workers' threadpool.
 //
-//// tokio channels will be used to share Arc<Mutex<data>> between multiple threads 
+//// tokio channels will be used to share Arc<Mutex<T>> between multiple threads 
 //// and ZMQ socket actors supports multiple connection types which can be used 
 //// to communicate with other device socket actors. 
 //

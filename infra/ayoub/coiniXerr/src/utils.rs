@@ -13,7 +13,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-//// for sharing data between threads safeyly the data must be inside Arc<Mutex<Data>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
+//// for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
 //// future objects must be Send and static and types that must be shared between threads must be send sync and static 
 //// Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
 type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //-- capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
@@ -158,7 +158,7 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would
         -- Arc will be used instead of Rc in multi threading to avoid data races and is Send means all its references can be shared between threads and is an atomic reference to a type
         -- if &T is Send then T can be also Sync thus in order to share a data between threads safely the type must be bounded to Send + Sync + 'static means it must be cloneable or shareable between threads means we can simply borrow it to move it between threads and Sync with other threads to avoid mutating it by multiple threads at the same time
         -- if there is no possibility of undefined behavior like data races when passing &T between threads means &T must be Send then T is alos Sync and &mut T is Sync if T is Sync
-        -- data which is utf8 encoded using borsh or serde to share a reference of it (by borrowing it) between threads using mpsc must be : Send + Sync + 'static + Unpin means it must be inside Arc<Mutex<Data>>
+        -- data which is utf8 encoded using borsh or serde to share a reference of it (by borrowing it) between threads using mpsc must be : Send + Sync + 'static + Unpin means it must be inside Arc<Mutex<T>>
         -- if a type is not Send + Sync it means we can't move its references between threads safely and we have to put it inside Arc since &Arc<T> is Send thus Arc<T> is Sync thus the type inside the Arc can be sent between threads safely
         -- a type might be mutated by other threads thus we have to put it inside Mutex or RwLock to avoid data races means that only one thread can mutate the state of a type
         -- instead of moving types into the thread we can borrow them using Arc to have them outside the threads
