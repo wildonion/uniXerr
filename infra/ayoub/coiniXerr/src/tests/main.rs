@@ -93,7 +93,7 @@ fn generate_workout(intensity: u32, random_number: u32) {
 
 
 async fn cls_fn() {
-    fn return_cls() -> Box<dyn FnOnce(i32) -> i32>{ //-- instances of FnOnce can be called, but might not be callable multiple times. Because of this, if the only thing known about a type is that it implements FnOnce, it can only be called once - FnOnce is a supertrait of FnMut
+    fn return_cls() -> Box<dyn FnOnce(i32) -> i32>{ //// instances of FnOnce can be called, but might not be callable multiple times. Because of this, if the only thing known about a type is that it implements FnOnce, it can only be called once - FnOnce is a supertrait of FnMut
         Box::new(|x| x + 1)
     }    
     function_with_callback(return_cls()); // use .await to suspend the function execution for solving the future
@@ -160,7 +160,7 @@ pub async fn trash(){
         let outside_num = 353;
             let callback = move |num: i32| {
                 let got_outside_num = outside_num;
-                let copy_of_num = num; //-- trait Copy is implemented for i32 thus has trait Clone so we don't need to clone it and we can also access it after it's moved into copy_of_num var 
+                let copy_of_num = num; //// trait Copy is implemented for i32 thus has trait Clone so we don't need to clone it and we can also access it after it's moved into copy_of_num var 
             };
 
         // ------------------------------ testing trait Copy and Clone for i32 and String/str ------------------------------
@@ -409,7 +409,7 @@ pub async fn trash(){
     };
 
 
-	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //-- based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we wanto to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field
+	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //// based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we wanto to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field
 	    fn into(self) -> Vec<u8> {
             self.arr.to_vec()
 	    }
@@ -418,16 +418,16 @@ pub async fn trash(){
     
     pub const WO: &str = "widonion";
 	pub const SIZE: usize = 325;
-	pub type Context<'a, Pack> = Unpack<'a, Pack, SIZE>; //-- Pack type will be bounded to Interface trait and 'l lifetime 
-	pub struct Unpack<'l, T: Interface + 'l + Into<T>, const U: usize>{ //-- T is of type Pack struct which is bounded to 'l lifetime the Into and the Interface traits and U (constant generic) must be a constant usize type - Unpack takes a generic type of any kind which will be bounded to a trait and a lifetime but it must be referred to a field or be inside a PhantomData since T and the lifetime will be unused and reserved by no variables inside the ram
-	    pub pack: T, //-- pack is a pointer or a reference and is pointing to T which is a generic type and bounded to a trait and a valid lifetime as long as the lifetime of the struct instance
-	    pub arr: &'l [u8; U], //-- U is a constant usize
+	pub type Context<'a, Pack> = Unpack<'a, Pack, SIZE>; //// Pack type will be bounded to Interface trait and 'l lifetime 
+	pub struct Unpack<'l, T: Interface + 'l + Into<T>, const U: usize>{ //// T is of type Pack struct which is bounded to 'l lifetime the Into and the Interface traits and U (constant generic) must be a constant usize type - Unpack takes a generic type of any kind which will be bounded to a trait and a lifetime but it must be referred to a field or be inside a PhantomData since T and the lifetime will be unused and reserved by no variables inside the ram
+	    pub pack: T, //// pack is a pointer or a reference and is pointing to T which is a generic type and bounded to a trait and a valid lifetime as long as the lifetime of the struct instance
+	    pub arr: &'l [u8; U], //// U is a constant usize
 	}
 
-	pub struct Pack; //-- we've allocated some space inside the stack for this struct when defining it which has long enough lifetime to initiate an instance from it using struct declaration and return a reference to that instance inside any function 
+	pub struct Pack; //// we've allocated some space inside the stack for this struct when defining it which has long enough lifetime to initiate an instance from it using struct declaration and return a reference to that instance inside any function 
 	pub trait Interface{}
 
-	impl Interface for Pack{} //-- is required for return_box_trait(), return_impl_trait() and return_none_trait() functions in order to work
+	impl Interface for Pack{} //// is required for return_box_trait(), return_impl_trait() and return_none_trait() functions in order to work
 
 	fn return_none_trait<T>() -> () where T: Interface{ // NOTE - `T` type must be bound to Interface trait
 
@@ -463,7 +463,7 @@ pub async fn trash(){
             };
 
 
-            let User{username, age} = user; //-- unpacking struct
+            let User{username, age} = user; //// unpacking struct
 
             let hello = "Здравствуйте";
             let s = &hello[0..2];
@@ -483,14 +483,14 @@ pub async fn trash(){
             }
 
 
-            let ine = Chie::Avali(12); //-- the Dovomi variant is never constructed cause we've used the first variant  
+            let ine = Chie::Avali(12); //// the Dovomi variant is never constructed cause we've used the first variant  
 
             match ine{
-                Chie::Avali(value) if value == 23 => { //-- matching on the Avali arm if the value was only 23
+                Chie::Avali(value) if value == 23 => { //// matching on the Avali arm if the value was only 23
                 println!("u8 eeee");
 
                 },
-                Chie::Dovomi(value) if value == "wildonion".to_string() => { //-- matching on the Dovomi arm if the value was only "wildonion" string
+                Chie::Dovomi(value) if value == "wildonion".to_string() => { //// matching on the Dovomi arm if the value was only "wildonion" string
                 println!("stringeeee");
                 },
                 _ => {
@@ -500,7 +500,7 @@ pub async fn trash(){
 
             // --------------- CODEC OPS ON ENUM ---------------
             let encoded = serde_json::to_vec(&Chie::Sevomi); ////// it'll print a vector of utf8 encoded JSON
-            let decoded = serde_json::from_slice::<Chie>(&encoded.as_ref().unwrap()); //-- as_ref() returns a reference to the original type
+            let decoded = serde_json::from_slice::<Chie>(&encoded.as_ref().unwrap()); //// as_ref() returns a reference to the original type
 
             let encoded_borsh = Chie::Sevomi.try_to_vec().unwrap(); ////// it'll print 2 cause this the third offset in memory
             let decoded_borsh = Chie::try_from_slice(&encoded_borsh).unwrap();
@@ -509,60 +509,60 @@ pub async fn trash(){
             Pack{}
 	    }
 
-	    fn ref_struct(num_thread: &u8) -> &Pack{ //-- returning ref from function to a pre allocated data type (not inside the function) Pack struct in our case, is ok
-            let instance = Pack::new(); //-- since new() method of the Pack struct will return a new instance of the struct which is allocated on the stack and is owned by the function thus we can't return a reference to it or as a borrowed type
-            // &t //-- it's not ok to return a reference to `instance` since `instance` is a local variable which is owned by the current function and its lifetime is valid as long as the function is inside the stack and executing which means after executing the function its lifetime will be dropped
-            let instance = &Pack{}; //-- since we're allocating nothing on the stack inside this function thus by creating the instance directly using the the Pack struct and without calling the new() method which is already lives in memory with long enough lifetime we can return a reference to the location of the instance of the pack from the function
-            instance //-- it's ok to return a reference to `instance` since the instance does not allocate anything on the stack thus taking a reference to already allocated memory with long enough lifetime is ok since the allocated memory is happened in struct definition line
+	    fn ref_struct(num_thread: &u8) -> &Pack{ //// returning ref from function to a pre allocated data type (not inside the function) Pack struct in our case, is ok
+            let instance = Pack::new(); //// since new() method of the Pack struct will return a new instance of the struct which is allocated on the stack and is owned by the function thus we can't return a reference to it or as a borrowed type
+            // &t //// it's not ok to return a reference to `instance` since `instance` is a local variable which is owned by the current function and its lifetime is valid as long as the function is inside the stack and executing which means after executing the function its lifetime will be dropped
+            let instance = &Pack{}; //// since we're allocating nothing on the stack inside this function thus by creating the instance directly using the the Pack struct and without calling the new() method which is already lives in memory with long enough lifetime we can return a reference to the location of the instance of the pack from the function
+            instance //// it's ok to return a reference to `instance` since the instance does not allocate anything on the stack thus taking a reference to already allocated memory with long enough lifetime is ok since the allocated memory is happened in struct definition line
 	    }
 
 	    // NOTE - argument can also be &mut u8
-	    pub fn ref_str_other_pointer_lifetime(status: &u8) -> &str{ //-- in this case we're good to return the pointer from the function or copy to the caller's space since we can use the lifetime of the passed in argument, the status in this case which has been passed in by reference from the caller and have a valid lifetime which is generated from the caller scope by the compiler to return the pointer from the function
+	    pub fn ref_str_other_pointer_lifetime(status: &u8) -> &str{ //// in this case we're good to return the pointer from the function or copy to the caller's space since we can use the lifetime of the passed in argument, the status in this case which has been passed in by reference from the caller and have a valid lifetime which is generated from the caller scope by the compiler to return the pointer from the function
             let name = "wildonion";
-            name //-- name has a lifetime as valid as the passed in status argument lifetime from the caller scope 
+            name //// name has a lifetime as valid as the passed in status argument lifetime from the caller scope 
 
 	    }
 
-        // pub fn ref_to_str() -> &str{ //-- we can't return &str since we need a lifetime to do so
+        // pub fn ref_to_str() -> &str{ //// we can't return &str since we need a lifetime to do so
         //     let name = "wildonion";
         //     name
         // }
 
-        // pub fn ref_to_str() -> HashMap<&str, &str>{ //-- we can't return &str since we need a lifetime to do so
+        // pub fn ref_to_str() -> HashMap<&str, &str>{ //// we can't return &str since we need a lifetime to do so
         //     let names = HashMap::new();
         //     names.insert("wildonion", "another_wildonion");
         //     names
         // }
 
 	    // NOTE - first param can also be &mut self; a mutable reference to the instance and its fields
-	    pub fn ref_to_str_other_self_lifetime(&self) -> &str{ //-- in this case we're good to return the pointer from the function or send a copy to the caller's space since we can use the lifetime of the first param which is &self which is a borrowed type (it's a shared reference means that other methods are using it in their scopes) of the instance and its fields (since we don't want to lose the lifetime of the created instance from the contract struct after calling each method) and have a valid lifetime (as long as the instance of the type is valid) which is generated from the caller scope by the compiler to return the pointer from the function
+	    pub fn ref_to_str_other_self_lifetime(&self) -> &str{ //// in this case we're good to return the pointer from the function or send a copy to the caller's space since we can use the lifetime of the first param which is &self which is a borrowed type (it's a shared reference means that other methods are using it in their scopes) of the instance and its fields (since we don't want to lose the lifetime of the created instance from the contract struct after calling each method) and have a valid lifetime (as long as the instance of the type is valid) which is generated from the caller scope by the compiler to return the pointer from the function
             let name = "wildonion";
-            name //-- name has a lifetime as valid as the first param lifetime which is a borrowed type (it's a shared reference means that other methods are using it in their scopes) of the instance itself and its fields and will borrow the instance when we want to call the instance methods
+            name //// name has a lifetime as valid as the first param lifetime which is a borrowed type (it's a shared reference means that other methods are using it in their scopes) of the instance itself and its fields and will borrow the instance when we want to call the instance methods
 	    }
 
 	    // NOTE - 'a lifetime has generated from the caller scope by the compiler
-	    pub fn ref_to_str_specific_lifetime<'a>(status: u8) -> &'a str{ //-- in this case we're good to return the pointer from the function or copy to the caller's space since we've defined a valid lifetime for the pointer of the return type to return the pointer from the function which &'a str
+	    pub fn ref_to_str_specific_lifetime<'a>(status: u8) -> &'a str{ //// in this case we're good to return the pointer from the function or copy to the caller's space since we've defined a valid lifetime for the pointer of the return type to return the pointer from the function which &'a str
             let name = "wildonion";
-            name //-- name has a lifetime as valid as the generated lifetime from the caller scope by the compiler and will be valid as long as the caller scope is valid
+            name //// name has a lifetime as valid as the generated lifetime from the caller scope by the compiler and will be valid as long as the caller scope is valid
 	    }
 
         // NOTE - use 'static lifetime in order to be able to return &str from the function since rust doesn't allow to return reference by default unless the return type has a valid and defined lifetime
 	    // NOTE - 'static lifetime will be valid as long as the whole lifetime of the caller scope (it can be the main function which depends on the whole lifetime of the app)
 	    pub fn ref_to_str_static() -> &'static str{
             let name = "wildonion";
-            name //-- name has static lifetime valid as long as the whol lifetime of the caller scope which can be the main function which will be valid as long as the main or the app is valid
+            name //// name has static lifetime valid as long as the whol lifetime of the caller scope which can be the main function which will be valid as long as the main or the app is valid
 	    }
 		
 	    //// ERROR - can't return a reference to heap allocated data structure from function due to their unknown size at compile time and they are temprary value
 	    // pub fn ref_to_string<'s>() -> &'s String{
 	    //     let name = &"wildonion".to_string();
-	    //     name //-- ERROR - we can't return this or &"wildonion".to_string() since they are temporary value due to the fact that heap data structure's size are not specific at compile time and they are some kina a temporary value thus heap data structures can't be returned in their borrowed form from the function since their size are not specific at compile time therefore by taking a pointer to the location of them we might have dangling pointer later once their location gets dropped during the function lifetime body 
+	    //     name //// ERROR - we can't return this or &"wildonion".to_string() since they are temporary value due to the fact that heap data structure's size are not specific at compile time and they are some kina a temporary value thus heap data structures can't be returned in their borrowed form from the function since their size are not specific at compile time therefore by taking a pointer to the location of them we might have dangling pointer later once their location gets dropped during the function lifetime body 
 	    // }
 
 	    pub fn ref_to_num<'n>() -> &'n i32{
             let num = 23;
-            // &num //-- ERROR - we can't return this since the num is owned by the current function and returning the reference to the local variable which is owned by the function is denied
-            &23 //-- we can return &23 since we did allocate nothing on the stack inside the function (which this can be done by creating a local variable inside the function) and we're just returning a pointer to the location of a number directly   
+            // &num //// ERROR - we can't return this since the num is owned by the current function and returning the reference to the local variable which is owned by the function is denied
+            &23 //// we can return &23 since we did allocate nothing on the stack inside the function (which this can be done by creating a local variable inside the function) and we're just returning a pointer to the location of a number directly   
 
 	    }
 
@@ -570,15 +570,15 @@ pub async fn trash(){
             WO // we must return const value from the constant function
         }
 
-        pub fn run() -> impl std::future::Future<Output=u8>{ //-- implementing the Future trait for the return type of the function by doing this we have to return an async block from the function
-            async move{ //-- returning an async block from the function
+        pub fn run() -> impl std::future::Future<Output=u8>{ //// implementing the Future trait for the return type of the function by doing this we have to return an async block from the function
+            async move{ //// returning an async block from the function
                 26
             }
 
             // let res = run.await;
         }
 
-        pub async fn _run() -> u8{ //-- above implementation is equivalent to this one 
+        pub async fn _run() -> u8{ //// above implementation is equivalent to this one 
             26
 
             // let res = run.await;
@@ -608,26 +608,26 @@ pub async fn trash(){
         fn run(&self){} 
     }
 
-    type Boxy8<'a> = Box<&'a String>; //-- we have to store a pointer to the String inside this Box with a valid lifetime of 'a 
-    type Boxed = Box<dyn FnMut() + 'static + Send + Sync>; //-- Boxed type can be shared between threads and .awaits safely - we must bound the type that wants to be a pointer or to be a referenced from a heap location like FnMut() closure to a valid lifetime like 'static
-    let var: Boxed = Box::new(||{}); //-- since the Some trait is implemented for Boxed type we can call the run() method on the isntance of this type also the closure is bounded to a static lifetime
+    type Boxy8<'a> = Box<&'a String>; //// we have to store a pointer to the String inside this Box with a valid lifetime of 'a 
+    type Boxed = Box<dyn FnMut() + 'static + Send + Sync>; //// Boxed type can be shared between threads and .awaits safely - we must bound the type that wants to be a pointer or to be a referenced from a heap location like FnMut() closure to a valid lifetime like 'static
+    let var: Boxed = Box::new(||{}); //// since the Some trait is implemented for Boxed type we can call the run() method on the isntance of this type also the closure is bounded to a static lifetime
 
-    fn call<'a>(a: &'a mut Boxed) -> Boxed where Boxed: Some + 'a { //-- in order to bind the Boxed to Some trait the Some trait must be implemented for the Boxed - can't bound a lifetime to a self-contained type means we can't have a: u32 + 'static
+    fn call<'a>(a: &'a mut Boxed) -> Boxed where Boxed: Some + 'a { //// in order to bind the Boxed to Some trait the Some trait must be implemented for the Boxed - can't bound a lifetime to a self-contained type means we can't have a: u32 + 'static
         // 'a lifetime might be shorter than static and describes how long the data it points to can be valid
         //...
-        a.run(); //-- a is a mutable pointer of type a Boxed with 'a lifetime - since we have &self in the first param of the run() method for the Some trait we can call the run() method using dot notation
+        a.run(); //// a is a mutable pointer of type a Boxed with 'a lifetime - since we have &self in the first param of the run() method for the Some trait we can call the run() method using dot notation
         Box::new(||{})
     }
 
     //// we can't remove the 'a lifetime from the passed in parameter since a pointer to name doesn't live long enough to return it from the function
     //// lifetime bounding is for those types that are a reference or a pointer to other types or are borrowing the ownership of a type due to this fact if T was bounded to a lifetime means it must be a pointer to a type (which is &'a T in our case in function param) with a valid lifetime 
-    fn ref_me<'a, T>(name: &'a T) -> &'a T where T: ?Sized{ //-- since the trait `Sized` is not implemented for `str` or those types that have unknown size at compile time we've bounded the T to the 'a lifetime and ?Sized trait in order to pass unknown size types like str to the function
-        let get_name: &'a T = &name; //-- since T is bounded to 'a lifetime in order to return a reference to type T we have to define the var to be of type &'a T
+    fn ref_me<'a, T>(name: &'a T) -> &'a T where T: ?Sized{ //// since the trait `Sized` is not implemented for `str` or those types that have unknown size at compile time we've bounded the T to the 'a lifetime and ?Sized trait in order to pass unknown size types like str to the function
+        let get_name: &'a T = &name; //// since T is bounded to 'a lifetime in order to return a reference to type T we have to define the var to be of type &'a T
         get_name
     }
 
     let name = "narin";
-    let res = ref_me::<&str>(&name); //-- we have to pass a reference to the name since the function param is of type &T which in our case will be &&str - the generic type can be str and &str since it's bounded to ?Sized trait
+    let res = ref_me::<&str>(&name); //// we have to pass a reference to the name since the function param is of type &T which in our case will be &&str - the generic type can be str and &str since it's bounded to ?Sized trait
     // =============================================================================================================================
     
 
@@ -1025,7 +1025,7 @@ pub async fn unsafer(){
 
     ///// -------------- changing the vaule in runtime using its pointer -------------- /////
     let v = vec![1, 2, 3];
-    // let raw_parts = v.into_raw_parts(); //-- getting the pointer, len and capacity of the vector only in unstable rust! 
+    // let raw_parts = v.into_raw_parts(); //// getting the pointer, len and capacity of the vector only in unstable rust! 
     let mut v = std::mem::ManuallyDrop::new(v); // a wrapper to inhibit compiler from automatically calling T’s destructor, this wrapper is 0-cost
     let pointer = v.as_mut_ptr();
     let len = v.len();
@@ -1187,11 +1187,11 @@ pub async fn unsafer(){
     let mut b = &mut a as *mut i32;
     println!("`b` value >>>> {}", unsafe{*b});
     println!("`a` address [{:p}] == `b` address [{:p}]", &a, b);
-    a = 3535; //-- `b` will be changed
+    a = 3535; //// `b` will be changed
     println!("`b` value >>>> {}", unsafe{*b});
-    unsafe{*b = 2435;} //-- `a` will be changed
+    unsafe{*b = 2435;} //// `a` will be changed
     println!("`a` value >>>> {}", a);
-    let deref_pointer = unsafe{&*b}; //-- a pointer to the dereferenced const raw pointer to the `a`
+    let deref_pointer = unsafe{&*b}; //// a pointer to the dereferenced const raw pointer to the `a`
 
 
 
@@ -1367,11 +1367,11 @@ pub async fn unsafer(){
     ///// ------------------------------------------------------------------------ /////
     let var_a = 32;
     let var_b = 535;
-    let mut a = &var_a; //-- a is a pointer with a valid lifetime to the location of var_a type and it contains the address and the data of that type
-    let mut b = &var_b; //-- b is a pointer with a valid lifetime to the location of var_b type and it contains the address and the data of that type
+    let mut a = &var_a; //// a is a pointer with a valid lifetime to the location of var_a type and it contains the address and the data of that type
+    let mut b = &var_b; //// b is a pointer with a valid lifetime to the location of var_b type and it contains the address and the data of that type
     ///// inline swapping : a, b = b, a -> a = b; b = a and under the hood : a = &var_b, b = &var_a
-    a = &var_b; //-- pointer of var_a must points to the location of var_b and after that it can access the data inside var_b 
-    b = &var_a; //-- pointer of var_b must points to the location of var_a and after that it can access the data inside var_a
+    a = &var_b; //// pointer of var_a must points to the location of var_b and after that it can access the data inside var_b 
+    b = &var_a; //// pointer of var_b must points to the location of var_a and after that it can access the data inside var_a
 
 
 
@@ -1383,11 +1383,11 @@ pub async fn unsafer(){
     // NOTE - encoding or serializing process is converting struct object into utf8 bytes
     // NOTE - decoding or deserializing process is converting utf8 bytes into the struct object
     // NOTE - from_raw_parts() forms a slice or &[u8] from the pointer and the length and mutually into_raw_parts() returns the raw pointer to the underlying data, the length of the vector (in elements), and the allocated capacity of the data (in elements)
-    // let signed_transaction_serialized_into_bytes: &[u8] = unsafe { //-- encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
-    //     //-- converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
-    //     //-- the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
-    //     //-- here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
-    //     slice::from_raw_parts(deserialized_transaction_borsh as *const Transaction as *const u8, mem::size_of::<Transaction>()) //-- it'll form a slice from the pointer to the struct and the total size of the struct which is the number of elements inside the constructed &[u8] array; means number of elements in constructing a &[u8] from a struct is the total size of the struct allocated in the memory
+    // let signed_transaction_serialized_into_bytes: &[u8] = unsafe { //// encoding process of new transaction by building the &[u8] using raw parts of the struct - serializing a new transaction struct into &[u8] bytes
+    //     //// converting a const raw pointer of an object and its length into the &[u8], the len argument is the number of elements, not the number of bytes
+    //     //// the total size of the generated &[u8] is the number of elements (each one has 1 byte size) * mem::size_of::<Transaction>() and it must be smaller than isize::MAX
+    //     //// here number of elements or the len for a struct is the size of the total struct which is mem::size_of::<Transaction>()
+    //     slice::from_raw_parts(deserialized_transaction_borsh as *const Transaction as *const u8, mem::size_of::<Transaction>()) //// it'll form a slice from the pointer to the struct and the total size of the struct which is the number of elements inside the constructed &[u8] array; means number of elements in constructing a &[u8] from a struct is the total size of the struct allocated in the memory
     // };
     
 

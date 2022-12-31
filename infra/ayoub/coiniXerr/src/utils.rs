@@ -16,10 +16,10 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
 //// future objects must be Send and static and types that must be shared between threads must be send sync and static 
 //// Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
-type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //-- capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
-type CallbackResponse = Box<dyn Future<Output=GenericResult<hyper::Response<hyper::Body>, hyper::Error>> + Send + Sync + 'static>; //-- CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
-type SafeShareAsync = Arc<Mutex<std::pin::Pin<Box<dyn Future<Output=u8> + Send + Sync + 'static>>>>; //-- this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and in the entire lifetime of the app until we await on it 
-type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<hyper::Body>) -> hyper::Response<hyper::Body> + Send + Sync + 'static>>>; //-- this type is safe and sendable to share between threads also it can be mutated by a thread using a mutex guard; we have to use the &dyn keyword or put them inside the Box<dyn> for traits if we want to treat them as a type since they have no sepecific size at compile time thus they must be referenced by the &dyn or the Box<dyn> 
+type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //// capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
+type CallbackResponse = Box<dyn Future<Output=GenericResult<hyper::Response<hyper::Body>, hyper::Error>> + Send + Sync + 'static>; //// CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
+type SafeShareAsync = Arc<Mutex<std::pin::Pin<Box<dyn Future<Output=u8> + Send + Sync + 'static>>>>; //// this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and in the entire lifetime of the app until we await on it 
+type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<hyper::Body>) -> hyper::Response<hyper::Body> + Send + Sync + 'static>>>; //// this type is safe and sendable to share between threads also it can be mutated by a thread using a mutex guard; we have to use the &dyn keyword or put them inside the Box<dyn> for traits if we want to treat them as a type since they have no sepecific size at compile time thus they must be referenced by the &dyn or the Box<dyn> 
 
 
 
@@ -35,11 +35,11 @@ type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<hyper::Body>) ->
 // ----------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------
-pub fn forward1(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would be an associated function not a method
+pub fn forward1(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //// without &mut self would be an associated function not a method
     
 
-    let mat = x_train; //-- the data that we want to do some heavy computational on it
-    let NJOBS: usize = mat.len(); //-- number of tasks of the process (incoming x_train matrix) to share each one between threads inside the pool
+    let mat = x_train; //// the data that we want to do some heavy computational on it
+    let NJOBS: usize = mat.len(); //// number of tasks of the process (incoming x_train matrix) to share each one between threads inside the pool
     let (sender, receiver) = heavy_mpsc::<f64>();
     let mut mult_of_all_sum = 1.0;
     let mut rayon_workers = Vec::new();
@@ -48,16 +48,16 @@ pub fn forward1(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self woul
     /* ----------------------------------------------------------------------------------- */
     /* ------------------------ JOBQ CHANNEL + RAYON THREADPOOL -------------------------- */
     /* ----------------------------------------------------------------------------------- */
-    let future_res = async { //-- we can also use tokio::spawn() to run the async task in the background using tokio event loop and green threads
+    let future_res = async { //// we can also use tokio::spawn() to run the async task in the background using tokio event loop and green threads
         
-        for i in 0..NJOBS{ //-- iterating through all the jobs of the process - this can be an infinite loop like waiting for a tcp connection
+        for i in 0..NJOBS{ //// iterating through all the jobs of the process - this can be an infinite loop like waiting for a tcp connection
             
-            let cloned_sender = sender.clone(); //-- cloning the sender since it's multiple producer and Clone trait is implemented for that
-            let cloned_mat = mat.clone(); //-- Vec is a heap data structure thus we must clone it
-            rayon_workers.push( //-- pushing a rayon::spawn() handler into the vector - rayon::spawn() will solve the task inside its threadpool safely since it uses mpsc as the message passing protocol between threads to avoid being in deadlock and race condition situations 
+            let cloned_sender = sender.clone(); //// cloning the sender since it's multiple producer and Clone trait is implemented for that
+            let cloned_mat = mat.clone(); //// Vec is a heap data structure thus we must clone it
+            rayon_workers.push( //// pushing a rayon::spawn() handler into the vector - rayon::spawn() will solve the task inside its threadpool safely since it uses mpsc as the message passing protocol between threads to avoid being in deadlock and race condition situations 
                 rayon::spawn(move || {
                     let sum_cols = cloned_mat[0][i] + cloned_mat[1][i] + cloned_mat[2][i];
-                    cloned_sender.send(sum_cols).unwrap(); //-- sending the data to the downside of the channel 
+                    cloned_sender.send(sum_cols).unwrap(); //// sending the data to the downside of the channel 
                 })
             );
 
@@ -66,7 +66,7 @@ pub fn forward1(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self woul
         }
 
         rayon::spawn(move ||{
-            while let Ok(data) = receiver.recv(){ //-- receiving the data from the asyncly inside rayon worker threadpool 
+            while let Ok(data) = receiver.recv(){ //// receiving the data from the asyncly inside rayon worker threadpool 
                 mult_of_all_sum *= data;
             }
         });
@@ -81,16 +81,16 @@ pub fn forward1(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self woul
     /* ------------------------ RAYON PARALLEL ITERATION -------------------------- */
     /* ----------------------------------------------------------------------------- */
     mat
-        .par_iter() //-- iterate over the mat parallely using based on simd pattern
+        .par_iter() //// iterate over the mat parallely using based on simd pattern
         .for_each(|row| {
             println!("row is {:?}", row) 
         });
     /* ---------------------------------------------------------------------------- */
     
 
-    let res = block_on(future_res); //-- will block the current thread to run the future to completion
-    // let res = future_res.await; //-- .awaiting a future will suspend the current function's execution until the executor has run the future to completion means doesn't block the current thread, allowing other tasks to run if the future is currently unable to make progress
-    // let res = join!(future_res); //-- join! only allowed inside `async` functions and blocks and is like .await but can wait for multiple futures concurrently
+    let res = block_on(future_res); //// will block the current thread to run the future to completion
+    // let res = future_res.await; //// .awaiting a future will suspend the current function's execution until the executor has run the future to completion means doesn't block the current thread, allowing other tasks to run if the future is currently unable to make progress
+    // let res = join!(future_res); //// join! only allowed inside `async` functions and blocks and is like .await but can wait for multiple futures concurrently
     println!("multiplication cols sum {:?}", res);
     let loss = 0.3535;
     loss
@@ -105,7 +105,7 @@ pub fn forward1(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self woul
 // ----------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------
-pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would be an associated function not a method
+pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //// without &mut self would be an associated function not a method
     
 
     /*  
@@ -183,14 +183,14 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would
     */
     
     
-    let mat = x_train; //-- the data that we want to do some heavy computational on it
-    let NTHREADS: usize = 4; //-- number of threads inside the pool
-    let NJOBS: usize = mat.len(); //-- number of tasks of the process (incoming x_train matrix) to share each one between threads inside the pool
+    let mat = x_train; //// the data that we want to do some heavy computational on it
+    let NTHREADS: usize = 4; //// number of threads inside the pool
+    let NJOBS: usize = mat.len(); //// number of tasks of the process (incoming x_train matrix) to share each one between threads inside the pool
     let (sender, receiver) = heavy_mpsc::<f64>();
 
 
-    let mutexed_receiver = Mutex::new(receiver); //-- putting the &receiver in its borrowed form inside the Mutex to get its data by locking on it inside other threads since the Sync is not implemented for the receiver and in order to get its data inside other threads we have to make cloneable using Arc and some kina syncable using Mutext
-    let arced_mutexed_receiver = Arc::new(mutexed_receiver); //-- putting the &mutexed_receiver in its borrowed form inside the Arc
+    let mutexed_receiver = Mutex::new(receiver); //// putting the &receiver in its borrowed form inside the Mutex to get its data by locking on it inside other threads since the Sync is not implemented for the receiver and in order to get its data inside other threads we have to make cloneable using Arc and some kina syncable using Mutext
+    let arced_mutexed_receiver = Arc::new(mutexed_receiver); //// putting the &mutexed_receiver in its borrowed form inside the Arc
     //// we can't use env::var() to make a rust constant type since by
     //// all vars inside the env file will be loaded at runtime into the ram
     //// not at compile time also const does not only mean a constant, it means a compile-time constant, 
@@ -210,13 +210,13 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would
     let mut rayon_workers = Vec::new();
 
     
-    let future_res = async { //-- we can also use tokio::spawn() to run the async task in the background using tokio event loop and green threads
+    let future_res = async { //// we can also use tokio::spawn() to run the async task in the background using tokio event loop and green threads
         
-        for i in 0..NJOBS{ //-- iterating through all the jobs of the process - this can be an infinite loop like waiting for a tcp connection
-            let cloned_arced_mutexed_receiver = Arc::clone(&arced_mutexed_receiver); //-- in order to move the receiver between threads we must have it in Arc<Mutex<Receiver<T>>> form and clone the &arced_mutexed_receiver which is the borrowed form of the arced and mutexed of the receiver or we can have arced_mutexed_receiver.clone()
-            let cloned_sender = sender.clone(); //-- cloning the sender since it's multiple producer and Clone trait is implemented for that
+        for i in 0..NJOBS{ //// iterating through all the jobs of the process - this can be an infinite loop like waiting for a tcp connection
+            let cloned_arced_mutexed_receiver = Arc::clone(&arced_mutexed_receiver); //// in order to move the receiver between threads we must have it in Arc<Mutex<Receiver<T>>> form and clone the &arced_mutexed_receiver which is the borrowed form of the arced and mutexed of the receiver or we can have arced_mutexed_receiver.clone()
+            let cloned_sender = sender.clone(); //// cloning the sender since it's multiple producer and Clone trait is implemented for that
             let cloned_mat = mat.clone();
-            rayon_workers.push( //-- pushing a rayon::spawn() handler into the vector - rayon::spawn() will solve the task inside its threadpool safely since it uses mpsc as the message passing protocol between threads to avoid being in deadlock and race condition situations 
+            rayon_workers.push( //// pushing a rayon::spawn() handler into the vector - rayon::spawn() will solve the task inside its threadpool safely since it uses mpsc as the message passing protocol between threads to avoid being in deadlock and race condition situations 
                 rayon::spawn(move || {
                     let sum_cols = cloned_mat[0][i] + cloned_mat[1][i] + cloned_mat[2][i];
                     cloned_sender.send(sum_cols).unwrap();
@@ -229,8 +229,8 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would
             /* -------- receiving inside another native and tokio threads inside the loop -------- */ 
             /* ----------------------------------------------------------------------------------- */
             // thread::spawn(move || loop{});
-            thread::spawn(|| async move{ //-- the body of the closure is an async block means it'll return a future object (trait Future has implemented for that) for with type either () or a especific type
-                tokio::spawn(async move{ //-- spawning async task to solve it on the background using tokio green threads based on its event loop model
+            thread::spawn(|| async move{ //// the body of the closure is an async block means it'll return a future object (trait Future has implemented for that) for with type either () or a especific type
+                tokio::spawn(async move{ //// spawning async task to solve it on the background using tokio green threads based on its event loop model
                     while let Ok(data) = cloned_arced_mutexed_receiver.lock().unwrap().recv(){
                         /* 
                             -----------------------------------------------------------------------------------
@@ -255,21 +255,21 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would
                         */
                         
                         // *mult_of_all_sum *= data; // ERROR - can't deref the mult_of_all_sum since its deref doesn't live long enough since its reference or its borrowed type is static not its deref 
-                        unsafe {MULT_OF_ALL_SUM *= data;} //-- mutating the data that we've just received - mutating static types needs unsafe block
+                        unsafe {MULT_OF_ALL_SUM *= data;} //// mutating the data that we've just received - mutating static types needs unsafe block
                     }
                });
             });
             /* ----------------------------------------------------------------------------------- */
         }
         
-        unsafe{MULT_OF_ALL_SUM} //-- since MULT_OF_ALL_SUM has mutated thus we have to return it from an unsafe block
+        unsafe{MULT_OF_ALL_SUM} //// since MULT_OF_ALL_SUM has mutated thus we have to return it from an unsafe block
 
     };
     
 
-    let res = block_on(future_res); //-- will block the current thread to run the future to completion
-    // let res = future_res.await; //-- .awaiting a future will suspend the current function's execution until the executor has run the future to completion means doesn't block the current thread, allowing other tasks to run if the future is currently unable to make progress and log the result later whenever the future has completed
-    // let res = join!(future_res); //-- join! only allowed inside `async` functions and blocks and is like .await but can wait for multiple futures concurrently
+    let res = block_on(future_res); //// will block the current thread to run the future to completion
+    // let res = future_res.await; //// .awaiting a future will suspend the current function's execution until the executor has run the future to completion means doesn't block the current thread, allowing other tasks to run if the future is currently unable to make progress and log the result later whenever the future has completed
+    // let res = join!(future_res); //// join! only allowed inside `async` functions and blocks and is like .await but can wait for multiple futures concurrently
     println!("multiplication cols sum {:?}", res);
     let loss = 0.3535;
     loss
@@ -292,14 +292,14 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //-- without &mut self would
 // ------------------------------------------------------------------------------------------------------
 
 
-pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8) -> u8 + std::marker::Send + 'static + Clone{ //-- in order to move the F between threads it must be bounded to Send trait
+pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8) -> u8 + std::marker::Send + 'static + Clone{ //// in order to move the F between threads it must be bounded to Send trait
     
     
     // simd on a 32 bits number means solving 4 packs or operations like multiplication of 8 bits or 4 bytes in parallel
     // simd on a 256 bits number means solving 4 packs or operations like multiplication of 64 bits (4 * 8 bytes = 256 bits) or 8 packs of 32 bits (8 * 4 bytes = 256 bits) 
-    let threads = 4; //-- the total number of all packs or chunks containing 8 bits is 4 cause our number is of type u32
+    let threads = 4; //// the total number of all packs or chunks containing 8 bits is 4 cause our number is of type u32
     let (sender, receiver) = std_mpsc::channel::<u8>();
-    let big_end_bytes = number.to_be_bytes(); //-- network bytes which is in form utf8 or big endian bytes - since there are 4 chunks of 8 bits in the context of u32 bits there will be 4 chunks of 8 bits each chunk between 0 up to 255 
+    let big_end_bytes = number.to_be_bytes(); //// network bytes which is in form utf8 or big endian bytes - since there are 4 chunks of 8 bits in the context of u32 bits there will be 4 chunks of 8 bits each chunk between 0 up to 255 
     let mut index = 0;
     
 
@@ -309,8 +309,8 @@ pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8)
         info!("chunk {:?} in utf8 format -> [{:?}] at time {:?}", index, big_end_bytes[index], chrono::Local::now().naive_local());
         let cloned_sender = sender.clone();
         let cloned_ops = ops.clone();
-        tokio::spawn(async move{ //-- spawning async task to solve it on the background using tokio green threads based on its event loop model
-            thread::spawn(move || async move{ //-- the return body of the closure is async block means it'll return a future object (trait Future has implemented for that) with type either () or a especific type and for solving it we have to be inside an async function - in order to capture the variables before spawning scope we have to use move keyword before ||
+        tokio::spawn(async move{ //// spawning async task to solve it on the background using tokio green threads based on its event loop model
+            thread::spawn(move || async move{ //// the return body of the closure is async block means it'll return a future object (trait Future has implemented for that) with type either () or a especific type and for solving it we have to be inside an async function - in order to capture the variables before spawning scope we have to use move keyword before ||
                 let new_chunk = cloned_ops(big_end_bytes[index]);
                 info!("\tsender-channel---(chunk {:?})---receiver-channel at time {:?} ", index, chrono::Local::now().naive_local());
                 cloned_sender.send(new_chunk).unwrap();
@@ -323,16 +323,16 @@ pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8)
     
     
     info!("collecting all chunks received from the receiver at time {:?}", chrono::Local::now().naive_local());
-    let bytes: Vec<u8> = receiver.iter().take(threads).collect(); //-- collecting 4 packs of 8 bits to gather all incoming chunks from the channel
+    let bytes: Vec<u8> = receiver.iter().take(threads).collect(); //// collecting 4 packs of 8 bits to gather all incoming chunks from the channel
     info!("collected bytes -> {:?} at time {:?}", bytes, chrono::Local::now().naive_local());
     
     
 
     
-    let boxed_array = self::into_box_slice(&bytes).await.unwrap(); //-- converting &Vec<u8> to [u8] with a fixed size
-    let result = *boxed_array; //-- dereferencing the box pointer to get the value inside of it 
-    let final_res = u32::from_be_bytes(result); //-- will create a u32 number from 4 pack of 8 bits - from_be_bytes() method creates a native endian integer value from its representation as a byte array in big endian
-    Ok(final_res) //-- the final results might be different from the input due to the time takes to send the each chunks through the channel and receive them from the receiver thus the order of chunks will not be the same as the input
+    let boxed_array = self::into_box_slice(&bytes).await.unwrap(); //// converting &Vec<u8> to [u8] with a fixed size
+    let result = *boxed_array; //// dereferencing the box pointer to get the value inside of it 
+    let final_res = u32::from_be_bytes(result); //// will create a u32 number from 4 pack of 8 bits - from_be_bytes() method creates a native endian integer value from its representation as a byte array in big endian
+    Ok(final_res) //// the final results might be different from the input due to the time takes to send the each chunks through the channel and receive them from the receiver thus the order of chunks will not be the same as the input
 
 
 
@@ -348,11 +348,11 @@ pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8)
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
-pub async fn into_box_slice(u8_vector: &Vec<u8>) -> Result<Box<[u8; 4]>, String>{ //-- the return type of this function is either a Box of [u8] slice with 4 bytes (32 bits) or a String of the error
-    let to_owned_vec = u8_vector.to_owned(); //-- creating owned vector from borrowed vector by cloning to call into_boxed_slice() method on the vector
-    let boxed_slice = to_owned_vec.into_boxed_slice(); //-- converting the collected bytes into a Box slice or array of utf8 bytes - we put it inside the Box cause the size of [u8] is not known at compile time
-    let boxed_array: Box<[u8; 4]> = match boxed_slice.try_into() { //-- Boxing u8 with size 4 cause our input number is 32 bits which is 4 packs of 8 bits
-        Ok(arr) => return Ok(arr), //-- returning a Box of 4 u8 slice or 4 packs of 8 bits
+pub async fn into_box_slice(u8_vector: &Vec<u8>) -> Result<Box<[u8; 4]>, String>{ //// the return type of this function is either a Box of [u8] slice with 4 bytes (32 bits) or a String of the error
+    let to_owned_vec = u8_vector.to_owned(); //// creating owned vector from borrowed vector by cloning to call into_boxed_slice() method on the vector
+    let boxed_slice = to_owned_vec.into_boxed_slice(); //// converting the collected bytes into a Box slice or array of utf8 bytes - we put it inside the Box cause the size of [u8] is not known at compile time
+    let boxed_array: Box<[u8; 4]> = match boxed_slice.try_into() { //// Boxing u8 with size 4 cause our input number is 32 bits which is 4 packs of 8 bits
+        Ok(arr) => return Ok(arr), //// returning a Box of 4 u8 slice or 4 packs of 8 bits
         Err(o) => return Err(format!("vector length must be 4 but it's {}", o.len())),
     };
 }
@@ -366,7 +366,7 @@ pub async fn into_box_slice(u8_vector: &Vec<u8>) -> Result<Box<[u8; 4]>, String>
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
-pub fn string_to_static_str(s: String) -> &'static str { //-- the lifetime of the return str is static and is valid as long as the entire lifetime of the app
+pub fn string_to_static_str(s: String) -> &'static str { //// the lifetime of the return str is static and is valid as long as the entire lifetime of the app
     Box::leak(s.into_boxed_str())
 }
 
@@ -514,18 +514,18 @@ pub async fn tcp_tx_emulator() -> (){
     let ip_port = format!("{}:{}", tcp_host, tcp_port);
     let sleep = Duration::from_secs("3".to_string().parse::<u64>().unwrap());
 
-    loop{ //-- simulating a transaction emulator by sending infinite tx to the coiniXerr tcp server
+    loop{ //// simulating a transaction emulator by sending infinite tx to the coiniXerr tcp server
         
         time+=1;
         let ip_port = ip_port.clone();
-        tokio::spawn(async move{ //-- an async block or future object is the param of the tokio::spawn()
+        tokio::spawn(async move{ //// an async block or future object is the param of the tokio::spawn()
             match TcpStream::connect(ip_port.as_str()).await{
-                Ok(mut stream) => { //-- stream must be muatble in order to write on it
+                Ok(mut stream) => { //// stream must be muatble in order to write on it
 
                     info!("🪙 sending transaction {}", time);
-                    let random_tx = Transaction::default(); //-- creating a default transaction
-                    let encoded_tx = random_tx.try_to_vec().unwrap(); //-- encoding using borsh; we can convert a Vec<u8> to &[u8] by taking a reference to it since &[u8] which will be on the stack is an slice of the Vec<u8> which is inside the heap 
-                    stream.write_all(&encoded_tx).await.unwrap(); //-- writing the buffer, the encoded transaction, into the stream to send back to the server
+                    let random_tx = Transaction::default(); //// creating a default transaction
+                    let encoded_tx = random_tx.try_to_vec().unwrap(); //// encoding using borsh; we can convert a Vec<u8> to &[u8] by taking a reference to it since &[u8] which will be on the stack is an slice of the Vec<u8> which is inside the heap 
+                    stream.write_all(&encoded_tx).await.unwrap(); //// writing the buffer, the encoded transaction, into the stream to send back to the server
 
                 },
                 Err(e) => {
@@ -558,19 +558,19 @@ pub async fn udp_tx_emulator() -> (){
     let sleep = Duration::from_secs("3".to_string().parse::<u64>().unwrap());
 
 
-    loop{ //-- simulating a transaction emulator by sending infinite tx to the coiniXerr udp server
+    loop{ //// simulating a transaction emulator by sending infinite tx to the coiniXerr udp server
         
         time+=1;
         let ip_port = ip_port.clone();
         tokio::spawn(async move{
             let socket = UdpSocket::bind("0.0.0.0:0").await.unwrap(); // binding to any available address and any port selected by the os for outbound packets
-            match socket.connect(ip_port.clone().as_str()).await{ //-- let this user socket connect to the passed in address
+            match socket.connect(ip_port.clone().as_str()).await{ //// let this user socket connect to the passed in address
                 Ok(_) => {
 
                     info!("🪙 sending transaction {}", time);
-                    let random_tx = Transaction::default(); //-- creating a default transaction
-                    let encoded_tx = random_tx.try_to_vec().unwrap(); //-- encoding using borsh; we can convert a Vec<u8> to &[u8] by taking a reference to it since &[u8] which will be on the stack is an slice of the Vec<u8> which is inside the heap 
-                    socket.send(&encoded_tx).await.unwrap(); //-- send the buffer, the encoded transaction to the remote address that this socket is connected to or we can send to another address 
+                    let random_tx = Transaction::default(); //// creating a default transaction
+                    let encoded_tx = random_tx.try_to_vec().unwrap(); //// encoding using borsh; we can convert a Vec<u8> to &[u8] by taking a reference to it since &[u8] which will be on the stack is an slice of the Vec<u8> which is inside the heap 
+                    socket.send(&encoded_tx).await.unwrap(); //// send the buffer, the encoded transaction to the remote address that this socket is connected to or we can send to another address 
 
                 },
                 Err(e) => eprintln!(": {} at {}", e, chrono::Local::now()),
@@ -657,14 +657,14 @@ pub async fn udp_tx_emulator() -> (){
 // -> in order not to have a duplicate key entry inside hashmap based structures we can use enum to avoid having some hash collision with two distinct keys.
 // -> with enum we can be sure that there will be only one collection (one of the following variant) at a time inside the storage that has been pointed by the enum tag.
 // -> hash of the account_id inside the TokensPer* structs is the unique key to use it as the prefix for creating the UnorderedSet to avoid data collision cause every account_id has a unique hash with 256 bits long
-pub enum Storagekey{ //-- defining an enum based unique storage key for every our collections to avoid collection collision which might be happened when two different collections share a same storage for their keys on the chain which will face us data collision at runtime
+pub enum Storagekey{ //// defining an enum based unique storage key for every our collections to avoid collection collision which might be happened when two different collections share a same storage for their keys on the chain which will face us data collision at runtime
     Sales, ////////---------➔ converting this to vector (Storagekey::Sales.try_to_vec().unwrap()) gives us an array of [0] which is the utf8 bytes encoded version of the current variant (the offset in memory) that can be used as a unique storage key for the collection prefix key 
     ByOwnerId, ////////---------➔ converting this to vector (Storagekey::ByOwnerId.try_to_vec().unwrap()) gives us an array of [1] which is the utf8 bytes encoded version of the current variant (the offset in memory) that can be used as a unique storage key for the collection prefix key
-    ByOwnerIdInner { account_id_hash: [u8; 32] }, //-- 32 bytes or 256 bits (cause it's an array of 32 elements of type u8 which is 32 elements with 1 byte size) of the hash which will be 64 chars (256/4=64) in hex which is the account_id length; use this to cover the prefix of the collection storage key based on a struct which contains the hash of the account_id which must be serialize to vector of utf8 bytes to use that vector as the prefix key
+    ByOwnerIdInner { account_id_hash: [u8; 32] }, //// 32 bytes or 256 bits (cause it's an array of 32 elements of type u8 which is 32 elements with 1 byte size) of the hash which will be 64 chars (256/4=64) in hex which is the account_id length; use this to cover the prefix of the collection storage key based on a struct which contains the hash of the account_id which must be serialize to vector of utf8 bytes to use that vector as the prefix key
     ByNFTContractId, ////////---------➔ converting this to vector (Storagekey::ByNFTContractId.try_to_vec().unwrap()) gives us an array of [3] which is the utf8 bytes encoded version of the current variant (the offset in memory) that can be used as a unique storage key for the collection prefix key
-    ByNFTContractIdInner { account_id_hash: [u8; 2] }, //-- 2 bytes or 256 bits (cause it's an array of 2 elements of type u8 which is 2 elements with 1 byte size) of the hash which will be 64 chars (256/4=64) in hex which is the account_id length; use this to cover the prefix of the collection storage key based on a struct which contains the hash of the account_id which must be serialize to vector of utf8 bytes to use that vector as the prefix key
+    ByNFTContractIdInner { account_id_hash: [u8; 2] }, //// 2 bytes or 256 bits (cause it's an array of 2 elements of type u8 which is 2 elements with 1 byte size) of the hash which will be 64 chars (256/4=64) in hex which is the account_id length; use this to cover the prefix of the collection storage key based on a struct which contains the hash of the account_id which must be serialize to vector of utf8 bytes to use that vector as the prefix key
     ByNFTTokenType, ////////---------➔ converting this to vector (Storagekey::ByNFTTokenType.try_to_vec().unwrap()) gives us an array of [5] which is the utf8 bytes encoded version of the current variant (the offset in memory) that can be used as a unique storage key for the collection prefix key
-    ByNFTTokenTypeInner { token_type_hash: [u8; 32] }, //-- 32 bytes or 256 bits (cause it's an array of 32 elements of type u8 which is 32 elements with 1 byte size) of the hash which will be 64 chars (256/4=64) in hex which is the account_id length; use this to cover the prefix of the collection storage key based on a struct which contains the hash of the account_id which must be serialize to vector of utf8 bytes to use that vector as the prefix key
+    ByNFTTokenTypeInner { token_type_hash: [u8; 32] }, //// 32 bytes or 256 bits (cause it's an array of 32 elements of type u8 which is 32 elements with 1 byte size) of the hash which will be 64 chars (256/4=64) in hex which is the account_id length; use this to cover the prefix of the collection storage key based on a struct which contains the hash of the account_id which must be serialize to vector of utf8 bytes to use that vector as the prefix key
     FTTokenIds, ////////---------➔ converting this to vector (Storagekey::FTTokenIds.try_to_vec().unwrap()) gives us an array of [7] which is the utf8 bytes encoded version of the current variant (the offset in memory) that can be used as a unique storage key for the collection prefix key
     StorageDeposits, ////////---------➔ converting this to vector (Storagekey::StorageDeposits.try_to_vec().unwrap()) gives us an array of [8] which is the utf8 bytes encoded version of the current variant (the offset in memory) that can be used as a unique storage key for the collection prefix key
     Collection, ////////---------➔ converting this to vector (Storagekey::Collection.try_to_vec().unwrap()) gives us an array of [9] which is the utf8 bytes encoded version of the current variant (the offset in memory) that can be used as a unique storage key for the collection prefix key
@@ -746,9 +746,9 @@ macro_rules! db {
     ($name:expr, $engine:expr, $host:expr, $port:expr, $username:expr, $password:expr) => {
 
         { //// this is the key! this curly braces is required to use if let statement, use libs and define let inside macro
-            let empty_app_storage = Some( //-- putting the Arc-ed db inside the Option
-                Arc::new( //-- cloning app_storage to move it between threads
-                    Storage{ //-- defining db context 
+            let empty_app_storage = Some( //// putting the Arc-ed db inside the Option
+                Arc::new( //// cloning app_storage to move it between threads
+                    Storage{ //// defining db context 
                         id: Uuid::new_v4(),
                         db: Some(
                             Db{
@@ -775,10 +775,10 @@ macro_rules! db {
                     Ok(mut init_db) => { //// init_db instance must be mutable since we want to mutate its fields
                         init_db.engine = Some($engine);
                         init_db.url = Some(db_addr);
-                        let mongodb_instance = init_db.GetMongoDbInstance().await; //-- the first argument of this method must be &self in order to have the init_db instance after calling this method, cause self as the first argument will move the instance after calling the related method and we don't have access to any field like init_db.url any more due to moved value error - we must always use & (like &self and &mut self) to borrotw the ownership instead of moving
-                        Some( //-- putting the Arc-ed db inside the Option
-                            Arc::new( //-- cloning app_storage to move it between threads
-                                Storage{ //-- defining db context 
+                        let mongodb_instance = init_db.GetMongoDbInstance().await; //// the first argument of this method must be &self in order to have the init_db instance after calling this method, cause self as the first argument will move the instance after calling the related method and we don't have access to any field like init_db.url any more due to moved value error - we must always use & (like &self and &mut self) to borrotw the ownership instead of moving
+                        Some( //// putting the Arc-ed db inside the Option
+                            Arc::new( //// cloning app_storage to move it between threads
+                                Storage{ //// defining db context 
                                     id: Uuid::new_v4(),
                                     db: Some(
                                         Db{
@@ -794,7 +794,7 @@ macro_rules! db {
                     },
                     Err(e) => {
                         error!("😕 init db error - {}", e);
-                        empty_app_storage //-- whatever the error is we have to return and empty app storage instance 
+                        empty_app_storage //// whatever the error is we have to return and empty app storage instance 
                     }
                 }
             } else if $engine.as_str() == "postgres"{
@@ -827,7 +827,7 @@ macro_rules! db {
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[macro_export]
 macro_rules! user_data {
-    ($token:expr) => { //-- we have to use match on where this macro is called
+    ($token:expr) => { //// we have to use match on where this macro is called
         {
 
             use mongodb::bson::oid::ObjectId;
@@ -837,13 +837,13 @@ macro_rules! user_data {
 
             #[derive(Debug, Serialize, Deserialize)]
             pub struct UserData{
-                pub _id: Option<ObjectId>, //-- this is the user id inside the users collection
+                pub _id: Option<ObjectId>, //// this is the user id inside the users collection
                 pub username: String,
                 pub phone: String,
                 pub access_level: u8, // NOTE - 0 means dev, 1 means admin, 2 means user
-                pub status: u8, //-- last status in an event game that this user has participated in
-                pub role_id: Option<ObjectId>, //-- last role in an event game that this user has participated in
-                pub side_id: Option<ObjectId>, //-- last side in an event game that this user has participated in
+                pub status: u8, //// last status in an event game that this user has participated in
+                pub role_id: Option<ObjectId>, //// last role in an event game that this user has participated in
+                pub side_id: Option<ObjectId>, //// last side in an event game that this user has participated in
                 pub created_at: Option<i64>,
                 pub updated_at: Option<i64>,
                 pub last_login_time: Option<i64>,
@@ -865,7 +865,7 @@ macro_rules! user_data {
                         .send()
                         .await{
                             Ok(res) => {
-                                match res.json::<UserData>().await{ //-- deserializing response utf8 bytes into the UserData struct
+                                match res.json::<UserData>().await{ //// deserializing response utf8 bytes into the UserData struct
                                     Ok(resp) => {
                                         info!("[+] CURRENT SERVER TIME : {:?} | USER DATA FROM THE AYOUB SERVER : {:?}", chrono::Local::now().naive_local(), resp);
                                         Ok(resp)
@@ -893,7 +893,7 @@ macro_rules! user_data {
 
 #[macro_export]
 macro_rules! list {
-    ($id1:ident | $id2:ident <- [$start:expr; $end:expr], $cond:expr) => { //-- the match pattern can be any syntax :) - only ident can be followed by some symbols and words like <-, |, @ and etc
+    ($id1:ident | $id2:ident <- [$start:expr; $end:expr], $cond:expr) => { //// the match pattern can be any syntax :) - only ident can be followed by some symbols and words like <-, |, @ and etc
         { //.... code block to return vec since using let statements must be inside {} block
             let mut vec = Vec::new();
             for num in $start..$end + 1{
@@ -913,13 +913,13 @@ macro_rules! list {
 
 #[macro_export]
 macro_rules! dict {
-    ($($key:expr => $val:expr)*) => { //-- if this pattern matches the input the following code will be executed - * means we can pass more than one key => value statement
+    ($($key:expr => $val:expr)*) => { //// if this pattern matches the input the following code will be executed - * means we can pass more than one key => value statement
         { //.... code block to return vec since using let statements must be inside {} block
             use std::collections::HashMap;
             let mut map = HashMap::new();
             $(
                 map.insert($key, $value);
-            )* //-- * means we're inserting multiple key => value statement inside the map 
+            )* //// * means we're inserting multiple key => value statement inside the map 
             map
         } //....
     };
@@ -930,12 +930,12 @@ macro_rules! dict {
 
 #[macro_export]
 macro_rules! exam {
-    ($l:expr; and $r:expr) => { //-- logical and match 
-        $crate::macros::even(); //-- calling even() function which is inside the macros module
+    ($l:expr; and $r:expr) => { //// logical and match 
+        $crate::macros::even(); //// calling even() function which is inside the macros module
         println!("{}", $l && $r);
     };
 
-    ($l:expr; or $r:expr) => { //-- logical or match 
+    ($l:expr; or $r:expr) => { //// logical or match 
         println!("{}", $l || $r);
     };
 }
@@ -963,18 +963,18 @@ macro_rules! gendeh {
     }
 }
 //////
-/// gendeh!{bindgen, id} //-- bindgen is the name of the struct and id is the name of the field
+/// gendeh!{bindgen, id} //// bindgen is the name of the struct and id is the name of the field
 //////
 
 
 #[macro_export]
 macro_rules! query { // NOTE - this is a macro with multiple syntax support and if any pattern matches with the caller pattern, then the code block of that pattern will be emitted
     
-    ( $value_0:expr, $value_1:expr, $value_2:expr ) => { //-- passing multiple object syntax
+    ( $value_0:expr, $value_1:expr, $value_2:expr ) => { //// passing multiple object syntax
         // ...
     };
 
-    ( $($name:expr => $value:expr)* ) => { //-- passing multiple key => value syntax 
+    ( $($name:expr => $value:expr)* ) => { //// passing multiple key => value syntax 
         // ...
 
     };
@@ -984,18 +984,18 @@ macro_rules! query { // NOTE - this is a macro with multiple syntax support and 
 
 #[macro_export]
 macro_rules! log {
-    ($arg:tt) => { //-- passing single String message 
-        $crate::env::log($arg.as_bytes()) //-- log function only accepts utf8 bytes
+    ($arg:tt) => { //// passing single String message 
+        $crate::env::log($arg.as_bytes()) //// log function only accepts utf8 bytes
     };
-    ($($arg:tt)*) => { //-- passing multiple String messages 
-        $crate::env::log(format!($($arg)*).as_bytes()) //-- log function only accepts utf8 bytes
+    ($($arg:tt)*) => { //// passing multiple String messages 
+        $crate::env::log(format!($($arg)*).as_bytes()) //// log function only accepts utf8 bytes
     };
 }
 
 
 #[macro_export]
 macro_rules! impl_engine_constructor {
-    ($( $new:ident: [ $( $pos:expr ),* ] anchored at $anchor:expr; )*) => { //-- the match pattern can be any syntax :) - only ident can be followed by some symbols and words like <-, |, @ and etc 
+    ($( $new:ident: [ $( $pos:expr ),* ] anchored at $anchor:expr; )*) => { //// the match pattern can be any syntax :) - only ident can be followed by some symbols and words like <-, |, @ and etc 
         $(
             pub fn $new() -> Self{
                 Self{
@@ -1003,7 +1003,7 @@ macro_rules! impl_engine_constructor {
                     anchor: $anchor,
                 }
             }
-        )* //-- * means defining function for every new Pos
+        )* //// * means defining function for every new Pos
     };
 }
 

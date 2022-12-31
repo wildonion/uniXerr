@@ -106,6 +106,10 @@ pub async fn bootstrap(
     //// local chain response comming from other nodes and 
     //// lazy initialization of the node between different 
     //// parts of the app like other threads and scopes.
+    //
+    //// move Arc<Mutex<T>>: Send + Sync + 'static between 
+    //// threads using tokio channels.
+ 
 
     info!("➔ 🎡 peer id for this node [{}]", PEER_ID.clone());
     let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);

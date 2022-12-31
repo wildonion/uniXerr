@@ -15,7 +15,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-pub fn from_u8_to_hex_string(bytes: &[u8]) -> Result<String, ()> { //-- take a reference from u8 and will return a hex String
+pub fn from_u8_to_hex_string(bytes: &[u8]) -> Result<String, ()> { //// take a reference from u8 and will return a hex String
     /*
         let hex_ascii_string = "hello world".as_bytes().iter().map(|x| format!("{:02x}", x)).collect::<String>()
         >> let mut s = String::new();
@@ -26,9 +26,9 @@ pub fn from_u8_to_hex_string(bytes: &[u8]) -> Result<String, ()> { //-- take a r
         "68656c6c6f20776f726c64"
         >> 
     */
-    let mut buffer = String::with_capacity(bytes.len() * 2); //-- length of the String must be double of the size of the u8 cause we want to write u16 or hex into this buffer
+    let mut buffer = String::with_capacity(bytes.len() * 2); //// length of the String must be double of the size of the u8 cause we want to write u16 or hex into this buffer
     for &b in bytes {
-        write!(&mut buffer, "{:02x}", b).expect("⚠️ writing to String buffer error for hex ascii"); //-- writing formatted data into the buffer which is the String - panic on any error
+        write!(&mut buffer, "{:02x}", b).expect("⚠️ writing to String buffer error for hex ascii"); //// writing formatted data into the buffer which is the String - panic on any error
     }
     Ok(buffer)
 }

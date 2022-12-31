@@ -48,8 +48,8 @@ Coded by
 
 
 
-// #![allow(unused)] //-- will let the unused vars be there - we have to put this on top of everything to affect the whole crate
-// #![macro_use] //-- apply the macro_use attribute to the root cause it's an inner attribute and will be effect on all things inside this crate
+// #![allow(unused)] //// will let the unused vars be there - we have to put this on top of everything to affect the whole crate
+// #![macro_use] //// apply the macro_use attribute to the root cause it's an inner attribute and will be effect on all things inside this crate
 
 //// sync creates are types that are thread safe and can be shared between threads safety
 //// since types can be shareable if they are bounded to Send Sync and have valid lifetimes
@@ -61,7 +61,7 @@ use is_type::Is;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use log::{info, error, LevelFilter};
-use tokio::net::{TcpListener, TcpStream, UdpSocket}; //-- async tcp listener and stream
+use tokio::net::{TcpListener, TcpStream, UdpSocket}; //// async tcp listener and stream
 ///// read from the input and write to the output - AsyncReadExt and AsyncWriteExt 
 //// are traits which are implemented for an object of type TcpStream and based 
 //// on orphan rule we must use them here to use the read() and write() method 
@@ -76,12 +76,12 @@ use tokio::sync::{mpsc, broadcast}; //// to broadcast transactions to from multi
 use uuid::Uuid;
 use std::hash::{Hash, Hasher};
 use std::{fmt, fmt::Write, num::ParseIntError};
-use std::sync::{Arc, Mutex, mpsc as std_mpsc, mpsc::channel as heavy_mpsc}; //-- communication between threads is done using mpsc job queue channel and end of the channel can only be owned by one thread at the time to avoid being in deadlock and race condition situations, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
+use std::sync::{Arc, Mutex, mpsc as std_mpsc, mpsc::channel as heavy_mpsc}; //// communication between threads is done using mpsc job queue channel and end of the channel can only be owned by one thread at the time to avoid being in deadlock and race condition situations, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
 use std::time::{Instant, Duration};
 use std::{env, thread::{self, JoinHandle}};
 use std::rc::{Rc, Weak};
 use std::cell::RefCell;
-use std::net::SocketAddr; //-- these structures are not async; to be async in reading and writing from and to socket we must use tokio::net
+use std::net::SocketAddr; //// these structures are not async; to be async in reading and writing from and to socket we must use tokio::net
 use std::collections::{HashMap, HashSet};
 use riker::actors::*;
 use riker::system::ActorSystem;
@@ -105,7 +105,7 @@ use crate::engine::cvm;
 use crate::actors::{
                     parathread::{Parachain, ParachainMsg, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
-                    rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //-- loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
+                    rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //// loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
 use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, P2PChainResponse, P2PLocalChainRequest, P2PAppBehaviourEvent, P2PAppBehaviour};
 use crate::constants::*;
@@ -178,7 +178,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                                                                     //// no need to put ActorSystem inside the Arc since it's bounded to Clone trait itself and also we don't want to change it thus there is no Mutex guard is needed
                                                                     ActorSystem,
                                                                     //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop
-                                                                )>(daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap()); //-- transaction mempool channel using broadcast channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
+                                                                )>(daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap()); //// transaction mempool channel using broadcast channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
 
 
 
@@ -346,7 +346,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
  
     while let Ok((transaction, 
                     validator, 
-                    coiniXerr_actor_system)) = mempool_receiver.recv().await{ //-- waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously also reading from the receiver is a mutable process
+                    coiniXerr_actor_system)) = mempool_receiver.recv().await{ //// waiting for each transaction to become available to the down side of channel (receiver) for mining process cause sending is done asynchronously also reading from the receiver is a mutable process
         info!("➔ 📥 receiving new transaction and its related validator to push inside the current block");
         let mutex_transaction = transaction.lock().unwrap().clone();
         info!("➔ 🪙 new transaction {:?} in mempool", mutex_transaction);
@@ -361,16 +361,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         // ----------------------------------------------------------------------
 
         //// since we're not sending following messages from another actor actually we're sending from the main() and main() is not an actor thus the sender in tell() method must be None
-        if mutex_transaction.ttype == 0x00{ //-- regular transaction comming from walleXerr
+        if mutex_transaction.ttype == 0x00{ //// regular transaction comming from walleXerr
             ///// tell the validator actor from the main() that we have the message of type Contract with the 0x00 ttype
             mutex_validator_actor.tell(Contract{id: Uuid::new_v4(), ttype: 0x00}, None); //// 0x00 means regular transaction like transferring tokens
-        } else if mutex_transaction.ttype == 0xFF{ //-- CRC21 smart contract transaction
+        } else if mutex_transaction.ttype == 0xFF{ //// CRC21 smart contract transaction
             ///// tell the validator actor from the main() that we have the message of type Contract with the 0xFF ttype 
             mutex_validator_actor.tell(Contract{id: Uuid::new_v4(), ttype: 0xFF}, None); //// 0xFF means CRC21 transaction like minting NFT 
-        } else if mutex_transaction.ttype == 0x02{ //-- CRC20 smart contract transaction
+        } else if mutex_transaction.ttype == 0x02{ //// CRC20 smart contract transaction
             ///// tell the validator actor from the main() that we have the message of type Contract with the 0x02 ttype 
             mutex_validator_actor.tell(Contract{id: Uuid::new_v4(), ttype: 0x02}, None); //// 0x02 means CRC20 transaction like minting FT
-        } else if mutex_transaction.ttype == 0x03{ //-- CRC22 smart contract transaction
+        } else if mutex_transaction.ttype == 0x03{ //// CRC22 smart contract transaction
             ///// tell the validator actor from the main() that we have the message of type Contract with the 0x02 ttype 
             mutex_validator_actor.tell(Contract{id: Uuid::new_v4(), ttype: 0x03}, None); //// 0x03 means CRC22 transaction which supports FN and NFT methods
         }
@@ -404,26 +404,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         //                  CONSENSUS AND BUILDING BLOCKS PROCESS
         // ----------------------------------------------------------------------
 
-        while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //-- returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
-            current_block.push_transaction(mutex_transaction.clone()); //-- cloning transaction object in every iteration to prevent ownership moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
+        while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //// returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
+            current_block.push_transaction(mutex_transaction.clone()); //// cloning transaction object in every iteration to prevent ownership moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){
                 // TODO - calculate the block and merkle_root hash
                 // TODO - consensus and block validation process here
                 // ...
                 info!("➔ ⚒️🧊 shaping a new block to add transactions");
                 let (prev, last) = {
-                    let current_blockchain = blockchain.clone(); //-- creating longer lifetime since `let` will create a longer lifetime for the value - can't have blockchain.clone().blocks.iter().rev() cause blockchain.clone() lifetime will be ended beforer reach the blocks field
-                    let mut rev_iter = current_blockchain.blocks.iter().rev(); //-- cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
-                    (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //-- converting &Block to Block by using to_owned() method in which cloning process will be used 
+                    let current_blockchain = blockchain.clone(); //// creating longer lifetime since `let` will create a longer lifetime for the value - can't have blockchain.clone().blocks.iter().rev() cause blockchain.clone() lifetime will be ended beforer reach the blocks field
+                    let mut rev_iter = current_blockchain.blocks.iter().rev(); //// cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                    (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //// converting &Block to Block by using to_owned() method in which cloning process will be used 
                 };
-                current_block = blockchain.clone().build_raw_block(&prev); //-- passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                current_block = blockchain.clone().build_raw_block(&prev); //// passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
             }
         }
-        if let (Some(merkle_root), Some(block_hash)) = (current_block.clone().merkle_root, current_block.clone().hash){ //-- checking the block's hash and merkle_root hash for transactions finality
+        if let (Some(merkle_root), Some(block_hash)) = (current_block.clone().merkle_root, current_block.clone().hash){ //// checking the block's hash and merkle_root hash for transactions finality
             info!("➔ 🥑 block with id [{}] is valid", current_block.id);
             current_block.is_valid = true;
             info!("➔ 🧣 adding the created block to the chain");
-            blockchain.clone().add(current_block.clone()); //-- adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration mempool_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+            blockchain.clone().add(current_block.clone()); //// adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration mempool_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
         } else{
             info!("➔ ⛔ block with id [{}] is invalid", current_block.id);
             current_block.is_valid = false;

@@ -81,22 +81,22 @@ pub async fn register() -> Router<Body, hyper::Error>{
     ////////`   
 
     Router::builder()
-        // .data(app_storage) //-- sharing the initialized app_storage between routers' threads
-        .middleware(Middleware::post(middlewares::cors::allow)) //-- allow all CORS setup - the post Middlewares will be executed after all the route handlers process the request and generates a response and it will access that response object and the request info(optional) and it can also do some changes to the response if required
-        .middleware(Middleware::pre(middlewares::logging::logger)) //-- enable logging middleware on the incoming request then pass it to the next middleware - pre Middlewares will be executed before any route handlers and it will access the req object and it can also do some changes to the request object if required
+        // .data(app_storage) //// sharing the initialized app_storage between routers' threads
+        .middleware(Middleware::post(middlewares::cors::allow)) //// allow all CORS setup - the post Middlewares will be executed after all the route handlers process the request and generates a response and it will access that response object and the request info(optional) and it can also do some changes to the response if required
+        .middleware(Middleware::pre(middlewares::logging::logger)) //// enable logging middleware on the incoming request then pass it to the next middleware - pre Middlewares will be executed before any route handlers and it will access the req object and it can also do some changes to the request object if required
         .get("/page", |req| async move{
-            let res = Response::builder(); //-- creating a new response cause we didn't find any available route
+            let res = Response::builder(); //// creating a new response cause we didn't find any available route
             let response_body = ctx::app::Response::<ctx::app::Nill>{
                 message: WELCOME,
-                data: Some(ctx::app::Nill(&[])), //-- data is an empty &[u8] array
+                data: Some(ctx::app::Nill(&[])), //// data is an empty &[u8] array
                 status: 200,
             };
-            let response_body_json = serde_json::to_string(&response_body).unwrap(); //-- converting the response body object into json stringify to send using hyper body
+            let response_body_json = serde_json::to_string(&response_body).unwrap(); //// converting the response body object into json stringify to send using hyper body
             Ok(
                 res
                     .status(StatusCode::OK)
                     .header(header::CONTENT_TYPE, "application/json")
-                    .body(Body::from(response_body_json)) //-- the body of the response must be serialized into the utf8 bytes to pass through the socket
+                    .body(Body::from(response_body_json)) //// the body of the response must be serialized into the utf8 bytes to pass through the socket
                     .unwrap()
             )
         })
@@ -120,7 +120,7 @@ pub async fn register() -> Router<Body, hyper::Error>{
         .post("/reveal/roles", role)
         .post("/update/:eventId/image", upload_img)
         .post("/simd", simd_ops)
-        .any(not_found) //-- handling 404 request
+        .any(not_found) //// handling 404 request
         .build()
         .unwrap()
 

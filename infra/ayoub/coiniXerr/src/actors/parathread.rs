@@ -7,7 +7,7 @@
 
 
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
-use super::peer; //-- super is the root of the current directory which is actors directory contains parathread.rs and peer.rs crates
+use super::peer; //// super is the root of the current directory which is actors directory contains parathread.rs and peer.rs crates
 
 
 
@@ -26,8 +26,8 @@ use super::peer; //-- super is the root of the current directory which is actors
 //                  messages events
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
-#[derive(Clone, Debug)] //-- bounding to Clone and the Debug trait
-pub struct Communicate{ //-- parathread sends this message to a parachain
+#[derive(Clone, Debug)] //// bounding to Clone and the Debug trait
+pub struct Communicate{ //// parathread sends this message to a parachain
     pub id: Uuid,
     pub cmd: Cmd,
 }
@@ -76,13 +76,13 @@ pub struct ParachainUpdated(pub Uuid); //// a message event to broadcast it by t
 //                 Parachain type actor
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
-#[actor(Communicate, UpdateParachainEvent, ParachainCreated, ParachainUpdated)] //-- Parachain actor will receive a message either from other actor or a channel to subscribe to of type Communicate, UpdateParachainEvent, ParachainCreated and ParachainUpdated
-#[derive(Debug, Clone, Default)] //-- trait Clone is required to prevent the object of this struct from moving
+#[actor(Communicate, UpdateParachainEvent, ParachainCreated, ParachainUpdated)] //// Parachain actor will receive a message either from other actor or a channel to subscribe to of type Communicate, UpdateParachainEvent, ParachainCreated and ParachainUpdated
+#[derive(Debug, Clone, Default)] //// trait Clone is required to prevent the object of this struct from moving
 pub struct Parachain {
     pub id: Uuid,
     pub slot: Option<Slot>,
     pub blockchain: Option<Chain>,
-    pub next_parachain: Option<ActorRef<<Parachain as Actor>::Msg>>, //-- next parachain actor which is of type Parachain
+    pub next_parachain: Option<ActorRef<<Parachain as Actor>::Msg>>, //// next parachain actor which is of type Parachain
     pub current_block: Option<Block>,
 }
 
@@ -256,7 +256,7 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: Communicate, //-- _msg is of type Communicate since we're implementing the Receive trait for the Communicate type
+                _msg: Communicate, //// _msg is of type Communicate since we're implementing the Receive trait for the Communicate type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 📩 message info received with id [{}] and command [{:?}]", _msg.id, _msg.cmd);
@@ -421,7 +421,7 @@ impl Receive<ParachainCreated> for Parachain{ //// implementing the Receive trai
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: ParachainCreated, //-- _msg is of type ParachainCreated since we're implementing the Receive trait for the ParachainCreated type
+                _msg: ParachainCreated, //// _msg is of type ParachainCreated since we're implementing the Receive trait for the ParachainCreated type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 🥳 new parachain created with id [{}]", _msg.0); //// ParachainCreated is a tuple like struct so we have to get the first elem of it using .0
@@ -439,7 +439,7 @@ impl Receive<ParachainUpdated> for Parachain{ //// implementing the Receive trai
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: ParachainUpdated, //-- _msg is of type ParachainUpdated since we're implementing the Receive trait for the ParachainUpdated type
+                _msg: ParachainUpdated, //// _msg is of type ParachainUpdated since we're implementing the Receive trait for the ParachainUpdated type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 🥳 parachain updated with id [{}]", _msg.0); //// ParachainUpdated is a tuple like struct so we have to get the first elem of it using .0

@@ -29,9 +29,9 @@ pub mod messanger{
 
 
     
-    pub struct Server<'a>{ //-- 'a is the lifetime of &[u8] which is the borrowed type of [u8] due to its unknown size at compile time  
-        pub cluster_id: Uuid, //-- the id of the cluster which this server is inside
-        pub api_token: &'a [u8], //-- is an array of a borrowed type of utf8 bytes with a valid lifetime 
+    pub struct Server<'a>{ //// 'a is the lifetime of &[u8] which is the borrowed type of [u8] due to its unknown size at compile time  
+        pub cluster_id: Uuid, //// the id of the cluster which this server is inside
+        pub api_token: &'a [u8], //// is an array of a borrowed type of utf8 bytes with a valid lifetime 
         pub name: String,
         pub channels: Vec<Channel>,
         pub members: Vec<ServerMember>,
@@ -47,7 +47,7 @@ pub mod messanger{
         pub members: Vec<ChannelMember>,
         pub threads: Vec<Thread>,
         pub permissions: Vec<Permission>,
-        pub cmds: Commands, //-- pre builtin commands for this channel 
+        pub cmds: Commands, //// pre builtin commands for this channel 
     }
     
     pub struct Permission;

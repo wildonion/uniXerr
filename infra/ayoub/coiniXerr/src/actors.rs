@@ -55,8 +55,8 @@ pub async fn daemonize()
                                                     .unwrap(); //// unwrapping the last functional method 
     info!("➔ 🟢 actor system and storage are set up");
     let mut runtime_info = RafaelRt(HashMap::new());
-    let runtime_instance = runtime_info.run(); //-- run() method is the method of the Rafael serverless trait
-    let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //-- we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
+    let runtime_instance = runtime_info.run(); //// run() method is the method of the Rafael serverless trait
+    let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //// we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
     let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     //// if the type doesn't implement the Copy trait 
     //// thus we can't move out of the dereference type
@@ -121,7 +121,7 @@ pub async fn daemonize()
                                                                                                                             None, 
                                                                                                                             None)
                                                                                                                         );
-    let parachain_1 = coiniXerr_sys.actor_of_props::<actors::parathread::Parachain>("parachain_1", parachain_1_props.clone()).unwrap(); //-- initializing the second parachain actor with its props; ActorRef is of type ParachainMsg means that we can communicate with another actor or the actor itself by sending Validator iteself as a message - props are Clone and Send and we can share them between threads
+    let parachain_1 = coiniXerr_sys.actor_of_props::<actors::parathread::Parachain>("parachain_1", parachain_1_props.clone()).unwrap(); //// initializing the second parachain actor with its props; ActorRef is of type ParachainMsg means that we can communicate with another actor or the actor itself by sending Validator iteself as a message - props are Clone and Send and we can share them between threads
 
     // ----------------------------------------------------------------------
     //                GETTING THE UUID OF THE SECOND PARACHAIN
@@ -159,7 +159,7 @@ pub async fn daemonize()
                                                                                                                             Some(parachain_1.clone()), //// the next parachain or the next blockchain actor
                                                                                                                             None)
                                                                                                                         );
-    let parachain_0 = coiniXerr_sys.actor_of_props::<actors::parathread::Parachain>("parachain_0", parachain_0_props.clone()).unwrap(); //-- initializing the first parachain actor with its props; ActorRef is of type ParachainMsg means that we can communicate with another actor or the actor itself by sending Validator iteself as a message - props are Clone and Send and we can share them between threads
+    let parachain_0 = coiniXerr_sys.actor_of_props::<actors::parathread::Parachain>("parachain_0", parachain_0_props.clone()).unwrap(); //// initializing the first parachain actor with its props; ActorRef is of type ParachainMsg means that we can communicate with another actor or the actor itself by sending Validator iteself as a message - props are Clone and Send and we can share them between threads
 
     // ----------------------------------------------------------------------
     //     GETTING THE CURRENT BLOCK OF THE DEFAULT PARACHAIN BLOCKCHAIN
@@ -359,7 +359,7 @@ pub async fn daemonize()
     
     let this_peer_id = PEER_ID.to_string(); //// dereferencing the peer_id for this peer also peer_id can be a unique identifier for the connected validator since it has a unique id each time that a validator gets slided into the network
     info!("➔ 🎡 peer id for this node [{}]", this_peer_id);
-    let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //-- cloning (making a deep copy of) runtime info object to prevent ownership moving in every iteration between threads
+    let cloned_arc_mutex_runtime_info_object = Arc::clone(&arc_mutex_runtime_info_object); //// cloning (making a deep copy of) runtime info object to prevent ownership moving in every iteration between threads
     let default_parachain_slot = current_slot.clone();
     let peer_validator = default_parachain_slot.clone().get_validator(this_peer_id.clone()); //// passing the current peer_id of this node to get the validator info
     if let None = peer_validator{ //// means we don't find any validator inside the default parachain slot  
@@ -405,9 +405,9 @@ pub async fn daemonize()
                                                                                                             validator.ttype_request
                                                                                                         )
                                                                                                     );
-    let validator_actor = coiniXerr_sys.clone().actor_of_props::<Validator>("validator", validator_props.clone()).unwrap(); //-- initializing the validator actor with its props; ActorRef is of type ValidatorMsg means that we can communicate with another actor or the actor itself by sending Validator iteself as a message - props are Clone and Send and we can share them between threads
-    let validator_actor = validator_actor.clone(); //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration - trait Clone is implemented for Validator actor struct since the type is Send + Sync across threads
-    let validator_updated_channel = validator_updated_channel.clone();  //-- cloning (making a deep copy of) the channel actor will prevent the object from moving in every iteration - trait Clone is implemented for channel actor struct since the type is Send + Sync across threads
+    let validator_actor = coiniXerr_sys.clone().actor_of_props::<Validator>("validator", validator_props.clone()).unwrap(); //// initializing the validator actor with its props; ActorRef is of type ValidatorMsg means that we can communicate with another actor or the actor itself by sending Validator iteself as a message - props are Clone and Send and we can share them between threads
+    let validator_actor = validator_actor.clone(); //// cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration - trait Clone is implemented for Validator actor struct since the type is Send + Sync across threads
+    let validator_updated_channel = validator_updated_channel.clone();  //// cloning (making a deep copy of) the channel actor will prevent the object from moving in every iteration - trait Clone is implemented for channel actor struct since the type is Send + Sync across threads
     
     // ---------------------------------------------------------------------------------
     //              BROADCASTING NEW VALIDATOR TO OTHER VALIDATOR ACTORS
@@ -438,13 +438,13 @@ pub async fn daemonize()
     // ----------------------------------------------------------------------
     info!("➔ 💾 saving runtime info");
     let meta_data_uuid = {
-        let mut runtime_info = cloned_arc_mutex_runtime_info_object.lock().unwrap().to_owned(); //-- in order to use the to_owned() method we have to implement the Clone trait for the Runtime struct since this method will make a clone from the instance - unlocking, unwrapping and cloning (by using to_ownded() method) the runtim_info object in every iteration of incoming stream inside the local thread to convert it to an instance of the RafaelRt struct
-        RafaelRt::add( //-- locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
-            runtime_info, //-- passing the mutable runtime_info object for adding new metadata into its hash map field
+        let mut runtime_info = cloned_arc_mutex_runtime_info_object.lock().unwrap().to_owned(); //// in order to use the to_owned() method we have to implement the Clone trait for the Runtime struct since this method will make a clone from the instance - unlocking, unwrapping and cloning (by using to_ownded() method) the runtim_info object in every iteration of incoming stream inside the local thread to convert it to an instance of the RafaelRt struct
+        RafaelRt::add( //// locking on runtime info object (mutex) must be done in order to prevent other threads from mutating it at the same time 
+            runtime_info, //// passing the mutable runtime_info object for adding new metadata into its hash map field
             MetaData{ //// this metadata will be used for selecting new validators inside a shard
                 id: Uuid::new_v4(),
                 node_peer_id: Some(this_peer_id.clone()), //// this is the peer_id of this node 
-                actor: validator_actor.clone(), //-- cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
+                actor: validator_actor.clone(), //// cloning (making a deep copy of) the validator actor will prevent the object from moving in every iteration
                 link_to_server: None,
                 last_crash: None,
                 first_init: Some(chrono::Local::now().naive_local().timestamp()),
@@ -469,14 +469,14 @@ pub async fn daemonize()
             }
         ])
     };
-    info!("➔ 🎞️ rafael runtime instance log {}", rafael_event_log); //-- it'll log to the console like RAFAEL_EVENT_JSON:{"time": 167836438974, "event": "event name, "data": [{...RuntimeLog_instance...}] or [{...ServerlessLog_instance...}]}
+    info!("➔ 🎞️ rafael runtime instance log {}", rafael_event_log); //// it'll log to the console like RAFAEL_EVENT_JSON:{"time": 167836438974, "event": "event name, "data": [{...RuntimeLog_instance...}] or [{...ServerlessLog_instance...}]}
 
     // --------------------------------------------------------------------------------------------------------------------------------------------
     //                 SENDING THE STREAM, RUNTIME, VALIDATOR, VALIDATOR UPDATE CHANNEL AND ACTOR SYSTEM TO DOWN SIDE OF THE CHANNEL 
     // --------------------------------------------------------------------------------------------------------------------------------------------
 
-    let arc_mutex_validator_actor = Arc::new(Mutex::new(validator_actor)); //-- creating an Arc object which is inside a Mutex to share and mutate data between threads cause Validator actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the validator_actor object inside a mutex to be updatable between threads
-    let cloned_arc_mutex_validator_actor = Arc::clone(&arc_mutex_validator_actor); //-- we're borrowing the ownership of the Arc-ed and Mutex-ed validator_actor object to move it between threads without loosing the ownership 
+    let arc_mutex_validator_actor = Arc::new(Mutex::new(validator_actor)); //// creating an Arc object which is inside a Mutex to share and mutate data between threads cause Validator actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the validator_actor object inside a mutex to be updatable between threads
+    let cloned_arc_mutex_validator_actor = Arc::clone(&arc_mutex_validator_actor); //// we're borrowing the ownership of the Arc-ed and Mutex-ed validator_actor object to move it between threads without loosing the ownership 
     
     //// putting the validator_updated_channel inside the Arc<Mutex<...>> to send it through the stream mpsc channel
     let arc_mutex_validator_update_channel = Arc::new(Mutex::new(validator_updated_channel));

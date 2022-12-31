@@ -36,25 +36,25 @@ pub enum Mode{
     Withdraw, //// utf8 encoded variant is 4
 }
 
-#[derive(Clone, Debug)] //-- bounding to Clone and the Debug trait
-pub struct Contract { //-- Contract event between two validators on the coiniXerr network; this the message that we'll use between validator actors
+#[derive(Clone, Debug)] //// bounding to Clone and the Debug trait
+pub struct Contract { //// Contract event between two validators on the coiniXerr network; this the message that we'll use between validator actors
     pub id: Uuid,
     pub ttype: u8,
 }
 
-#[derive(Clone, Debug)] //-- bounding to Clone and the Debug trait
-pub struct UpdateTx { //-- update transaction message to tell the actor to update the last transaction with the new one
+#[derive(Clone, Debug)] //// bounding to Clone and the Debug trait
+pub struct UpdateTx { //// update transaction message to tell the actor to update the last transaction with the new one
     pub id: Uuid,
     pub tx: Option<Transaction>,
 }
 
-#[derive(Clone, Debug)] //-- bounding to Clone and the Debug trait
-pub struct UpdateMode { //-- update mode message to tell the actor to update the validator mode with the new one
+#[derive(Clone, Debug)] //// bounding to Clone and the Debug trait
+pub struct UpdateMode { //// update mode message to tell the actor to update the validator mode with the new one
     pub id: String,
     pub mode: Option<ValidatorMode>,
 }
 
-#[derive(Clone, Debug)] //-- bounding to Clone and the Debug trait
+#[derive(Clone, Debug)] //// bounding to Clone and the Debug trait
 pub struct Communicate{
     pub id: Uuid,
     pub cmd: Cmd,
@@ -96,8 +96,8 @@ pub struct UpdateValidatorAboutMiningProcess(pub Uuid); //// a message event to 
 //                 Validator type actor
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
-#[actor(Communicate, Contract, UpdateTx, UpdateMode, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess)] //-- Validator actor will receive a message from other actors or a channel to subscribe to of type Communicate, Contract, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx and UpdateValidatorAboutMiningProcess
-#[derive(Debug, Serialize, Deserialize, Clone)] //-- trait Clone is required to prevent the object of this struct from moving
+#[actor(Communicate, Contract, UpdateTx, UpdateMode, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess)] //// Validator actor will receive a message from other actors or a channel to subscribe to of type Communicate, Contract, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx and UpdateValidatorAboutMiningProcess
+#[derive(Debug, Serialize, Deserialize, Clone)] //// trait Clone is required to prevent the object of this struct from moving
 pub struct Validator {
     pub peer_id: String, //// the libp2p peer id 
     pub recent_transaction: Option<Transaction>, //// signed the recent_transaction came from the peer
@@ -194,7 +194,7 @@ impl Receive<Contract> for Validator{ //// implementing the Receive trait for th
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: Contract, //-- _msg is of type Contract since we're implementing the Receive trait for the Contract type
+                _msg: Contract, //// _msg is of type Contract since we're implementing the Receive trait for the Contract type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 📩 message info received with id [{}] and ttype [{}]", _msg.id, _msg.ttype);
@@ -210,7 +210,7 @@ impl Receive<UpdateTx> for Validator{ //// implementing the Receive trait for th
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: UpdateTx, //-- _msg is of type UpdateTx since we're implementing the Receive trait for the UpdateTx type
+                _msg: UpdateTx, //// _msg is of type UpdateTx since we're implementing the Receive trait for the UpdateTx type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 📩 message info received with id [{}] and new transaction [{:?}]", _msg.id, _msg.tx.as_ref().unwrap()); //// calling as_ref() method on the _msg.tx to prevent ownership moving
@@ -226,7 +226,7 @@ impl Receive<UpdateMode> for Validator{ //// implementing the Receive trait for 
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: UpdateMode, //-- _msg is of type UpdateMode since we're implementing the Receive trait for the UpdateMode type
+                _msg: UpdateMode, //// _msg is of type UpdateMode since we're implementing the Receive trait for the UpdateMode type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 📩 message info received with id [{}] and new transaction [{:?}]", _msg.id, _msg.mode.as_ref().unwrap()); //// calling as_ref() method on the _msg.tx to prevent ownership moving
@@ -242,7 +242,7 @@ impl Receive<Communicate> for Validator{ //// implementing the Receive trait for
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: Communicate, //-- _msg is of type Communicate since we're implementing the Receive trait for the Communicate type
+                _msg: Communicate, //// _msg is of type Communicate since we're implementing the Receive trait for the Communicate type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 📩 message info received with id [{}] and command [{:?}]", _msg.id, _msg.cmd);
@@ -292,7 +292,7 @@ impl Receive<ValidatorJoined> for Validator{ //// implementing the Receive trait
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: ValidatorJoined, //-- _msg is of type ValidatorJoined since we're implementing the Receive trait for the ValidatorJoined type
+                _msg: ValidatorJoined, //// _msg is of type ValidatorJoined since we're implementing the Receive trait for the ValidatorJoined type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ new validator joined with id [{}]", _msg.0); //// ValidatorJoined is a tuple like struct so we have to get the first elem of it using .0
@@ -311,7 +311,7 @@ impl Receive<ValidatorUpdated> for Validator{ //// implementing the Receive trai
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: ValidatorUpdated, //-- _msg is of type ValidatorUpdated since we're implementing the Receive trait for the ValidatorUpdated type
+                _msg: ValidatorUpdated, //// _msg is of type ValidatorUpdated since we're implementing the Receive trait for the ValidatorUpdated type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 👷🏼‍♂️ validator with id [{}] updated", _msg.0); //// ValidatorJoined is a tuple like struct so we have to get the first elem of it using .0
@@ -329,7 +329,7 @@ impl Receive<UpdateValidatorAboutMempoolTx> for Validator{ //// implementing the
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: UpdateValidatorAboutMempoolTx, //-- _msg is of type UpdateValidatorAboutMempoolTx since we're implementing the Receive trait for the UpdateValidatorAboutMempoolTx type
+                _msg: UpdateValidatorAboutMempoolTx, //// _msg is of type UpdateValidatorAboutMempoolTx since we're implementing the Receive trait for the UpdateValidatorAboutMempoolTx type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ 🪙 new transaction with id [{}] slided into the mempool", _msg.0); //// UpdateValidatorAboutMempoolTx is a tuple like struct so we have to get the first elem of it using .0
@@ -347,7 +347,7 @@ impl Receive<UpdateValidatorAboutMiningProcess> for Validator{ //// implementing
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
-                _msg: UpdateValidatorAboutMiningProcess, //-- _msg is of type UpdateValidatorAboutMiningProcess since we're implementing the Receive trait for the UpdateValidatorAboutMiningProcess type
+                _msg: UpdateValidatorAboutMiningProcess, //// _msg is of type UpdateValidatorAboutMiningProcess since we're implementing the Receive trait for the UpdateValidatorAboutMiningProcess type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
     
         info!("➔ ⚒️ start mining process of block with id [{}]", _msg.0); //// UpdateValidatorAboutMiningProcess is a tuple like struct so we have to get the first elem of it using .0

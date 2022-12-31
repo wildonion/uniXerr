@@ -31,8 +31,8 @@ Coded by
 
 
 
-// #![allow(unused)] //-- will let the unused vars be there - we have to put this on top of everything to affect the whole crate
-#![macro_use] //-- apply the macro_use attribute to the root cause it's an inner attribute and will be effect on all things inside this crate 
+// #![allow(unused)] //// will let the unused vars be there - we have to put this on top of everything to affect the whole crate
+#![macro_use] //// apply the macro_use attribute to the root cause it's an inner attribute and will be effect on all things inside this crate 
 
 
 
@@ -43,7 +43,7 @@ use dotenv::dotenv;
 use uuid::Uuid;
 use log::{info, error};
 use tokio::sync::oneshot;
-use tokio::sync::Mutex; //-- async Mutex will be used inside async methods since the trait Send is not implement for std::sync::Mutex
+use tokio::sync::Mutex; //// async Mutex will be used inside async methods since the trait Send is not implement for std::sync::Mutex
 use hyper::{Client, Uri};
 use self::contexts as ctx; // use crate::contexts as ctx;
 
@@ -72,7 +72,7 @@ pub mod routers;
 
 
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
-async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ //-- generic types can also be bounded to lifetimes ('static in this case) and traits inside the Box<dyn ... > - since the error that may be thrown has a dynamic size at runtime we've put all these traits inside the Box (a heap allocation pointer) and bound the error to Sync, Send and the static lifetime to be valid across the main function and sendable and implementable between threads
+async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ //// generic types can also be bounded to lifetimes ('static in this case) and traits inside the Box<dyn ... > - since the error that may be thrown has a dynamic size at runtime we've put all these traits inside the Box (a heap allocation pointer) and bound the error to Sync, Send and the static lifetime to be valid across the main function and sendable and implementable between threads
     
     
 
@@ -104,8 +104,8 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
     let port = env::var("CONSE_PORT").expect("⚠️ no port variable set");
     let sms_api_token = env::var("SMS_API_TOKEN").expect("⚠️ no sms api token variable set");
     let sms_template = env::var("SMS_TEMPLATE").expect("⚠️ no sms template variable set");
-    let io_buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ no io buffer size variable set").parse::<u32>().unwrap() as usize; //-- usize is the minimum size in os which is 32 bits
-    let (sender, receiver) = oneshot::channel::<u8>(); //-- oneshot channel for handling server signals - we can't clone the receiver of the oneshot channel
+    let io_buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ no io buffer size variable set").parse::<u32>().unwrap() as usize; //// usize is the minimum size in os which is 32 bits
+    let (sender, receiver) = oneshot::channel::<u8>(); //// oneshot channel for handling server signals - we can't clone the receiver of the oneshot channel
     let server_addr = format!("{}:{}", host, port).as_str().parse::<SocketAddr>().unwrap();
     
     
@@ -158,8 +158,8 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
     //
     // ------------------------------------------------------------------
     let args: Vec<String> = env::args().collect();
-    let mut username_cli = &String::new(); //-- this is a mutable reference to the username_cli String location inside the heap since we want to mutate the content inside the heap using the pointer later
-    let mut access_level_cli = &String::new(); //-- this is a mutable reference to the access_level_cli String location inside the heap since we want to mutate the content inside the heap using the pointer later
+    let mut username_cli = &String::new(); //// this is a mutable reference to the username_cli String location inside the heap since we want to mutate the content inside the heap using the pointer later
+    let mut access_level_cli = &String::new(); //// this is a mutable reference to the access_level_cli String location inside the heap since we want to mutate the content inside the heap using the pointer later
     if args.len() > 1{
         username_cli = &args[1];
         access_level_cli = &args[2];
@@ -225,20 +225,20 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
     //
     //      we're sharing the db_instance state between routers' threads to get the data inside each api
     // --------------------------------------------------------------------------------------------------------
-    let unwrapped_storage = app_storage.unwrap(); //-- unwrapping the app storage to create a db instance
-    let db_instance = unwrapped_storage.get_db().await; //-- getting the db inside the app storage; it might be None
+    let unwrapped_storage = app_storage.unwrap(); //// unwrapping the app storage to create a db instance
+    let db_instance = unwrapped_storage.get_db().await; //// getting the db inside the app storage; it might be None
     let api = Router::builder()
-        .data(db_instance.unwrap().clone()) //-- shared state which will be available to every route handlers is the db_instance which must be Send + Syn + 'static to share between threads
+        .data(db_instance.unwrap().clone()) //// shared state which will be available to every route handlers is the db_instance which must be Send + Syn + 'static to share between threads
         .scope("/auth", routers::auth::register().await)
         .scope("/event", routers::event::register().await)
         .scope("/game", routers::game::register().await)
         .build()
         .unwrap();
     info!("running {} server on port {} - {}", ctx::app::APP_NAME, port, chrono::Local::now().naive_local());
-    let conse_server = utils::build_server(api).await; //-- build the server from the series of api routers
+    let conse_server = utils::build_server(api).await; //// build the server from the series of api routers
     let conse_graceful = conse_server.with_graceful_shutdown(ctx::app::shutdown_signal(receiver));
-    if let Err(e) = conse_graceful.await{ //-- awaiting on the server to receive the shutdown signal
-        unwrapped_storage.db.clone().unwrap().mode = ctx::app::Mode::Off; //-- set the db mode of the app storage to off
+    if let Err(e) = conse_graceful.await{ //// awaiting on the server to receive the shutdown signal
+        unwrapped_storage.db.clone().unwrap().mode = ctx::app::Mode::Off; //// set the db mode of the app storage to off
         error!("conse server error {} - {}", e, chrono::Local::now().naive_local());
     }
 
@@ -304,7 +304,7 @@ mod tests{
         }
 
         //// sending the started conse server a get request to auth home 
-        let uri = format!("http://{}:{}/auth/home", host, port).as_str().parse::<Uri>().unwrap(); //-- parsing it to hyper based uri
+        let uri = format!("http://{}:{}/auth/home", host, port).as_str().parse::<Uri>().unwrap(); //// parsing it to hyper based uri
         let client = Client::new();
         let Ok(res) = client.get(uri).await else{
             panic!("conse test failed");
