@@ -170,7 +170,7 @@ pub async fn bootstrap(
                         //              SIGNING THE INCOMING TRANSACTION WITH SERVER TIME
                         // ----------------------------------------------------------------------
                         
-                        info!("➔ ✍️ signing incoming transaction");
+                        info!("➔ ✍️ signing incoming transaction with the current node time");
                         deserialized_transaction_borsh.signed = Some(chrono::Local::now().naive_local().timestamp()); //// signing the incoming transaction with the current server time
                         
                         // ----------------------------------------------------------------------

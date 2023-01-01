@@ -456,7 +456,7 @@ pub struct Block{
     pub hash: Option<String>, //// 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
     pub merkle_root: Option<String>, //// hash of all transactions in the form of a binary tree-like structure called merkle tree such that each hash is linked to its parent following a parent-child tree-like relation
     pub timestamp: i64,
-    pub transactions: Vec<Transaction>, //// valid transactions (came through mempool channel) waiting to be confirmed and signed - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
+    pub transactions: Vec<Transaction>, //// valid transactions (came through mempool channel) waiting to be confirmed and signed by the node time - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
     pub is_valid: bool,
 }
 
@@ -632,8 +632,8 @@ impl Default for Transaction{
             to_address: "the address of wildonion wallet network".to_string(), // TODO - the address of the wildonion wallet - public key is used to generate wallet address
             issued: chrono::Local::now().naive_local().timestamp(),
             signed: Some(chrono::Local::now().naive_local().timestamp()),
-            signature: Some("signature hash of the transaction signed with sender's private key".to_string()), // TODO - transaction object needs to be signed using the sender's private key and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
-            hash: "hash of the current transaction".to_string(), // TODO -
+            signature: Some("signature hash of the transaction signed with sender's private key".to_string()), // TODO - transaction object needs to be signed using the sender's private key from walleXerr and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
+            hash: "hash of the signed transaction".to_string(), // TODO -
         }
     }
 }
@@ -646,6 +646,16 @@ impl Transaction{ //// a transaction decoder or deserializer using union
             Ok(deserialized_transaction)
         }
     }
+     
+    pub fn generate_hash(&self) -> String{
+
+        // TODO - generate the hash of the transaction signature using argon2
+        // like: HASH(self.signature)
+        // ...
+        todo!()
+
+    } 
+
 }
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈

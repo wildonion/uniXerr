@@ -13,3 +13,7 @@ coiniXerr Wallet Front-end
 * users can send transactions from this wallet to the coiniXerr nodes for mining processes through RPC with cap'n proto as the serialization protocol
 
 * the `ttype` must be `0x00` which is a regular transaction.
+
+* all transactions need to be signed with the sender's private key.
+
+* we can't have async I/O stream and std libs inside the wasm.
