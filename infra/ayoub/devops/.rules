@@ -411,6 +411,8 @@ NOTE - tokio channels are being used between multiple threads which shares Arc<M
 NOTE - pub/sub channels are being used to send async tasks between two services actors through the RPC, socket or struct which can also schedule the task to be executed later
 NOTE - Option requires the type to be Sized because it allocates on the stack. All type parameters to a concrete type definition are bound to Sized by default. Some types choose to opt out with a ?Sized bound but Option does not.
 NOTE - pointers takes usize bytes (depends on os arch either 32 bits or 64 bits) also fat pointers takes 8 bytes since they contains extra 4 bytes to store the length of the dynamic types 
+NOTE - array is a contiguous space inside the ram in which accessing the first offset will return the value of that offset which is the first value inside the array since the operation is O(1) thus we can store all the hashes of all the keys inside an array to access their value with O(1) time
+
 
 
 

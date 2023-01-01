@@ -1128,3 +1128,35 @@ https://developers.google.com/protocol-buffers/docs/encoding
 https://capnproto.org/encoding.html
 https://www.quora.com/How-do-you-write-a-video-codec
 https://ethereum.org/nl/developers/docs/evm/
+
+
+----------------------
+networking and system:
+----------------------
+➤ communication
+     ➤ concepts:
+          • pub/sub and other zmq socket types
+          • distributed and decentralized concepts like p2p:
+               • search, db and routing engines like elastic, cassandra and p2p kademla: 
+               • create best objective function to find the most rewarded (less cost actions) path in the network graph env (route planning) greedily using:
+                    • hybrid tech algorithms like NN, GA and neurofuzzy(ANFIS)
+                    • none gradient optimization methods like GA and FA
+                    • gradient optimization methods like stochastic gradient descent 
+                    • graph theory and heuristic search algorithms like DAG, dijkstras, floyd, bellman, DFS, BFS and A*
+                    • reinforcement learning algorithms like qlearning using mdp and bellman equation with off and on policy methods based on markov decision process and markov chain
+                    • other algorithms using greedy, dynamic programming, backtracking, divide and conquer, recursive and brute forcing methods
+                    • hashmap based algos like DHT in peer finding and cassandra db nodes
+          • rpc for actor communication on two different machines
+          • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads 
+          • actor worker threadpool and message queue
+          • codec like borsh, serde and capnp
+➤ proxy, vpns and load balancer like pingora and v2ray for all layers
+     ➤ concepts:
+          • cpu task scheduling, 
+          • v2ray protocols
+          • weighted round robin dns, 
+          • vector clock, 
+          • event loop
+          • iptables
+          • simd divide and conquer based vectorization
+➤ compiler, vm, os and runtime

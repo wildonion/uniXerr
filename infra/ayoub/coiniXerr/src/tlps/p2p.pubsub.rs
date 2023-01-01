@@ -17,11 +17,11 @@ use crate::*;
 //// socket connections each of which is an actor communicate 
 //// with each other using a socket or an RPC channels.
 //
-//// each lip2p node is a ZMQ socket which is an actor with concepts of
+//// each lip2p node is a ZMQ or tokio socket which is an actor with concepts of
 //// worker threadpool (like tokio::spawn() green based worker threadpool + 
 //// tokio channels for sharing messages and tasks between threads), job or task queue for 
-//// async task scheduling, pub/sub channels like socket, RPC or tokio channels 
-//// (if actors are in same machine) for broadcasting async messages to other actors 
+//// async task scheduling, pub/sub channels like socket, RPC (if actors are in not in same machine) 
+//// or tokio channels (if actors are in same machine) for broadcasting async messages to other actors 
 //// and mailbox to receive from other actor or outside of the actor system under the hood.
 //
 //// actors publisher can either broadcast topics through the RPC or socket 
@@ -32,7 +32,7 @@ use crate::*;
 //// the method of an encoded object using cap'n proto or protobuf from the different devices.
 //
 //// in distributed networks like the one we build with libp2p, every node or socket is a pub/sub actor 
-//// which will communicate with each other through message passing protocols like ZMQ sockets or RPC channels.
+//// which will communicate with each other through message passing protocols like ZMQ or tokio sockets or RPC channels.
 //// since each node is an actor object with pre defined methods encoded with a distributed object protocol 
 //// like Cap'n Proto RPC or Protobuf gRPC hence to communicate with other node or actors 
 //// and call each other methods directly on different machines without proxying they must use pub/sub 
@@ -196,7 +196,7 @@ pub async fn bootstrap(
     });
 
     // -----------------------------------------
-    //             EVENT LOOP PROCESS 
+    //          SWARM EVENT LOOP PROCESS 
     // -----------------------------------------
     //// in event driven coding there is an event loop
     //// which constantly chanage the code flow of the app 
@@ -217,8 +217,11 @@ pub async fn bootstrap(
     //// we can spawn each async expressin using tokio::spawn() and pass the
     //// returned join handle to select! macro.
             
+    // https://github.com/libp2p/rust-libp2p/blob/master/examples/file-sharing.rs
+    // TODO - build and complete merkle tree
     // TODO - build event loop struct
     // ...
+
             
             
             

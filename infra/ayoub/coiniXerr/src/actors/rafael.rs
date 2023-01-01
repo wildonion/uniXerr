@@ -141,13 +141,26 @@ pub mod env{
     }
     
 
+
+    #[derive(Serialize, Deserialize, Copy, Clone, Debug)]
+    pub struct Request; //// it can be Option<Vec<hyper::Request<hyper::Body>>> which all the incoming http hyper requests to this node that must be handled
+
+
+
+    #[derive(Serialize, Deserialize, Copy, Clone, Debug)]
+    pub struct Weight{
+        pub n: u16,
+        pub requests: Request,
+    }
     
+
+
     pub struct Node{ //// this contains server info 
         pub dns: String,
         pub addr: SocketAddr, 
         pub cost_per_api_call: u128, //// this is based on the load of the weights
         pub init_at: i64,
-        pub weights: Option<Vec<hyper::Request<hyper::Body>>>, //// all the incoming http hyper requests to this node that must be handled
+        pub weights: Option<Vec<Weight>>,
     }
     
     
@@ -191,6 +204,7 @@ pub mod env{
         pub node_peer_id: Option<String>, //// the peer_id of this node
         pub last_crash: Option<i64>, //// last crash timestamp
         pub first_init: Option<i64>, //// first initialization timestamp 
+        pub balancer: Option<Pod>,
     }
 
     impl MetaData{
@@ -223,6 +237,14 @@ pub mod env{
     //                      RAFAEL ACTOR
     // ‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡
     // ‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡‡
+    //// Rafael Runtime is an actor which 
+    //// has all the concurrency concepts
+    //// like worker threadpool based on
+    //// tokio channels, message queue
+    //// and mailbox.
+    //
+    //// also this runtime has a built in
+    //// load balancer.
 
     impl Actor for Runtime{
 
