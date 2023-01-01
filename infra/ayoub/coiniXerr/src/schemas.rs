@@ -600,6 +600,8 @@ impl Node{
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 // NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
+// NOTE - transaction hash is the hash of the signed (using private key) transaction or tx_hash = Argon2(signed_transaction) 
+
 unsafe impl Send for TransactionMem {} //// due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads and avoid concurrent mutations.
 union TransactionMem{
     pub data: *mut self::Transaction, //// defining the data as a raw mutable pointer to a mutable Transaction object, changing the data will change the Transaction object and vice versa
