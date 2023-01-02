@@ -494,12 +494,10 @@ impl Block{
     }
      
     pub fn generate_hash(&mut self){
-
-        // TODO - generate the hash of the block using argon2
-        // ...
-
-        todo!()
-
+        let salt = daemon::get_env_vars().get("SECRET_KEY").unwrap().to_string();
+        let salt_bytes = salt.as_bytes();
+        let block_hash_bytes = self.serialize_block().as_bytes();
+        self.hash = argon2::hash_encoded(block_hash_bytes, salt_bytes, &Config::default());
     }
     
     pub fn is_block_valid(&self) -> bool{
@@ -549,6 +547,7 @@ impl Default for Block{
 // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
 // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
 // https://nomicon.io/DataStructures/MerkleProof
+// TODO - use argon2 to generate the hash of each node pairs
 // NTOE - all transactions inside a block will be stored in form of a merkle tree and since 
 //        it'll chain transaction hash together is a useful algorithm for proof of chain.
 // NOTE - Rc is a smart pointer used for counting the incoming references to the type which shared its ownership using &
@@ -650,13 +649,10 @@ impl Transaction{ //// a transaction decoder or deserializer using union
     }
      
     pub fn generate_hash(&mut self){
-
-        // TODO - generate the hash of the transaction signature using argon2
-        // like: HASH(self.signature)
-        // ...
-
-        todo!()
-
+        let salt = daemon::get_env_vars().get("SECRET_KEY").unwrap().to_string();
+        let salt_bytes = salt.as_bytes();
+        let transaction_hash_bytes = self.signature.as_bytes();
+        self.hash = argon2::hash_encoded(transaction_hash_bytes, salt_bytes, &Config::default());
     } 
 
     pub fn is_transaction_valid(&self) -> bool{

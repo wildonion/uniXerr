@@ -26,6 +26,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     let db_username = env::var("DB_USERNAME").expect("⚠️ no db username variable set");
     let db_password = env::var("DB_PASSWORD").expect("⚠️ no db password variable set");
     let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
+    let secret_key = env::var("SECRET_KEY").expect("⚠️ no secret key variable set");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
     let buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ please set buffer size in .env");
     let max_block_size = env::var("MAX_BLOCK_SIZE").expect("⚠️ please set block size in .env");
@@ -43,6 +44,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     vars.insert("DB_ENGINE".to_string(), db_engine);
     vars.insert("DB_NAME".to_string(), db_name);
     vars.insert("ENVIRONMENT".to_string(), environment);
+    vars.insert("SECRET_KEY".to_string(), secret_key);
     vars.insert("RPC_ADDR".to_string(), rpc_addr);
     vars.insert("TCP_ADDR".to_string(), tcp_addr);
     vars.insert("HOST".to_string(), host);
