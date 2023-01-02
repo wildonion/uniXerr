@@ -23,7 +23,7 @@ use std::fmt;
 
 
 
-
+pub static mut ARR: [u8; 3] = [0; 3];
 
 
 
@@ -746,7 +746,7 @@ pub async fn trash(){
 
     let Complex{..} = com else{ // .. means all the fields
         panic!("can't unpack");
-    }
+    };
 
     pub async fn do_it<F>(callback: F) // callback is of type F
         -> u8 where 

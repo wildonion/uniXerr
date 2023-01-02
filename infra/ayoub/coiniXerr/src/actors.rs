@@ -449,6 +449,7 @@ pub async fn daemonize()
                 last_crash: None,
                 first_init: Some(chrono::Local::now().naive_local().timestamp()),
                 error: None,
+                balancer: None
             }
         )
     };

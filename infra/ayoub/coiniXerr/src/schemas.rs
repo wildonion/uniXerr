@@ -13,7 +13,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-
+///// NOTE - 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
 ///// NOTE - borsh like codec ops : Box<[u8]> (automatic lifetime) or &'a [u8] <-> vec[u8] <-> struct
 ///// NOTE - &[u8] bytes to str using str::from_utf8() -> parse it and build the key:value hashmap -> build the struct instance from the hashmap
 ///// NOTE - deserialization using json string : &[u8] buffer ----serde_json::from_reader()----> Value ----serde_json::to_string()----> json string or &str ----serde_json::from_str()----> struct
@@ -361,6 +361,16 @@ impl Chain{
             is_valid: false,
         }
     }
+
+    pub fn is_chain_valid(&self) -> bool{
+
+        // TODO - check that the chain is valid or not
+        // ...
+
+        todo!()
+
+    }
+
 }
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -452,8 +462,8 @@ pub struct Block{
     pub id: Uuid,
     pub index: u32,
     pub is_genesis: bool,
-    pub prev_hash: Option<String>, //// 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
-    pub hash: Option<String>, //// 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub prev_hash: Option<String>, //// 
+    pub hash: Option<String>,
     pub merkle_root: Option<String>, //// hash of all transactions in the form of a binary tree-like structure called merkle tree such that each hash is linked to its parent following a parent-child tree-like relation
     pub timestamp: i64,
     pub transactions: Vec<Transaction>, //// valid transactions (came through mempool channel) waiting to be confirmed and signed by the node time - can't implement the Copy trait for Vec thus can't bound it to the Block structure 
@@ -483,13 +493,24 @@ impl Block{
         serde_json::to_string(&self).unwrap()
     }
      
-    pub fn generate_hash(&self) -> String{
+    pub fn generate_hash(&mut self){
 
         // TODO - generate the hash of the block using argon2
         // ...
+
         todo!()
 
-    } 
+    }
+    
+    pub fn is_block_valid(&self) -> bool{
+
+        // TODO - check that the block is valid or not
+        // TODO - set self.is_valid to true at the end 
+        // ...
+
+        todo!()
+
+    }
 
 }
 
@@ -580,29 +601,10 @@ impl Node{
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                        Transaction Schema
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// TODO - End-to-End Encryption tools and functions
-//              https://crates.io/crates/noise-protocol -> alternative to tls
-//              https://crates.io/crates/libsodium-sys -> cryptography lib
-//              https://libsodium.gitbook.io/doc/
-//              https://github.com/skerkour/black-hat-rust/tree/main/ch_11
-//              https://cryptobook.nakov.com/
-//              https://medium.com/@panghalamit/whatsapp-s-end-to-end-encryption-how-does-it-work-80020977caa0
-//      • Signature: Ed25519 -> tx hash like the one used in creating validator peer id
-//      • Encryption: XChaCha20Poly1305
-//      • Key Exchange: X25519 -> handshake = agent private key + client public key : agent wants to communicate with client
-//      • Key Derivation Function: blake2b or argon2 : derives one or more secret key from a secret value such as a master key like creating a password from a secret key
-// ---- client pvk + server pbkey of the vpn server = key exchange request from the client
-// ---- server pvk + client pbkey of the vpn server = key exchange request from the vpn server
-// ---- symmetric  : a shared secret key like AES
-// ---- asymmetric : pub and pv key like RSA used in certbot
-// NOTE - the method used in cerbot is based on SHA256 with RSA method means that a public will be stored on the VPS to decrypt the signed traffic with private key inside the client browser  
-// NOTE - in end to end encryption a key exchange will be used to sign the message of both sides and it'll be stored on the both sides' device 
+unsafe impl Send for TransactionMem {} //// due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads and avoid concurrent mutations.
 // NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 // NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 // NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
-// NOTE - transaction hash is the hash of the signed (using private key) transaction or tx_hash = Argon2(signed_transaction) 
-
-unsafe impl Send for TransactionMem {} //// due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads and avoid concurrent mutations.
 union TransactionMem{
     pub data: *mut self::Transaction, //// defining the data as a raw mutable pointer to a mutable Transaction object, changing the data will change the Transaction object and vice versa
     pub buffer: *const u8,
@@ -614,12 +616,12 @@ pub struct Transaction{
     pub id: Uuid,
     pub ttype: u8, //// 00000000 or 0x00 is one byte - every 4 bits in one byte is a hex number so 8 bits is 2 hex number in one byte representation bits and every 3 digit in one byte is a oct number
     pub amount: i32,
-    pub from_address: String, //// 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
-    pub to_address: String, //// 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub from_address: String,
+    pub to_address: String,
     pub issued: i64,
     pub signed: Option<i64>,
-    pub signature: Option<String>, //// 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
-    pub hash: String, //// 32 bytes means 256 bits and 64 characters cause every 4 bits in one byte represents one digit in hex thus 00000000 means 0x00 which is 2 characters in hex and 32 bytes hex string means 64 characters
+    pub signature: Option<String>,
+    pub hash: String,
 }
 
 impl Default for Transaction{
@@ -647,14 +649,57 @@ impl Transaction{ //// a transaction decoder or deserializer using union
         }
     }
      
-    pub fn generate_hash(&self) -> String{
+    pub fn generate_hash(&mut self){
 
         // TODO - generate the hash of the transaction signature using argon2
         // like: HASH(self.signature)
         // ...
+
         todo!()
 
     } 
+
+    pub fn is_transaction_valid(&self) -> bool{
+
+       self.verify_signature() 
+
+    }
+
+    fn verify_signature(&self) -> bool{
+        //// the from_address field is the one who created and signed this transaction 
+        //// and contains the wallet address or the public key that we can use it 
+        //// in verifying process of the transaction signature.
+        //
+        //// public key or the wallet address of the sender can be used 
+        //// to decrypt to verify the signed transaction with private key
+        //// which is stored inside the sender wallet or walleXerr. 
+        //
+        //// message decryption and signature verification is done by the public key
+        //// public keys are by design public information (not a secret) and it is 
+        //// mathematically infeasible to calculate the private key 
+        //// from its corresponding public key.
+        
+        info!("➔ 🏷️ verifying transaction signature");
+        match self.signature{
+            Some(tx_sig) => {
+                
+                // https://crates.io/crates/libsodium-sys
+                // https://libsodium.gitbook.io/doc/
+                // https://cryptobook.nakov.com/
+                // TODO - check that the signature is a valid hash or not 
+                //...
+
+                //// this contains the wallet address of the sender or 
+                //// his/her public key which will be used to find the 
+                //// private key and verify the transaction signature.
+                let public_key = self.from_address; 
+
+                true    
+            },
+            None => false //// empty signature means false
+        }
+
+    }
 
 }
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈

@@ -158,16 +158,29 @@ pub async fn bootstrap(
                     let deserialized_transaction_borsh = &mut Transaction::try_from_slice(&transaction_buffer_bytes[..size]).unwrap(); //// passing the vector of utf8 bytes into the try_from_slice() method to deserialize into the SMSResponse struct - since Vec<u8> will be coerced to &'a [u8] at compile time we've passed Vec<u8> type into the try_from_slice() method; since we want to sign the transaction thus we must define it as mutable
                     let mut transaction_serialized_into_vec_bytes_using_serede = serde_json::to_vec(&deserialized_transaction_serde).unwrap(); //// converting the deserialized_transaction_serde object into vector of utf8 bytes using serde
                     let mut transaction_serialized_into_vec_bytes_using_borsh = deserialized_transaction_borsh.try_to_vec().unwrap(); //// converting the transaction object into vector of utf8 bytes using borsh
+
+                    // ----------------------------------------------------------------------
+                    //              SIGNING TRANSACTION WITH THE CURRENT NODE TIME
+                    // ----------------------------------------------------------------------
+                    //// the transaction can only be signed by the node
+                    //// if the signature is a valid one.
+                    //
+                    //// the issued time of the transaction must be smaller than the current node time
+                    //// also if the transaction signature was valid we could sign the transaction 
+                    //// with the node current time.
                     
-                    // TODO - sign transaction based on a true condition
-                    // ...
-                    
+                    let must_be_signed = deserialized_transaction_borsh.is_valid_transaction();
                     let now = chrono::Local::now().naive_local().timestamp();
-                    let must_be_signed = true;
-                    if must_be_signed && deserialized_transaction_borsh.issued < now{ //// the downside of the mempool channel must be available and also the issued time of the transaction must be smaller than the current server time
+                    if must_be_signed && deserialized_transaction_borsh.issued < now{ 
                         
                         // ----------------------------------------------------------------------
-                        //              SIGNING THE INCOMING TRANSACTION WITH SERVER TIME
+                        //             GENERATING THE HASH OF THE SIGNED TRANSACTION
+                        // ----------------------------------------------------------------------
+                        info!("➔ 🥣 generating the hash of the signed transaction");
+                        deserialized_transaction_borsh.generate_hash();
+
+                        // ----------------------------------------------------------------------
+                        //            SIGNING THE INCOMING TRANSACTION WITH SERVER TIME
                         // ----------------------------------------------------------------------
                         
                         info!("➔ ✍️ signing incoming transaction with the current node time");
@@ -177,12 +190,7 @@ pub async fn bootstrap(
                         //        ENCODING SIGNED TRANSACTION THEN SENDING BACK TO THE PEER
                         // ---------------------------------------------------------------------- 
 
-                        let mut signed_transaction_serialized_into_vec_bytes_using_borsh = deserialized_transaction_borsh.try_to_vec().unwrap(); //// converting the signed transaction object into vector of utf8 bytes using borsh
-                        
-                        // --------------------------------------------------------------------
-                        //                      CONVERTING Vec<u8> -> &[u8]
-                        // --------------------------------------------------------------------
-                        
+                        let mut signed_transaction_serialized_into_vec_bytes_using_borsh = deserialized_transaction_borsh.try_to_vec().unwrap(); //// converting the signed transaction object into vector of utf8 bytes using borsh                    
                         let mut utf8_bytes_using_as_mut_slice = signed_transaction_serialized_into_vec_bytes_using_borsh.as_mut_slice(); //// converting Vec<u8> to mutable slice of &[u8] using as_mut_slice() method - remeber that signed_transaction_serialized_into_vec_bytes_using_borsh must be defined as mutable
                         let utf8_bytes_using_casting: &[u8] = &signed_transaction_serialized_into_vec_bytes_using_borsh; //// since the Vec<u8> will be coerced to &'a [u8] with a valid lifetime at compile time we can borrow the ownership of sms_response_serialized_into_vec_bytes_using_serede using & which by doing this we're borrowing a slice of Ve<u8> from the heap memory which will be coerced to &'a [u8] since we've specified the type of sms_response_serialized_into_utf8_bytes_using_serede which is &[u8]
                         let boxed_utf8_bytes_using_box_slcie = signed_transaction_serialized_into_vec_bytes_using_borsh.into_boxed_slice(); //// converting the Vec<u8> to Box<u8> using into_boxed_slice() method 
@@ -246,7 +254,7 @@ pub async fn bootstrap(
                         //       REJECTING THE INCOMING TRANSACTION BACK TO THE VALIDATOR
                         // ----------------------------------------------------------------------
                         
-                        info!("➔ 🙅 rejecting incoming transaction caused by Unavailable Mempool Channel issue");
+                        info!("➔ 🙅 rejecting incoming transaction caused by invalid transaction signature");
                         stream.write(&transaction_buffer_bytes[..size]).await.unwrap(); //// rejecting the transaction back to the peer
                         true
                     }
@@ -257,7 +265,7 @@ pub async fn bootstrap(
                     false
                 }
             } {} //// the while match must be a block which will return true on its Ok() arm and false on its Err arm
-        }); //// awaiting on tokio::spawn() will block the current task which is running in the background
+        }); //// awaiting on tokio::spawn() will block the current task which is running in the background so we don't await on it just let it be as it is :)
     }
 
 }

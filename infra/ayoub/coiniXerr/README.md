@@ -3,10 +3,9 @@
 
 # 💰 coiniXerr
 
-An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Zero Proof of Knowledge Blockchain for uniXerr Cryptocurrency Coin.
+An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain with Zero Proof of Knowledge, Proof of Healing and Raft Consensus Mechanisms for uniXerr Cryptocurrency Coin.
 
 > The whole coiniXerr node can be executed from the kernel using **BPF** technology which is balzingly fast! 💥 
-
 
 ### 📇 Notes
 
@@ -28,4 +27,4 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Zero Pr
 
 * HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh` also refer to [NEAR Rules](https://github.com/wildonion/smarties/blob/main/contracts/near/NEAR.rules) for implementing unique scaling mechanism like `nightshade sharding`.
 
-* `StorageModel` ORM trait methods, Rafael runtime and onion actors, reset slot, mempool channel, runtime log, consensus, transaction and block validation process, transaction signature, block and merkle root and wallet address using Argon2 based on `XChaCha20Poly1305` end-to-end encryption
+* `StorageModel` ORM trait methods, Rafael runtime and its log, onion actors, reset slot and consensus algorithms

@@ -108,7 +108,7 @@ pub async fn bootstrap(
     //// parts of the app like other threads and scopes.
     //
     //// move Arc<Mutex<T>>: Send + Sync + 'static between 
-    //// threads using tokio channels.
+    //// tokio worker green threadpool using tokio channels.
  
 
     info!("➔ 🎡 peer id for this node [{}]", PEER_ID.clone());
@@ -130,7 +130,7 @@ pub async fn bootstrap(
     //// since dynamic type sizes are not specified at compile time in order 
     //// to pass them into other scopes and threads they must be referenced during the app
     //// either directly using & with a valid lifetime or by putting them 
-    //// inside the Box which has a lifetime on its own. 
+    //// inside the Box which has a lifetime on its own.
 
     info!("➔ 🔌🔐 building a secured transport protocol using noise and tokio TCP");
     let auth_keys = NoiseKeypair::<X25519Spec>::new()
@@ -219,6 +219,7 @@ pub async fn bootstrap(
             
     // https://github.com/libp2p/rust-libp2p/blob/master/examples/file-sharing.rs
     // TODO - build and complete merkle tree
+    // TODO - choose longest chain
     // TODO - build event loop struct
     // ...
 

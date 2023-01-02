@@ -16,4 +16,4 @@ coiniXerr Wallet Front-end
 
 * all transactions need to be signed with the sender's private key.
 
-* we can't have async I/O stream and std libs inside the wasm.
+* we can't have async I/O stream, sockets and std libs inside the wasm.

@@ -1135,8 +1135,7 @@ networking and system:
 ----------------------
 ➤ communication
      ➤ concepts:
-          • pub/sub and other zmq socket types
-          • distributed (replication) and decentralized concepts like p2p:
+          • distributed (replication) and decentralized concepts:
                • search, db and routing engines like elastic, cassandra and p2p kademla: 
                • create best objective function to find the most rewarded (less cost actions) path in the network graph env (route planning) greedily using:
                     • hybrid tech algorithms like NN, GA and neurofuzzy(ANFIS)
@@ -1146,10 +1145,11 @@ networking and system:
                     • reinforcement learning algorithms like qlearning using mdp and bellman equation with off and on policy methods based on markov decision process and markov chain
                     • other algorithms using greedy, dynamic programming, backtracking, divide and conquer, recursive and brute forcing methods
                     • hashmap based algos like DHT in peer finding and cassandra db node replications 
-          • rpc for actor communication on two different machines
+          • rpc capnp for actor communications on two different machines
           • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads 
-          • actor worker threadpool and message queue
-          • codec like borsh, serde and capnp
+          • actor worker threadpool and message queue for task broadcasting and scheduling
+          • pub/sub and other zmq socket actors
+          • libp2p based on rpc capnp, tokio and zmq socket actors
 ➤ proxy, vpns and load balancer like pingora and v2ray for all layers
      ➤ concepts:
           • cpu task scheduling, 
@@ -1159,4 +1159,8 @@ networking and system:
           • event loop
           • iptables
           • simd divide and conquer based vectorization
-➤ compiler, vm, os and runtime
+➤ system
+     ➤ concepts:
+          • compiler, vm using llvm and os
+          • codec like borsh, serde and capnp
+          • runtime

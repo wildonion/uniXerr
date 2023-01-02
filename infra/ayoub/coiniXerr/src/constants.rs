@@ -92,3 +92,5 @@ pub const AUTHORIZATION: &str = "Authorization";
 pub const EMPTY: &str = "";
 pub const NEW_TRANSACTION_TOPIC: &str = "new transaction";
 pub const VERIFYING_TRANSACTION_TOPIC: &str = "verifyin new transaction";
+pub static BUFFER: [u8; 1024] = [0 as u8; 1000]; //// filling the first 1000 elements with zero in u8 format 
+pub static BUFFERVEC: Vec<u8> = [0 as u8; 1024]; //// filling 1024 elements with zero in u8 format

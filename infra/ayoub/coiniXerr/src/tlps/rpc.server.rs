@@ -42,12 +42,17 @@ pub async fn bootstrap(
     // -----------------------------------------------------------
     //// with RPC we can call a method of an encoded actor object
     //// using cap'n proto directly from other devices.
+    //
+    //// the results of an RPC call are returned 
+    //// to the client instantly, before the server 
+    //// even receives the initial request.
     
 
 
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc
     // https://capnproto.org/language.html
+    // https://capnproto.org/rpc.html
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
     // TODO - we must send the new decoded transaction to the downside of the mempool channel for mining and verifying process
     // ... 
