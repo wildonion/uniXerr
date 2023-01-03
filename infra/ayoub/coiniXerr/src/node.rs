@@ -61,7 +61,7 @@ use is_type::Is;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use log::{info, error, LevelFilter};
-use tokio::net::{TcpListener, TcpStream, UdpSocket}; //// async tcp listener and stream
+use tokio::net::{TcpListener, TcpStream, UdpSocket}; //// async tcp and udp streamer
 ///// read from the input and write to the output - AsyncReadExt and AsyncWriteExt 
 //// are traits which are implemented for an object of type TcpStream and based 
 //// on orphan rule we must use them here to use the read() and write() method 
@@ -101,7 +101,7 @@ use libp2p::{
       IdentTopic as Topic, MessageAuthenticity, ValidationMode,
     }
 };
-use crate::engine::cvm;
+use crate::engine::{cvm, consensus::*};
 use crate::actors::{
                     parathread::{Parachain, ParachainMsg, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
                     peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
@@ -116,6 +116,7 @@ use mongodb::Client;
 use futures::{Future, executor::block_on, future::RemoteHandle}; 
 use serde::{Deserialize, Serialize};
 use rand::Rng;
+use ring::{rand as ring_rand, signature as ring_signature};
 use borsh::{BorshDeserialize, BorshSerialize};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::config::{Appender, Root};
@@ -125,7 +126,8 @@ use daemon; //// import lib.rs methods
 
 
 
-
+#[path="tlps/udp.server.rs"]
+pub mod udp;
 #[path="tlps/tcp.server.rs"]
 pub mod tcp;
 #[path="tlps/rpc.server.rs"]
@@ -289,6 +291,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         cloned_arc_mutex_validator_update_channel.clone(),
         coiniXerr_sys.clone()
       ).await; //// tokio TCP 
+
+    // ----------------------------------------------------------------------
+    //                    STARTING coiniXerr UDP SERVER
+    // ----------------------------------------------------------------------
+    //// used to send transaction from a UDP client 
+    //// actor daemonization will be bootstrapped by starting the RPC server
+    
+    udp::bootstrap(
+        mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
+        APP_STORAGE.clone(), 
+        env_vars.clone(),
+        current_slot.clone(),
+        validator_joined_channel.clone(),
+        default_parachain_uuid.clone(),
+        cloned_arc_mutex_runtime_info_object.clone(),
+        meta_data_uuid.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
+        coiniXerr_sys.clone()
+      ).await; //// tokio UDP 
     
     // ----------------------------------------------------------------------
     //                    STARTING coiniXerr P2P STACKS
@@ -407,8 +429,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //// returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
             current_block.push_transaction(mutex_transaction.clone()); //// cloning transaction object in every iteration to prevent ownership moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){
-                // TODO - calculate the block and merkle_root hash
-                // TODO - consensus and block validation process here
+                // TODO - consensus::zpk::consensus_on(current_block) || consensus::raft::consensus_on(current_block) || consensus::poh::consensus_on(current_block)
                 // ...
                 info!("➔ ⚒️🧊 shaping a new block to add transactions");
                 let (prev, last) = {

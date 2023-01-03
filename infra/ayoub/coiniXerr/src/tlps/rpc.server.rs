@@ -11,7 +11,7 @@ use crate::*;
 
 //// in here we'll send all the decoded transactions 
 //// to the downside of the mempool channel 
-//// for mining and veifying process.
+//// for mining and consensus process.
 pub async fn bootstrap(
         mempool_sender: broadcast::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, //// we'll use this sender to send transactions to downside of the mempool channel for mining process
         storage: Option<Arc<Storage>>, 

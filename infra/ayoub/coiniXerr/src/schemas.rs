@@ -8,6 +8,8 @@
 
 
 
+use ring::signature::KeyPair;
+
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
 
@@ -354,17 +356,18 @@ impl Chain{
             index: prev_block.clone().index + 1, //// we have to clone the prev_block cause Block struct doesn't implement the Copy trait
             is_genesis: false,
             prev_hash: prev_block.clone().hash, //// first block inside the chain is the genesis block - we have to clone the prev_block cause Block struct doesn't implement the Copy trait 
-            hash: None, // TODO -
-            merkle_root: None, // TODO - 
+            hash: None,
+            merkle_root: None, 
             timestamp: chrono::Local::now().naive_local().timestamp(),
             transactions: vec![],
             is_valid: false,
         }
     }
 
-    pub fn is_chain_valid(&self) -> bool{
+    pub fn is_chain_valid(&self, chain: &[Block]) -> bool{
 
         // TODO - check that the chain is valid or not
+        // TODO - call is_block_valid() method on the first two block instance of the chain 
         // ...
 
         todo!()
@@ -487,9 +490,23 @@ impl Block{
         }
     }
 
-    pub fn serialize_block(&self) -> String{ //// this method will be used for generating the hash of the block from the json string of the block or the instance of the Block struct
-        //// all the block data (self) must be convert to the string first
+    //// this method will be used for generating the hash of the 
+    //// block from the json string of the block 
+    //// or the instance of the Block struct.
+    fn serialize_block(&self) -> String{ 
+        //// all the block data except hash must 
+        //// be convert to the string first
         //// in order to generate its hash.
+        let tx_data = serde_json::json!({ //// making a serde Value from the block data except the hash field since we want to fill it later
+            "id": self.id,
+            "index": self.index,
+            "is_genesis": self.is_genesis,
+            "prev_hash": self.prev_hash,
+            "merkle_root": self.merkle_root,
+            "timestamp": self.timestamp,
+            "transactions": self.transactions,
+            "is_valid": self.is_valid,
+        });
         serde_json::to_string(&self).unwrap()
     }
      
@@ -500,10 +517,25 @@ impl Block{
         self.hash = argon2::hash_encoded(block_hash_bytes, salt_bytes, &Config::default());
     }
     
-    pub fn is_block_valid(&self) -> bool{
+    pub fn is_block_valid(&self, block: &Block, prev_block: &Block) -> bool{
 
-        // TODO - check that the block is valid or not
-        // TODO - set self.is_valid to true at the end 
+        // TODO - validation processes of two blocks 
+        // ...
+
+        if block.prev_hash != prev_block.hash{
+            false
+        } else if block.id != prev_block.id + 1{
+            false
+        }
+
+        todo!()
+
+    }
+
+    pub fn generate_merkle_root_hash(&mut self) -> Self{
+
+        // TODO - generate merkle root hash of this block
+        // TODO - update self.merkle_root field
         // ...
 
         todo!()
@@ -544,20 +576,17 @@ impl Default for Block{
 
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                      Merkle Tree Schema
-// https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
-// https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
-// https://nomicon.io/DataStructures/MerkleProof
-// TODO - use argon2 to generate the hash of each node pairs
-// NTOE - all transactions inside a block will be stored in form of a merkle tree and since 
-//        it'll chain transaction hash together is a useful algorithm for proof of chain.
-// NOTE - Rc is a smart pointer used for counting the incoming references to the type which shared its ownership using &
-//        and see how many owners the borrowed type has in its entire scope as long as its lifetime is not dropped also 
-//        it has nothing to do with the garbage collection rule cause rust doesn't have it.
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//// Rc is a smart pointer used for counting the incoming references to the type which shared its ownership using &
+//// and see how many owners the borrowed type has in its entire scope as long as its lifetime is not dropped also 
+//// it has nothing to do with the garbage collection rule cause rust doesn't have it.
+//
+//// all transactions inside a block will be stored in form of a merkle tree and since 
+//// it'll chain transaction hash together is a useful algorithm for proof of chain.
 #[derive(Debug)]
 pub struct Node{
     pub id: Uuid,
-    pub data: Transaction, 
+    pub data: Transaction, //// in each node data is the transaction hash; if the data is of type Transaction just call the data.hash since the hash of the transaction has been generated in different TLPs
     pub parent: RefCell<Weak<Node>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<Node>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
     pub children: RefCell<Vec<Rc<Node>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<Node>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
 }
@@ -578,6 +607,18 @@ impl Node{
         } else{
             Err(format!("node -{}- has no children", node.id).to_string())
         }
+    }
+
+    pub fn generate_hash(&mut self, right_node: Node) -> String{
+
+        // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
+        // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
+        // https://nomicon.io/DataStructures/MerkleProof
+        // TODO - use argon2 to generate the hash of self.data.hash + right_node.data.hash
+        // ...
+
+        todo!()
+
     }
 }
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -600,10 +641,20 @@ impl Node{
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                        Transaction Schema
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//// Ed25519 is being used instead of ECDSA as the 
+//// public-key (asymmetric) digital signature encryption to
+//// generate the wallet address keypair the public and private keys,
+//// the hash of the public key is used to generate the wallet address
+//// also we MUST use the public key for transaction signature verification;
+//// the private on the other hand will be used to sign transaction data
+//// (tx data MUST first convert to u8 bytes) finally for the transaction 
+//// hash and generating wallet address (hash of the public key) Argon2 
+//// is being used as the KDF method.
+ 
 unsafe impl Send for TransactionMem {} //// due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads and avoid concurrent mutations.
-// NOTE - all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
-// NOTE - there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
-// NOTE - enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
+//// all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
+//// there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
+//// enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
 union TransactionMem{
     pub data: *mut self::Transaction, //// defining the data as a raw mutable pointer to a mutable Transaction object, changing the data will change the Transaction object and vice versa
     pub buffer: *const u8,
@@ -615,6 +666,7 @@ pub struct Transaction{
     pub id: Uuid,
     pub ttype: u8, //// 00000000 or 0x00 is one byte - every 4 bits in one byte is a hex number so 8 bits is 2 hex number in one byte representation bits and every 3 digit in one byte is a oct number
     pub amount: i32,
+    pub public_key_bytes: Vec<u8>,
     pub from_address: String,
     pub to_address: String,
     pub issued: i64,
@@ -625,21 +677,40 @@ pub struct Transaction{
 
 impl Default for Transaction{
     fn default() -> Self{
-        Transaction{
+        
+        let coiniXerr_node_keypair = COINIXERR_NODE_WALLET_KEYPAIR.unwrap();
+        let public_key = coiniXerr_node_keypair.public_key().as_ref();
+        let wallet_address = self.generate_wallet_address(public_key); //// generating public key from the wallet address
+        //// signing the data which is the serialized transaction bytes
+        //// with the generated private key; the result is the transaction
+        //// signature which must be verified inside the coiniXerr node.
+        info!("➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
+        let signature = key_pair.sign(self.serialize_transaction().as_bytes()); 
+
+        let mut tx = Transaction{
             id: Uuid::new_v4(),
             ttype: 0x00, //// 0x00 means 0 in hex and a regular transaction - 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) in hex means smart contract transaction
             amount: 100,
-            from_address: "the address of coiniXerr network wallet".to_string(), // TODO - the address of the coiniXerr network - public key is used to generate wallet address
-            to_address: "the address of wildonion wallet network".to_string(), // TODO - the address of the wildonion wallet - public key is used to generate wallet address
+            public_key_bytes: public_key, 
+            from_address: wallet_address, //// sender wallet address
+            to_address: wallet_address, //// receiver wallet address
             issued: chrono::Local::now().naive_local().timestamp(),
             signed: Some(chrono::Local::now().naive_local().timestamp()),
-            signature: Some("signature hash of the transaction signed with sender's private key".to_string()), // TODO - transaction object needs to be signed using the sender's private key from walleXerr and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
-            hash: "hash of the signed transaction".to_string(), // TODO -
-        }
+            signature, //// transaction object needs to be signed using the sender's private key from walleXerr and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
+            hash: None
+        };
+
+        tx.hash = Self::generate_hash_from( //// updating the transaction hash
+        Self::serialize_transaction_from(&tx) //// passing the transaction by the reference
+        );
+        
+        tx
+
     }
 }
 
 impl Transaction{ //// a transaction decoder or deserializer using union
+    
     pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{ //// self is a copy to all values of the struct; &self is a pointer to those values means by doing this we will borrow ownership of all original values
         unsafe{ // NOTE - if neither Copy nor Clone is not implemented for the object by moving it into a function we loose the ownership of the value of that object; we can borrow the ownership by taking a pointer to it using &
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //// filling the buffer field will also fill the data cause thay have a same memory storage
@@ -647,13 +718,65 @@ impl Transaction{ //// a transaction decoder or deserializer using union
             Ok(deserialized_transaction)
         }
     }
+
+    //// this method will be used for generating the hash of the 
+    //// transaction from the json string of the transaction 
+    //// or the instance of the Transaction struct.
+    fn serialize_transaction(&self) -> String{ 
+        //// all the transaction data except hash must 
+        //// be convert to the string first
+        //// in order to generate its hash.
+        let tx_data = serde_json::json!({ //// making a serde Value from the transaction data except the hash field since we want to fill it later
+            "id": self.id,
+            "ttype": self.ttype,
+            "amount": self.amount,
+            "public_key_bytes": self.public_key_bytes,
+            "from_address": self.from_address,
+            "to_address": self.to_address,
+            "issued": self.issued,
+            "signed": self.signed,
+            "signature": self.signature
+        });
+        serde_json::to_string(&tx_data).unwrap()
+    }
      
-    pub fn generate_hash(&mut self){
+    pub fn serialize_transaction_from(transaction: &Transaction) -> String{ 
+        //// all the transaction data except hash must 
+        //// be convert to the string first
+        //// in order to generate its hash.
+        let tx_data = serde_json::json!({ //// making a serde Value from the transaction data except the hash field since we want to fill it later
+            "id": transaction.id,
+            "ttype": transaction.ttype,
+            "amount": transaction.amount,
+            "public_key_bytes": transaction.public_key_bytes,
+            "from_address": transaction.from_address,
+            "to_address": transaction.to_address,
+            "issued": transaction.issued,
+            "signed": transaction.signed,
+            "signature": transaction.signature
+        });
+        serde_json::to_string(&tx_data).unwrap()
+    }
+
+    fn generate_hash(&mut self){
         let salt = daemon::get_env_vars().get("SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
-        let transaction_hash_bytes = self.signature.as_bytes();
+        let transaction_hash_bytes = self.serialize_transaction().as_bytes();
         self.hash = argon2::hash_encoded(transaction_hash_bytes, salt_bytes, &Config::default());
     } 
+
+    pub fn generate_hash_from(serialized_tx: String){
+        let salt = daemon::get_env_vars().get("SECRET_KEY").unwrap().to_string();
+        let salt_bytes = salt.as_bytes();
+        let transaction_hash_bytes = serialized_tx.as_bytes();
+        argon2::hash_encoded(transaction_hash_bytes, salt_bytes, &Config::default());
+    } 
+
+    fn generate_wallet_address(&mut self, pubk: &[u8]) -> String{ //// generating wallet address from the public key using Argon2
+        let salt = daemon::get_env_vars().get("GENERATE_WALLET_ADDRESS_SECRET_KEY").unwrap().to_string();
+        let salt_bytes = salt.as_bytes();
+        argon2::hash_encoded(pubk, salt_bytes, &Config::default())
+    }
 
     pub fn is_transaction_valid(&self) -> bool{
 
@@ -662,39 +785,30 @@ impl Transaction{ //// a transaction decoder or deserializer using union
     }
 
     fn verify_signature(&self) -> bool{
-        //// the from_address field is the one who created and signed this transaction 
-        //// and contains the wallet address or the public key that we can use it 
-        //// in verifying process of the transaction signature.
-        //
-        //// public key or the wallet address of the sender can be used 
-        //// to decrypt to verify the signed transaction with private key
-        //// which is stored inside the sender wallet or walleXerr. 
-        //
-        //// message decryption and signature verification is done by the public key
-        //// public keys are by design public information (not a secret) and it is 
-        //// mathematically infeasible to calculate the private key 
-        //// from its corresponding public key.
-        
-        info!("➔ 🏷️ verifying transaction signature");
-        match self.signature{
-            Some(tx_sig) => {
-                
-                // https://crates.io/crates/libsodium-sys
-                // https://libsodium.gitbook.io/doc/
-                // https://cryptobook.nakov.com/
-                // TODO - check that the signature is a valid hash or not 
-                //...
-
-                //// this contains the wallet address of the sender or 
-                //// his/her public key which will be used to find the 
-                //// private key and verify the transaction signature.
-                let public_key = self.from_address; 
-
-                true    
+        info!("➔ 🏷️ verifying transaction signature using public-key (asymmetric) digital signature encryption based on Ed25519");
+        match self.signature{ // https://cryptobook.nakov.com/digital-signatures
+            Some(tx_sig) => {                
+                info!("➔ 🕵🏾‍♀️ verifying transaction signature using public key 🔑"); 
+                let serialized_tx_bytes = self.serialize_transaction().as_bytes(); 
+                if !self.public_key_bytes.is_empty(){
+                    let peer_public_key = ring_signature::UnparsedPublicKey::new(&ring_signature::ED25519, self.public_key_bytes); //// generating the public key from the public key bytes 
+                    //// verifying the signature based on the 
+                    //// serialized transaction bytes and the  
+                    //// public key; public key will be used to 
+                    //// find the private key of the signer 
+                    //// which is inside the walleXerr to 
+                    //// complete the verification process.
+                    match peer_public_key.verify(serialized_tx_bytes, self.signature.as_ref()){ 
+                        Ok(_) => true,
+                        Err(_) => false
+                    }
+                } else{
+                    false //// public address is empty which contains zero bytes
+                }
+            
             },
             None => false //// empty signature means false
         }
-
     }
 
 }

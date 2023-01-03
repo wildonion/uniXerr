@@ -1133,7 +1133,7 @@ https://ethereum.org/nl/developers/docs/evm/
 ----------------------
 networking and system:
 ----------------------
-➤ communication
+➤ networking
      ➤ concepts:
           • distributed (replication) and decentralized concepts:
                • search, db and routing engines like elastic, cassandra and p2p kademla: 
@@ -1145,10 +1145,10 @@ networking and system:
                     • reinforcement learning algorithms like qlearning using mdp and bellman equation with off and on policy methods based on markov decision process and markov chain
                     • other algorithms using greedy, dynamic programming, backtracking, divide and conquer, recursive and brute forcing methods
                     • hashmap based algos like DHT in peer finding and cassandra db node replications 
-          • rpc capnp for actor communications on two different machines
+          • rpc capnp for actor method based communication on two different machines
           • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads 
           • actor worker threadpool and message queue for task broadcasting and scheduling
-          • pub/sub and other zmq socket actors
+          • pub/sub and other zmq socket actors to broadcast from publisher to subscribers using sockets
           • libp2p based on rpc capnp, tokio and zmq socket actors
 ➤ proxy, vpns and load balancer like pingora and v2ray for all layers
      ➤ concepts:
@@ -1162,5 +1162,7 @@ networking and system:
 ➤ system
      ➤ concepts:
           • compiler, vm using llvm and os
-          • codec like borsh, serde and capnp
+          • codec ram (buffer) like borsh, bson, serde and capnp
           • runtime
+          • cryptography
+          • language binding like writing rust code on top of apis of the compiled (.so) code in c like rust bindings to libsodium

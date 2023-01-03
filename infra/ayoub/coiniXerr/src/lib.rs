@@ -27,6 +27,8 @@ pub fn get_env_vars() -> HashMap<String, String>{
     let db_password = env::var("DB_PASSWORD").expect("⚠️ no db password variable set");
     let db_engine = env::var("DB_ENGINE").expect("⚠️ no db engine variable set");
     let secret_key = env::var("SECRET_KEY").expect("⚠️ no secret key variable set");
+    let wallet_secret_key = env::var("GENERATE_WALLET_ADDRESS_SECRET_KEY").expect("⚠️ no secret key variable set for wallet address");
+    let merkle_root_secret_key = env::var("MERKLE_ROOT_SECRET_KEY").expect("⚠️ no secret key variable set for merkle root");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
     let buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ please set buffer size in .env");
     let max_block_size = env::var("MAX_BLOCK_SIZE").expect("⚠️ please set block size in .env");
@@ -34,6 +36,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     let host = env::var("HOST").expect("⚠️ please set host in .env");
     let rpc_addr = env::var("RPC_ADDR").expect("⚠️ no rpc addr variable set");
     let tcp_addr = env::var("TCP_ADDR").expect("⚠️ no tcp addr variable set");
+    let udp_addr = env::var("UDP_ADDR").expect("⚠️ no udp addr variable set");
     let swarm_addr = env::var("SWARM_ADDR").expect("⚠️ no swarm addr variable set");
 
 
@@ -45,8 +48,11 @@ pub fn get_env_vars() -> HashMap<String, String>{
     vars.insert("DB_NAME".to_string(), db_name);
     vars.insert("ENVIRONMENT".to_string(), environment);
     vars.insert("SECRET_KEY".to_string(), secret_key);
+    vars.insert("GENERATE_WALLET_ADDRESS_SECRET_KEY".to_string(), wallet_secret_key);
+    vars.insert("MERKLE_ROOT_SECRET_KEY".to_string(), merkle_root_secret_key);
     vars.insert("RPC_ADDR".to_string(), rpc_addr);
     vars.insert("TCP_ADDR".to_string(), tcp_addr);
+    vars.insert("UDP_ADDR".to_string(), udp_addr);
     vars.insert("HOST".to_string(), host);
     vars.insert("BUFFER_SIZE".to_string(), buffer_size);
     vars.insert("MAX_BLOCK_SIZE".to_string(), max_block_size);

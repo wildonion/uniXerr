@@ -942,6 +942,7 @@ dependencies = [
  "reqwest",
  "riker",
  "riker-patterns",
+ "ring",
  "rust-argon2",
  "serde 1.0.144",
  "serde_json",

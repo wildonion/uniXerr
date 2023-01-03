@@ -48,7 +48,7 @@ use crate::*;
 //
 //// in here we'll send all the decoded transactions 
 //// to the downside of the mempool channel 
-//// for mining and veifying process.
+//// for mining and consensus process.
 pub async fn bootstrap(
         mempool_sender: broadcast::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, //// we'll use this sender to send transactions to downside of the mempool channel for mining process
         storage: Option<Arc<Storage>>, 
@@ -203,14 +203,18 @@ pub async fn bootstrap(
     //// when some async I/O events happen in which the pulled 
     //// async I/O event out of the queue will be placed onto 
     //// the function execution stack to be executed whenever 
-    //// whenever the function stack becomes empty this can be done
+    //// whenever the function stack becomes empty; this can be done
     //// using tokio::select! macro which waits on multiple 
-    //// concurrent branches and async computations, returning 
-    //// when the first branch or a single computation completes, 
+    //// concurrent branches and async computation task events, 
+    //// returning when the first branch or a single computation completes, 
     //// cancelling the remaining branches or async computations.
     //
+    //// stream over events to read data from the wire constantly 
+    //// and save then in a buffer inside the stack 
+    //// then serialize it.
+    //
     //// tokio solves async tasks or future objects selected 
-    //// from the event loop in the background 
+    //// from the event loop using tokio::select! in the background 
     //// inside worker green threadpool.
     //
     //// if we want to have concurrent and parallelism at the same time
@@ -218,8 +222,7 @@ pub async fn bootstrap(
     //// returned join handle to select! macro.
             
     // https://github.com/libp2p/rust-libp2p/blob/master/examples/file-sharing.rs
-    // TODO - build and complete merkle tree
-    // TODO - choose longest chain
+    // TODO - choose longest chain first call the is_chain_valid() method on the current chain
     // TODO - build event loop struct
     // ...
 

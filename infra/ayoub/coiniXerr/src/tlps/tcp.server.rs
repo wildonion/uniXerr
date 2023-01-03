@@ -10,7 +10,7 @@ use crate::*;
 
 //// in here we'll send all the decoded transactions 
 //// to the downside of the mempool channel 
-//// for mining and veifying process.
+//// for mining and consensus process.
 pub async fn bootstrap(
         mempool_sender: broadcast::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, //// we'll use this sender to send transactions to downside of the mempool channel for mining process
         storage: Option<Arc<Storage>>, 
@@ -69,13 +69,12 @@ pub async fn bootstrap(
     // when we want to load vars it's ok but if we put the starting the emulator process before loading dotenv we'll face error since dotenv doesn't initialize yet.
 
     utils::tcp_tx_emulator().await;
-    utils::udp_tx_emulator().await;
 
     
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                     starting validator actors for incoming transactions' bytes through a tcp streamer 
+    ///////                                 waiting on tcp streamer to get transaction bytes asyncly 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     
     while let Ok((stream, addr)) = listener.accept().await{ //// await suspends the accept() function execution to solve the future but allows other code blocks to run      
@@ -98,6 +97,15 @@ pub async fn bootstrap(
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                                 waiting to receive stream and other setups asynchronously 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    //// we could also use the following syntax:
+    ////    while match stream_receiver.recv().await{
+    ////       Some() => {
+    ////
+    ////       }, 
+    ////       None => {
+    ////               
+    ////       }
+    ////    }
 
     while let Some((
                     mut stream, 
@@ -177,7 +185,7 @@ pub async fn bootstrap(
                         //             GENERATING THE HASH OF THE SIGNED TRANSACTION
                         // ----------------------------------------------------------------------
                         info!("➔ 🥣 generating the hash of the signed transaction");
-                        deserialized_transaction_borsh.generate_hash();
+                        deserialized_transaction_borsh.generate_hash(); //// this hash will be used in calculating merkle root process
 
                         // ----------------------------------------------------------------------
                         //            SIGNING THE INCOMING TRANSACTION WITH SERVER TIME

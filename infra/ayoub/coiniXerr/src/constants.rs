@@ -71,6 +71,21 @@ pub static MEMPOOL_CHANNEL
                     )>(daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap()) //// transaction mempool channel using broadcast channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
                 });
 
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+///////       generate coiniXerr node wallet keypaior
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//// we'll use this keypair to generate wallet address
+//// from the public key and sign transaction using the 
+//// private key.
+
+pub static COINIXERR_NODE_WALLET_KEYPAIR: Lazy<Result<ring_signature::Ed25519KeyPair>> = Lazy::new(||{
+    let rng = ring_rand::SystemRandom::new();
+    let pkcs8_bytes = ring_signature::Ed25519KeyPair::generate_pkcs8(&rng)?;
+    ring_signature::Ed25519KeyPair::from_pkcs8(pkcs8_bytes.as_ref())
+});
+
+
+
 
 
 
