@@ -74,7 +74,7 @@ pub async fn bootstrap(
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                                 waiting on tcp streamer to get transaction bytes asyncly 
+    ///////                                 waiting on TCP streamer to get transaction bytes asyncly 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     
     while let Ok((stream, addr)) = listener.accept().await{ //// await suspends the accept() function execution to solve the future but allows other code blocks to run      

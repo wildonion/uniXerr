@@ -17,6 +17,7 @@ pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //
 pub static PARACHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("parachains"));
 pub static BLOCK_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("blocks"));
 pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); //// this is the topic about network status and updates
+pub static TRANSACTION_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("transaction"));
 
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup
@@ -78,7 +79,7 @@ pub static MEMPOOL_CHANNEL
 //// from the public key and sign transaction using the 
 //// private key.
 
-pub static COINIXERR_NODE_WALLET_KEYPAIR: Lazy<Result<ring_signature::Ed25519KeyPair>> = Lazy::new(||{
+pub static COINIXERR_NODE_WALLET_KEYPAIR: Lazy<Result<ring_signature::Ed25519KeyPair, ring::error::KeyRejected>> = Lazy::new(||{
     let rng = ring_rand::SystemRandom::new();
     let pkcs8_bytes = ring_signature::Ed25519KeyPair::generate_pkcs8(&rng)?;
     ring_signature::Ed25519KeyPair::from_pkcs8(pkcs8_bytes.as_ref())

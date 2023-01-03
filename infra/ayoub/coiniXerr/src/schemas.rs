@@ -364,7 +364,7 @@ impl Chain{
         }
     }
 
-    pub fn is_chain_valid(&self, chain: &[Block]) -> bool{
+    pub fn is_chain_valid(&self) -> bool{
 
         // TODO - check that the chain is valid or not
         // TODO - call is_block_valid() method on the first two block instance of the chain 
@@ -517,15 +517,27 @@ impl Block{
         self.hash = argon2::hash_encoded(block_hash_bytes, salt_bytes, &Config::default());
     }
     
-    pub fn is_block_valid(&self, block: &Block, prev_block: &Block) -> bool{
+    pub fn is_block_valid(&self, prev_block: &Block) -> bool{
 
-        // TODO - validation processes of two blocks 
+        // TODO - validation processes of this block with the prev block 
         // ...
 
-        if block.prev_hash != prev_block.hash{
+        if self.prev_hash != prev_block.hash{
+        
+            self.is_valid = false;
+            prev_block.is_valid = false;
             false
-        } else if block.id != prev_block.id + 1{
+        
+        } else if self.id != prev_block.id + 1{
+            
+            self.is_valid = false;
+            prev_block.is_valid = false;
             false
+        
+        } else{
+
+            self.is_valid = true;
+            prev_block.is_valid = true;
         }
 
         todo!()
@@ -545,14 +557,14 @@ impl Block{
 }
 
 impl Default for Block{
-    fn default() -> Self{
+    fn default() -> Self{ //// this must be used to generate the genesis block so some field are None
         Block{
             id: Uuid::new_v4(),
             index: 0,
             is_genesis: true,
-            prev_hash: Some("prev block hash here".to_string()), // TODO -
-            hash: Some("current block hash here".to_string()), // TODO -
-            merkle_root: Some("merkle root hash here".to_string()), // TODO - 
+            prev_hash: None, //// genesis block doens't have prev hash
+            hash: None, //// must be filled later in consensus process
+            merkle_root: None, //// must be filled later in consensus process
             timestamp: chrono::Local::now().naive_local().timestamp(),
             transactions: vec![Transaction::default()],
             is_valid: true,
@@ -680,12 +692,7 @@ impl Default for Transaction{
         
         let coiniXerr_node_keypair = COINIXERR_NODE_WALLET_KEYPAIR.unwrap();
         let public_key = coiniXerr_node_keypair.public_key().as_ref();
-        let wallet_address = self.generate_wallet_address(public_key); //// generating public key from the wallet address
-        //// signing the data which is the serialized transaction bytes
-        //// with the generated private key; the result is the transaction
-        //// signature which must be verified inside the coiniXerr node.
-        info!("➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
-        let signature = key_pair.sign(self.serialize_transaction().as_bytes()); 
+        let wallet_address = Self::generate_wallet_address_from(public_key); //// generating public key from the wallet address
 
         let mut tx = Transaction{
             id: Uuid::new_v4(),
@@ -696,14 +703,35 @@ impl Default for Transaction{
             to_address: wallet_address, //// receiver wallet address
             issued: chrono::Local::now().naive_local().timestamp(),
             signed: Some(chrono::Local::now().naive_local().timestamp()),
-            signature, //// transaction object needs to be signed using the sender's private key from walleXerr and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
+            signature: None, //// transaction object needs to be signed using the sender's private key from walleXerr and this cryptographically proves that the transaction could only have come from the sender and was not sent fraudulently
             hash: None
         };
 
-        tx.hash = Self::generate_hash_from( //// updating the transaction hash
-        Self::serialize_transaction_from(&tx) //// passing the transaction by the reference
-        );
+
+        //// we didn't save the Self::serialize_transaction_from(&tx)
+        //// into a variable since the variable can't be used again
+        //// to pass it to the Self::generate_hash_from() method
+        //// to generate the hash because after updating signature field
+        //// we must serialize the transaction data gain hence it's better
+        //// to call Self::serialize_transaction_from(&tx) every time we need it!
+        //  
+        //// signing the data which is the serialized transaction bytes
+        //// with the generated private key; the result is the transaction
+        //// signature which must be verified inside the coiniXerr node.
+        info!("➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
+        let signature = coiniXerr_node_keypair
+                                        .sign(
+                                            Self::serialize_transaction_from(&tx)
+                                                    .as_bytes()
+                                            ); 
         
+        //// updating the signature field before 
+        //// generating the hash  
+        tx.signature = signature; 
+        tx.hash = Self::generate_hash_from(
+                        //// calling Self::serialize_transaction_from(&tx) again since we've update the signature field
+                        Self::serialize_transaction_from(&tx) 
+                    );
         tx
 
     }
@@ -772,7 +800,7 @@ impl Transaction{ //// a transaction decoder or deserializer using union
         argon2::hash_encoded(transaction_hash_bytes, salt_bytes, &Config::default());
     } 
 
-    fn generate_wallet_address(&mut self, pubk: &[u8]) -> String{ //// generating wallet address from the public key using Argon2
+    fn generate_wallet_address_from(pubk: &[u8]) -> String{ //// generating wallet address from the public key using Argon2
         let salt = daemon::get_env_vars().get("GENERATE_WALLET_ADDRESS_SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
         argon2::hash_encoded(pubk, salt_bytes, &Config::default())

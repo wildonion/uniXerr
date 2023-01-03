@@ -60,7 +60,7 @@ pub async fn bootstrap(
     //           STARTING TOKIO UDP SERVER (ONE TO MANY CONNECTION)
     // ----------------------------------------------------------------------
 
-    let listener = UdpSocket::bind(env_vars.get("UDP_ADDR").unwrap()).await.unwrap();
+    let stream = UdpSocket::bind(env_vars.get("UDP_ADDR").unwrap()).await.unwrap();
     info!("➔ 🟢 udp socket is ready");
 
     // ----------------------------------------------------------------------
@@ -75,13 +75,18 @@ pub async fn bootstrap(
 
 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////                                 waiting on udp streamer to get transaction bytes asyncly
+    ///////                                 waiting on UDP streamer to get transaction bytes asyncly
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// if a received message is too long to 
     //// fit in the supplied buffer, 
     //// excess bytes may be discarded.
+    //
+    //// the addr variable passed in to the send_to() 
+    //// method of the UPD stream is the address of 
+    //// the peer that is connected to this socket
+    //// since we're using one to many UDP socket. 
 
-    while let Ok((len, addr)) = listener.recv_from(transaction_buffer_bytes as &mut [u8]).await{ //// await suspends the accept() function execution to solve the future but allows other code blocks to run      
+    while let Ok((size, addr)) = stream.recv_from(transaction_buffer_bytes as &mut [u8]).await{ //// await suspends the accept() function execution to solve the future but allows other code blocks to run      
         info!("➔ 🪢 connection stablished from {}", addr);
         //// ... the following will handle the the incoming stream inside a tokio worker green threadpool measn tokio::spawn() is an async task worker green threadpool solver 
         //// ... move will move everything from its behind to the new scope and take their ownership so there is not a single var after moving in second iteration of the loop thus we've passed all the requirements that might be moved by doing that we can make sure that we have them again after first iteration 
@@ -107,12 +112,12 @@ pub async fn bootstrap(
                     // assert_eq!(3985935_u32, result); //// it'll panic on not equal condition
                     info!("➔ ::::: the result is {:?} - [it might be different from the input] - | cost : {:?}\n\n", result, delta_ms);
                     let msg_to_write = format!("::::: the result is {:?} - [it might be different from the input] - | cost : {:?}\n\n", result, delta_ms);
-                    stream.write(&msg_to_write.as_bytes()).await.unwrap(); //// sending the simd result String message as utf8 bytes back to the peer
+                    stream.send_to(&msg_to_write.as_bytes(), addr).await.unwrap(); //// sending the simd result String message as utf8 bytes back to the peer
                 },
                 Err(e) => {
                     info!("➔ ::::: error in reading chunk caused by {:?}", e);
                     let msg_to_write = format!("::::: error in reading chunk caused by {:?}", e);
-                    stream.write(&msg_to_write.as_bytes()).await.unwrap(); //// sending the simd error String message as utf8 bytes back to the peer
+                    stream.send_to(&msg_to_write.as_bytes(), addr).await.unwrap(); //// sending the simd error String message as utf8 bytes back to the peer
                 },
             };
             
@@ -164,7 +169,7 @@ pub async fn bootstrap(
                 let boxed_utf8_bytes_using_box_slcie = signed_transaction_serialized_into_vec_bytes_using_borsh.into_boxed_slice(); //// converting the Vec<u8> to Box<u8> using into_boxed_slice() method 
                 let utf_bytes_dereference_from_box = &*boxed_utf8_bytes_using_box_slcie; //// borrow the ownership of the dereferenced boxed_utf8_bytes_using_box_slcie using & to convert it to &[u8] with a valid lifetime since the dereferenced boxed_utf8_bytes_using_box_slcie has unknown size at compile time thus working with u8 slice needs to borrow them from the heap memory to have their location address due to implemented ?Sized for [u8]
                 info!("➔ 🪙✍️ sending signed transaction back to the peer");
-                stream.write(&utf_bytes_dereference_from_box).await.unwrap(); //// sending the signed transaction back to the peer - since Vec<u8> will be coerced to &'a [u8] with valid lifetime at compile time we can also send the signed_transaction_serialized_into_vec_bytes_using_borsh directly through the socket even though the write() method takes &'a [u8] param with a valid lifetime 
+                stream.send_to(&utf_bytes_dereference_from_box, addr).await.unwrap(); //// sending the signed transaction back to the peer - since Vec<u8> will be coerced to &'a [u8] with valid lifetime at compile time we can also send the signed_transaction_serialized_into_vec_bytes_using_borsh directly through the socket even though the write() method takes &'a [u8] param with a valid lifetime 
                 
                 // ----------------------------------------------------------------------
                 //       UPDATING VALIDATOR ACTOR WITH THE LATEST SIGNED TRANSACTION
@@ -172,7 +177,7 @@ pub async fn bootstrap(
 
                 info!("➔ 👷🏼‍♂️🔃 updating validator actor with the recent signed transaction");
                 for (id, md) in cloned_arc_mutex_runtime_info_object.lock().unwrap().0.iter_mut(){ //// id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
-                    if id == &generated_uuid{
+                    if id == &meta_data_uuid{
                         let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&utf_bytes_dereference_from_box).unwrap(); //// deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
                         md.update_validator_transaction(Some(signed_transaction_deserialized_from_bytes)); //// update the validator actor with a recent signed transaction
                     }
@@ -184,7 +189,7 @@ pub async fn bootstrap(
 
                 let validator_update_channel = cloned_arc_mutex_validator_update_channel.lock().unwrap().clone(); //// cloning will return the T from MutexGuard
                 let current_validator = cloned_arc_mutex_validator_actor.lock().unwrap().clone(); //// cloning will return the T from MutexGuard
-                let current_peer_id_remote_handle: RemoteHandle<String> = ask(&coiniXerr_actor_system, &current_validator, ValidatorCommunicate{id: Uuid::new_v4(), cmd: ValidatorCmd::GetValidatorPeerId}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the uuid of the passed in validator actor and return the result or response as a future object; the passed in Uuid is the Uuid of the generated command 
+                let current_peer_id_remote_handle: RemoteHandle<String> = ask(&coiniXerr_sys.clone(), &current_validator, ValidatorCommunicate{id: Uuid::new_v4(), cmd: ValidatorCmd::GetValidatorPeerId}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the uuid of the passed in validator actor and return the result or response as a future object; the passed in Uuid is the Uuid of the generated command 
                 let current_validator_peer_id = current_peer_id_remote_handle.await; //// getting the peer_id of the current validator which has passed in to the stream mpsc channel
                 validator_update_channel.tell( //// telling the channel that we want to publish something
                                             Publish{
@@ -214,7 +219,7 @@ pub async fn bootstrap(
                 let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&utf_bytes_dereference_from_box).unwrap(); //// deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
                 let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //// putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
                 let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //// cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
-                mempool_sender.send((cloned_arc_mutex_transaction, cloned_arc_mutex_validator_actor.clone(), coiniXerr_actor_system.clone())).unwrap(); //// sending signed transaction plus the validator actor info through the mpsc job queue channel asynchronously for mining process - we must clone the cloned_arc_mutex_validator_actor in each iteration to prevent ownership moving
+                mempool_sender.send((cloned_arc_mutex_transaction, cloned_arc_mutex_validator_actor.clone(), coiniXerr_sys.clone())).unwrap(); //// sending signed transaction plus the validator actor info through the mpsc job queue channel asynchronously for mining process - we must clone the cloned_arc_mutex_validator_actor in each iteration to prevent ownership moving
                 true
             } else{
                 
@@ -223,7 +228,7 @@ pub async fn bootstrap(
                 // ----------------------------------------------------------------------
                 
                 info!("➔ 🙅 rejecting incoming transaction caused by invalid transaction signature");
-                stream.write(&transaction_buffer_bytes[..size]).await.unwrap(); //// rejecting the transaction back to the peer
+                stream.send_to(&transaction_buffer_bytes[..size], addr).await.unwrap(); //// rejecting the transaction back to the peer
                 true
             }
         

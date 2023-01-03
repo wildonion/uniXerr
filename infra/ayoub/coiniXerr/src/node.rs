@@ -49,7 +49,7 @@ Coded by
 
 
 // #![allow(unused)] //// will let the unused vars be there - we have to put this on top of everything to affect the whole crate
-// #![macro_use] //// apply the macro_use attribute to the root cause it's an inner attribute and will be effect on all things inside this crate
+// #![macro_use] //// apply the macro_use attribute to the root cause it's an inner attribute and will be effect on all things inside this crate like #![no_std]
 
 //// sync creates are types that are thread safe and can be shared between threads safety
 //// since types can be shareable if they are bounded to Send Sync and have valid lifetimes
@@ -427,27 +427,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         // ----------------------------------------------------------------------
 
         while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //// returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
-            current_block.push_transaction(mutex_transaction.clone()); //// cloning transaction object in every iteration to prevent ownership moving and loosing ownership - adding pending transaction from the mempool channel into the current block for validating that block
+            current_block.push_transaction(mutex_transaction.clone()); //// cloning transaction object in every iteration to prevent ownership moving and losing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){
                 // TODO - consensus::zpk::consensus_on(current_block) || consensus::raft::consensus_on(current_block) || consensus::poh::consensus_on(current_block)
                 // ...
                 info!("➔ ⚒️🧊 shaping a new block to add transactions");
                 let (prev, last) = {
                     let current_blockchain = blockchain.clone(); //// creating longer lifetime since `let` will create a longer lifetime for the value - can't have blockchain.clone().blocks.iter().rev() cause blockchain.clone() lifetime will be ended beforer reach the blocks field
-                    let mut rev_iter = current_blockchain.blocks.iter().rev(); //// cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                    let mut rev_iter = current_blockchain.blocks.iter().rev(); //// cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and losing ownership - we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and losing ownership
                     (rev_iter.next().unwrap().to_owned(), rev_iter.next().unwrap().to_owned()) //// converting &Block to Block by using to_owned() method in which cloning process will be used 
                 };
-                current_block = blockchain.clone().build_raw_block(&prev); //// passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and loosing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                current_block = blockchain.clone().build_raw_block(&prev); //// passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and losing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and losing ownership
             }
         }
-        if let (Some(merkle_root), Some(block_hash)) = (current_block.clone().merkle_root, current_block.clone().hash){ //// checking the block's hash and merkle_root hash for transactions finality
+        if current_block.is_valid{
             info!("➔ 🥑 block with id [{}] is valid", current_block.id);
-            current_block.is_valid = true;
             info!("➔ 🧣 adding the created block to the chain");
-            blockchain.clone().add(current_block.clone()); //// adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration mempool_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+            blockchain.clone().add(current_block.clone()); //// adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration mempool_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and losing ownership
         } else{
             info!("➔ ⛔ block with id [{}] is invalid", current_block.id);
-            current_block.is_valid = false;
         }
 
         // ---------------------------------------------------------------------
