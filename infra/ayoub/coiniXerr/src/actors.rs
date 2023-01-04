@@ -219,6 +219,10 @@ pub async fn daemonize()
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                           parachain subscribers 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    //// in pub/sub pattern between actors in the same machine 
+    //// we must specify the subscriber actor when telling the
+    //// channel for subscription since we're broadcasting 
+    //// in the same device not through the socket.
 
     parachain_updated_channel.tell( //// telling the channel that an actor wants to subscribe to a topic
                                 Subscribe{ 

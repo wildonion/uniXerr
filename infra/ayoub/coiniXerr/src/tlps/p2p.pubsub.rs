@@ -130,7 +130,7 @@ pub async fn bootstrap(
     //// since dynamic type sizes are not specified at compile time in order 
     //// to pass them into other scopes and threads they must be referenced during the app
     //// either directly using & with a valid lifetime or by putting them 
-    //// inside the Box which has a lifetime on its own.
+    //// inside the Box which can handle the lifetime on its own.
 
     info!("➔ 🔌🔐 building a secured transport protocol using noise and tokio TCP");
     let auth_keys = NoiseKeypair::<X25519Spec>::new()

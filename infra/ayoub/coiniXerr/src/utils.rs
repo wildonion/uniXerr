@@ -727,6 +727,25 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 
 
 
+macro based for pub/sub streamer actor on top of tokio, zmq and libp2p sockets like:
+let stream = streamer!{
+    tlp: "p2p|zmq|rpc|tokio-tcp|tokio-udp|local"
+    type: "pub/sub"
+    publish{
+        topic: ""
+        at: ""
+    }
+}
+
+let res = streamer!{
+    tlp: "p2p|zmq|rpc|tokio-tcp|tokio-udp|local"
+    type: "pub/sub"
+    subscribe{
+        topic: ""
+
+    }
+}
+
 
 
 //// event manager macro
