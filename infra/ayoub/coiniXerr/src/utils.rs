@@ -696,6 +696,7 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 // https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/macros.html
 // https://blog.logrocket.com/procedural-macros-in-rust/
 // https://danielkeep.github.io/tlborm/book/mbe-macro-rules.html
+// https://lib.rs/development-tools/procedural-macro-helpers
   
 //// ➔ trait based proc macro attribute:
 ////    derive like macros like #[derive(Serialize, Deserialize, Copy, Clone, Debug)] to bound a struct to the trait which delegates trait implementation for the struct which contains the trait methods that will extend the interface of the type
