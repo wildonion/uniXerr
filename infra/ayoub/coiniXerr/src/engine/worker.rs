@@ -164,7 +164,11 @@ pub mod sync{
     type Job = Box<dyn FnOnce() + Send + 'static>; // a job is of type closure which must be Send and static across all threads inside a Box on the heap
 
 
-
+    //// there is no guaranteed order of execution for spawns, given that other threads 
+    //// may steal tasks at any time, however, they are generally prioritized in a LIFO order 
+    //// on the thread from which they were spawned, other threads always steal from the 
+    //// other end of the deque, like FIFO order, the idea is that recent tasks are most 
+    //// likely to be fresh in the local CPU's cache, while other threads can steal older stale tasks.
     pub struct RayonSyncWorker{
         count: usize, // number of workers
         sender: mpsc::UnboundedSender<Job>, // sender async side with no byte limitation
@@ -222,6 +226,11 @@ pub mod sync{
     }
 
 
+    //// spawning native threads are too slow since thread handling in rust is depends 
+    //// on user base context switching means that based on the load of the IO in the 
+    //// app rust might solve the data load inside another cpu core and use multiprocessing approach:
+    ////     • https://www.reddit.com/r/rust/comments/az9ogy/help_am_i_doing_something_wrong_or_do_threads/
+    ////     • https://www.reddit.com/r/rust/comments/cz4bt8/is_there_a_simple_way_to_create_lightweight/
     struct Worker{
         id: Uuid,
         thread: Option<thread::JoinHandle<()>>, //// thread is of type JoinHandld struct which return nothing or ()
