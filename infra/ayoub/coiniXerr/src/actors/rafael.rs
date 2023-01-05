@@ -375,12 +375,12 @@ pub mod env{
                             }
                         )
                     );
-                let resp = Schedule::on(service_address)
+                let resp = Schedule::on(peer_id)
                                 .data(message) //// this is the data that must be executed on second service and it can be the name of a method inside that service 
                                 .run_in_parallel()
                                 .then(self.callback()); //// wait to solve the future
                 NOTE - scheduling a promise object which will call the built-in method of the near protocol the transfer() method which will be executed later asyncly to transfer Ⓝ to the creator contract acctor account
-                let resp = Schedule::on(service_address) //// scheduling a future object in here on another service which must gets executed later asyncly to run the scheduled method which in our case is the transfer() method
+                let resp = Schedule::on(peer_id) //// scheduling a future object in here on another service which must gets executed later asyncly to run the scheduled method which in our case is the transfer() method
                                 .transfer(3) //// this is the amount that must gets transferred to the second service
                                 .run_in_parallel()
                                 .then(self.callback()); //// wait to solve the future

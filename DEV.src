@@ -1133,7 +1133,7 @@ https://ethereum.org/nl/developers/docs/evm/
 ----------------------
 networking and system:
 ----------------------
-➤ networking
+➤ networking (tlps folder)
      ➤ concepts:
           • distributed (replication) and decentralized concepts:
                • search, db and routing engines like elastic, cassandra and p2p kademla: 
@@ -1150,7 +1150,7 @@ networking and system:
           • actor worker threadpool and message queue for task broadcasting and scheduling
           • pub/sub and other zmq socket actors to broadcast from publishers to subscribers (m2m) using sockets
           • libp2p based on rpc capnp, tokio and zmq socket actors
-➤ proxy, vpns and load balancer like pingora and v2ray for all layers
+➤ proxy, vpns and load balancer like pingora and v2ray for all layers (rafael.rs)
      ➤ concepts:
           • cpu task scheduling, 
           • v2ray protocols
@@ -1159,7 +1159,7 @@ networking and system:
           • event loop
           • iptables
           • simd divide and conquer based vectorization
-➤ system
+➤ system (engine folder)
      ➤ concepts:
           • compiler, vm using llvm and os
           • codec ram (buffer) like borsh, bson, serde and capnp

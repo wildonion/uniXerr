@@ -694,7 +694,7 @@ impl Default for Transaction{
             id: Uuid::new_v4(),
             ttype: 0x00, //// 0x00 means 0 in hex and a regular transaction - 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) in hex means smart contract transaction
             amount: 100,
-            public_key_bytes: public_key, 
+            public_key_bytes: public_key, //// Vec<u8> will be coerced to &[u8] at compile time
             from_address: wallet_address, //// sender wallet address
             to_address: wallet_address, //// receiver wallet address
             issued: chrono::Local::now().naive_local().timestamp(),

@@ -228,7 +228,7 @@ pub async fn bootstrap(
     // https://github.com/zupzup/rust-blockchain-example/blob/main/src/main.rs
     // https://github.com/zupzup/rust-blockchain-example/blob/main/src/p2p.rs
     // TODO - choose longest chain first call the is_chain_valid() method on the current chain
-    // TODO - build event loop struct
+    // TODO - build event loop struct and its impls
     // ...
 
             

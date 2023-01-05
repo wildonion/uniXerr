@@ -704,7 +704,6 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 ////    convert a trait into a module that will extend the trait methods like near #[ex_contract(contract_name)] proc macro 
 ////    #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate
 ////    TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes
-////    build event! and contract! macro 
 
 // ...
 
@@ -727,8 +726,9 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
     literal   ➔ matches -?LiteralExpression
 
 
-
-macro based for pub/sub streamer actor on top of tokio, zmq and libp2p sockets like:
+//// ------------------------------------------------------------------------------------
+//// macro based for pub/sub streamer actor on top of tokio, zmq and libp2p sockets like:
+//// ------------------------------------------------------------------------------------
 let stream = streamer!{
     tlp: "p2p|zmq|rpc|tokio-tcp|tokio-udp|local"
     type: "pub/sub"
@@ -748,8 +748,50 @@ let res = streamer!{
 }
 
 
+//// ------------------------------
+//// event and contract macros like
+//// ------------------------------
 
+contract!{
+
+
+    name: "rev",
+    args: [contract_owner, deposit_by_owner, contract_balance],
+
+    // contract methods
+
+    fn get_all_deposits(){
+
+    }
+
+    fn get_all_owners(){
+
+    }
+
+
+}
+
+event!{
+
+    name: "list_owner",
+    log: [NewOwner, AddDeposit],
+
+    // event methods
+
+    fn add_owner(){
+
+    } 
+
+    fn add_deposit(){
+        
+    }
+
+
+}
+
+//// ------------------------
 //// event manager macro
+//// ------------------------
 
 list![func1, func2, func3] => {
     // first run event func2 then func1 and finally func3
