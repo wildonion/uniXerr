@@ -27,6 +27,6 @@ An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockch
 
 * HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh` also refer to [NEAR Rules](https://github.com/wildonion/smarties/blob/main/contracts/near/NEAR.rules) for implementing unique scaling mechanism like `nightshade sharding`.
 
-* `StorageModel` ORM trait methods, Rafael runtime and its log, onion actors, utils macros, reset slot and consensus algorithms
+* `StorageModel` ORM trait methods, Rafael runtime and its log, onion actors, utils macros and methods, reset slot in parachain actor and consensus algorithms
 
-* gitbook from wiki
+* complete wiki

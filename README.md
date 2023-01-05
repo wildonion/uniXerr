@@ -15,19 +15,19 @@
 ###### ⚠️ If you are working on development part, remember to change the local host(_127.0.0.1_) inside `/etc/hosts/` to `api.unixerr.com` and `tensorboard.api.unixerr.com` for API and TensorBoard server respectively.
 ###### ⚠️ Remember to call `/users/add/info` and `/users/add/positions` routes of API server after the classification is done on csv file of input data. 
 ###### ⚠️ You can't create an environment if the environment was exported on a different platform than the target machine.
-###### ❗️ Both `core` and `server` folders can only be controlled using `controller.py` middleware.
+###### ❗️ Both `piper` and `infra` folders can only be controlled using `controller.py` middleware.
 
 ### Setup
 
-* Start an _Apache Cassandra_ server and fill out _.env_ file with necessary variables
+* Start an `Apache Cassandra` server and fill out `.env` file with necessary variables
 * Create an environment with a specific python version: ```conda create -n uniXerr python=3.8```
-* Create the environment using the _uniXerr.yml_ file: ```conda env create -f uniXerr.yml```
-* Activate _uniXerr_ environment: ```conda activate uniXerr```
-* Update the environment using _uniXerr.yml_ file: ```conda env update -f uniXerr.yml --prune```
-* Export your active environment to _uniXerr.yml_ file: ```conda env export | grep -v "^prefix: " > uniXerr.yml```
-* Install _pm2_: ```wget -qO- https://getpm2.com/install.sh | bash```
-* Install completion for _typer-cli_: ```typer --install-completion```
-* Create a docs file from _uniXerr_ CLI: ```typer app.py utils docs --name uniXerr --output uniXerr-cli.md```
+* Create the environment using the `uniXerr.yml` file: ```conda env create -f uniXerr.yml```
+* Activate `uniXerr` environment: ```conda activate uniXerr```
+* Update the environment using `uniXerr.yml` file: ```conda env update -f uniXerr.yml --prune```
+* Export your active environment to `uniXerr.yml` file: ```conda env export | grep -v "^prefix: " > uniXerr.yml```
+* Install `pm2`: ```wget -qO- https://getpm2.com/install.sh | bash```
+* Install completion for `typer-cli`: ```typer --install-completion```
+* Create a docs file from `uniXerr` **CLI**: ```typer app.py utils docs --name uniXerr --output uniXerr-cli.md```
 
 ### Usage
 
@@ -129,11 +129,8 @@ $ cqlsh api.unixerr.com -u username -p password -e "copy unixerr.table_name from
 $ tensorboard --host=tensorboard.unixerr.com --logdir=runs
 ```
 
-> You can also install uniXerr from pip if you are the commander guy: __ [uniXerr CLI usage](https://github.com/wildonion/uniXerr/blob/master/uniXerr-cli.md)
+> [uniXerr CLI usage](https://github.com/wildonion/uniXerr/blob/master/uniXerr-cli.md)
 
-```console
-pip install uniXerr
-```
 ---
 
 # Results

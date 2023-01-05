@@ -525,22 +525,17 @@ impl Block{
         if self.prev_hash != prev_block.hash{
         
             self.is_valid = false;
-            prev_block.is_valid = false;
             false
         
         } else if self.id != prev_block.id + 1{
             
             self.is_valid = false;
-            prev_block.is_valid = false;
             false
         
         } else{
 
             self.is_valid = true;
-            prev_block.is_valid = true;
         }
-
-        todo!()
 
     }
 
@@ -653,15 +648,16 @@ impl Node{
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                        Transaction Schema
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//// Ed25519 is being used instead of ECDSA as the 
-//// public-key (asymmetric) digital signature encryption to
-//// generate the wallet address keypair the public and private keys,
-//// the hash of the public key is used to generate the wallet address
-//// also we MUST use the public key for transaction signature verification;
-//// the private on the other hand will be used to sign transaction data
-//// (tx data MUST first convert to u8 bytes) finally for the transaction 
-//// hash and generating wallet address (hash of the public key) Argon2 
-//// is being used as the KDF method.
+//// `Ed25519` is being used instead of `ECDSA` as the public-key 
+//// (asymmetric) digital signature encryption to generate the 
+//// wallet address keypair the public and private keys; the hash 
+//// of the public key is being used to generate the wallet address 
+//// also we **MUST** use the public key for transaction signature 
+//// verification; the private key on the other hand will be used 
+//// to sign transaction data (tx data **MUST** first serialized 
+//// to an array of `utf8` bytes) finally for the transaction, 
+//// block and `merkle` root hash and generating wallet address 
+//// (hash of the public key) `Argon2` is being used as the `KDF` method.
  
 unsafe impl Send for TransactionMem {} //// due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads and avoid concurrent mutations.
 //// all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
@@ -691,10 +687,10 @@ impl Default for Transaction{
     fn default() -> Self{
         
         let coiniXerr_node_keypair = COINIXERR_NODE_WALLET_KEYPAIR.unwrap();
-        let public_key = coiniXerr_node_keypair.public_key().as_ref();
+        let public_key = coiniXerr_node_keypair.public_key().as_ref(); //// as_ref() converts to &[u8] which is an array or an slice of the Vec<u8> 
         let wallet_address = Self::generate_wallet_address_from(public_key); //// generating public key from the wallet address
 
-        let mut tx = Transaction{
+        let mut tx = Transaction{ //// sending a transaction from to this coiniXerr node
             id: Uuid::new_v4(),
             ttype: 0x00, //// 0x00 means 0 in hex and a regular transaction - 0xFF or 1 (CRC21) and 0x02 or 2 (CRC20) and 0x03 or 3 (CRC22) in hex means smart contract transaction
             amount: 100,
@@ -729,10 +725,10 @@ impl Default for Transaction{
         //// generating the hash  
         tx.signature = signature; 
         tx.hash = Self::generate_hash_from(
-                        //// calling Self::serialize_transaction_from(&tx) again since we've update the signature field
+                        //// calling Self::serialize_transaction_from(&tx) again since we've updated the signature field
                         Self::serialize_transaction_from(&tx) 
                     );
-        tx
+        tx //// returning the default transaction
 
     }
 }
@@ -1317,8 +1313,6 @@ pub enum Mode{ //// enum uses 8 bytes (usize which is 64 bits on 64 bits arch) t
 
 //     pub async fn publish(producer: Option<Producer<Dedup>>, topic: Topic, message: String) -> Option<Producer<Dedup>>{ //// we're returning the producer for later calls since once the producer gets passed to this method it'll be moved and there will be no longer available 
 
-//         // TODO - conse server api calls maybe! for storing in db 
-//         // TODO - schedule old and new ones (from the last offline time) 
 //         //        to be executed from the hoops queue buffer until the consumer is backed on line
 //         // ...
 //         let body = match topic{

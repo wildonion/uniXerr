@@ -256,7 +256,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //                    STARTING coiniXerr RPC SERVER
     // ----------------------------------------------------------------------
     //// used to send transaction from the walleXerr
-    //// actor daemonization will be bootstrapped by starting the TCP server
+    //// actor daemonization will be bootstrapped by starting the RPC server
     
     rpc::bootstrap(
         mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
@@ -276,7 +276,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //                    STARTING coiniXerr TCP SERVER
     // ----------------------------------------------------------------------
     //// used to send transaction from a TCP client 
-    //// actor daemonization will be bootstrapped by starting the RPC server
+    //// actor daemonization will be bootstrapped by starting the TCP server
     
     tcp::bootstrap(
         mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
@@ -296,7 +296,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //                    STARTING coiniXerr UDP SERVER
     // ----------------------------------------------------------------------
     //// used to send transaction from a UDP client 
-    //// actor daemonization will be bootstrapped by starting the RPC server
+    //// actor daemonization will be bootstrapped by starting the UDP server
     
     udp::bootstrap(
         mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
@@ -329,7 +329,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
         coiniXerr_sys.clone()
-    ).await; //// libp2p stack
+    ).await; //// libp2p stack based on tokio TCP and gossipsub pub/sub pattern
 
 
 

@@ -173,12 +173,13 @@ pub mod env{
 
 
     ////TODO - proxy and load balancer for all layers like pingora based on:
-    //              • cpu task scheduling, 
-    //              • v2ray protocols
-    //              • weighted round robin dns, 
-    //              • vector clock, 
-    //              • event loop
-    //              • simd divide and conquer based vectorization 
+    //          • cpu task scheduling, 
+    //          • v2ray protocols
+    //          • weighted round robin dns, 
+    //          • vector clock, 
+    //          • event loop
+    //          • iptables
+    //          • simd divide and conquer based vectorization
     pub struct Pod{ //// a pod is a load balancer which can have one or more containers 
         pub id: String,
         pub containers: Vec<Container>,
@@ -328,15 +329,26 @@ pub mod env{
             //      - deploy using cli to the runtime server like coiniXerr node 
             //      - high performence proxy like pingora and k8s will balance the requests  
             //      - load the deployed code in js or the rust and call its methods
-            // near will load the wasm contract inside its nodes which is
-            // written in rust to change the state of the blockchain
-            // whenever one of the contract method gets called from the js
-            // like funding an account once the fund() method gets called 
-            // from the contract.
-            // the reason that contract gets compiled to wasm is because 
-            // they can be loaded inside the browsers and also they have 
-            // no access to socket and std libs thus they secured, immutable and 
-            // can not communicate with outside world.
+            //
+            //// near will load the wasm contract inside its nodes which is
+            //// written in rust to change the state of the blockchain
+            //// whenever one of the contract method gets called from the js
+            //// like funding an account once the fund() method gets called 
+            //// from the contract.
+            //
+            //// the reason that near contract gets compiled to wasm is because 
+            //// they can be loaded inside the browsers and also they have 
+            //// no access to socket and std libs thus they secured, immutable and 
+            //// can not communicate with outside world.
+            //
+            //// the reason that solana contract gets compiled to .so is because 
+            //// they can be loaded from the linux kernel which is blazingly 
+            //// fast also from the browsers, a json RPC call must be invoked 
+            //// with a contract method name to the RPC server on the runtime node 
+            //// in which it can load the .so contract which has bee deployed 
+            //// that contains the BPF bytecode in it and can call the method name
+            //// inside the incoming RPC request to change the state of the blockchain.
+            
             // https://crates.io/crates/wasmtime
             // https://wasmer.io/
             // TODO - loading any compiled wasm file inside the coiniXerr p2p node 

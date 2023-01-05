@@ -109,6 +109,7 @@ pub async fn bootstrap(
     //
     //// move Arc<Mutex<T>>: Send + Sync + 'static between 
     //// tokio worker green threadpool using tokio channels.
+    //// to avoid deadlock situations.
  
 
     info!("➔ 🎡 peer id for this node [{}]", PEER_ID.clone());
@@ -130,7 +131,8 @@ pub async fn bootstrap(
     //// since dynamic type sizes are not specified at compile time in order 
     //// to pass them into other scopes and threads they must be referenced during the app
     //// either directly using & with a valid lifetime or by putting them 
-    //// inside the Box which can handle the lifetime on its own.
+    //// inside the Box which can handle the lifetime on its own like the 
+    //// transport protocol which has been Boxed.
 
     info!("➔ 🔌🔐 building a secured transport protocol using noise and tokio TCP");
     let auth_keys = NoiseKeypair::<X25519Spec>::new()
@@ -211,7 +213,7 @@ pub async fn bootstrap(
     //
     //// stream over events to read data from the wire constantly 
     //// and save then in a buffer inside the stack 
-    //// then serialize it.
+    //// then deserialize it.
     //
     //// tokio solves async tasks or future objects selected 
     //// from the event loop using tokio::select! in the background 
@@ -222,6 +224,9 @@ pub async fn bootstrap(
     //// returned join handle to select! macro.
             
     // https://github.com/libp2p/rust-libp2p/blob/master/examples/file-sharing.rs
+    // https://github.com/libp2p/rust-libp2p/blob/master/examples/gossipsub-chat.rs
+    // https://github.com/zupzup/rust-blockchain-example/blob/main/src/main.rs
+    // https://github.com/zupzup/rust-blockchain-example/blob/main/src/p2p.rs
     // TODO - choose longest chain first call the is_chain_valid() method on the current chain
     // TODO - build event loop struct
     // ...

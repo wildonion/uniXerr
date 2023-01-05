@@ -223,6 +223,12 @@ pub async fn daemonize()
     //// we must specify the subscriber actor when telling the
     //// channel for subscription since we're broadcasting 
     //// in the same device not through the socket.
+    //
+    //// actors are just smart objects that uses multithreading like 
+    //// tokio worker green threadpool under the hood and we can 
+    //// call their methods from other actors by scheduling an async 
+    //// message which can be executed and published later inside a specific channel
+    //// so other subscriber actors can subscribe to that message topic.
 
     parachain_updated_channel.tell( //// telling the channel that an actor wants to subscribe to a topic
                                 Subscribe{ 

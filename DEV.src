@@ -1148,7 +1148,7 @@ networking and system:
           • rpc capnp for actor method based communication on two different machines
           • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads 
           • actor worker threadpool and message queue for task broadcasting and scheduling
-          • pub/sub and other zmq socket actors to broadcast from publisher to subscribers using sockets
+          • pub/sub and other zmq socket actors to broadcast from publishers to subscribers (m2m) using sockets
           • libp2p based on rpc capnp, tokio and zmq socket actors
 ➤ proxy, vpns and load balancer like pingora and v2ray for all layers
      ➤ concepts:
@@ -1165,4 +1165,5 @@ networking and system:
           • codec ram (buffer) like borsh, bson, serde and capnp
           • runtime
           • cryptography
+          • bridge between blockchains
           • language binding like writing rust code on top of apis of the compiled (.so) code in c like rust bindings to libsodium
