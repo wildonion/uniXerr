@@ -222,13 +222,14 @@ pub async fn daemonize()
     //// in pub/sub pattern between actors in the same machine 
     //// we must specify the subscriber actor when telling the
     //// channel for subscription since we're broadcasting 
-    //// in the same device not through the socket.
+    //// in the same device using tokio channels not through 
+    //// the ZMQ pub/sub sockets or RPC.
     //
     //// actors are just smart objects that uses multithreading like 
     //// tokio worker green threadpool under the hood and we can 
     //// call their methods from other actors by scheduling an async 
-    //// message which can be executed and published later inside a specific channel
-    //// so other subscriber actors can subscribe to that message topic.
+    //// message which can be executed and broadcasted later inside a specific channel
+    //// using publishers so other subscriber actors can subscribe to that message topic.
 
     parachain_updated_channel.tell( //// telling the channel that an actor wants to subscribe to a topic
                                 Subscribe{ 

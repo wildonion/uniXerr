@@ -687,7 +687,7 @@ impl Default for Transaction{
     fn default() -> Self{
         
         let coiniXerr_node_keypair = COINIXERR_NODE_WALLET_KEYPAIR.unwrap();
-        let public_key = coiniXerr_node_keypair.public_key().as_ref(); //// as_ref() converts to &[u8] which is an array or an slice of the Vec<u8> 
+        let public_key = coiniXerr_node_keypair.public_key().as_ref(); //// as_ref() converts to &[u8] which is an array or an slice of the Vec<u8> since Vec<u8> will be coerced to &[u8] at compile time
         let wallet_address = Self::generate_wallet_address_from(public_key); //// generating public key from the wallet address
 
         let mut tx = Transaction{ //// sending a transaction from to this coiniXerr node
@@ -717,12 +717,17 @@ impl Default for Transaction{
         info!("➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
         let signature = coiniXerr_node_keypair
                                         .sign(
+                                            //// at this moment when we serialize the tx
+                                            //// the signature field is empty and we're 
+                                            //// serializing with empty signature field
+                                            //// to produce the signature.
                                             Self::serialize_transaction_from(&tx)
                                                     .as_bytes()
                                             ); 
         
         //// updating the signature field before 
-        //// generating the hash  
+        //// generating the hash since in we need
+        //// it to produce the hash of the tx.
         tx.signature = signature; 
         tx.hash = Self::generate_hash_from(
                         //// calling Self::serialize_transaction_from(&tx) again since we've updated the signature field
