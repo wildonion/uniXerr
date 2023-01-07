@@ -40,20 +40,10 @@ pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| { //// the new
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////    mempool channel initialization
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//// mempool channel is broadcast job queue channel which 
+//// mempool channel is a broadcast job queue channel which 
 //// all transactions must be sent through this channel for mining process.
 //// to follow Rust's whole thing of guaranteeing thread safety for mutation 
 //// we need to wrap our data in a Mutex and also the data must be Send and Sync.
-//
-//// Clone trait is not implemented for receiver thus
-//// the Copy trait can't be implemented also since 
-//// Clone is a supertrait of Copy and because of this
-//// we can't move out of MEMPOOL_CHANNEL by deferencing it at all!
-//
-//// shared reference is being used by other threads and scopes 
-//// and they must be dereferenced for usage either by cloning or *; 
-//// also it can't be dereferenced it the Clone trait is not 
-//// implemented for that since Clone is a supertrait of the Copy.
 
 pub static MEMPOOL_CHANNEL
             : 
@@ -81,7 +71,7 @@ pub static MEMPOOL_CHANNEL
 
 pub static COINIXERR_NODE_WALLET_KEYPAIR: Lazy<Result<ring_signature::Ed25519KeyPair, ring::error::KeyRejected>> = Lazy::new(||{
     let rng = ring_rand::SystemRandom::new();
-    let pkcs8_bytes = ring_signature::Ed25519KeyPair::generate_pkcs8(&rng)?;
+    let pkcs8_bytes = ring_signature::Ed25519KeyPair::generate_pkcs8(&rng).unwrap();
     ring_signature::Ed25519KeyPair::from_pkcs8(pkcs8_bytes.as_ref())
 });
 
@@ -108,5 +98,4 @@ pub const AUTHORIZATION: &str = "Authorization";
 pub const EMPTY: &str = "";
 pub const NEW_TRANSACTION_TOPIC: &str = "new transaction";
 pub const VERIFYING_TRANSACTION_TOPIC: &str = "verifyin new transaction";
-pub static BUFFER: [u8; 1024] = [0 as u8; 1000]; //// filling the first 1000 elements with zero in u8 format 
-pub static BUFFERVEC: Vec<u8> = [0 as u8; 1024]; //// filling 1024 elements with zero in u8 format
+pub static BUFFER: [u8; 1024] = [0 as u8; 1024]; //// filling the first 1024 elements with zero in u8 format

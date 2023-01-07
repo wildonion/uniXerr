@@ -480,6 +480,10 @@ pub async fn trash(){
                 Avali(u8),
                 Dovomi(String),
                 Sevomi,
+                Chaharomi{ //// enum variant can also be a struct
+                    name: String,
+                    age: u32,
+                }
             }
 
 
@@ -493,7 +497,7 @@ pub async fn trash(){
                 Chie::Dovomi(value) if value == "wildonion".to_string() => { //// matching on the Dovomi arm if the value was only "wildonion" string
                 println!("stringeeee");
                 },
-                _ => {
+                _ => { //// for Sevomi and Chaharomi fields
                 println!("none of them");
                 }
             }

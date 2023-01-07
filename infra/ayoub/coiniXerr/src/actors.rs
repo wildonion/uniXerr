@@ -58,21 +58,7 @@ pub async fn daemonize()
     let runtime_instance = runtime_info.run(); //// run() method is the method of the Rafael serverless trait
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //// we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
     let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
-    //// if the type doesn't implement the Copy trait 
-    //// thus we can't move out of the dereference type
-    //// cause it'll be moved and we have to either 
-    //// borrow the dereferenced type using & or clone 
-    //// it also we can't move a shared reference into 
-    //// new scopes since it's a shared reference and 
-    //// is being used by other scopes if we do that 
-    //// we'll face dangling pointer issue which 
-    //// rust doesn't like it!
-    //
-    //// Clone trait is not implemented for receiver thus
-    //// the Copy trait can't be implemented also since 
-    //// Clone is a supertrait of Copy and because of this
-    //// we can't move out of the type by deferencing it at all!
-    let storage = APP_STORAGE.clone(); //// cloning it in order not to move since Copy trait is not implemented for the dereferenced type or Option<Arc<schemas::Storage>> thus we have to either borrow it in case that the clone is also not implemented or clone it
+    let storage = APP_STORAGE.clone(); //// cloning it in order not to move since Copy trait is not implemented for the dereferenced type or Option<Arc<schemas::Storage>>
 
 
 

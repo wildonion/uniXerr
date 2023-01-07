@@ -86,12 +86,14 @@ pub async fn bootstrap(
     //// the peer that is connected to this socket
     //// since we're using one to many UDP socket. 
 
-    while let Ok((size, addr)) = stream.recv_from(transaction_buffer_bytes as &mut [u8]).await{ //// await suspends the accept() function execution to solve the future but allows other code blocks to run      
+    while let Ok((size, addr)) = stream.recv_from(&mut transaction_buffer_bytes as &mut [u8]).await{ //// await suspends the accept() function execution to solve the future but allows other code blocks to run      
         info!("➔ 🪢 connection stablished from {}", addr);
-        //// ... the following will handle the the incoming stream inside a tokio worker green threadpool measn tokio::spawn() is an async task worker green threadpool solver 
-        //// ... move will move everything from its behind to the new scope and take their ownership so there is not a single var after moving in second iteration of the loop thus we've passed all the requirements that might be moved by doing that we can make sure that we have them again after first iteration 
-        //// ... beacuse in the first iteration async move{} will move the everything and takes the ownership from its behind thus in second iteration we don't have them and to solve this issue we have to pass them in the channel to have them in every iteration  
-        tokio::spawn(async move { //// this is an async task related to updating a validator actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green threadpool of tokio runtime and message passing channels like mpsc job queue channel protocol
+        //// since stream doesn't implement the Clone and Copy trait 
+        //// we can't use tokio::spawn() because it'll move the vars.
+        // //// ... the following will handle the the incoming stream inside a tokio worker green threadpool measn tokio::spawn() is an async task worker green threadpool solver 
+        // //// ... move will move everything from its behind to the new scope and take their ownership so there is not a single var after moving in second iteration of the loop thus we've passed all the requirements that might be moved by doing that we can make sure that we have them again after first iteration 
+        // //// ... beacuse in the first iteration async move{} will move the everything and takes the ownership from its behind thus in second iteration we don't have them and to solve this issue we have to pass them in the channel to have them in every iteration  
+        // tokio::spawn(async move { //// this is an async task related to updating a validator actor on every incoming message from the sender which is going to be solved in the background on a single (without having to work on them in parallel) thread using green threadpool of tokio runtime and message passing channels like mpsc job queue channel protocol
         
             // ----------------------------------------------------------------------
             //                                 SIMD OPS
@@ -142,7 +144,7 @@ pub async fn bootstrap(
             //// also if the transaction signature was valid we could sign the transaction 
             //// with the node current time.
             
-            let must_be_signed = deserialized_transaction_borsh.is_valid_transaction();
+            let must_be_signed = deserialized_transaction_borsh.is_transaction_valid();
             let now = chrono::Local::now().naive_local().timestamp();
             if must_be_signed && deserialized_transaction_borsh.issued < now{ 
                 
@@ -176,7 +178,7 @@ pub async fn bootstrap(
                 // ----------------------------------------------------------------------
 
                 info!("➔ 👷🏼‍♂️🔃 updating validator actor with the recent signed transaction");
-                for (id, md) in cloned_arc_mutex_runtime_info_object.lock().unwrap().0.iter_mut(){ //// id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
+                for (id, md) in cloned_arc_mutex_runtime_info_object.clone().lock().unwrap().0.iter_mut(){ //// id and md are &mut Uuid and &mut MetaData respectively - we have to iterate over our info_dict mutably and borrowing the key and value in order to update the validator actor transaction of our matched meta_data id with the incoming uuid
                     if id == &meta_data_uuid{
                         let signed_transaction_deserialized_from_bytes = serde_json::from_slice::<Transaction>(&utf_bytes_dereference_from_box).unwrap(); //// deserializing signed transaction bytes into the Transaction struct cause deserialized_transaction_serde is a mutable pointer (&mut) to the Transaction struct
                         md.update_validator_transaction(Some(signed_transaction_deserialized_from_bytes)); //// update the validator actor with a recent signed transaction
@@ -220,7 +222,6 @@ pub async fn bootstrap(
                 let arc_mutex_transaction = Arc::new(Mutex::new(signed_transaction_deserialized_from_bytes)); //// putting the signed_transaction_deserialized_from_bytes inside a Mutex to borrow it as mutable inside Arc by locking the current thread 
                 let cloned_arc_mutex_transaction = Arc::clone(&arc_mutex_transaction); //// cloning the arc_mutex_transaction to send it through the mpsc job queue channel 
                 mempool_sender.send((cloned_arc_mutex_transaction, cloned_arc_mutex_validator_actor.clone(), coiniXerr_sys.clone())).unwrap(); //// sending signed transaction plus the validator actor info through the mpsc job queue channel asynchronously for mining process - we must clone the cloned_arc_mutex_validator_actor in each iteration to prevent ownership moving
-                true
             } else{
                 
                 // ----------------------------------------------------------------------
@@ -229,10 +230,9 @@ pub async fn bootstrap(
                 
                 info!("➔ 🙅 rejecting incoming transaction caused by invalid transaction signature");
                 stream.send_to(&transaction_buffer_bytes[..size], addr).await.unwrap(); //// rejecting the transaction back to the peer
-                true
             }
         
-        })
+        // }); /////--------- end of tokio::spawn()
 
     }
 

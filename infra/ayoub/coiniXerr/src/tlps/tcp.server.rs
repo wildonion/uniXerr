@@ -177,14 +177,14 @@ pub async fn bootstrap(
                     //// also if the transaction signature was valid we could sign the transaction 
                     //// with the node current time.
                     
-                    let must_be_signed = deserialized_transaction_borsh.is_valid_transaction();
+                    let must_be_signed = deserialized_transaction_borsh.is_transaction_valid();
                     let now = chrono::Local::now().naive_local().timestamp();
                     if must_be_signed && deserialized_transaction_borsh.issued < now{ 
                         
                         // ----------------------------------------------------------------------
                         //             GENERATING THE HASH OF THE SIGNED TRANSACTION
                         // ----------------------------------------------------------------------
-                        info!("➔ 🥣 generating the hash of the signed transaction");
+                        info!("➔ 🥣 generating the hash of the signed transaction comming from the waleXerr");
                         deserialized_transaction_borsh.generate_hash(); //// this hash will be used in calculating merkle root process
 
                         // ----------------------------------------------------------------------

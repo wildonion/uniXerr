@@ -150,7 +150,7 @@ pub async fn bootstrap(
     // -----------------------------------------
 
     info!("➔ 🔩 generating a new p2p app behaviour");
-    let behaviour = P2PAppBehaviour::new(response_sender, init_sender).await;
+    let behaviour = P2PAppBehaviour::new().await;
 
     // -----------------------------------------------------------------------------------------------
     //        BUILDING THE SWARM MODULE FROM THE CREATED BEHAVIOUR, TRANSPORT AND THE PEER ID   
@@ -174,7 +174,7 @@ pub async fn bootstrap(
     //     READING FULL LINES FROM THE STDIN FOR USER INPUT   
     // --------------------------------------------------------
 
-    info!("➔ ⌨️ reading from stdin");
+    info!("➔ ⌨️ enter messages via STDIN and they will be sent to connected peers using Gossipsub");
     let mut stdin = tokio::io::BufReader::new(tokio::io::stdin()).lines();
 
     // -----------------------------------------
@@ -185,7 +185,9 @@ pub async fn bootstrap(
         //// the /ip4/0.0.0.0 informs us that we want any 
         //// address of the IPv4 protocol, and /tcp/0 
         //// tells us we want to send TCP packets to any port.
-        swarm_addr,
+        swarm_addr
+                .parse()
+                .unwrap(),
     ).unwrap();
     info!("➔ 👂 swarm is listening on {}", swarm_addr);
     
@@ -194,7 +196,7 @@ pub async fn bootstrap(
     //// tokio worker green threadpool.
     tokio::spawn(async move{ 
         info!("➔ 📻 sending init event to downside of the mpsc channel");
-        init_sender.send(true).unwrap();
+        init_sender.send(true).await;
     });
 
     // -----------------------------------------
@@ -223,12 +225,9 @@ pub async fn bootstrap(
     //// we can spawn each async expressin using tokio::spawn() and pass the
     //// returned join handle to select! macro.
             
-    // https://github.com/libp2p/rust-libp2p/blob/master/examples/file-sharing.rs
-    // https://github.com/libp2p/rust-libp2p/blob/master/examples/gossipsub-chat.rs
-    // https://github.com/zupzup/rust-blockchain-example/blob/main/src/main.rs
-    // https://github.com/zupzup/rust-blockchain-example/blob/main/src/p2p.rs
+    
     // TODO - choose longest chain first call the is_chain_valid() method on the current chain
-    // TODO - build event loop struct and its impls
+    // TODO - complete event loop struct and its impls
     // ...
 
             

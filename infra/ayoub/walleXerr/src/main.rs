@@ -11,7 +11,7 @@
 // https://crates.io/crates/wasm-bindgen-rayon
 // https://github.com/security-union/rust-zoom
 
-use rt::env;
+use rt::wallet;
 use yew::prelude::*;
 use yew_router::*;
 

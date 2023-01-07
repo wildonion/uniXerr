@@ -107,7 +107,7 @@ use crate::actors::{
                     peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //// loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
-use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, P2PChainResponse, P2PLocalChainRequest, P2PAppBehaviourEvent, P2PAppBehaviour};
+use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, P2PChainResponse, P2PLocalChainRequest, P2PBehaviourEvent, P2PAppBehaviour};
 use crate::constants::*;
 use crate::utils::DbORM::StorageModel;
 use mongodb::Client;
@@ -154,9 +154,16 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 
 
 
+//// bounding the type that is caused to error to Error, Send and Sync 
+//// traits to be shareable between threads and have static lifetime across 
+//// threads and awaits; Box is an smart pointer which has valid lifetime 
+//// for what's inside of it, we're putting the error part of the Result 
+//// inside the Box since we have no idea about the size of the error or 
+//// the type that caused this error happened at compile time thus we have 
+//// to take a reference to it but without defining a specific lifetime.
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ //// bounding the type that is caused to error to Error, Send and Sync traits to be shareable between threads and have static lifetime across threads and awaits; Box is an smart pointer which has valid lifetime for what's inside of it, we're putting the error part of the Result inside the Box since we have no idea about the size of the error or the type that caused this error happened at compile time thus we have to take a reference to it but without defining a specific lifetime
-    
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ 
+ 
 
     
 

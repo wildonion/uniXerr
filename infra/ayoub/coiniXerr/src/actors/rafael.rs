@@ -154,7 +154,7 @@ pub mod env{
     }
     
 
-
+    #[derive(Clone, Debug)]
     pub struct Node{ //// this contains server info 
         pub dns: String,
         pub addr: SocketAddr, 
@@ -164,6 +164,7 @@ pub mod env{
     }
     
     
+    #[derive(Clone, Debug)]
 
     pub struct Container{
         pub id: String,
@@ -180,6 +181,7 @@ pub mod env{
     //          • event loop
     //          • iptables
     //          • simd divide and conquer based vectorization
+    #[derive(Clone, Debug)]
     pub struct Pod{ //// a pod is a load balancer which can have one or more containers 
         pub id: String,
         pub containers: Vec<Container>,
