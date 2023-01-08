@@ -173,7 +173,7 @@ pub mod env{
 
 
 
-    ////TODO - proxy and load balancer for all layers like pingora based on:
+    ////TODO - proxy and load balancer for all layers like pingora and HAproxy based on:
     //          • cpu task scheduling, 
     //          • v2ray protocols
     //          • weighted round robin dns, 
