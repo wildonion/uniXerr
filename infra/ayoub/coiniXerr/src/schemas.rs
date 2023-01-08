@@ -724,7 +724,7 @@ impl Default for Transaction{
                                             //// to produce the signature.
                                             Self::serialize_transaction_from(&tx)
                                                     .as_bytes()
-                                            ); //// if we call as_ref() method in here value before it will be dropped sooner
+                                            ); //// if we call as_ref() method in here value before it will be dropped sooner thus we have to make a longer lifetime then call the as_ref() method
                                             
         let signature = signature.as_ref();
         
