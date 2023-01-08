@@ -9,7 +9,7 @@ Conse is an AI based Crypto Game Event Manager Platform on top of coiniXerr bloc
 
 ### 📌 WIP
 
-* HAProxy, dockerizing, k8s-ing and ci/cd in `app.sh`
+* HAProxy, k8s-ing docker containers and ci/cd in `app.sh`
 
 * all TODOs inside the app
 
