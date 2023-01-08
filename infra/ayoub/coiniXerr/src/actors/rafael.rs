@@ -14,8 +14,8 @@
 
 
 //// rafael serverless FaaS env which contains runtime functions 
-//// and actors to mutate the state of the runtime 
-//// object like near-sdk env.
+//// and actors to mutate the state of the coiniXerr network 
+//// like near-sdk env.
 //
 //// a runtime is a once initialized object 
 //// that can mamage the state of the app.
@@ -318,6 +318,7 @@ pub mod env{
 
         }
 
+        // #[payable] //// this method is a payable method 
         fn deposit(&mut self) -> Self{
 
             todo!()

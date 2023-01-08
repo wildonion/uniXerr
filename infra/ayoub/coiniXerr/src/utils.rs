@@ -704,7 +704,7 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 ////    convert a trait into a module that will extend the trait methods like near #[ex_contract(contract_name)] proc macro 
 ////    #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate
 ////    TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes
-
+////    build #[payable] proc macro for rafael runtime the deposit() method 
 // ...
 
 
@@ -751,6 +751,7 @@ let res = streamer!{
 //// ------------------------------
 //// event and contract macros like
 //// ------------------------------
+TODO - simply emit the event when something just happens like this: emit!(list_owner)
 
 contract!{
 
