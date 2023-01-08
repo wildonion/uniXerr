@@ -1149,7 +1149,7 @@ CS CONCEPTS AND DESIGN PATTERNS:
           • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads in a same machine
           • actor tokio worker green threadpool and message queue for task and method broadcasting and scheduling to the channels (tokio jobq, socket or rpc)
           • pub/sub and other zmq socket actors to broadcast from publishers to subscribers (m2m) using sockets
-          • libp2p based on rpc capnp, tokio and zmq socket actors
+          • libp2p based on rpc capnp, tokio udp and tcp, websocket and zmq socket actors
 ➤ proxy, vpns and load balancer like pingora and v2ray for all layers (rafael.rs)
      ➤ concepts:
           • cpu task scheduling, 
