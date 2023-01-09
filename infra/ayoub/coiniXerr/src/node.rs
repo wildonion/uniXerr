@@ -82,7 +82,7 @@ use std::{env, thread::{self, JoinHandle}};
 use std::rc::{Rc, Weak};
 use std::cell::RefCell;
 use std::net::SocketAddr; //// these structures are not async; to be async in reading and writing from and to socket we must use tokio::net
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, hash_map::DefaultHasher};
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
@@ -436,8 +436,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //// returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
             current_block.push_transaction(mutex_transaction.clone()); //// cloning transaction object in every iteration to prevent ownership moving and losing ownership - adding pending transaction from the mempool channel into the current block for validating that block
             if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){
-                // TODO - consensus::zpk::consensus_on(current_block) || consensus::raft::consensus_on(current_block) || consensus::poh::consensus_on(current_block)
+                info!("➔ 🔋🧊 passing the full block to consensus algorithms");
+                // TODO - consensus::zpk::consensus_on(current_block) || 
+                //        consensus::raft::consensus_on(current_block) || 
+                //        consensus::poh::consensus_on(current_block)
                 // ...
+                if current_block.is_valid{
+                    info!("➔ 🥑 block with id [{}] is valid", current_block.id);
+                    info!("➔ 🧣 adding the created block to the chain");
+                    blockchain.clone().add(current_block.clone()); //// adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration mempool_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and losing ownership
+                } else{
+                    info!("➔ ⛔ block with id [{}] is invalid", current_block.id);
+                }
                 info!("➔ ⚒️🧊 shaping a new block to add transactions");
                 let (prev, last) = {
                     let current_blockchain = blockchain.clone(); //// creating longer lifetime since `let` will create a longer lifetime for the value - can't have blockchain.clone().blocks.iter().rev() cause blockchain.clone() lifetime will be ended beforer reach the blocks field
@@ -446,13 +456,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                 };
                 current_block = blockchain.clone().build_raw_block(&prev); //// passing the previous block by borrowing it - cloning (making a deep copy of) the blockchain of the parachain actor will prevent the object from moving and losing ownership; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and losing ownership
             }
-        }
-        if current_block.is_valid{
-            info!("➔ 🥑 block with id [{}] is valid", current_block.id);
-            info!("➔ 🧣 adding the created block to the chain");
-            blockchain.clone().add(current_block.clone()); //// adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration mempool_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and losing ownership
-        } else{
-            info!("➔ ⛔ block with id [{}] is invalid", current_block.id);
         }
 
         // ---------------------------------------------------------------------

@@ -43,16 +43,14 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// pointers are fat ones since extra bytes which has been dedicated to their 
 //// length inside the heap are in their pointers also their pointers must have 
 //// valid lifetime across scopes and threads in order to avoid dangling pointer 
-//// issue which we can achive this either by defining a lifetime in struct, enum 
+//// issue since we can't return a pointer from a scope which is owned by a that scope 
+//// to fix this we can either by defining a lifetime in struct, enum 
 //// fields or function signatur or by putting them inside the Box 
 //// (with dyn keyword for trait) which is a smart pointer and 
-//// have a valid lifetime in itself.
-//
-//// as_ref() will convert the type into a shared reference 
-//// by returning the T as &T which we can't move out of it 
-//// when it's being used by other scopes and threads thus 
-//// we have to dereferene it either by * or cloning if the 
-//// Clone trait is implemented for that, otherwise we CAN'T 
+//// have a valid lifetime in itself; as_ref() will convert the type into a shared 
+//// reference by returning the T as &T which we can't move out of it when it's being 
+//// used by other scopes and threads thus we have to dereferene it either by * or 
+//// cloning if the Clone trait is implemented for that, otherwise we CAN'T 
 //// dereference or move it at all because Clone is a supertrait 
 //// of the Copy trait.
 
@@ -111,9 +109,25 @@ impl P2PAppBehaviour{
 
     pub async fn new() -> Self{ //// it'll return a new app behaviour 
 
+        let message_id_fn = |message: &GossipsubMessage|{
+            let mut s = DefaultHasher::new();
+            message.data.hash(&mut s);
+            MessageId::from(s.finish().to_string())
+        };
         let gossipsub_config = gossipsub::GossipsubConfigBuilder::default()
             .heartbeat_interval(Duration::from_secs(10)) //// hearbeat every 10 seconds
             .validation_mode(ValidationMode::Strict) //// this requires the message author to be a valid PeerId and to be present as well as the sequence number aslo all messages must have valid signatures
+            //// a user-defined function allowing the user to specify 
+            //// the message id of a gossipsub message, the default value 
+            //// is to concatenate the source peer id with a sequence number, 
+            //// setting this parameter allows the user to address packets arbitrarily, 
+            //// one example is content based addressing, where this function may be 
+            //// set to hash(message). This would prevent messages of the same content 
+            //// from being duplicated.
+            //
+            //// the function takes a GossipsubMessage as input and outputs a String 
+            //// to be interpreted as the message id.
+            .message_id_fn(message_id_fn)
             .build()
             .unwrap();
 
@@ -146,6 +160,30 @@ pub struct P2PEventLoop{
     //// parts of the app respectively.   
     pub response_sender: mpsc::Sender<P2PChainResponse>,
     pub init_sender: mpsc::Sender<bool>,
+}
+
+impl P2PEventLoop{
+
+    fn new(response_sender: mpsc::Sender<P2PChainResponse>,
+                     init_sender: mpsc::Sender<bool>) -> Self
+    {
+
+
+
+    }
+
+    pub async fn run(){
+
+    }
+
+    pub async fn handle_event(){
+
+    }
+
+    async fn handle_command(){
+
+    }
+
 }
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -283,96 +321,6 @@ impl Slot{
 
 
 
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                         Chain Schema
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-#[derive(Serialize, Deserialize, Clone, Debug)] //// encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
-pub struct Chain{
-    pub branch_id: Uuid, //// chain id
-    pub branch_name: String,
-    pub blocks: Vec<Block>,
-}
-
-impl Chain{
-    
-    pub fn default() -> Self{
-        Chain{
-            branch_id: Uuid::new_v4(),
-            branch_name: format!("cc-{}", rand::thread_rng().gen::<u32>().to_string()),
-            blocks: vec![Block::default()],
-        }
-    }
-
-    pub fn new(branch_id: Uuid, branch_name: String, blocks: Vec<Block>) -> Self{ //// constructor of Chain struct - creating another branch or fork
-        Chain{
-            branch_id,
-            branch_name,
-            blocks,
-        }
-    }
-    
-    pub fn add(&mut self, block: Block) -> Self{ //// the first param is a mutable pointer to every field of the struct - self takes a copy of all fields and &mut borrow the ownership of those fields for mutating them
-        self.blocks.push(block);
-        Chain{
-            branch_id: self.branch_id,
-            branch_name: self.branch_name.clone(), //// Copy trait is not implemented for String thus we have to clone it to return from the function
-            blocks: self.blocks.clone(), //// Copy trait is not implemented for blocks thus we have to clone it to return from the function
-        }
-    }
-
-    pub fn get_genesis(&self) -> Block{
-        let genesis = self.blocks[0].clone(); //// cloning the self.blocks[0] to prevent ownership moving since &self is an immutable reference to self which is a shared reference (means it has a valid lifetime and is being used by other methods) and can't be moved  
-        genesis
-    }
-
-    pub fn build_raw_block(&self, prev_block: &Block) -> Block{ //// this method get an immutable pointer to the block (borrowed) as its second argument 
-        Block{
-            id: Uuid::new_v4(),
-            index: prev_block.clone().index + 1, //// we have to clone the prev_block cause Block struct doesn't implement the Copy trait
-            is_genesis: false,
-            prev_hash: prev_block.clone().hash, //// first block inside the chain is the genesis block - we have to clone the prev_block cause Block struct doesn't implement the Copy trait 
-            hash: None,
-            merkle_root: None, 
-            timestamp: chrono::Local::now().naive_local().timestamp(),
-            transactions: vec![],
-            is_valid: false,
-        }
-    }
-
-    pub fn is_chain_valid(&self) -> bool{
-
-        // TODO - check that the chain is valid or not
-        // TODO - call is_block_valid() method on the first two block instance of the chain 
-        // ...
-
-        todo!()
-
-    }
-
-}
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                   Parachain mongodb schema
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -440,6 +388,125 @@ impl StorageModel for InsertParachainInfo{
 
 
 
+
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+//                                                         Chain Schema
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+#[derive(Serialize, Deserialize, Clone, Debug)] //// encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
+pub struct Chain{
+    pub branch_id: Uuid, //// chain id
+    pub branch_name: String,
+    pub blocks: Vec<Block>,
+}
+
+impl Chain{
+    
+    pub fn default() -> Self{
+        Chain{
+            branch_id: Uuid::new_v4(),
+            branch_name: format!("cc-{}", rand::thread_rng().gen::<u32>().to_string()),
+            blocks: vec![Block::default()],
+        }
+    }
+
+    pub fn new(branch_id: Uuid, branch_name: String, blocks: Vec<Block>) -> Self{ //// constructor of Chain struct - creating another branch or fork
+        Chain{
+            branch_id,
+            branch_name,
+            blocks,
+        }
+    }
+    
+    pub fn add(&mut self, block: Block) -> Self{ //// the first param is a mutable pointer to every field of the struct - self takes a copy of all fields and &mut borrow the ownership of those fields for mutating them
+        self.blocks.push(block);
+        Chain{
+            branch_id: self.branch_id,
+            branch_name: self.branch_name.clone(), //// Copy trait is not implemented for String thus we have to clone it to return from the function
+            blocks: self.blocks.clone(), //// Copy trait is not implemented for blocks thus we have to clone it to return from the function
+        }
+    }
+
+    pub fn get_genesis(&self) -> Block{
+        let genesis = self.blocks[0].clone(); //// cloning the self.blocks[0] to prevent ownership moving since &self is an immutable reference to self which is a shared reference (means it has a valid lifetime and is being used by other methods) and can't be moved  
+        genesis
+    }
+
+    pub fn build_raw_block(&self, prev_block: &Block) -> Block{ //// this method get an immutable pointer to the block (borrowed) as its second argument 
+        Block{
+            id: Uuid::new_v4(),
+            index: prev_block.clone().index + 1, //// we have to clone the prev_block cause Block struct doesn't implement the Copy trait
+            is_genesis: false,
+            prev_hash: prev_block.clone().hash, //// first block inside the chain is the genesis block - we have to clone the prev_block cause Block struct doesn't implement the Copy trait 
+            hash: None,
+            merkle_root: None, 
+            timestamp: chrono::Local::now().naive_local().timestamp(),
+            transactions: vec![],
+            is_valid: false,
+        }
+    }
+
+    pub fn is_chain_valid(&self, chain: &[Block]) -> bool{
+        for i in 0..chain.len(){
+            if i == 0{ 
+                continue; //// go to the next iteration since we want to get the block before i
+            }
+            let first_block = chain
+                                        .get(i - 1) //// getting the first block
+                                        .expect("✖️ first block doesn't exits");
+            let next_block = chain
+                                        .get(i)
+                                        .expect("✖️ first block doesn't exits");
+            if !next_block.is_block_valid(first_block){
+                //// since we have only one if block 
+                //// we must return something using the 
+                //// `return` keyword only.
+                return false;
+            }
+        }
+        true
+    }
+
+    //// always choose the longest chain,
+    //// remote is the incoming chain from 
+    //// other peers and local is the chain 
+    //// inside this peer.
+    pub fn choose_chain(&mut self, local: Vec<Block>, remote: Vec<Block>) -> Vec<Block>{
+        let is_local_valid = self.is_chain_valid(&local);
+        let is_remote_valid = self.is_chain_valid(&remote);
+        if is_local_valid && is_remote_valid {
+            if local.lean() >= remote.len(){
+                local //// we'll choose the local chain as the longest chain
+            } else{
+                remote //// we'll choose the incoming chain from other peers as the longest chain
+            }
+        } else if is_remote_valid && !is_local_valid{
+            remote //// we must replace the current blocks in this peer with the incoming one since the remote chain is a valid chain
+        } else if !is_remote_valid && is_local_valid{
+            local //// we must keep the current blocks in this peer same as before since the remote chain is an invalid chain
+        } else{
+            error!("⛔ local and remote chain are both invalid");
+        }
+    }
+
+}
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //                                                         Block Schema
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -480,7 +547,7 @@ impl Block{
         //// all the block data except hash must 
         //// be convert to the string first
         //// in order to generate its hash.
-        let tx_data = serde_json::json!({ //// making a serde Value from the block data except the hash field since we want to fill it later
+        let block_data = serde_json::json!({ //// making a serde Value from the block data except the hash field since we want to fill it later
             "id": self.id,
             "index": self.index,
             "is_genesis": self.is_genesis,
@@ -490,42 +557,60 @@ impl Block{
             "transactions": self.transactions,
             "is_valid": self.is_valid,
         });
-        serde_json::to_string(&self).unwrap()
+        serde_json::to_string(&block_data).unwrap()
     }
-     
+
     pub fn generate_hash(&mut self){
         let salt = daemon::get_env_vars().get("SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
         let json_string_serialized_block = self.serialize_block(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
         let block_hash_bytes = json_string_serialized_block.as_bytes(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
-        self.hash = Some(argon2::hash_encoded(block_hash_bytes, salt_bytes, &argon2::Config::default()).unwrap());
+        let hash = argon2::hash_encoded(block_hash_bytes, salt_bytes, &argon2::Config::default()).unwrap();
+        self.hash = Some(Self::cut_extra_bytes_from(hash)); //// cutting the extra byte (the first 27 bytes) from the argon2 hash
+    }
+
+    pub fn generate_genesis_hash(&mut self){
+        let salt = daemon::get_env_vars().get("GENESIS_SECRET_KEY").unwrap().to_string();
+        let salt_bytes = salt.as_bytes();
+        let json_string_serialized_block = self.serialize_block(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
+        let block_hash_bytes = json_string_serialized_block.as_bytes(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
+        let hash = argon2::hash_encoded(block_hash_bytes, salt_bytes, &argon2::Config::default()).unwrap();
+        self.hash = Some(Self::cut_extra_bytes_from(hash)); //// cutting the extra byte (the first 27 bytes) from the argon2 hash
+    }
+
+    fn cut_extra_bytes_from(hash: String) -> String{
+        //////////////
+        // SAMPLE HASH
+        //////////////
+        // $argon2i$v=19$m=16,t=2,p=1$d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        let hash = &hash[27..]; //// d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        hash.to_string()
     }
     
     pub fn is_block_valid(&self, prev_block: &Block) -> bool{
 
-        // TODO - validation processes of this block with the prev block 
-        // ...
+        let current_block_hash = self.hash;
+        self.generate_hash(); //// this will calculate the hash of the current block again
 
         //// since we have separated if blocks 
         //// we must return something using the 
         //// `return` keyword only.
         if self.prev_hash != prev_block.hash{
-
             return false;
-
         } 
+
+        if self.hash.unwrap() != current_block_hash.unwrap(){ //// if the calculated block hash wasn't equal to the current hash we simply return false  
+            return false;
+        }
         
         if self.index != prev_block.index + 1{
-            
             return false;
-
         } 
         
         //// the block must be validated using consensus algorithms first in order to be a valid
-        //// since the is_valid flag will be set to true in there and we have to just check 
+        //// since the is_valid flag MUST be set to true in there hence we have to just check 
         //// the flag again in here.
-        if self.is_valid == true && prev_block.is_valid == true{ 
-
+        if !self.is_valid && !prev_block.is_valid{ 
             return false;
         } 
         
@@ -547,17 +632,23 @@ impl Block{
 
 impl Default for Block{
     fn default() -> Self{ //// this must be used to generate the genesis block so some field are None
-        Block{
+        
+        let prev_hash = Some(String::from("genesis"));
+        let mut block = Block{ //// we got an instance of the block which can call Bloc methods on it
             id: Uuid::new_v4(),
             index: 0,
             is_genesis: true,
-            prev_hash: None, //// genesis block doens't have prev hash
-            hash: None, //// must be filled later in consensus process
+            prev_hash,
+            hash: None, //// we'll fill this later
             merkle_root: None, //// must be filled later in consensus process
             timestamp: chrono::Local::now().naive_local().timestamp(),
             transactions: vec![Transaction::default()],
             is_valid: true,
-        }
+        };
+
+        block.generate_genesis_hash(); //// updating the hash field of the genesis block
+        block
+
     }
 }
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -678,7 +769,7 @@ pub struct Transaction{
 }
 
 impl Default for Transaction{
-    fn default() -> Self{
+    fn default() -> Self{ //// overriding the default method
         
         //// unwrap() method takes self not &self thus it takes ownership of 
         //// the receiver `self`, which moves value means that by calling the 
@@ -689,7 +780,13 @@ impl Default for Transaction{
         //// the call the .unwrap() to prevent ownership moving by the first call.
         let coiniXerr_node_keypair = COINIXERR_NODE_WALLET_KEYPAIR.as_ref().unwrap(); 
         let public_key = coiniXerr_node_keypair.public_key().as_ref(); //// as_ref() converts to &[u8] which is an array or an slice of the Vec<u8> since Vec<u8> will be coerced to &[u8] at compile time
-        let wallet_address = Self::generate_wallet_address_from(public_key); //// generating public key from the wallet address
+        let wallet_address = 
+                Self::cut_extra_bytes_from( //// cutting the extra byte (the first 27 bytes) from the argon2 hash and use the rest as the wallet address
+                    Self::generate_wallet_address_from(
+                        public_key
+                    ) //// generating wallet address from the public key
+                );
+
 
         let mut tx = Transaction{ //// sending a transaction from to this coiniXerr node
             id: Uuid::new_v4(),
@@ -736,11 +833,14 @@ impl Default for Transaction{
         //// &[u8] to owned data or Vec<u8>
         tx.signature = Some(signature.to_owned()); 
         tx.hash = Some(
-                        Self::generate_hash_from(
-                            //// calling Self::serialize_transaction_from(&tx) again since we've updated the signature field
-                            Self::serialize_transaction_from(&tx))
+                        Self::cut_extra_bytes_from( //// cutting the extra byte (the first 27 bytes) from the argon2 hash
+                          Self::generate_hash_from(
+                                    //// calling Self::serialize_transaction_from(&tx) again since we've updated the signature field
+                                    Self::serialize_transaction_from(&tx)
+                                )
+                            )
                         );
-        tx //// returning the default transaction
+        tx //// returning the default and hashed transaction 
 
     }
 }
@@ -814,7 +914,8 @@ impl Transaction{
         let salt_bytes = salt.as_bytes();
         let json_string_serialized_transaction = self.serialize_transaction(); //// we're generating a longer lifetime since in self.serialize_transaction().as_bytes(); the self.serialize_transaction() will be dropped before we calling as_bytes() method;
         let transaction_hash_bytes = json_string_serialized_transaction.as_bytes();
-        self.hash = Some(argon2::hash_encoded(transaction_hash_bytes, salt_bytes, &argon2::Config::default()).unwrap());
+        let hash = argon2::hash_encoded(transaction_hash_bytes, salt_bytes, &argon2::Config::default()).unwrap();
+        self.hash = Some(Self::cut_extra_bytes_from(hash)); //// cutting the extra byte (the first 27 bytes) from the argon2 hash
     } 
 
     pub fn generate_hash_from(serialized_tx: String) -> String{ //// this method must be called only inside the coiniXerr node
@@ -828,6 +929,15 @@ impl Transaction{
         let salt = daemon::get_env_vars().get("GENERATE_WALLET_ADDRESS_SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
         argon2::hash_encoded(pubk, salt_bytes, &argon2::Config::default()).unwrap()
+    }
+    
+    fn cut_extra_bytes_from(hash: String) -> String{
+        //////////////
+        // SAMPLE HASH
+        //////////////
+        // $argon2i$v=19$m=16,t=2,p=1$d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        let hash = &hash[27..]; //// d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        hash.to_string()
     }
 
     pub fn is_transaction_valid(&self) -> bool{
@@ -964,444 +1074,4 @@ pub enum Mode{ //// enum uses 8 bytes (usize which is 64 bits on 64 bits arch) t
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                          RabbitMQ RMQAccount Stream Contains Publisher and Subscriber using lopin crate
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-/*
-
-
-    mq clients in rust and js
-        | 
-        -------- coiniXerr mq producer and consumer actor streamer -------- conse hyper server 
-                        |                             |
-                        |                             -------- mongodb
-                        |
-                        <---tcp socket--> |broker actor streamer on VPS <---routing channel exchange--> job or task queue buffer| 
-                                                                                                            |
-                                                                                                            |
-                                                                                                            |
-                                                                                                            <---mpsc channel---> worker threadpools
-
-
-
-
-    https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html#exchanges
-
-
-    • Producer: Application that sends the messages.
-    • Consumer: Application that receives the messages.
-    • Queue: Buffer that stores messages.
-    • Message: Information that is sent from the producer to a consumer through RabbitMQ.
-    • Connection: A TCP connection between your application and the RabbitMQ broker.
-    • Channel: A virtual connection inside a connection. When publishing or consuming messages from a queue - it's all done over a channel.
-    • Exchange: Receives messages from producers and pushes them to queues depending on rules defined by the exchange type. To receive messages, a queue needs to be bound to at least one exchange.
-    • Binding: A binding is a link between a queue and an exchange.
-    • Routing key: A key that the exchange looks at to decide how to route the message to queues. Think of the routing key like an address for the message.
-    • AMQP: Advanced Message Queuing Protocol is the protocol used by RabbitMQ for messaging.
-
-
-
-    mq is actually a tcp socket channel based on actor desing pattern that will send and receive buffers like any other socket channels
-    but the only difference between others is it can manage incoming payloads in a specific manner like:
-        • it uses an async job or task queue like mpsc jobq channel and celery algos to communicating between actors' threads (send and receive tasks and messages between their worker threadpools)  
-        • it has a batch handler which means it can take a batch of tasks and publish them to the producers from the queue
-        • receiving only a specific message on a specific topic (receivers can only subscribe to a specific topic)
-        • schduling a message to be sent later using a task queue handler
-        • schduling a message to be received at a specific condition using a task queue handler
-        • sending and broadcasting message only to specific receivers 
-        • handle (send and receive) tasks and messages asyncly inside a threadpool
-        • buffering messages inside a queue to send them once the receiver gets backed online
-
-
-
-
-
-        
-
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////                  lopin rmq setup
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈      
-    ////
-    ////         publisher/subscriber app (rust or js code) 
-    ////                      |
-    ////                       ---- tcp socket
-    ////                                       |
-    ////                              rpc broker channels
-    ////                                       |
-    ////                                        --------- exchange
-    ////                                                     |
-    ////                             routing key ------- |binding| ------- routing key
-    ////                                                     |
-    ////                                             jobq queue buffer
-    ////                                                     |
-    ////                                                      --------- worker threadpool 
-    ////
-    //// ➔ publishers (rust or js code) which is connected to the mq broker can publish messages to a channel 
-    ////    from there (inside the broker channels) messages will be buffered inside a specific queue.
-    //// ➔ subscribers (rust or js code) want to subscribe to a specific message in which they must talk to a channel
-    ////    then the channel will talk to the broker to get the message from a specific queue.
-    //// ➔ rabbitmq uses queues instead of topics means that we can get all messages from a specific queues 
-    ////    instead of subscribing to a specific topic by doing this all consumers can subscribe to a specific queue.  
-    //// ➔ there might be multiple channels each of which are able to talk to a specific queue to get the buffered message from there.
-
-    let coiniXerr_account_id = Uuid::new_v4().to_string();
-    let mut account = RMQAccount::new(
-                                    &ampq_addr,
-                                    2, 
-                                    coiniXerr_account_id
-                                ).await;
-                                
-                                
-                                
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-    ///////         making queues, publish and subscribe
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-    account //// making the hoop queue for publishing and subscribing process
-        .make_queue("hoop")
-        .await;
-        
-    account //// the publisher could be another app written in another lang
-    .publish(10, "", "hoop") //// publishing 10 times on the passed in queue
-        .await;
-        
-    account //// the subscriber could be another app written in another lang
-        .subscribe("hoop") //// subscribing to the hoop queue
-        .await;
-        
-
-
-
-
-
-
-
-
-        
-*/
-        
-// #[derive(Debug)]    
-// pub enum Topic{
-//     Hoop,
-//     ReHoop,
-//     Mention,
-//     HashTag,
-//     Like,
-//     RMQAccountInfo,
-// }   
-
-// //// if Clone trait is not implemented for a type and that type is also a field of a structure we can't have &self in
-// //   structure methods since using a shared reference requires Clone trait be implemented for all types of the structure 
-// //   otherwise we can't share none of the fields of the structure and by calling a method of the structure on the instance
-// //   the instance will be no longer valid and be moved.
-// //// if the first param of methods was &self that means the instance is behind a shared reference
-// //// but it can't be moved or cloned since Clone trait which is a supertrait of the Copy is not  
-// //// implemented for DedUp thus we can't clone or move the self.producer out of the shared reference at all
-// //// hence we can't have &self as the first param.
-// pub struct RMQAccount{ //// RMQAccount is the user that can publish and subscribe to the messages
-//     pub account_id: String, //// this is the _id of the account that wants to publish messages
-//     pub channels: Vec<Channel>, //// rabbitmq channels
-//     pub queues: Vec<Queue>, //// rabbitmq queues
-// } 
-
-// impl RMQAccount{ //// we can't take a reference to self since the producer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.producer issue 
-    
-//     //// this method will build the connection to the broker and rabbitmq channels to talk to publishers and subscribers
-//     pub async fn new(broker_addr: &str, n_channels: u16, acc_id: String) -> Self{ 
-
-//         // ----------------------------------------------------------------------
-//         //                     CONNECTING TO RABBITMQ BROKER
-//         // ----------------------------------------------------------------------
-        
-//         let conn = Connection::connect(&broker_addr, ConnectionProperties::default().with_default_executor(10)).await.unwrap();
-//         info!("➔ 🟢 ⛓️ connected to the broker");
-        
-//         // ----------------------------------------------------------------------
-//         //            CREATING RABBITMQ CHANNELS TO TALK TO THE BROKER
-//         // ----------------------------------------------------------------------
-
-//         let mut channels = Vec::<Channel>::new(); //// producers and consumers must talk to the channel first
-//         for i in 0..n_channels{
-//             channels.push(
-//                 conn.create_channel().await.unwrap()
-//             );
-//         }
-//         info!("➔ 🟢 🕳️ channels created susscessfully");
-//         Self{ //// returning a new instance of the RMQAccount also is Self is the complete type of the RMQAccount<T> not just the constructor or RMQAccount
-//             account_id: acc_id,
-//             channels,
-//             queues: Vec::new(), // or vec![]
-//         }
-//     }
-
-//     //// this method will build the queue from the passed in name
-//     pub async fn make_queue(&mut self, name: &str) -> Self{
-
-//         // ----------------------------------------------------------------------
-//         //             BUILDING THE HOOP QUEUE USING THE FIRST CHANNEL
-//         // ----------------------------------------------------------------------
-
-//         // let RMQAccount { account_id, channels, queues } = self; //// unpacking the self into the RMQAccount struct; by defining the self as mutable every field of the unpacked self will be mutable
-        
-//         //// consider the first one as the publisher channel and the second as the subscriber channel
-//         let first_channel = self.channels[0].clone();
-//         let mut queues = self.queues.clone();
-//         queues.push(
-//             first_channel.queue_declare(
-//                             name, //// defining the queue with passed in name; this can be later used to subscribe messages to the buffer of this queue 
-//                             QueueDeclareOptions::default(), 
-//                             FieldTable::default(),
-//                         ).await.unwrap()
-//         );
-        
-//         info!("➔ 🟢🎣 queue created susscessfully");
-        
-//         Self{
-//             account_id: self.account_id.clone(), //// cannot move out of `self.account_id` which is behind a mutable reference 
-//             channels: self.channels.clone(), //// cannot move out of `self.channels` which is behind a mutable reference
-//             queues,
-//         }
-
-    
-//     }
-
-//     //// this method will build the consumer from the second channel 
-//     //// and wait for each message to be consumed from the specified queue
-//     //// until all the message gets deliverred.
-//     pub async fn subscribe(&self, queue: &str){
-
-//         // -------------------------------------------------------------------------------------------------------------
-//         //             BUILDING THE CONSUMER FROM THE SECOND CHANNEL TO SUBSCRIBE TO THE PUBLISHED MESSAGES  
-//         // -------------------------------------------------------------------------------------------------------------
-
-//         //// we're using Arc to clone the second_channel since Arc is to safe for sharing the type between threads 
-//         info!("➔ 🟢📩 subscribing from the second channel to the published messages from the [{}] queue", queue);
-//         let second_channel = self.channels[1].clone(); //// we've used the second channel to use its consumer to get all message deliveries
-//         let consumer_channel = Arc::new(&second_channel); //// putting the borrowed form of second_channel inside the Arc (since we want to clone it later for ack processes) to prevent ownership moving since we want to consume messages inside a worker threadpool
-//         let consumer = consumer_channel
-//                             .clone()
-//                             .basic_consume( //// it'll return the consumer which will be used to get all the message deliveries from the specified queue
-//                                 queue, //// the quque that we've just built and want to get all messages which are buffered by the publisher 
-//                                 format!("{} consumer", queue).as_str(),  
-//                                 BasicConsumeOptions::default(),
-//                                 FieldTable::default(),
-//                             ).await.unwrap();
-
-//         // ----------------------------------------------------------------------
-//         //           GETTING ALL THE DELIVERIES OF THE CONSUMED MESSAGES
-//         // ----------------------------------------------------------------------
-//         let second_channel = second_channel.clone(); //// cloning the second channel to prevent ownership moving since we're moving the channel into the tokio spawn scope
-//         tokio::spawn(async move{ //// spawning async task that can be solved inside the tokio green threadpool under the hood which in our case is consuming all the messages from the passed in queue buffer  
-//             info!("➔ 🪢🛀🏽 consuming deliveries inside tokio worker green threadpool");
-//             consumer
-//                 .for_each(move |delivery|{ //// awaiting on each message delivery 
-//                     let delivery = delivery.expect("Error in consuming!").1;
-//                     second_channel
-//                         .basic_ack(delivery.delivery_tag, BasicAckOptions::default()) //// acknowledging the messages using their delivery tags
-//                         .map(|_| ())
-//                 }).await
-//         });
-
-//     }
-
-//     //// this method will build the producer from the first channel 
-//     //// and produce payloads based on the passed in criteria to send them 
-//     //// to the specified routing key which in this case is our queue name.
-//     pub async fn publish(&self, criteria: u16, exchange: &str, routing_key: &str){
-
-//         // -----------------------------------------------------------------------------------------------------------------
-//         //             BUILDING THE PUBLISHER FROM THE FIRST CHANNEL TO PUBLISH MESSAGES TO THE SPECIFIED QUEUE  
-//         // -----------------------------------------------------------------------------------------------------------------
-
-//         info!("➔ 🟢🛰️ publishing messages from the first channel to the [{}] queue", exchange);
-//         let first_channel = self.channels[0].clone();
-//         for n in 0..criteria{ //// sending the payload `criteria` times
-//             let message = format!("[{:?} ➔ {}-th]", Topic::Hoop, n); //// enum field first will be converted into String then into utf8 bytes
-//             let payload = message.as_bytes(); //// converting the message to utf8 bytes
-//             info!("➔ 🟢📦 iteration [{}], publishing payload", n);
-//             let confirm = first_channel
-//                                         .basic_publish(
-//                                             exchange, //// exchange receives message from publishers and pushes them to queues by using binders and routing keys
-//                                             routing_key, //// this is the routing key and is the address that the message must be sent to like the queue name in which the messages will be buffered inside  
-//                                             BasicPublishOptions::default(),
-//                                             payload.to_vec(), //// the payload that must be published
-//                                             BasicProperties::default(),
-//                                         )
-//                                         .await.unwrap()
-//                                         .await.unwrap();
-//             assert_eq!(confirm, Confirmation::NotRequested);
-//         }
-
-//     }
-
-
-// } 
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                    RabbitMQ RMQAccount Stream Contains Publisher and Subscriber rabbitmq_stream_client crate
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-// #[derive(Debug)]    
-// pub enum Topic{
-//     Hoop,
-//     ReHoop,
-//     Mention,
-//     HashTag,
-//     Like,
-//     RMQAccountInfo,
-// }   
-
-// //// if Clone trait is not implemented for a type and that type is also a field of a structure we can't have &self in
-// //   structure methods since using a shared reference requires Clone trait be implemented for all types of the structure 
-// //   otherwise we can't share none of the fields of the structure and by calling a method of the structure on the instance
-// //   the instance will be no longer valid and be moved.
-// //// if the first param of methods was &self that means the instance is behind a shared reference
-// //// but it can't be moved or cloned since Clone trait which is a supertrait of the Copy is not  
-// //// implemented for DedUp thus we can't clone or move the self.producer out of the shared reference at all
-// //// hence we can't have &self as the first param.
-// pub struct RMQAccount{ //// RMQAccount is the user that can publish and subscribe to the messages
-//     pub account_id: String, //// this is the _id of the account that wants to publish messages
-//     pub env: Environment, //// the rabbitmq environemt which is used to publish or subscribe
-//     pub producer: Option<Producer<Dedup>>, //// Clone trait is not implemented for the DedUp thus we can't clone or copy this field
-//     pub consumer: Option<Consumer>,
-// } 
-
-// impl RMQAccount{ //// we can't take a reference to self since the producer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.producer issue 
-    
-//     pub async fn new(env: Environment, acc_id: String) -> Self{
-//         Self{
-//             account_id: acc_id,
-//             env,
-//             producer: None,
-//             consumer: None,
-//         }
-//     }
-
-//     pub async fn build_producer(self) -> Self{ //// we can't take a reference to self since the consumer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.consumer issue
-
-//         info!("➔ 🟢 building hoopoe producer");
-
-//         let prod = self.env
-//                 .producer()
-//                 .name("hoopoe_publisher")
-//                 .build("hoopoe_producer_stream")
-//                 .await
-//                 .unwrap();
-        
-//         Self{
-//             account_id: self.account_id.clone(), //// we're cloning the account_id since when we're creating the Self it'll move into a new instance scope
-//             env: self.env.clone(), //// we're cloning the env since when we're creating the Self it'll move into a new instance scope
-//             producer: Some(prod),
-//             consumer: self.consumer, //// since self is not a shared reference thus we can move it into new scope
-//         }
-
-//     }
-
-//     pub async fn build_consumer(self) -> Self{ //// we can't take a reference to self since the consumer field can't be moved out the shared reference due to not-implemented-Clone-trait-for-self.consumer issue
-
-//         info!("➔ 🟢 building hoopoe consumer");
-
-//         let cons = self.env
-//                 .consumer()
-//                 .build("hoopoe_consumer_stream")
-//                 .await
-//                 .unwrap();
-        
-//         Self{
-//             account_id: self.account_id.clone(), //// we're cloning the account_id since when we're creating the Self it'll move into a new instance scope
-//             env: self.env.clone(), //// we're cloning the env since when we're creating the Self it'll move into a new instance scope
-//             producer: self.producer, //// since self is not a shared reference thus we can move it into new scope
-//             consumer: Some(cons), 
-//         }
-
-//     }
-
-//     pub async fn publish(producer: Option<Producer<Dedup>>, topic: Topic, message: String) -> Option<Producer<Dedup>>{ //// we're returning the producer for later calls since once the producer gets passed to this method it'll be moved and there will be no longer available 
-
-//         //        to be executed from the hoops queue buffer until the consumer is backed on line
-//         // ...
-//         let body = match topic{
-//             Hoop => format!("hooping: {}", message), 
-//             ReHoop => format!("rehooping: {}", message), 
-//             Mention => format!("Mentioning: {}", message),
-//             HashTag => format!("Hashtaging: {}", message),
-//             Like => format!("Liking: {}", message),
-//         };
-
-//         if let Some(mut prod) = producer{
-//             info!("➔ 🟢 publishing");
-//             prod
-//                 .send(Message::builder().body(body).build(), |_| async move{})
-//                 .await
-//                 .unwrap();            
-//             Some(prod)
-//         } else{
-//             None
-//         }        
-
-//     }
-
-//     pub async fn subscribe(consumer: Option<Consumer>){
-
-//         let mut consumer = consumer.unwrap(); //// defining the consumer as mutable since receiving and reading from the consumer is a mutable process and needs the futures::StreamExt trait to be imported 
-//         tokio::spawn(async move{
-//             info!("➔ 🟢 subscribing");
-//             while let Some(delivery) = consumer.next().await{ //// streaming over the consumer to receive all the messages comming from the producer while there is some delivery
-//                 info!("Received message {:?}", delivery);
-//             }
-//         });
-
-//     }
-
-//     pub async fn close_producer(producer: Option<Producer<Dedup>>){
-//         if let Some(prod) = producer{
-//             info!("➔ 🟢 closing hoopoe producer");
-//             prod
-//                 .close().await
-//                 .unwrap();
-//         }
-//     }
-
-//     pub async fn close_consumer(consumer: Option<Consumer>){
-//         if let Some(cons) = consumer{
-//             info!("➔ 🟢 closing hoopoe consumer");
-//             let consumer_handler = cons.handle();
-//             consumer_handler
-//                     .close().await
-//                     .unwrap();
-//         }
-//     }
-
-// } 
+ 

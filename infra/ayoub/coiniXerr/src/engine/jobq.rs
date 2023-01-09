@@ -5,9 +5,9 @@
 
 
 
-/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-///////        a job or async task queue like mpsc and the one inside the rabbitmq actors from scrach using the worker threadpools  
-/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+///////        a job or async task queue like tokio channels and the one inside the rabbitmq actors from scrach using the worker threadpools  
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
 // ➔ vector of || async move{} of events for an event manager struct like riker scheduling logic and vector clock schemas and call new event every 5 seconds from vector of event of closures
@@ -55,6 +55,7 @@ pub type Task = Job; //// the type of the Task is of type Job structure
 
 pub struct Job{ // the job that must be received by the receiver
     pub id: Uuid,
+    pub task: Box<dyn FnOnce() + Send + Sync + 'static>, //// the task that can be shared between worker threadpool for solving
 } 
 
 pub struct Queue{ // a queue which contains all the incoming jobs from the sender 

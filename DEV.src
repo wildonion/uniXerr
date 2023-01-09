@@ -1145,12 +1145,12 @@ CS CONCEPTS AND DESIGN PATTERNS:
                     • reinforcement learning algorithms like qlearning using mdp and bellman equation with off and on policy methods based on markov decision process and markov chain
                     • other algorithms using greedy, dynamic programming, backtracking, divide and conquer, recursive and brute forcing methods
                     • hashmap based algos like hash tables (DHT) to find closest peer in replications like cassandra db and p2p nodes    
-          • rpc capnp for actor method based communication on two different machines
+          • rpc capnp for actor method based communication on two different machines like calling between smart contract actors
           • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads in a same machine
-          • actor tokio worker green threadpool and message queue for task and method broadcasting and scheduling to the channels (tokio jobq, socket or rpc)
+          • actor tokio worker green threadpool and message queue for task and method broadcasting and scheduling to the pub/sub channels (tokio jobq, socket or rpc)
           • pub/sub and other zmq socket actors to broadcast from publishers to subscribers (m2m) using sockets
           • libp2p based on rpc capnp, tokio udp and tcp, websocket and zmq socket actors
-➤ proxy, vpns and load balancer like pingora, HAproxy and v2ray for all layers (rafael.rs)
+➤ proxy, firewall, vpns and load balancer like pingora, HAproxy and v2ray for all layers (rafael.rs)
      ➤ concepts:
           • cpu task scheduling, 
           • v2ray protocols

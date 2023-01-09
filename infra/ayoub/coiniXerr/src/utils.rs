@@ -522,8 +522,9 @@ pub async fn tcp_tx_emulator() -> (){
             match TcpStream::connect(ip_port.as_str()).await{
                 Ok(mut stream) => { //// stream must be muatble in order to write on it
 
-                    info!("🪙 sending transaction {}", time);
-                    let random_tx = Transaction::default(); //// creating a default transaction
+                    info!("🪙 sending a default transaction {}", time);
+                    let mut random_tx = Transaction::default(); //// creating a default transaction
+                    random_tx.hash = None //// since the hash has generated inside the default() method we're setting it to None to be filled inside the TCP server  
                     let encoded_tx = random_tx.try_to_vec().unwrap(); //// encoding using borsh; we can convert a Vec<u8> to &[u8] by taking a reference to it since &[u8] which will be on the stack is an slice of the Vec<u8> which is inside the heap 
                     stream.write_all(&encoded_tx).await.unwrap(); //// writing the buffer, the encoded transaction, into the stream to send back to the server
 
@@ -567,8 +568,9 @@ pub async fn udp_tx_emulator() -> (){
             match socket.connect(ip_port.clone().as_str()).await{ //// let this user socket connect to the passed in address
                 Ok(_) => {
 
-                    info!("🪙 sending transaction {}", time);
-                    let random_tx = Transaction::default(); //// creating a default transaction
+                    info!("🪙 sending a default transaction {}", time);
+                    let mut random_tx = Transaction::default(); //// creating a default transaction
+                    random_tx.hash = None //// since the hash has generated inside the default() method we're setting it to None to be filled inside the UDP server
                     let encoded_tx = random_tx.try_to_vec().unwrap(); //// encoding using borsh; we can convert a Vec<u8> to &[u8] by taking a reference to it since &[u8] which will be on the stack is an slice of the Vec<u8> which is inside the heap 
                     socket.send(&encoded_tx).await.unwrap(); //// send the buffer, the encoded transaction to the remote address that this socket is connected to or we can send to another address 
 

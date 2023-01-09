@@ -107,7 +107,7 @@ pub async fn bootstrap(
     //// lazy initialization of the node between different 
     //// parts of the app like other threads and scopes.
     //
-    //// move Arc<Mutex<T>>: Send + Sync + 'static between 
+    //// share and schedule Arc<Mutex<T>>: Send + Sync + 'static between 
     //// tokio worker green threadpool using tokio channels.
     //// to avoid deadlock situations.
  
@@ -224,11 +224,37 @@ pub async fn bootstrap(
     //// if we want to have concurrent and parallelism at the same time
     //// we can spawn each async expressin using tokio::spawn() and pass the
     //// returned join handle to select! macro.
-            
     
-    // TODO - choose longest chain first call the is_chain_valid() method on the current chain
-    // TODO - complete event loop struct and its impls
-    // ...
+    loop{ //// the event loop
+        let event = {
+            tokio::select!{
+
+
+
+            }
+        };
+        
+        if let Some(evt) = event{
+            match evt{
+                P2PBehaviourEvent::Init => {
+    
+                },
+                P2PBehaviourEvent::LocalChainResponse(resp) => {
+    
+                },
+                P2PBehaviourEvent::Input(line) => {
+    
+                },
+            }
+        }
+    }
+
+    
+    
+
+
+
+
 
             
             

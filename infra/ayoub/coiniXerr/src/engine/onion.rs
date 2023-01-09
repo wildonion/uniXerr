@@ -66,6 +66,9 @@ impl Actor{
     
     pub async fn run(){
 
+        // use worker.rs to share the task between threads
+        // ...
+        
         todo!()
 
     }

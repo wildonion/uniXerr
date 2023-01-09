@@ -1,6 +1,9 @@
 
 
 
+
+
+
 use crate::*;
 
 
@@ -74,10 +77,6 @@ pub static COINIXERR_NODE_WALLET_KEYPAIR: Lazy<Result<ring_signature::Ed25519Key
     let pkcs8_bytes = ring_signature::Ed25519KeyPair::generate_pkcs8(&rng).unwrap();
     ring_signature::Ed25519KeyPair::from_pkcs8(pkcs8_bytes.as_ref())
 });
-
-
-
-
 
 
 

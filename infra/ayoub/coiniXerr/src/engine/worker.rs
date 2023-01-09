@@ -7,7 +7,9 @@
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 ///////                worker threadpool implementations from scratch  
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-
+//// in worker threadpool we'll use tokio jobq channels 
+//// to share and schedule the Arc<Mutex<T>>: Send + Sync + 'static 
+//// between threads.
 
 /*  
 

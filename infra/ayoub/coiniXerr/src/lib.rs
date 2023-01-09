@@ -29,6 +29,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     let secret_key = env::var("SECRET_KEY").expect("⚠️ no secret key variable set");
     let wallet_secret_key = env::var("GENERATE_WALLET_ADDRESS_SECRET_KEY").expect("⚠️ no secret key variable set for wallet address");
     let merkle_root_secret_key = env::var("MERKLE_ROOT_SECRET_KEY").expect("⚠️ no secret key variable set for merkle root");
+    let genesis_secret_key = env::var("GENESIS_SECRET_KEY").expect("⚠️ no secret key variable set for genesis");
     let db_name = env::var("DB_NAME").expect("⚠️ no db name variable set");
     let buffer_size = env::var("IO_BUFFER_SIZE").expect("⚠️ please set buffer size in .env");
     let max_block_size = env::var("MAX_BLOCK_SIZE").expect("⚠️ please set block size in .env");
@@ -50,6 +51,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     vars.insert("SECRET_KEY".to_string(), secret_key);
     vars.insert("GENERATE_WALLET_ADDRESS_SECRET_KEY".to_string(), wallet_secret_key);
     vars.insert("MERKLE_ROOT_SECRET_KEY".to_string(), merkle_root_secret_key);
+    vars.insert("GENESIS_SECRET_KEY".to_string(), genesis_secret_key);
     vars.insert("RPC_ADDR".to_string(), rpc_addr);
     vars.insert("TCP_ADDR".to_string(), tcp_addr);
     vars.insert("UDP_ADDR".to_string(), udp_addr);
