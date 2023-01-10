@@ -3,7 +3,7 @@
 
 # 💰 coiniXerr
 
-An Actor, p2p Pub/Sub, Sharded TCP and RPC Based Design Pattern Runtime, Blockchain with Zero Proof of Knowledge, Proof of Healing and Raft Consensus Mechanisms for uniXerr Cryptocurrency Coin.
+An Actor, Gossipsub P2P Pub/Sub, Sharded TCP, UDP and RPC Based Design Pattern Runtime, Blockchain with Zero Proof of Knowledge, Proof of Healing and Raft Consensus Mechanisms for uniXerr Cryptocurrency Coin.
 
 > The whole coiniXerr node can be executed from the kernel using **BPF** technology which is balzingly fast! 💥 
 

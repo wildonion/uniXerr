@@ -1136,7 +1136,7 @@ CS CONCEPTS AND DESIGN PATTERNS:
 ➤ networking (tlps folder)
      ➤ concepts:
           • distributed (replication) and decentralized concepts:
-               • search, db and routing engines like elastic, cassandra and p2p kademla: 
+               • search, db and routing engines like elastic, cassandra and p2p kademlia: 
                • create best objective function to find the most rewarded (less cost actions) path in the network graph env (route planning) greedily using:
                     • hybrid tech algorithms like NN, GA and neurofuzzy(ANFIS)
                     • gradient optimization methods like stochastic gradient descent 
@@ -1149,7 +1149,8 @@ CS CONCEPTS AND DESIGN PATTERNS:
           • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads in a same machine
           • actor tokio worker green threadpool and message queue for task and method broadcasting and scheduling to the pub/sub channels (tokio jobq, socket or rpc)
           • pub/sub and other zmq socket actors to broadcast from publishers to subscribers (m2m) using sockets
-          • libp2p based on rpc capnp, tokio udp and tcp, websocket and zmq socket actors
+          • in libp2p peers can communicate with each other based on rpc capnp, tokio udp and tcp, websocket, webrtc and zmq like sockets (req/res, cli/srv or pub/sub) actors
+          • in libp2p peers can find each other using either mDNS (over LAN) or kademlia (over WAN)
 ➤ proxy, firewall, vpns and load balancer like pingora, HAproxy and v2ray for all layers (rafael.rs)
      ➤ concepts:
           • cpu task scheduling, 

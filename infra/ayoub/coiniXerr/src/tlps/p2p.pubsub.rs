@@ -63,9 +63,9 @@ pub async fn bootstrap(
         coiniXerr_sys: ActorSystem
     ){
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////         libp2p pub/sub stream to broadcast actors' events and topics to the whole networks
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////         scaffolding p2p network stacks, services and requirements
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// libp2p uses message queues and actors to handle the incoming data
     //// from other socket node actors inside a worker threadpool, also for 
     //// socket node actor communiactions and call their methods directly 
@@ -89,33 +89,20 @@ pub async fn bootstrap(
 
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let swarm_addr = env_vars.get("SWARM_ADDR").unwrap().as_str();
-
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////         scaffolding p2p network stacks, services and requirements
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    
-    // -----------------------------------------------------
-    //         INITIALIZING MPSC JOB QUEUE CHANNELS 
-    // -----------------------------------------------------
     //// since receiving is a mutable process
     //// we've defined the receiver as mutable.
     //
     //// passing data between threads can be done by using 
     //// tokio job queue channels like the following mpsc channels
     //// which can be used to broadcast network events like 
-    //// local chain response comming from other nodes and 
-    //// lazy initialization of the node between different 
+    //// lazy initialize of the network peer between different 
     //// parts of the app like other threads and scopes.
     //
     //// share and schedule Arc<Mutex<T>>: Send + Sync + 'static between 
     //// tokio worker green threadpool using tokio channels.
     //// to avoid deadlock situations.
- 
-
-    info!("➔ 🎡 peer id for this node [{}]", PEER_ID.clone());
-    let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
     let (init_sender, mut init_receiver) = mpsc::channel::<bool>(buffer_size);
-    
+
     // -------------------------------------------------------------------------------
     //         CREATING A SECURED MULTIPLEX PROTCOL USING TOKIO TCP AND NOISE   
     // -------------------------------------------------------------------------------
@@ -134,7 +121,7 @@ pub async fn bootstrap(
     //// inside the Box which can handle the lifetime on its own like the 
     //// transport protocol which has been Boxed.
 
-    info!("➔ 🔌🔐 building a secured transport protocol using noise and tokio TCP");
+    info!("➔ 🔌🔐 building a secured transport protocol using noise and tokio TCP for peer 🎡 with id [{}]", PEER_ID.clone());
     let auth_keys = NoiseKeypair::<X25519Spec>::new()
                                                 .into_authentic(&KEYS.clone())
                                                 .unwrap();
@@ -152,30 +139,23 @@ pub async fn bootstrap(
     info!("➔ 🔩 generating a new p2p app behaviour");
     let behaviour = P2PAppBehaviour::new().await;
 
-    // -----------------------------------------------------------------------------------------------
-    //        BUILDING THE SWARM MODULE FROM THE CREATED BEHAVIOUR, TRANSPORT AND THE PEER ID   
-    // -----------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+    //           BUILDING THE SWARM EVENT STREAM FROM THE CREATED NETWORK BEHAVIOUR, TRANSPORT AND THE PEER ID   
+    // -----------------------------------------------------------------------------------------------------------------
     //// creating a new SwarmBuilder based on tokio executor 
     //// from the given transport, behaviour and local peer_id.
     //
-    //// swarm module will be the engine of the p2p network stacks
+    //// swarm event stream will be the engine of the p2p network stacks
     //// which by starting it we can handle all the incoming events
     //// inside the node.
     
-    info!("➔ 🌪️ building swarm module based on secured transport channel and the generated behaviour");
+    info!("➔ 🌪️ building swarm event stream based on secured transport channel and the generated behaviour");
     let mut swarm = SwarmBuilder::with_tokio_executor(
                                                         transport, 
                                                         behaviour, 
                                             PEER_ID.clone()
                                             )
                                             .build();
-
-    // --------------------------------------------------------
-    //     READING FULL LINES FROM THE STDIN FOR USER INPUT   
-    // --------------------------------------------------------
-
-    info!("➔ ⌨️ enter messages via STDIN and they will be sent to connected peers using Gossipsub");
-    let mut stdin = tokio::io::BufReader::new(tokio::io::stdin()).lines();
 
     // -----------------------------------------
     //        STARTING THE CREATED SWARM 
@@ -190,75 +170,25 @@ pub async fn bootstrap(
                 .unwrap(),
     ).unwrap();
     info!("➔ 👂 swarm is listening on {}", swarm_addr);
-    
+
     //// spawning an async task or a future object thaT 
     //// can be handled in the background using 
     //// tokio worker green threadpool.
     tokio::spawn(async move{ 
-        info!("➔ 📻 sending init event to downside of the mpsc channel");
+        info!("➔ 📻 sending network initializing event to downside of the mpsc channel");
         init_sender.send(true).await;
     });
 
-    // -----------------------------------------
-    //          SWARM EVENT LOOP PROCESS 
-    // -----------------------------------------
-    //// in event driven coding there is an event loop
-    //// which constantly chanage the code flow of the app 
-    //// when some async I/O events happen in which the pulled 
-    //// async I/O event out of the queue will be placed onto 
-    //// the function execution stack to be executed whenever 
-    //// whenever the function stack becomes empty; this can be done
-    //// using tokio::select! macro which waits on multiple 
-    //// concurrent branches and async computation task events, 
-    //// returning when the first branch or a single computation completes, 
-    //// cancelling the remaining branches or async computations.
-    //
-    //// stream over events to read data from the wire constantly 
-    //// and save then in a buffer inside the stack 
-    //// then deserialize it.
-    //
-    //// tokio solves async tasks or future objects selected 
-    //// from the event loop using tokio::select! in the background 
-    //// inside worker green threadpool.
-    //
-    //// if we want to have concurrent and parallelism at the same time
-    //// we can spawn each async expressin using tokio::spawn() and pass the
-    //// returned join handle to select! macro.
-    
-    loop{ //// the event loop
-        let event = {
-            tokio::select!{
+    // -----------------------------------------------------
+    //        INITIALIZING SWARM EVENT LOOP INSTANCE 
+    // -----------------------------------------------------
+    //// we'll receive the init signal from the mpsc channel
+    //// inside the event loop
 
-
-
-            }
-        };
-        
-        if let Some(evt) = event{
-            match evt{
-                P2PBehaviourEvent::Init => {
-    
-                },
-                P2PBehaviourEvent::LocalChainResponse(resp) => {
-    
-                },
-                P2PBehaviourEvent::Input(line) => {
-    
-                },
-            }
-        }
-    }
-
+    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver);
+    event_loop.run().await;
     
     
-
-
-
-
-
-            
-            
-            
             
             
             

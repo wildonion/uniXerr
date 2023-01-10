@@ -89,7 +89,10 @@ use riker_patterns::ask::*; //// used to ask any actor to give us the info about
 //// loading all the required network stacks
 //// to build a p2p blockchain node.
 use libp2p::{
+    core::either::EitherError,
+    kad::{record::store::MemoryStore, GetProvidersOk, Kademlia, KademliaEvent, QueryId, QueryResult},
     gossipsub,
+    gossipsub::error::GossipsubHandlerError,
     futures::StreamExt, //// trait for streams
     core::upgrade,
     identity, identity::Keypair, 
@@ -107,7 +110,12 @@ use crate::actors::{
                     peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //// loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
-use crate::schemas::{Transaction, Block, Slot, Chain, Staker, Db, Storage, Mode, P2PChainResponse, P2PLocalChainRequest, P2PBehaviourEvent, P2PAppBehaviour};
+use crate::schemas::{
+                    Transaction, Block, Slot, Chain, 
+                    Staker, Db, Storage, Mode, P2PChainResponse, 
+                    P2PLocalChainRequest, 
+                    P2PAppBehaviour, P2PSwarmEventLoop
+                };
 use crate::constants::*;
 use crate::utils::DbORM::StorageModel;
 use mongodb::Client;
@@ -116,7 +124,7 @@ use mongodb::Client;
 use futures::{Future, executor::block_on, future::RemoteHandle}; 
 use serde::{Deserialize, Serialize};
 use rand::Rng;
-use ring::{rand as ring_rand, signature as ring_signature};
+use ring::{rand as ring_rand, signature as ring_signature, signature::KeyPair as ring_keypair};
 use borsh::{BorshDeserialize, BorshSerialize};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::config::{Appender, Root};
@@ -324,7 +332,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     // ----------------------------------------------------------------------
     //// used to communicate with other coiniXerr nodes
     
-    p2p::bootstrap(
+    p2p::bootstrap( //// bootstrapping libp2p pub/sub swarm stream to broadcast actors' events and topics to the whole networks
         mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
         APP_STORAGE.clone(), 
         env_vars.clone(),

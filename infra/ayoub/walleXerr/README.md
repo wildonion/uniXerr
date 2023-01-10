@@ -16,6 +16,8 @@ coiniXerr Wallet Front-end
 
 * all transactions need to be signed with the sender's private key.
 
-* use public-key (asymmetric) digital signature encryption to generate a keypair (public key as the wallet address and private key) for tx signing process. 
+* use public-key (asymmetric) digital signature encryption to generate a keypair (public key as the wallet address and private key) for tx signing process.
+
+* generated private key MUST be converted into ascii chars to login with it.
 
 * we can't have async I/O stream, sockets and std libs inside the wasm.
