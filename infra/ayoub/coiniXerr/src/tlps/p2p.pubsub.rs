@@ -179,19 +179,33 @@ pub async fn bootstrap(
         init_sender.send(true).await;
     });
 
-    // -----------------------------------------------------
-    //        INITIALIZING SWARM EVENT LOOP INSTANCE 
-    // -----------------------------------------------------
+    // -------------------------------------------
+    //          RUNNING SWARM EVENT LOOP 
+    // -------------------------------------------
+    //// in event driven coding there is an event loop
+    //// which constantly chanage the code flow of the app
+    //// by streaming over events to read data from the wire 
+    //// constantly and save then in a buffer inside the stack 
+    //// then deserialize it also when some async I/O events 
+    //// happen we must pull the async I/O event out of the 
+    //// queue and place onto the function execution stack 
+    //// to be executed once the function stack becomes empty; 
+    //// this can be done using tokio::select! macro which waits 
+    //// on multiple concurrent branches and async computation 
+    //// task events, returning when the first branch or a single 
+    //// computation completes, cancelling the remaining branches 
+    //// or async computations, the async task can be receiving 
+    //// from or sending to a tokio jobq channel like mpsc.
+    //
+    //// if we want to have concurrent and parallelism at the same time
+    //// we can spawn each async expressin using tokio::spawn() and pass the
+    //// returned join handle to select! macro which async I/O tasks or 
+    //// future objects selected from the event loop using tokio::select! 
+    //// will be solved in the background inside worker green threadpool.
+
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
-
     let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver);
     event_loop.run().await;
-    
-    
-            
-            
-            
-            
 
 }

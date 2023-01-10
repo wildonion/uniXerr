@@ -217,40 +217,9 @@ impl P2PSwarmEventLoop{
     }
 
     pub async fn run(&mut self){ //// swarm.select_next_some() is a mutable method thus we must define the self as mutable
-        // -----------------------------------------
-        //          RUNING SWARM EVENT LOOP 
-        // -----------------------------------------
-        //// in event driven coding there is an event loop
-        //// which constantly chanage the code flow of the app
-        //// by streaming over events to read data from the wire 
-        //// constantly and save then in a buffer inside the stack 
-        //// then deserialize it also when some async I/O events 
-        //// happen we must pull the async I/O event out of the 
-        //// queue and place onto the function execution stack 
-        //// to be executed once the function stack becomes empty; 
-        //// this can be done using tokio::select! macro which waits 
-        //// on multiple concurrent branches and async computation 
-        //// task events, returning when the first branch or a single 
-        //// computation completes, cancelling the remaining branches 
-        //// or async computations, the async task can be receiving 
-        //// from or sending to a tokio jobq channel like mpsc.
-        //
-        //// if we want to have concurrent and parallelism at the same time
-        //// we can spawn each async expressin using tokio::spawn() and pass the
-        //// returned join handle to select! macro which async I/O tasks or 
-        //// future objects selected from the event loop using tokio::select! 
-        //// will be solved in the background inside worker green threadpool.
-        
-        // --------------------------------------------------------
-        //     READING FULL LINES FROM THE STDIN FOR USER INPUT   
-        // --------------------------------------------------------
 
         info!("➔ ⌨️ enter messages via STDIN and they will be sent to connected peers using Gossipsub");
         let mut stdin = tokio::io::BufReader::new(tokio::io::stdin()).lines();
-
-        //// ----------------------
-        //// p2p network event loop
-        //// ----------------------
         loop{
             //// inside select! macro we can have multiple async tasks and 
             //// once an async task inside the select! macro gets completed
@@ -264,7 +233,7 @@ impl P2PSwarmEventLoop{
                 //// - an event inside the loop can be either stdin, 
                 ////    local chain response comming from the mpsc channel, 
                 ////    receiving init signal or swarm events.
-                line = stdin.next_line() => { //// handling the stdin event if there was some input
+                line = stdin.next_line() => { //// //// in here the async task is reading from the stdin; handling the stdin event if there was some input
                     match line.unwrap().unwrap() {
                         cmd if cmd.starts_with("ls p") => self.print_peers().await,
                         cmd if cmd.starts_with("ls c") => self.print_chain().await,
@@ -274,7 +243,7 @@ impl P2PSwarmEventLoop{
                 //// once the node has initialized we'll send a request 
                 //// or publish a chain request to the network to get
                 //// the latest chain from other peers.
-                local_chain_request = self.init_receiver.recv() => { 
+                local_chain_request = self.init_receiver.recv() => { //// in here the async task is receiving from the init mpsc channel
                     let peers = self.get_list_peers().await;
                     info!("⚛️ connected nodes {}", peers.len());
                     if !peers.is_empty(){
@@ -292,7 +261,7 @@ impl P2PSwarmEventLoop{
                             .publish(PARACHAIN_TOPIC.clone(), json_request.as_bytes()); //// publishing requested chain from selected peer to the p2p network using gossipsub protocol   
                     }
                 },
-                local_chain_response = self.response_receiver.recv() => {
+                local_chain_response = self.response_receiver.recv() => { //// in here the async task is receiving from the response mpsc channel 
                     //// converting the received response into the json string, 
                     //// we'll publish its bytes through the whole network later 
                     let json_response = serde_json::to_string(&local_chain_response).unwrap(); 
@@ -301,12 +270,13 @@ impl P2PSwarmEventLoop{
                             .gossipsub
                             .publish(PARACHAIN_TOPIC.clone(), json_response.as_bytes()); //// publishing recieved chain response from other peers to the p2p network using gossipsub protocol 
                 },
-                swarm_event = self.swarm.select_next_some() => { //// handling the swarm events if there was some
+                swarm_event = self.swarm.select_next_some() => { //// //// in here the async task is the swarm event; handling the swarm events if there was some
                     info!("🤌 handling a swarm event {:?}", swarm_event);
                     self.handle_event(swarm_event).await; //// calling handle_event() to handle all swarm events
                 },
             }
        }
+
     }
 
     async fn handle_event(&self, event: SwarmEvent<P2PAppBehaviourEvent, EitherError<GossipsubHandlerError, std::io::Error>>){
