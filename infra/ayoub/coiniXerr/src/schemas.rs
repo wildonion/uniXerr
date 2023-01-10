@@ -206,17 +206,14 @@ pub struct P2PSwarmEventLoop{
 impl P2PSwarmEventLoop{
 
     pub fn new(swarm: Swarm<P2PAppBehaviour>, init_receiver: mpsc::Receiver<bool>) -> Self{
-
         let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();            
         let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
-
         Self{
             response_sender,
             response_receiver,
             init_receiver,
             swarm,
         }
-
     }
 
     pub async fn run(&mut self){ //// swarm.select_next_some() is a mutable method thus we must define the self as mutable
@@ -261,9 +258,9 @@ impl P2PSwarmEventLoop{
             //// be poped out of the queue for execution inside the function
             //// execution stack. 
             tokio::select!{
-                //// - the async_expression must be a future 
                 //// event_name = async_expression => {} 
                 //// event_name = (async_expression), if a.is_none() => {}
+                //// - the async_expression must be a future 
                 //// - an event inside the loop can be either stdin, 
                 ////    local chain response comming from the mpsc channel, 
                 ////    receiving init signal or swarm events.
@@ -274,19 +271,21 @@ impl P2PSwarmEventLoop{
                         _ => error!("🛑 unknown command"),
                     }                 
                 },
-                _init = self.init_receiver.recv() => {
+                //// once the node has initialized we'll send a request 
+                //// or publish a chain request to the network to get
+                //// the latest chain from other peers.
+                local_chain_request = self.init_receiver.recv() => { 
                     let peers = self.get_list_peers().await;
                     info!("⚛️ connected nodes {}", peers.len());
                     if !peers.is_empty(){
-                        let local_chain_request = P2PLocalChainRequest{
+                        let chain_request = P2PLocalChainRequest{
                             from_peer_id: peers
                                 .iter()
-                                .last()
+                                .last() //// getting the last peer_id to send the request with
                                 .unwrap()
                                 .to_string(),
                         };
-                        
-                        let json_request = serde_json::to_string(&local_chain_request).unwrap();
+                        let json_request = serde_json::to_string(&chain_request).unwrap();
                         self.swarm
                             .behaviour_mut()
                             .gossipsub
