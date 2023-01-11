@@ -17,10 +17,10 @@ use crate::*;
 //// Lazy also works with local variable
 pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519); //// generating a thread safe static keypair (public and private)
 pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //// generating a thread safe peer id from the generated keypair
-pub static PARACHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("parachains"));
-pub static BLOCK_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("blocks"));
+pub static CHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("chain"));
 pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); //// this is the topic about network status and updates
 pub static TRANSACTION_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("transaction"));
+pub static SLOT_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("slot"));
 
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup
@@ -36,7 +36,7 @@ pub static APP_STORAGE: Lazy<Option<Arc<Storage>>> = Lazy::new(|| { //// the new
                 daemon::get_env_vars().get("DB_USERNAME").unwrap().to_string(),
                 daemon::get_env_vars().get("DB_PASSWORD").unwrap().to_string()
             }    
-        }
+        } //// end of async block (the future object)
     ) //// blocking the current thread to solve the future object
 });
 

@@ -56,6 +56,7 @@ pub async fn bootstrap(
         current_slot: Slot, 
         validator_joined_channel: ChannelRef<ValidatorJoined>,
         default_parachain_uuid: Uuid,
+        parachain: ActorRef<ParachainMsg>,
         cloned_arc_mutex_runtime_info_object: Arc<Mutex<RafaelRt>>,
         meta_data_uuid: Uuid,
         cloned_arc_mutex_validator_update_channel: Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
@@ -164,7 +165,8 @@ pub async fn bootstrap(
     swarm.listen_on(
         //// the /ip4/0.0.0.0 informs us that we want any 
         //// address of the IPv4 protocol, and /tcp/0 
-        //// tells us we want to send TCP packets to any port.
+        //// tells us we want to send TCP packets to any port,
+        //// also this will allow us to query our own kademlia node.
         swarm_addr
                 .parse()
                 .unwrap(),
@@ -205,7 +207,7 @@ pub async fn bootstrap(
 
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
-    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver);
+    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain_instance, coiniXerr_sys);
     event_loop.run().await;
 
 }

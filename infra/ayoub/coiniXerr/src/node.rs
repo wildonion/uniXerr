@@ -331,7 +331,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //                    STARTING coiniXerr P2P STACKS
     // ----------------------------------------------------------------------
     //// used to communicate with other coiniXerr nodes
-    
+
     p2p::bootstrap( //// bootstrapping libp2p pub/sub swarm stream to broadcast actors' events and topics to the whole networks
         mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
         APP_STORAGE.clone(), 
@@ -339,6 +339,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         current_slot.clone(),
         validator_joined_channel.clone(),
         default_parachain_uuid.clone(),
+        parachain_0.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
         cloned_arc_mutex_validator_actor.clone(),
@@ -449,7 +450,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
                 //        consensus::raft::consensus_on(current_block) || 
                 //        consensus::poh::consensus_on(current_block)
                 // ...
-                if current_block.is_valid{
+                if current_block.is_valid{ //// after a successful consensus process the block must be valid
                     info!("➔ 🥑 block with id [{}] is valid", current_block.id);
                     info!("➔ 🧣 adding the created block to the chain");
                     blockchain.clone().add(current_block.clone()); //// adding the cloned of current block to the coiniXerr parachain blockchain - cloning must be done to prevent current_block and the blockchain parachain from moving in every iteration mempool_receiver loop; we can also use as_ref() method instead of clone() method in order to borrow the content inside the Option to prevent the content from moving and losing ownership
@@ -497,6 +498,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         info!("➔ 🔃 updating default parachain state");
         //// we have to ask the actor that hey we want to update some info about the parachain by sending the related message cause the parachain is guarded by the ActorRef
         //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+        //// also if we pass None there won't be any update and last value will be returned
         let update_parachain_remote_handle: RemoteHandle<Parachain> = ask(&coiniXerr_actor_system, &parachain_0, UpdateParachainEvent{slot: Some(current_slot.clone()), blockchain: Some(blockchain.clone()), current_block: Some(current_block.clone())}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to update the state of the passed in parachain actor and return the result or response as a future object
         let update_default_parachain = update_parachain_remote_handle.await;
 

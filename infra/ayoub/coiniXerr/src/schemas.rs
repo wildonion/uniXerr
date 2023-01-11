@@ -9,6 +9,8 @@
 
 
 
+use libp2p::kad::GetClosestPeersOk;
+
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
 
@@ -22,6 +24,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 ///// NOTE - deserialization using slice       : &[u8] buffer ----serde_json::from_slice()----> struct
 ///// NOTE - serializing                       : struct instance ----serde_json::to_vec()----> Vec<u8> which will be coerced to &[u8] at compile time
 ///// NOTE - serializing                       : struct instance ----serde_json::to_string()----> json string will be coerced to &str at compile time 
+///// NOTE - serializing                       : serde_json::json!({})----> Value ----serde_json::to_string()----> json string or &str ----serde_json::from_str()----> struct
 
 
 
@@ -83,8 +86,8 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// for peers communication and discovery over the internet 
 //// respectively, the second step is to define all p2p events 
 //// which can be happened across the network and is done 
-//// inside the P2PAppBehaviourEvent enum also we MUST impl 
-//// `From` trait for each variant of the P2PAppBehaviourEvent 
+//// inside the `P2PAppBehaviourEvent` enum also we MUST impl 
+//// `From` trait for each variant of the `P2PAppBehaviourEvent` 
 //// enum to return an specific variant based on the passed 
 //// in event into the `from()` method, the final step is 
 //// to define the event loop structure which is responsible 
@@ -118,28 +121,28 @@ pub enum P2PAppBehaviourEvent{
 }
 
 impl From<GossipsubEvent> for P2PAppBehaviourEvent{
-    fn from(event: GossipsubEvent) -> Self{ //// Self refers to the P2PAppBehaviourEvent in which we only return the Gossipsub variant 
+    fn from(event: GossipsubEvent) -> Self{ //// Self refers to the `P2PAppBehaviourEvent` in which we only return the Gossipsub variant 
         P2PAppBehaviourEvent::Gossipsub(event)
     }
 }
 
 impl From<KademliaEvent> for P2PAppBehaviourEvent{
-    fn from(event: KademliaEvent) -> Self{ //// Self refers to the P2PAppBehaviourEvent in which we only return the Kademlia variant 
+    fn from(event: KademliaEvent) -> Self{ //// Self refers to the `P2PAppBehaviourEvent` in which we only return the Kademlia variant 
         P2PAppBehaviourEvent::Kademlia(event)
     }
 }
 
 //// NetworkBehaviour trait defines the behaviour of the local node on the network
 //// in contrast to Transport which defines how to send bytes on the network, 
-//// NetworkBehaviour defines what bytes to send and to whom 
-//// which in our case is based on gossipsub and kademlia protocol. 
+//// NetworkBehaviour defines what bytes to send, to whom and how! which in our case 
+//// is based on gossipsub and kademlia protocols. 
 //
 //// to find other hosts and nodes on the local network we can either
 //// use mDNS algorithm which will send a multicast UDP message on port 5353
 //// announcing its presence a DHT kademlia based algorithm can be used as a 
 //// replacement for mDNS which works over the internet.
-#[derive(NetworkBehaviour)] //// implementing the NetworkBehaviour trait for the P2PAppBehaviour struct
-#[behaviour(out_event = "P2PAppBehaviourEvent")] //// exporting our network behaviour the P2PAppBehaviour struct as P2PAppBehaviourEvent
+#[derive(NetworkBehaviour)] //// implementing the NetworkBehaviour trait for the `P2PAppBehaviour` struct
+#[behaviour(out_event = "P2PAppBehaviourEvent")] //// exporting our network behaviour the `P2PAppBehaviour` struct as `P2PAppBehaviourEvent`
 pub struct P2PAppBehaviour{
     pub gossipsub: Gossipsub, //// gossipsub protocol for p2p pub/sub: https://docs.libp2p.io/concepts/pubsub/overview/
     // pub mdns: mdns::tokio::Behaviour, //// mDNS protocol is used to discover other nodes on the local network that support libp2p
@@ -153,7 +156,7 @@ impl P2PAppBehaviour{
         let message_id_fn = |message: &GossipsubMessage|{
             let mut s = DefaultHasher::new();
             message.data.hash(&mut s);
-            MessageId::from(s.finish().to_string())
+            MessageId::from(s.finish().to_string()) //// we can take the hash of message and use it as an id
         };
 
         let gossipsub_config = gossipsub::GossipsubConfigBuilder::default()
@@ -184,10 +187,15 @@ impl P2PAppBehaviour{
             kademlia: Kademlia::new(PEER_ID.clone(), MemoryStore::new(PEER_ID.clone()))
         };
 
-        //// subscribing to parachain and block topics
-        //// using gossip protocol.
-        behaviour.gossipsub.subscribe(&PARACHAIN_TOPIC.clone()).unwrap();
-        behaviour.gossipsub.subscribe(&BLOCK_TOPIC.clone()).unwrap();
+        //// in p2p every peer is a subscriber and publisher
+        //// at the same time thus we must subscribe to topics
+        //// that has been published by other peers below we're 
+        //// subscribing to chain, network stat, transaction 
+        //// and all slot operations topic using gossipsub protocol.
+        behaviour.gossipsub.subscribe(&CHAIN_TOPIC.clone()).unwrap();
+        behaviour.gossipsub.subscribe(&NETWORK_STAT.clone()).unwrap();
+        behaviour.gossipsub.subscribe(&TRANSACTION_TOPIC.clone()).unwrap();
+        behaviour.gossipsub.subscribe(&SLOT_TOPIC.clone()).unwrap();
 
         behaviour
 
@@ -197,22 +205,44 @@ impl P2PAppBehaviour{
 
 
 pub struct P2PSwarmEventLoop{
+    //// following channels will be used to send and receive
+    //// node initialization signal in which once we receive
+    //// an initialization signal we'll publish a local chain 
+    //// request to the whole network to all peers to get 
+    //// the latest chain of peers who subscribe to the
+    //// topic, in the mean while every node will send its  
+    //// local chain to the `P2PChainResponse` mpsc channel 
+    //// using the `response_sender` and once we received 
+    //// the local chain response on the downside of the 
+    //// channel we'll publish the chain topic to the 
+    //// whole network, the `P2PChainResponse` mpsc channel 
+    //// will be used to send and receive local chain responses 
+    //// that has been requested by a node inside the init channel, 
+    //// between different parts of the app like differen threads
+    //// of the swarm events. 
+    pub init_receiver: mpsc::Receiver<bool>,
     pub response_sender: mpsc::Sender<P2PChainResponse>,
     pub response_receiver: mpsc::Receiver<P2PChainResponse>,
-    pub init_receiver: mpsc::Receiver<bool>,
     pub swarm: Swarm<P2PAppBehaviour>,
+    pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
+    pub actor_sys: ActorSystem, 
 }
 
 impl P2PSwarmEventLoop{
 
-    pub fn new(swarm: Swarm<P2PAppBehaviour>, init_receiver: mpsc::Receiver<bool>) -> Self{
+    pub fn new(swarm: Swarm<P2PAppBehaviour>, 
+                init_receiver: mpsc::Receiver<bool>,
+                parachain: Parachain,
+                actor_sys: ActorSystem) -> Self{
         let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();            
         let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
         Self{
+            init_receiver,
             response_sender,
             response_receiver,
-            init_receiver,
             swarm,
+            parachain,
+            actor_sys
         }
     }
 
@@ -240,8 +270,8 @@ impl P2PSwarmEventLoop{
                         _ => error!("🛑 unknown command"),
                     }                 
                 },
-                //// once the node has initialized we'll send a request 
-                //// or publish a chain request to the network to get
+                //// once we received the init signal from the channel 
+                //// we'll publish a chain request to the network to get
                 //// the latest chain from other peers.
                 local_chain_request = self.init_receiver.recv() => { //// in here the async task is receiving from the init mpsc channel
                     let peers = self.get_list_peers().await;
@@ -256,19 +286,23 @@ impl P2PSwarmEventLoop{
                         };
                         let json_request = serde_json::to_string(&chain_request).unwrap();
                         self.swarm
-                            .behaviour_mut()
+                            .behaviour_mut() //// it'll return a mutable reference to the swarm behaviour
                             .gossipsub
-                            .publish(PARACHAIN_TOPIC.clone(), json_request.as_bytes()); //// publishing requested chain from selected peer to the p2p network using gossipsub protocol   
+                            .publish(CHAIN_TOPIC.clone(), json_request.as_bytes()); //// publishing requested chain from selected peer to the p2p network using gossipsub protocol   
                     }
                 },
+                //// in here we're contantly receiving from the `P2PChainResponse`
+                //// mpsc channel and if there was a local chain response has sent to 
+                //// the channel we'll publish it to the whole network to all peers
+                //// so they can get the response and update their chain with the new one.
                 local_chain_response = self.response_receiver.recv() => { //// in here the async task is receiving from the response mpsc channel 
                     //// converting the received response into the json string, 
                     //// we'll publish its bytes through the whole network later 
                     let json_response = serde_json::to_string(&local_chain_response).unwrap(); 
                     self.swarm
-                            .behaviour_mut()
+                            .behaviour_mut() //// it'll return a mutable reference to the swarm behaviour
                             .gossipsub
-                            .publish(PARACHAIN_TOPIC.clone(), json_response.as_bytes()); //// publishing recieved chain response from other peers to the p2p network using gossipsub protocol 
+                            .publish(CHAIN_TOPIC.clone(), json_response.as_bytes()); //// publishing recieved chain response from other peers to the p2p network using gossipsub protocol 
                 },
                 swarm_event = self.swarm.select_next_some() => { //// //// in here the async task is the swarm event; handling the swarm events if there was some
                     info!("🤌 handling a swarm event {:?}", swarm_event);
@@ -281,43 +315,121 @@ impl P2PSwarmEventLoop{
 
     async fn handle_event(&self, event: SwarmEvent<P2PAppBehaviourEvent, EitherError<GossipsubHandlerError, std::io::Error>>){
 
-        //// taking care of the event that just happened
-        //// following are swarm events which can be one of 
+        let peer_id = PEER_ID.clone();
+
+        //// following we're taking care of the swarm events 
+        //// both kademlia and gossipsub events which is one of 
         //// the variant inside the `P2PAppBehaviourEvent`.
         match event{ 
-            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Gossipsub(GossipsubEvent::Message{ 
-                propagation_source: PEER_ID.clone(), 
-                message_id: id, 
-                message, 
+            //// in here our node will subscribe to all topics that has been published
+            //// using gossipsub protocol like subscribing to PARACHAIN topic to send 
+            //// and receive latest chains.
+            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Gossipsub(GossipsubEvent::Message{ //// the encoded message that we've received from other peers
+                propagation_source: peer_id,
+                message_id: id,
+                message,
             })) => {
                 
+                // https://github.com/zupzup/rust-blockchain-example/blob/a8380fe76f8ef8e777b5dc8c5f3396149e265d44/src/p2p.rs#L72
+                // TODO - syntax of Message struct????
                 // TODO - decode incoming message that has been published inside the event loop
                 // TODO - choosing the right chain
-                // TODO - send new parachain using self.response_sender 
-                //        since new parachain chain topic will be published inside the event loop
+                // TODO - update blockchain field in self.parachain actor
+                // TODO - handle other topics
+                // TODO - send new chain using self.response_sender 
+                //        since new chain topic will be published inside the event loop
                 // ...
 
             },
-            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(kad_event)) => {
+            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
+                KademliaEvent::OutboundQueryProgressed { 
+                    id, 
+                    result: QueryResult::StartProviding(_), 
+                    .. //// rest of the fields of `OutboundQueryProgressed` struct variant that we don't care about
+                },
+            )) => {
                 
-                // TODO - handle all kademlia events
-                // ...
+
                 
             },
+            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
+                KademliaEvent::OutboundQueryProgressed { 
+                    id, 
+                    result: QueryResult::GetProviders(
+                        Ok(
+                            GetProvidersOk::FoundProviders{ 
+                            providers,
+                            .. //// rest of the fields of `FoundProviders` struct variant that we don't care about
+                        })), 
+                    .. //// rest of the fields of `OutboundQueryProgressed` struct variant that we don't care about
+                },
+            )) => {
+                
+
+                
+            },
+            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
+                KademliaEvent::OutboundQueryProgressed { 
+                    id, 
+                    result: QueryResult::GetProviders(
+                        Ok(
+                            GetClosestPeersOk::FinishedWithNoAdditionalRecord{ .. },        
+                        )), 
+                    .. //// rest of the fields of `OutboundQueryProgressed` struct variant that we don't care about
+                },
+            )) => {},
+            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(_)) => {}, //// other kademlia events that we don't care about
+            SwarmEvent::ConnectionEstablished{ 
+                    peer_id, 
+                    endpoint, 
+                    .. //// we can use .. to cover all or the remaining struct fields
+            } => {
+                
+            },
+            SwarmEvent::OutgoingConnectionError{ 
+                    peer_id, 
+                    error, 
+                    .. 
+            } => {
+                
+            },
+            SwarmEvent::NewListenAddr { address, .. } => {
+                
+            },
+            SwarmEvent::ConnectionClosed{ .. } => {}, 
+            SwarmEvent::IncomingConnection{ .. } => {},
+            SwarmEvent::IncomingConnectionError{ .. } => {},
+            SwarmEvent::Dialing(_) => {},
+            e => panic!("⛔ {e:?}"),
         }
 
     }
 
-    async fn get_list_peers(&self){
-
+    async fn get_list_peers(&self) -> Vec<String>{
+        info!("⚛️ discovered nodes {}", peers.len());
+        // TODO - discovered and expired kademlia peers
+        vec![]
     }
 
     async fn print_peers(&self){
-
+        let peers = self.get_list_peers().await;
+        peers.iter().for_each(|p| info!("🎡 peer : ", p));
     }
 
     async fn print_chain(&self){
+        info!("🔗🧊 local blockchain");
+        let parachain_data = self.get_parachain_data().await;
+        let Some(chain) = parachain_data.blockchain else{ //// in later scopes we can access the chain
+            panic!("⛔ no chain is available inside the parachain");
+        };
+        let blockchain_pretty_json = serde_json::to_string_pretty(&chain).unwrap();
+        info!("{}", blockchain_pretty_json);
+    }
 
+    async fn get_parachain_data(&self) -> Parachain{
+        let fetch_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSelf}); 
+        let parachain_instance = fetch_parachain_remote_handle.await;
+        parachain_instance
     }
 
 }

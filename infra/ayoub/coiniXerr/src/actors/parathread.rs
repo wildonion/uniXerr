@@ -45,13 +45,14 @@ pub enum Cmd{
     GetCurrentBlock, //// Mine field is the default value; borsh utf8 encoded variant is 0
     GetSlot, //// borsh utf8 encoded variant is 1
     GetBlockchain, //// borsh utf8 encoded variant is 2
-    GetNextParachain, //// borsh utf8 encoded variant is 3
-    GetGenesis, //// borsh utf8 encoded variant is 4
-    GetParachainUuid, //// borsh utf8 encoded variant is 5
-    WaveResetSlotFrom(String), //// borsh utf8 encoded variant is 6 - Uuid is the id of the parachain that waved a hi
-    WaveSlotToNextParachainActor, //// borsh utf8 encoded variant is 7
-    WaveSlotToParachainActor(String), //// borsh utf8 encoded variant is 8 - String is the path of the selected parachain actor
-    WaveResetSlotFromSystem, //// borsh utf8 encoded variant is 9
+    GetSelf, ///// borsh utf8 encoded variant is 3
+    GetNextParachain, //// borsh utf8 encoded variant is 4
+    GetGenesis, //// borsh utf8 encoded variant is 5
+    GetParachainUuid, //// borsh utf8 encoded variant is 6
+    WaveResetSlotFrom(String), //// borsh utf8 encoded variant is 7 - Uuid is the id of the parachain that waved a hi
+    WaveSlotToNextParachainActor, //// borsh utf8 encoded variant is 8
+    WaveSlotToParachainActor(String), //// borsh utf8 encoded variant is 9 - String is the path of the selected parachain actor
+    WaveResetSlotFromSystem, //// borsh utf8 encoded variant is 10
 }
 
 #[derive(Clone, Debug)]
@@ -118,6 +119,10 @@ impl Parachain{ //// Parachain is the parallel chain of the coiniXerr network wh
 
     pub fn get_blockchain(&self) -> Option<Chain>{
         self.blockchain.clone()
+    }
+
+    pub fn get_self(&self) -> Option<Self>{ //// returning the whole instance of the parachain 
+        self
     }
 
     pub fn set_slot(&mut self, slot: Slot) -> Self{ //// Self referes to the Parachain struct
@@ -291,6 +296,17 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                     .unwrap()
                     .try_tell(
                         blockchain, //// sending the blockchain as the response message 
+                        Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
+                    );
+            },
+            Cmd::GetSelf => {
+                info!("➔ 🔙 returning the parachain data with id [{}]", self.id);
+                let parachain = self.get_self();
+                _sender
+                    .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                    .unwrap()
+                    .try_tell(
+                        parachain, //// sending the parachain as the response message 
                         Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
                     );
             },
