@@ -9,8 +9,6 @@
 
 
 
-use libp2p::kad::GetClosestPeersOk;
-
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
 
@@ -60,9 +58,13 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// struct we can have multiple immutable reference of the self but only one mutable 
 //// reference of the self can be used, this rule allows rust to have safe concurreny 
 //// and thread safe channels like mpsc in which we can move a shareable data like 
-//// Arc<Mutex<T>>: Send + Sync + 'static between threads that can be read by 
-//// multiple producer or multiple threads (immutable references) at the same time 
-//// but only a single consumer or a single thread (mutable reference) can use that data.
+//// Arc<Mutex<T>>: Send + Sync + 'static (the type must be cloneable, lockable and bounded 
+//// to Send, Sync traits and have 'static lifetime to be valid across threads) between 
+//// threads that can be read by multiple producer or multiple threads (immutable references) 
+//// at the same time but only a single consumer or a single thread (mutable reference) 
+//// can use that data also the receiver side of the channel is not shareable since Clone 
+//// trait is not implemented for that but the sender side 
+//// can be cloned and shared between threads.
 
 
 
@@ -232,7 +234,7 @@ impl P2PSwarmEventLoop{
 
     pub fn new(swarm: Swarm<P2PAppBehaviour>, 
                 init_receiver: mpsc::Receiver<bool>,
-                parachain: Parachain,
+                parachain: ActorRef<ParachainMsg>,
                 actor_sys: ActorSystem) -> Self{
         let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();            
         let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
@@ -274,7 +276,7 @@ impl P2PSwarmEventLoop{
                 //// we'll publish a chain request to the network to get
                 //// the latest chain from other peers.
                 local_chain_request = self.init_receiver.recv() => { //// in here the async task is receiving from the init mpsc channel
-                    let peers = self.get_list_peers().await;
+                    let peers = self.list_peers().await;
                     info!("⚛️ connected nodes {}", peers.len());
                     if !peers.is_empty(){
                         let chain_request = P2PLocalChainRequest{
@@ -288,7 +290,8 @@ impl P2PSwarmEventLoop{
                         self.swarm
                             .behaviour_mut() //// it'll return a mutable reference to the swarm behaviour
                             .gossipsub
-                            .publish(CHAIN_TOPIC.clone(), json_request.as_bytes()); //// publishing requested chain from selected peer to the p2p network using gossipsub protocol   
+                            .publish(CHAIN_TOPIC.clone(), json_request.as_bytes()) //// publishing requested chain from selected peer to the p2p network using gossipsub protocol   
+                            .unwrap(); 
                     }
                 },
                 //// in here we're contantly receiving from the `P2PChainResponse`
@@ -302,11 +305,12 @@ impl P2PSwarmEventLoop{
                     self.swarm
                             .behaviour_mut() //// it'll return a mutable reference to the swarm behaviour
                             .gossipsub
-                            .publish(CHAIN_TOPIC.clone(), json_response.as_bytes()); //// publishing recieved chain response from other peers to the p2p network using gossipsub protocol 
+                            .publish(CHAIN_TOPIC.clone(), json_response.as_bytes()) //// publishing recieved chain response from other peers to the p2p network using gossipsub protocol 
+                            .unwrap(); 
                 },
                 swarm_event = self.swarm.select_next_some() => { //// //// in here the async task is the swarm event; handling the swarm events if there was some
                     info!("🤌 handling a swarm event {:?}", swarm_event);
-                    self.handle_event(swarm_event).await; //// calling handle_event() to handle all swarm events
+                    self.handle_event(swarm_event).await; //// calling handle_event() here to handle all swarm events
                 },
             }
        }
@@ -314,9 +318,6 @@ impl P2PSwarmEventLoop{
     }
 
     async fn handle_event(&self, event: SwarmEvent<P2PAppBehaviourEvent, EitherError<GossipsubHandlerError, std::io::Error>>){
-
-        let peer_id = PEER_ID.clone();
-
         //// following we're taking care of the swarm events 
         //// both kademlia and gossipsub events which is one of 
         //// the variant inside the `P2PAppBehaviourEvent`.
@@ -349,7 +350,7 @@ impl P2PSwarmEventLoop{
                 },
             )) => {
                 
-
+            
                 
             },
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
@@ -365,6 +366,7 @@ impl P2PSwarmEventLoop{
                 },
             )) => {
                 
+                
 
                 
             },
@@ -373,7 +375,7 @@ impl P2PSwarmEventLoop{
                     id, 
                     result: QueryResult::GetProviders(
                         Ok(
-                            GetClosestPeersOk::FinishedWithNoAdditionalRecord{ .. },        
+                            GetProvidersOk::FinishedWithNoAdditionalRecord{ .. },        
                         )), 
                     .. //// rest of the fields of `OutboundQueryProgressed` struct variant that we don't care about
                 },
@@ -385,6 +387,10 @@ impl P2PSwarmEventLoop{
                     .. //// we can use .. to cover all or the remaining struct fields
             } => {
                 
+                
+
+
+                
             },
             SwarmEvent::OutgoingConnectionError{ 
                     peer_id, 
@@ -392,9 +398,14 @@ impl P2PSwarmEventLoop{
                     .. 
             } => {
                 
+
+
+
             },
             SwarmEvent::NewListenAddr { address, .. } => {
                 
+
+
             },
             SwarmEvent::ConnectionClosed{ .. } => {}, 
             SwarmEvent::IncomingConnection{ .. } => {},
@@ -402,18 +413,18 @@ impl P2PSwarmEventLoop{
             SwarmEvent::Dialing(_) => {},
             e => panic!("⛔ {e:?}"),
         }
-
     }
 
-    async fn get_list_peers(&self) -> Vec<String>{
-        info!("⚛️ discovered nodes {}", peers.len());
+    async fn list_peers(&self) -> Vec<String>{
         // TODO - discovered and expired kademlia peers
+        let peers = vec![String::from("")];
+        info!("⚛️ discovered nodes {}", peers.len());
         vec![]
     }
 
     async fn print_peers(&self){
-        let peers = self.get_list_peers().await;
-        peers.iter().for_each(|p| info!("🎡 peer : ", p));
+        let peers = self.list_peers().await;
+        peers.iter().for_each(|p| info!("🎡 peer : {}", p));
     }
 
     async fn print_chain(&self){
@@ -427,7 +438,7 @@ impl P2PSwarmEventLoop{
     }
 
     async fn get_parachain_data(&self) -> Parachain{
-        let fetch_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSelf}); 
+        let fetch_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSelf}); //// we're asking the parachain actor to send us the parachain data
         let parachain_instance = fetch_parachain_remote_handle.await;
         parachain_instance
     }

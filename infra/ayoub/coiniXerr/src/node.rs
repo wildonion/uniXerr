@@ -339,7 +339,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         current_slot.clone(),
         validator_joined_channel.clone(),
         default_parachain_uuid.clone(),
-        parachain_0.clone(),
+        parachain_0.clone(), //// this is the first parachain that has been initialized during the actor daemonization
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
         cloned_arc_mutex_validator_actor.clone(),

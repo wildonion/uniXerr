@@ -13,8 +13,8 @@
 
 
 
-//// rafael serverless FaaS env which contains runtime functions 
-//// and actors to mutate the state of the coiniXerr network 
+//// rafael serverless FaaS env which contains runtime functions,
+//// balancers and actors to mutate the state of the coiniXerr network 
 //// like near-sdk env.
 //
 //// a runtime is a once initialized object 
@@ -173,13 +173,15 @@ pub mod env{
 
 
 
-    ////TODO - proxy and load balancer for all layers like pingora and HAproxy based on:
+    //// TODO - BPF based proxy, firewall, vpns, packet sniffer and load balancer like pingora, HAproxy, v2ray and wireshark for all layers:
+    //          • v2ray and tor protocols
+    //          • decompress encoded packet 
     //          • cpu task scheduling, 
-    //          • v2ray protocols
     //          • weighted round robin dns, 
     //          • vector clock, 
     //          • event loop
     //          • iptables
+    //          • zmq pub/sub
     //          • simd divide and conquer based vectorization
     #[derive(Clone, Debug)]
     pub struct Pod{ //// a pod is a load balancer which can have one or more containers 

@@ -207,7 +207,7 @@ pub async fn bootstrap(
 
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
-    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain_instance, coiniXerr_sys);
-    event_loop.run().await;
+    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, coiniXerr_sys);
+    event_loop.run().await; //// run the swarm event loop to control the flow of the entire network based on coming event I/O task 
 
 }

@@ -399,13 +399,18 @@ pub async fn trash(){
     pub struct GenFn<T, F = fn() -> T>{ //// F generic type is a function pointe or fn()
         pub one_field: T,
         pub sec_field: F,
+        pub third_field: fn(u8) -> String,
     }
     fn ret_var() -> u8{
         23
     }
+    fn ret_name(age: u8) -> String{
+        "wildonion".to_string()
+    }
     let instance = GenFn{
         one_field: "another_wildonion".to_string(),
         sec_field: ret_var,
+        third_field: ret_name, //// setting a function as the value of the third field
     };
 
 
@@ -773,7 +778,7 @@ pub async fn trash(){
 
     
 
-    let names = (
+    let names = ( //// building and calling the async closure at the same time
         (|x| async move{ //// the return body is a future object which must be solved later using .await and move will move everything from the last scope into its scope  
             let names = (0..x)
                 .into_iter()
@@ -845,10 +850,11 @@ pub async fn mactrait(){
 
     
     /////////////////////////////////////////////////////////
-    // gat example with lifetime
     trait BorrowArray<T> where Self: Send + Sized{
-    
+        
+        // GAT example with lifetime, generic and trait bounding
         type Array<'x, const N: usize> where Self: 'x;
+        type Data: Send + Sync + 'static;
     
         fn borrow_array<'a, const N: usize>(&'a mut self) -> Self::Array<'a, N>;
     }

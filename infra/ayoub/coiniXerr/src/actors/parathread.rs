@@ -122,7 +122,11 @@ impl Parachain{ //// Parachain is the parallel chain of the coiniXerr network wh
     }
 
     pub fn get_self(&self) -> Option<Self>{ //// returning the whole instance of the parachain 
-        self
+        //// since self it's behind a shared reference
+        //// we can't move out of it, thus we must dereference 
+        //// the it using clone() method.
+        let parachain_instance = self.clone();
+        Some(parachain_instance) 
     }
 
     pub fn set_slot(&mut self, slot: Slot) -> Self{ //// Self referes to the Parachain struct
