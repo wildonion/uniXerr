@@ -35,7 +35,13 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// by passing them into new scopes they will be moved by rust compiler 
 //// from the heap in order to free the memory location that they've just 
 //// allocated to free up some huge space at runtime and this why rust doesn't
-//// have garbage collector and use borrowing and ownership rule instead of that, 
+//// have garbage collector and use borrowing and ownership rule instead of that 
+//// hence due to this nature it'll let us have a safe concurrency and 
+//// it'll change the way of coding a little bit since you have to use 
+//// tokio jobq channels to pass and share Arc<Mutex<T>>: Send + Sync + 'static
+//// between threads in order to access them later outside the threads in other 
+//// scopes also if we move the type the lifetime of that will be dropped 
+//// due to not having garbage collector feature;
 //// the solution is to borrow the ownership of them from where they are stored 
 //// either by cloning which is expensive or by taking a reference to them using
 //// as_ref() method or putting & behind them to create a pointer which will 
@@ -65,8 +71,6 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// can use that data also the receiver side of the channel is not shareable since Clone 
 //// trait is not implemented for that but the sender side 
 //// can be cloned and shared between threads.
-
-
 
 
 
@@ -227,7 +231,7 @@ pub struct P2PSwarmEventLoop{
     pub response_receiver: mpsc::Receiver<P2PChainResponse>,
     pub swarm: Swarm<P2PAppBehaviour>,
     pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
-    pub actor_sys: ActorSystem, 
+    pub actor_sys: ActorSystem,
 }
 
 impl P2PSwarmEventLoop{
@@ -244,7 +248,7 @@ impl P2PSwarmEventLoop{
             response_receiver,
             swarm,
             parachain,
-            actor_sys
+            actor_sys,
         }
     }
 
@@ -343,7 +347,7 @@ impl P2PSwarmEventLoop{
 
             },
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
-                KademliaEvent::OutboundQueryProgressed { 
+                KademliaEvent::OutboundQueryProgressed{ 
                     id, 
                     result: QueryResult::StartProviding(_), 
                     .. //// rest of the fields of `OutboundQueryProgressed` struct variant that we don't care about
@@ -354,7 +358,7 @@ impl P2PSwarmEventLoop{
                 
             },
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
-                KademliaEvent::OutboundQueryProgressed { 
+                KademliaEvent::OutboundQueryProgressed{ 
                     id, 
                     result: QueryResult::GetProviders(
                         Ok(
@@ -371,7 +375,7 @@ impl P2PSwarmEventLoop{
                 
             },
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
-                KademliaEvent::OutboundQueryProgressed { 
+                KademliaEvent::OutboundQueryProgressed{ 
                     id, 
                     result: QueryResult::GetProviders(
                         Ok(
@@ -400,12 +404,10 @@ impl P2PSwarmEventLoop{
                 
 
 
-
             },
-            SwarmEvent::NewListenAddr { address, .. } => {
-                
-
-
+            SwarmEvent::NewListenAddr{ address, .. } => {
+                let local_peer_id = *self.swarm.local_peer_id();
+                info!("local node is listening on {:?}", address.with(Protocol::P2p(local_peer_id.into())));
             },
             SwarmEvent::ConnectionClosed{ .. } => {}, 
             SwarmEvent::IncomingConnection{ .. } => {},
@@ -1046,12 +1048,12 @@ pub struct Transaction{
 impl Default for Transaction{
     fn default() -> Self{ //// overriding the default method
         
-        //// unwrap() method takes self not &self thus it takes ownership of 
-        //// the receiver `self`, which moves value means that by calling the 
-        //// unwrap() method on COINIXERR_NODE_WALLET_KEYPAIR we can't call other
-        //// methods of the COINIXERR_NODE_WALLET_KEYPAIR instance again since 
-        //// the instance will be moved, the solution is to use as_ref() method
-        //// on COINIXERR_NODE_WALLET_KEYPAIR instance to borrow its ownership
+        //// unwrap() method like into() and from() takes self not &self thus 
+        //// it takes ownership of the `self`, which moves the value, means that 
+        //// by calling the unwrap() method on COINIXERR_NODE_WALLET_KEYPAIR we 
+        //// can't call other methods of the COINIXERR_NODE_WALLET_KEYPAIR instance 
+        //// again since the instance will be moved, the solution is to use as_ref() 
+        //// method on COINIXERR_NODE_WALLET_KEYPAIR instance to borrow its ownership
         //// the call the .unwrap() to prevent ownership moving by the first call.
         let coiniXerr_node_keypair = COINIXERR_NODE_WALLET_KEYPAIR.as_ref().unwrap(); 
         let public_key = coiniXerr_node_keypair.public_key().as_ref(); //// as_ref() converts to &[u8] which is an array or an slice of the Vec<u8> since Vec<u8> will be coerced to &[u8] at compile time

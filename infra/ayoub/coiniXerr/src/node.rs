@@ -26,15 +26,8 @@ Coded by
                       ░                                                  
 
 
-
-
-                    ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-                            coiniXerr node design pattern explained
-                    ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-        https://github.com/wildonion/uniXerr/wiki/coiniXerr#coinixerr-node-design-pattern
+    https://github.com/wildonion/uniXerr/wiki/coiniXerr#coinixerr-node-design-pattern
       
-
 
 
 
@@ -72,7 +65,7 @@ use tokio::net::{TcpListener, TcpStream, UdpSocket}; //// async tcp and udp stre
 //// to be imported to call the lines() method 
 //// on Lines<BufReader<Stdin>> structure.
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt}; 
-use tokio::sync::{mpsc, broadcast}; //// to broadcast transactions to from multiple senders to multiple receivers
+use tokio::sync::{mpsc, oneshot, broadcast}; //// to broadcast transactions to from multiple senders to multiple receivers
 use uuid::Uuid;
 use std::hash::{Hash, Hasher};
 use std::{fmt, fmt::Write, num::ParseIntError};
@@ -92,6 +85,7 @@ use libp2p::{
     core::either::EitherError,
     kad::{record::store::MemoryStore, GetProvidersOk, Kademlia, KademliaEvent, QueryId, QueryResult},
     gossipsub,
+    multiaddr::Protocol,
     gossipsub::error::GossipsubHandlerError,
     futures::StreamExt, //// trait for streams
     core::upgrade,
