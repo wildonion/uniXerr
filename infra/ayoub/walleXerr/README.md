@@ -4,7 +4,7 @@
 
 coiniXerr Wallet Front-end 
 
-## Notes
+## 📇 Notes
 
 * to run in dev mode: ```trunk serve```
 

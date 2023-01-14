@@ -396,10 +396,10 @@ pub async fn trash(){
 	// ➔ generic types in function signature can be bounded to lifetimes and traits so we can use the lifetime to avoid having dangling pointer of the generic type in function body and traits to extend the type interface
 
 
-    pub struct GenFn<T, F = fn() -> T>{ //// F generic type is a function pointe or fn()
+    pub struct GenFn<T, F = fn() -> T>{ //// the default type parameter of generic F is a function pointe or fn() 
         pub one_field: T,
         pub sec_field: F,
-        pub third_field: fn(u8) -> String,
+        pub third_field: fn(u8) -> String, //// this field is of type function 
     }
     fn ret_var() -> u8{
         23

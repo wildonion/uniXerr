@@ -1142,7 +1142,7 @@ https://ethereum.org/nl/developers/docs/evm/
 _______________________________________________________
            CS CONCEPTS AND DESIGN PATTERNS
 _______________________________________________________
-➤ networking (tlps folder)
+➤ networking
      ➤ concepts:
           • distributed (replication) and decentralized concepts:
                • search, db and routing engines like elastic, cassandra and p2p kademlia: 
@@ -1169,10 +1169,10 @@ _______________________________________________________
                • rpc capnp
                • tokio udp and tcp 
                • websocket 
-               • webrtc and 
+               • webrtc 
                • zmq like sockets (req/res, cli/srv or pub/sub) actors
           • in libp2p peers can find each other using either mDNS (over LAN) or kademlia (over WAN)
-➤ proxy, firewall, vpns, packet sniffer and load balancer like pingora, HAproxy, v2ray and wireshark for all layers (rafael.rs)
+➤ proxy, firewall, vpns, packet sniffer and load balancer like pingora, HAproxy, v2ray and wireshark for all layers
      ➤ concepts:
           • v2ray and tor protocols
           • decompress encoded packet 
@@ -1183,11 +1183,12 @@ _______________________________________________________
           • iptables
           • zmq pub/sub
           • simd divide and conquer based vectorization
-➤ system (engine folder)
+➤ system
      ➤ concepts:
           • compiler, vm using llvm and os
           • streaming of async I/O events compression and codec ram (buffer) algos like deflate, lz4, snappy, borsh, bson, serde and capnp
           • runtime
+          • video and audio codec, compressor and streamer like ffmpeg
           • cryptography
           • bridge between blockchains
           • language binding like writing rust code on top of apis of the compiled (.so) code in c like rust bindings to libsodium

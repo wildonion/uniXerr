@@ -83,15 +83,14 @@ pub mod env{
     }
 
 
-
     impl fmt::Display for EventLog{ //// implementing the Display trait for the EventLog struct to show its instances' fields like RAFAEL_EVENT_JSON:{"time": 167836438974, "event": "event name, "data": [{...RuntimeLog_instance...}] or [{...ServerlessLog_instance...}]} when we're calling logging functions like println!() which is a formatted stream of strings - any value or type that implements the Display trait can be passed to format_args!() macro, as can any Debug implementation be passed to a {:?} within the formatting string; Debug must be implemented for the type
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result{ //// self referes to the instance of the EventLog 
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result{ //// self referes to the instance of the EventLog which must be mutable since we want to write into it
             f.write_fmt( //// writing some formatted information using format_args!() macro into the formatter instance which is `f`
                 format_args!( //// format_args!(), unlike its derived macros, avoids heap allocations
                     "RAFAEL_EVENT_JSON:{}", //// it'll start with RAFAEL_EVENT_JSON:{} when you log the instance of the EventLog
                     &serde_json::to_string(self).map_err(|_| fmt::Error).unwrap() //// formatting every field of the self which is the instance of the EventLog struct into the string to writ into the `f` and catch the fmt::error of each message or field if there was any when we're creating the stream by formatting the struct
                 ) 
-            ) // NOTE - we can print the string instance of the EventLog like so: println!("{:?}", event_log_instance.to_string()); since the Display trait is implemented for EventLog struct
+            ) //// we can print the string instance of the EventLog like so: println!("{:?}", event_log_instance.to_string()); since the Display trait is implemented for EventLog struct
         }
     }
 
@@ -154,17 +153,17 @@ pub mod env{
     }
     
 
-    #[derive(Clone, Debug)]
+    #[derive(Clone, Debug, Serialize, Deserialize)]
     pub struct Node{ //// this contains server info 
         pub dns: String,
-        pub addr: SocketAddr, 
+        pub peer_id: String, 
         pub cost_per_api_call: u128, //// this is based on the load of the weights
         pub init_at: i64,
         pub weights: Option<Vec<Weight>>,
     }
     
     
-    #[derive(Clone, Debug)]
+    #[derive(Clone, Debug, Serialize, Deserialize)]
 
     pub struct Container{
         pub id: String,
@@ -173,17 +172,8 @@ pub mod env{
 
 
 
-    //// TODO - BPF based proxy, firewall, vpns, packet sniffer and load balancer like pingora, HAproxy, v2ray and wireshark for all layers:
-    //          • v2ray and tor protocols
-    //          • decompress encoded packet 
-    //          • cpu task scheduling, 
-    //          • weighted round robin dns, 
-    //          • vector clock, 
-    //          • event loop
-    //          • iptables
-    //          • zmq pub/sub
-    //          • simd divide and conquer based vectorization
-    #[derive(Clone, Debug)]
+    //// TODO - 
+    #[derive(Clone, Debug, Serialize, Deserialize)]
     pub struct Pod{ //// a pod is a load balancer which can have one or more containers 
         pub id: String,
         pub containers: Vec<Container>,

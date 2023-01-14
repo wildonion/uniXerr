@@ -9,7 +9,6 @@
 // https://github.com/seed-rs/seed -> seed
 // https://github.com/yewstack/yew -> yew
 // https://crates.io/crates/wasm-bindgen-rayon
-// https://github.com/security-union/rust-zoom
 
 use rt::wallet;
 use yew::prelude::*;

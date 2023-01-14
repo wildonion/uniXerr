@@ -157,7 +157,7 @@ pub async fn bootstrap(
                     };
                     
                     // ---------------------------------------------------------------------------------------
-                    //          SERDING INCOMING IO STREAM OF TRANSACTION CHUNKS USING serde & borsh
+                    //          SERDING INCOMING I/O STREAM OF TRANSACTION CHUNKS USING serde & borsh
                     // ---------------------------------------------------------------------------------------
                     // NOTE - ..size means from the beginning to the limit - 1, we could also use 0..size
 

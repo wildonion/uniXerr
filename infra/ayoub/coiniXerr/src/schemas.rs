@@ -210,6 +210,9 @@ impl P2PAppBehaviour{
 }
 
 
+//// in order to handle async I/O task events 
+//// streaming we need an event loop structure
+//// which can handle all the async events 
 pub struct P2PSwarmEventLoop{
     //// following channels will be used to send and receive
     //// node initialization signal in which once we receive
@@ -337,13 +340,30 @@ impl P2PSwarmEventLoop{
                 
                 // https://github.com/zupzup/rust-blockchain-example/blob/a8380fe76f8ef8e777b5dc8c5f3396149e265d44/src/p2p.rs#L72
                 // TODO - syntax of Message struct????
-                // TODO - decode incoming message that has been published inside the event loop
-                // TODO - choosing the right chain
-                // TODO - update blockchain field in self.parachain actor
                 // TODO - handle other topics
-                // TODO - send new chain using self.response_sender 
+                // TODO - send new chain using self.response_sender to other part of the app
                 //        since new chain topic will be published inside the event loop
                 // ...
+                
+
+                //// deserializing the message related to each topic
+                //// that has been published through the network 
+                //// including CHAIN_TOPIC, NETWORK_STAT, 
+                //// TRANSACTION_TOPIC and SLOT_TOPIC
+                if let Ok(chain_response) = serde_json::from_slice::<P2PChainResponse>(&message.data){ //// decode incoming message that has been published inside the event loop
+                    if chain_response.receiver == PEER_ID.clone(){ //// the message receiver must be this peer 
+                        info!("🗨️ a chain response from {}", message.source);
+                        chain_response.blocks.iter().for_each(|b| info("{:?}", b)); //// logging each received block
+                        let mut parachain_data = self.get_parachain_data().await;
+                        
+                        // TODO - choosing the right chain
+                        // TODO - update blockchain field in self.parachain actor
+                    }
+                }
+
+
+
+
 
             },
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(

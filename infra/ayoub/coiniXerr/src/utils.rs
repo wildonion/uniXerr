@@ -750,48 +750,6 @@ let res = streamer!{
 }
 
 
-//// ------------------------------
-//// event and contract macros like
-//// ------------------------------
-TODO - simply emit the event when something just happens like this: emit!(list_owner)
-
-contract!{
-
-
-    name: "rev",
-    args: [contract_owner, deposit_by_owner, contract_balance],
-
-    // contract methods
-
-    fn get_all_deposits(){
-
-    }
-
-    fn get_all_owners(){
-
-    }
-
-
-}
-
-event!{
-
-    name: "list_owner",
-    log: [NewOwner, AddDeposit],
-
-    // event methods
-
-    fn add_owner(){
-
-    } 
-
-    fn add_deposit(){
-        
-    }
-
-
-}
-
 //// ------------------------
 //// event manager macro
 //// ------------------------
