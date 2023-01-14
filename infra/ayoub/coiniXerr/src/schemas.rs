@@ -341,8 +341,6 @@ impl P2PSwarmEventLoop{
                 // https://github.com/zupzup/rust-blockchain-example/blob/a8380fe76f8ef8e777b5dc8c5f3396149e265d44/src/p2p.rs#L72
                 // TODO - syntax of Message struct????
                 // TODO - handle other topics
-                // TODO - send new chain using self.response_sender to other part of the app
-                //        since new chain topic will be published inside the event loop
                 // ...
                 
 
@@ -351,13 +349,15 @@ impl P2PSwarmEventLoop{
                 //// including CHAIN_TOPIC, NETWORK_STAT, 
                 //// TRANSACTION_TOPIC and SLOT_TOPIC
                 if let Ok(chain_response) = serde_json::from_slice::<P2PChainResponse>(&message.data){ //// decode incoming message that has been published inside the event loop
-                    if chain_response.receiver == PEER_ID.clone(){ //// the message receiver must be this peer 
-                        info!("🗨️ a chain response from {}", message.source);
-                        chain_response.blocks.iter().for_each(|b| info("{:?}", b)); //// logging each received block
+                    if chain_response.receiver == PEER_ID.to_string(){ //// the message receiver must be this peer 
+                        info!("🗨️ a chain response from {:?}", message.source);
+                        chain_response.blocks.iter().for_each(|b| info!("{:?}", b)); //// logging each received block
                         let mut parachain_data = self.get_parachain_data().await;
                         
                         // TODO - choosing the right chain
                         // TODO - update blockchain field in self.parachain actor
+                        // TODO - send new chain using self.response_sender to other part of the app
+                        //        since new chain topic will be published inside the event loop
                     }
                 }
 
