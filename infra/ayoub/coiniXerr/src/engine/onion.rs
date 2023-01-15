@@ -9,8 +9,8 @@
 ///////                 onion actor implementations from scratch  
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 
-
-
+// https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
+// https://www.fpcomplete.com/blog/http-status-codes-async-rust/
 // actors have:
 //     - task scheduling algos
 //     - worker threadpool like tokio::spawn()

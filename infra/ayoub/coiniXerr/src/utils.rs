@@ -11,8 +11,9 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-
-
+// https://blog.cloudflare.com/pin-and-unpin-in-rust/
+// https://fasterthanli.me/articles/pin-and-suffering
+// https://stackoverflow.com/questions/2490912/what-are-pinned-objects
 //// for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
 //// future objects must be Send and static and types that must be shared between threads must be send sync and static 
 //// Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
@@ -601,6 +602,7 @@ pub async fn udp_tx_emulator() -> (){
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
+// https://stackoverflow.com/questions/27324821/why-does-an-enum-require-extra-memory-size
 /*
     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -683,7 +685,12 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 // https://stackoverflow.com/questions/26731243/how-do-i-use-a-macro-across-module-files
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
-
+// https://veykril.github.io/tlborm/
+// https://danielkeep.github.io/tlborm/book/
+// https://dhghomon.github.io/easy_rust/Chapter_61.html
+// http://gradebot.org/doc/ipur/trait.html
+// https://doc.rust-lang.org/reference/attributes.html
+// https://www.youtube.com/watch?v=geovSK3wMB8&ab_channel=JonGjengset
 // https://doc.rust-lang.org/reference/procedural-macros.html
 // https://blog.jetbrains.com/rust/2022/03/18/procedural-macros-under-the-hood-part-i/
 // https://dev.to/dandyvica/rust-procedural-macros-step-by-step-tutorial-36n8

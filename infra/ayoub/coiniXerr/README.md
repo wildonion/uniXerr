@@ -47,8 +47,8 @@ An Actor, Gossipsub P2P Pub/Sub, Sharded TCP, UDP and RPC Based Design Pattern R
 
 ### 🚧 WIP 
 
-* HAProxy, k8s-ing docker containers in `docker-compose.yml` and ci/cd in `app.sh` also refer to [NEAR Rules](https://github.com/wildonion/smarties/blob/main/contracts/near/NEAR.rules) for implementing unique scaling mechanism like `nightshade sharding`.
+* HAProxy, k8s-ing docker containers in `docker-compose.yml` and CI/CD in `app.sh`.
 
 * `StorageModel` ORM trait methods, Rafael runtime and its log, onion actors, utils macros and methods, reset slot in parachain actor and consensus algorithms
 
-* **DEV.src** then complete wiki
+* complete wiki

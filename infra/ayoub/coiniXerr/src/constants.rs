@@ -9,6 +9,25 @@ use crate::*;
 
 
 
+pub type MainResult<T, E> = std::result::Result<T, E>;
+pub type GenericError = Box<dyn std::error::Error + Send + Sync>;
+pub type GenericResult<T, E> = std::result::Result<T, E>;
+pub const STORAGE_COST: u128 = 3;
+pub const COMPUTATIONAL_COST: u128 = 2; 
+pub const VALIDATOR_REWARD_COST: u128 = 4;
+pub const MESSAGE_FETCHED_SUCCESS: &str = "Fetched successfully";
+pub const MESSAGE_SPEND_SUCCESS: &str = "Spend successfully";
+pub const MESSAGE_INTERNAL_SERVER_ERROR: &str = "Internal Server Error";
+pub const MESSAGE_TOKEN_MISSING: &str = "Token is missing";
+pub const MESSAGE_ACCESS_DENIED: &str = "Access Denied";
+pub const MESSAGE_NOT_ENOUGH_COINS: &str = "Not enough coins";
+pub const AUTHORIZATION: &str = "Authorization";
+pub const EMPTY: &str = "";
+pub const NEW_TRANSACTION_TOPIC: &str = "new transaction";
+pub const VERIFYING_TRANSACTION_TOPIC: &str = "verifyin new transaction";
+pub static BUFFER: [u8; 1024] = [0 as u8; 1024]; //// filling the first 1024 elements with zero in u8 format
+
+
 
 
 //// Lazy is just like lazy_static! macro 
@@ -78,23 +97,3 @@ pub static COINIXERR_NODE_WALLET_KEYPAIR: Lazy<Result<ring_signature::Ed25519Key
     ring_signature::Ed25519KeyPair::from_pkcs8(pkcs8_bytes.as_ref())
 });
 
-
-
-
-pub type MainResult<T, E> = std::result::Result<T, E>;
-pub type GenericError = Box<dyn std::error::Error + Send + Sync>;
-pub type GenericResult<T, E> = std::result::Result<T, E>;
-pub const STORAGE_COST: u128 = 3;
-pub const COMPUTATIONAL_COST: u128 = 2; 
-pub const VALIDATOR_REWARD_COST: u128 = 4;
-pub const MESSAGE_FETCHED_SUCCESS: &str = "Fetched successfully";
-pub const MESSAGE_SPEND_SUCCESS: &str = "Spend successfully";
-pub const MESSAGE_INTERNAL_SERVER_ERROR: &str = "Internal Server Error";
-pub const MESSAGE_TOKEN_MISSING: &str = "Token is missing";
-pub const MESSAGE_ACCESS_DENIED: &str = "Access Denied";
-pub const MESSAGE_NOT_ENOUGH_COINS: &str = "Not enough coins";
-pub const AUTHORIZATION: &str = "Authorization";
-pub const EMPTY: &str = "";
-pub const NEW_TRANSACTION_TOPIC: &str = "new transaction";
-pub const VERIFYING_TRANSACTION_TOPIC: &str = "verifyin new transaction";
-pub static BUFFER: [u8; 1024] = [0 as u8; 1024]; //// filling the first 1024 elements with zero in u8 format

@@ -224,6 +224,7 @@ async fn main() -> MainResult<(), Box<dyn std::error::Error + Send + Sync + 'sta
     // -------------------------------- building the conse server from the router
     //
     //      we're sharing the db_instance state between routers' threads to get the data inside each api
+    // TODO - add websocket for realtime pushing and pulling: http://zderadicka.eu/hyper-websocket/
     // --------------------------------------------------------------------------------------------------------
     let unwrapped_storage = app_storage.unwrap(); //// unwrapping the app storage to create a db instance
     let db_instance = unwrapped_storage.get_db().await; //// getting the db inside the app storage; it might be None

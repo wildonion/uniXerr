@@ -338,7 +338,6 @@ impl P2PSwarmEventLoop{
                 message,
             })) => {
                 
-                // https://github.com/zupzup/rust-blockchain-example/blob/a8380fe76f8ef8e777b5dc8c5f3396149e265d44/src/p2p.rs#L72
                 // TODO - syntax of Message struct????
                 // TODO - handle other topics
                 // ...
@@ -1045,7 +1044,7 @@ unsafe impl Send for TransactionMem {} //// due to unsafeness manner of C based 
 //// all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
 //// there is no way for the compiler to guarantee that you always read the correct type (that is, the most recently written type) from the union
 //// enums use some extra memory to keep track of the enum variant, with unions we keep track of the current active field ourself
-union TransactionMem{
+union TransactionMem{ // https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
     pub data: *mut self::Transaction, //// defining the data as a raw mutable pointer to a mutable Transaction object, changing the data will change the Transaction object and vice versa
     pub buffer: *const u8,
 }

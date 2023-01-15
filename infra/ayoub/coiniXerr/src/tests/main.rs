@@ -395,11 +395,11 @@ pub async fn trash(){
     //    use it it'll be unused which the won't compile hence to fix the issue we must put the generic type inside a PhantomData struct
 	// ➔ generic types in function signature can be bounded to lifetimes and traits so we can use the lifetime to avoid having dangling pointer of the generic type in function body and traits to extend the type interface
 
-
+    // https://stackoverflow.com/questions/27831944/how-do-i-store-a-closure-in-a-struct-in-rust
     pub struct GenFn<T, F = fn() -> T>{ //// the default type parameter of generic F is a function pointe or fn() 
         pub one_field: T,
         pub sec_field: F,
-        pub third_field: fn(u8) -> String, //// this field is of type function 
+        pub third_field: fn(u8) -> String, //// this field is of type function - https://stackoverflow.com/questions/41081240/idiomatic-callbacks-in-rust
     }
     fn ret_var() -> u8{
         23
@@ -447,7 +447,9 @@ pub async fn trash(){
 	    Box::new(Pack {})
 	}
 
-	impl Pack{ ////// RETURN BY POINTER EXAMPLE //////
+    // https://stackoverflow.com/a/57894943/12132470
+    // https://stackoverflow.com/questions/37789925/how-to-return-a-newly-created-struct-as-a-reference
+	impl Pack{ ////// RETURN BY POINTER EXAMPLE ////// 
 
 
 	    fn new() -> Self{
@@ -975,13 +977,14 @@ pub async fn mactrait(){
 
 pub async fn unsafer(){
 
-
-    
+    // https://stackoverflow.com/questions/41823321/how-to-get-pointer-offset-of-an-enum-member-in-bytes
+    // https://fasterthanli.me/articles/peeking-inside-a-rust-enum
+    // https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md#the-misconceptions
+    // https://stackoverflow.com/questions/57754901/what-is-a-fat-pointer
     ////////////////////////////////////////////////////////////////
     //                      fat pointer examples
     ////////////////////////////////////////////////////////////////
     // accessing the value of a pointer is unsafe and we have to use unsafe{*pointer}
-    // https://stackoverflow.com/questions/57754901/what-is-a-fat-pointer
     // pointers to the dynamic size types like traits and slices like &str and &[T] are fat pointers 
     // they contains extra bytes (or usize) to store the length of the referenced type and because 
     // of this the address of the other objects and pointers are different with the traits addresses since 

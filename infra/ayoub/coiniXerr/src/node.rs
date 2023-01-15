@@ -27,6 +27,7 @@ Coded by
 
 
     https://github.com/wildonion/uniXerr/wiki/coiniXerr#coinixerr-node-design-pattern
+    https://github.com/wildonion/cs-concepts
       
 
 

@@ -1015,119 +1015,6 @@ https://cs.lmu.edu/~ray/notes/paradigms/
 
 
 
-_______________________________________________________
-                useful rust sources
-_______________________________________________________
-
-
-https://www.lpalmieri.com/posts/2019-12-01-taking-ml-to-production-with-rust-a-25x-speedup/
-https://www.lpalmieri.com/posts/2020-09-27-zero-to-production-4-are-we-observable-yet/
-https://www.lpalmieri.com/posts/fast-rust-docker-builds/
-https://www.lpalmieri.com/posts/an-introduction-to-property-based-testing-in-rust/
-https://www.lpalmieri.com/posts/zero-downtime-deployments/
-https://www.lpalmieri.com/posts/caching-types-in-a-microservice-architecture/
-https://lucumr.pocoo.org/2018/3/31/you-cant-rust-that/
-https://lucumr.pocoo.org/2021/11/14/abusing-serde/
-https://lucumr.pocoo.org/2022/1/7/as-any-hack/
-https://lucumr.pocoo.org/2022/1/6/rust-extension-map/
-https://lucumr.pocoo.org/2022/1/30/unsafe-rust/
-https://smallcultfollowing.com/babysteps/blog/2022/03/29/dyn-can-we-make-dyn-sized/
-https://smallcultfollowing.com/babysteps/blog/2022/04/12/implied-bounds-and-perfect-derive/
-https://smallcultfollowing.com/babysteps/blog/2022/04/17/coherence-and-crate-level-where-clauses/
-https://smallcultfollowing.com/babysteps/blog/2022/06/15/what-it-feels-like-when-rust-saves-your-bacon/
-https://smallcultfollowing.com/babysteps/blog/2022/06/27/many-modes-a-gats-pattern/
-https://without.boats/blog/
-https://docs.rust-embedded.org/book/
-https://stackoverflow.com/questions/41081240/idiomatic-callbacks-in-rust
-https://stackoverflow.com/questions/27831944/how-do-i-store-a-closure-in-a-struct-in-rust
-https://fasterthanli.me/articles/peeking-inside-a-rust-enum
-https://dhghomon.github.io/easy_rust/Chapter_1.html
-https://www.youtube.com/watch?v=mwuCMDSZdiQ&ab_channel=ErikDotDev
-https://bparli.medium.com/adventures-in-rust-and-load-balancers-73a0bc61a192
-https://github.com/jsdw/weave
-https://github.com/hyperium/hyper/blob/master/examples/http_proxy.rs
-https://github.com/hyperium/hyper/blob/master/examples/gateway.rs
-https://dzone.com/articles/rust-based-load-balancing-proxy-server-with-async
-https://truelayer.com/blog/grpc-load-balancing-in-rust
-https://medium.com/load-balancer-series/writing-a-http-load-balancer-in-python-using-tdd-theoretical-concepts-fb6dab3e879b
-https://kemptechnologies.com/load-balancer/load-balancing-algorithms-techniques
-https://doc.rust-lang.org/nightly/rust-by-example/unsafe/asm.html
-https://blog.cloudflare.com/pin-and-unpin-in-rust/
-https://fasterthanli.me/articles/pin-and-suffering
-https://github.com/NicolasLM/nucleon
-https://github.com/bparli/convey
-http://zderadicka.eu/hyper-websocket/
-https://rustwasm.github.io/docs/book/introduction.html
-https://www.youtube.com/watch?v=geovSK3wMB8
-https://doc.rust-lang.org/reference/attributes.html
-http://gradebot.org/doc/ipur/trait.html
-https://cheats.rs/#behind-the-scenes
-https://doc.rust-lang.org/beta/unstable-book/language-features/generators.html
-https://stackoverflow.com/questions/28127165/how-to-convert-struct-to-u8
-https://stackoverflow.com/questions/2490912/what-are-pinned-objects
-https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
-https://github.com/zupzup/warp-websockets-example
-https://danielkeep.github.io/tlborm/book/
-https://doc.rust-lang.org/std/marker/struct.PhantomData.html
-https://doc.rust-lang.org/std/pin/index.html
-https://doc.rust-lang.org/std/sync/struct.Arc.html
-https://doc.rust-lang.org/std/rc/struct.Rc.html
-https://doc.rust-lang.org/std/sync/struct.Mutex.html
-https://doc.rust-lang.org/std/sync/struct.RwLock.html
-https://doc.rust-lang.org/std/cell/struct.RefMut.html
-https://doc.rust-lang.org/std/cell/struct.RefCell.html
-https://doc.rust-lang.org/std/rc/struct.Weak.html
-https://doc.rust-lang.org/std/keyword.dyn.html
-https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
-https://github.com/wildonion/stomegranate/blob/master/helper_board
-https://rust-lang-nursery.github.io/rust-cookbook/intro.html
-https://doc.rust-lang.org/nomicon/
-https://stackoverflow.com/questions/56445095/how-does-videojs-determine-when-to-use-hls-vs-mp4-video-when-both-sources-are-av#:~:text=MP4%20and%20HLS%20are%20actually,a%20server%20to%20a%20client.
-https://docs.peer5.com/guides/production-ready-hls-vod/
-https://blog.tempus-ex.com/hello-video-codec/
-https://github.com/alordash/newton-fractal
-https://nnethercote.github.io/perf-book/title-page.html
-https://doc.rust-lang.org/1.30.0/book/2018-edition/ch00-00-introduction.html
-https://kerkour.com/rust-fearless-concurrency
-https://veykril.github.io/tlborm/
-https://rust-cli.github.io/book/
-https://nomicon.io/RuntimeSpec/ -> use near design pattern cause it's a sharded based blockchain
-https://stackoverflow.com/questions/41823321/how-to-get-pointer-offset-of-an-enum-member-in-bytes
-https://stackoverflow.com/questions/27324821/why-does-an-enum-require-extra-memory-size
-https://docs.tendermint.com/master/
-https://fasterthanli.me/articles/remote-development-with-rust-on-fly-io
-https://rust-unofficial.github.io/patterns/
-https://medium.com/@knoldus/design-patterns-in-rust-programming-e5c5ad6ec1a7
-https://book.avr-rust.com/001-introduction.html
-https://kerkour.com/rust-functional-programming
-https://blog.subnetzero.io/post/building-language-vm-part-01/
-https://rust-hosted-langs.github.io/book/
-https://benkonz.github.io/building-a-brainfuck-compiler-with-rust-and-llvm/
-https://opensource.com/article/19/3/rust-virtual-machine
-https://medium.com/iridium-vm/so-you-want-to-build-a-language-vm-in-rust-part-09-15d90084002
-https://medium.com/clevyio/using-rust-and-nom-to-create-an-open-source-programming-language-for-chatbots-12fe67582af5
-https://crates.io/crates/hotham -> VR engine in rust
-https://www.i-programmer.info/programming/theory.html
-https://www.i-programmer.info/babbages-bag/
-https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md#the-misconceptions
-https://blog.yoshuawuyts.com/
-https://github.com/amqp-rs/lapin
-https://docs.krustlet.dev/
-https://crates.io/crates/kube
-https://stackoverflow.com/a/57894943/12132470 -> return pointer from function
-https://stackoverflow.com/questions/37789925/how-to-return-a-newly-created-struct-as-a-reference
-https://github.com/wildonion/extrust/tree/master/_docs
-https://rodent.club/queue-manager
-https://www.fpcomplete.com/blog/http-status-codes-async-rust/
-https://github.com/wildonion/thedos/
-https://www.fpcomplete.com/blog/2018/07/deploying-rust-with-docker-and-kubernetes/
-https://medium.com/@jaya.p/helloworld-with-rust-rest-api-web-service-in-kubernetes-2dfda148a89b
-https://getstream.io/blog/communication-protocols/
-https://stackoverflow.com/questions/50297252/actors-thread-based-vs-event-driven
-https://developers.google.com/protocol-buffers/docs/encoding
-https://capnproto.org/encoding.html
-https://www.quora.com/How-do-you-write-a-video-codec
-https://ethereum.org/nl/developers/docs/evm/
 
 
 
@@ -1139,56 +1026,27 @@ https://ethereum.org/nl/developers/docs/evm/
 
 
 
-_______________________________________________________
-           CS CONCEPTS AND DESIGN PATTERNS
-_______________________________________________________
-➤ networking
-     ➤ concepts:
-          • distributed (replication) and decentralized concepts:
-               • search, db and routing engines like elastic, cassandra and p2p kademlia: 
-               • create best objective function to find the most rewarded (less cost actions) path in the network graph env (route planning) greedily using:
-                    • hybrid tech algorithms like NN, GA and neurofuzzy(ANFIS)
-                    • gradient optimization methods like stochastic gradient descent 
-                    • none gradient optimization methods like GA and FA
-                    • graph theory and heuristic search algorithms like DAG, dijkstras, floyd, bellman, DFS, BFS and A*
-                    • reinforcement learning algorithms like qlearning using mdp and bellman equation with off and on policy methods based on markov decision process and markov chain
-                    • other algorithms using greedy, dynamic programming, backtracking, divide and conquer, recursive and brute forcing methods
-                    • hashmap based algos like hash tables (DHT) to find closest peers inside a replication like cassandra db and p2p nodes    
-          • actor concepts:
-               • mailbox
-               • pub/sub channels for executing and scheduling async tasks 
-               • tokio worker green threadpool to run task in other threads
-               • rpc capnp based communication with outside world actors 
-               • tokio message queue channles like mpsc for sharing data between threads
-               • tokio event loop using select! to select an async I/O event task
-          • rpc capnp for actor method based communication on two different machines like calling between smart contract actors
-          • tokio tcp and udp and jobq channels for sharing Arc<Mutex<T>>: Send + Sync + 'static between actor threads in a same machine
-          • actor tokio worker green threadpool and message queue for task and method broadcasting and scheduling to the pub/sub channels (tokio jobq, socket or rpc)
-          • pub/sub and other zmq socket actors to broadcast from publishers to subscribers (m2m) using sockets
-          • in libp2p peers can communicate with each other based on pub/sub floodsub or gossipsub protocols on top of:
-               • rpc capnp
-               • tokio udp and tcp 
-               • websocket 
-               • webrtc 
-               • zmq like sockets (req/res, cli/srv or pub/sub) actors
-          • in libp2p peers can find each other using either mDNS (over LAN) or kademlia (over WAN)
-➤ proxy, firewall, vpns, packet sniffer and load balancer like pingora, HAproxy, v2ray and wireshark for all layers
-     ➤ concepts:
-          • v2ray and tor protocols
-          • decompress encoded packet 
-          • cpu task scheduling, 
-          • weighted round robin dns, 
-          • vector clock, 
-          • event loop
-          • iptables
-          • zmq pub/sub
-          • simd divide and conquer based vectorization
-➤ system
-     ➤ concepts:
-          • compiler, vm using llvm and os
-          • streaming of async I/O events compression and codec ram (buffer) algos like deflate, lz4, snappy, borsh, bson, serde and capnp
-          • runtime
-          • video and audio codec, compressor and streamer like ffmpeg
-          • cryptography
-          • bridge between blockchains
-          • language binding like writing rust code on top of apis of the compiled (.so) code in c like rust bindings to libsodium
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

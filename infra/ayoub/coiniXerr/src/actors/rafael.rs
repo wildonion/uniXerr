@@ -13,6 +13,18 @@
 
 
 
+// https://fasterthanli.me/articles/remote-development-with-rust-on-fly-io#what-the-heck-is-fly-io-for-even
+// https://nomicon.io/RuntimeSpec/
+// https://docs.krustlet.dev/
+// https://crates.io/crates/kube
+// https://www.fpcomplete.com/blog/2018/07/deploying-rust-with-docker-and-kubernetes/
+// https://medium.com/@jaya.p/helloworld-with-rust-rest-api-web-service-in-kubernetes-2dfda148a89b
+// refer to https://github.com/wildonion/smarties/blob/main/contracts/near/NEAR.rules for implementing unique scaling mechanism like `nightshade sharding`
+// TODO - use some kinda register setup process to get and mutate the vars of the env like near registers in its env module for promises or futures
+// TODO - a register contains the current buffer inside the ram related to the passed in id means we have to read the buffer from inside of it related to the passed in id
+// TODO - we have to read the content of a specific register and save it inside a buffer
+// TODO - rafael serverless runtime must be like #[rafael::main] on top of a server instance  
+// TODO - try different IO streaming and future traits on a defined buffer from the following crates like mpsc and Mutex data structures 
 //// rafael serverless FaaS env which contains runtime functions,
 //// balancers and actors to mutate the state of the coiniXerr network 
 //// like near-sdk env.
@@ -20,15 +32,6 @@
 //// a runtime is a once initialized object 
 //// that can mamage the state of the app.
 pub mod env{
-
-
-    
-    // TODO - use some kinda register setup process to get and mutate the vars of the env like near registers in its env module for promises or futures
-    // TODO - a register contains the current buffer inside the ram related to the passed in id means we have to read the buffer from inside of it related to the passed in id
-    // TODO - we have to read the content of a specific register and save it inside a buffer
-    // TODO - rafael serverless runtime must be like #[rafael::main] on top of a server instance  
-    // TODO - try different IO streaming and future traits on a defined buffer from the following crates like mpsc and Mutex data structures 
-
 
 
 
@@ -344,6 +347,7 @@ pub mod env{
             //// that contains the BPF bytecode in it and can call the method name
             //// inside the incoming RPC request to change the state of the blockchain.
             
+            // https://doc.rust-lang.org/nightly/rust-by-example/unsafe/asm.html
             // https://crates.io/crates/wasmtime
             // https://wasmer.io/
             // TODO - loading any compiled wasm file inside the coiniXerr p2p node 

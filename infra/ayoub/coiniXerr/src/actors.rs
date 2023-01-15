@@ -19,7 +19,7 @@ pub mod rafael;
 
 
 
-
+// https://stackoverflow.com/questions/50297252/actors-thread-based-vs-event-driven
 //// coiniXerr daemonization is the backbone of the coiniXerr network
 //// consists of a secured p2p communication between nodes using libp2p, 
 //// coiniXerr actors setup, broadcasting events using libp2p pub/sub streams 
