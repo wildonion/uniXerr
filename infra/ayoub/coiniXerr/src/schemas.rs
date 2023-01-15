@@ -735,7 +735,7 @@ impl Chain{
                                         .expect("❌ first block doesn't exits");
             let next_block = chain
                                         .get(i)
-                                        .expect("❌ first block doesn't exits");
+                                        .expect("❌ next block doesn't exits");
             
             //// since the is_block_valid() is a mutable method
             //// we have to call it on a borrowed mutable instance 
