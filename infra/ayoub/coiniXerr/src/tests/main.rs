@@ -700,6 +700,12 @@ pub async fn trash(){
     
     // =============================================================================================================================
     // closure coding - trait must be inside Box or use with &dyn Trait if they want to be referenced
+	
+    // (||async move{})().await
+    let this = (||async move{});
+    this().await;
+	
+	
     pub struct Complex{
         pub callback: Box<dyn FnOnce(Option<String>) -> u8>,
         pub labeled_block: bool,
