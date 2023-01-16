@@ -182,7 +182,7 @@ pub async fn bootstrap(
     });
 
     // -------------------------------------------
-    //          RUNNING SWARM EVENT LOOP 
+    //          BUILDING SWARM EVENT LOOP 
     // -------------------------------------------
     //// in event driven coding there is an event loop
     //// which constantly chanage the code flow of the app
@@ -208,6 +208,14 @@ pub async fn bootstrap(
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
     let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, coiniXerr_sys);
-    event_loop.run().await; //// run the swarm event loop to control the flow of the entire network based on coming event I/O task 
+    
+    // ----------------------------------------------------------------------------------
+    //          RUNNING SWARM EVENT LOOP INSIDE TOKIO WORKER GREEN THREADPOOL 
+    // ----------------------------------------------------------------------------------
+    
+    tokio::spawn(async move{
+        event_loop.run().await; //// run the swarm event loop to control the flow of the entire network based on coming event I/O task 
+    });
 
+    
 }

@@ -13,55 +13,6 @@
 
 
 
-__________________________ SSL (Self Supervised Learning) - TREND AI __________________________
-📌 TASKS
-      - health improvement based on a pattern mining approach and semantic attributes like 
-            - predicting missing part of the unseen input based on the exact style of the input 
-            - reconstructing and labeling the unseen input based on the exact style of the input
-      - feature or representation learning and extracting from the data itself
-      - feature or representation selection using dimensionality reduction algorithms like GA, TSNE, PCA & VAE
-      - extracting semantic attributes from the input for 0/1/few/n-shot learning 
-      - autoregressive based sequence modeling to predict the future based on past events and behaviors
-      - anomaly detection, 0/1/few/n-shot and meta learning
-      - solving catastrophic forgetting problem using MemTransformer instead of MANN with NTM architecture LSTM based
-📌 MODELS & TOOLS
-      - Transformers (https://arxiv.org/abs/2101.12037)
-      - SEER (https://arxiv.org/pdf/2103.01988)
-      - VAE & GAN
-      - BART (https://arxiv.org/pdf/1910.13461)
-      - VISSL (https://vissl.readthedocs.io/en/v0.1.5/)
-      - GNN (Graph Neural Network)
-      - MemTransformer (https://arxiv.org/pdf/2006.11527.pdf)
-      - Decision Transformer (https://arxiv.org/pdf/2106.01345v1.pdf)
-      - TransZero (https://arxiv.org/abs/2112.08643)
-      - DALLE-2 (https://arxiv.org/abs/2204.06125)
-      - CLIP (https://arxiv.org/abs/2103.00020)
-      - DayDreamer (https://arxiv.org/abs/2206.14176)
-      - Algorithm Distillation (https://arxiv.org/abs/2210.14215)
-      - You Only Live Once (https://arxiv.org/abs/2210.08863)
-
-
-
-__________________________ NLP TOOLS, CONCEPTS & PROCESSES __________________________
-📌 PREPROCESSING
-      - tokenization
-      - Lexicon Normalization(stemming & lemmatization)
-      - lowercasing
-      - stopwwords removal
-      - padding
-📌 VOCABULARY BUILDING OR WORD EMBEDDING OR VECTORIZATION OR FEATURE EXTRACTION & SEMANTIC ANALYSIS
-      - BOW(ngram based with TF-IDF normalization)
-      - Word2Vec(skip-gram & CBOW based)
-      - GloVe
-      - GPT
-      - BERT
-      - BART
-📌 MODELS & STATISTICAL RESULT
-      - ML models like SVM, Naive Bayesian, Random Forest and Logistic Regression
-      - DL models like LSTM(MLP+CNN), Transformers and Attentions
-      - classification confusion matrix
-
-
 
 __________________________ DEEPFAKE __________________________
       https://github.com/serengil/deepface

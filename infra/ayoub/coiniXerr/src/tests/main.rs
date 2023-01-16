@@ -504,7 +504,16 @@ pub async fn trash(){
                 Chie::Dovomi(value) if value == "wildonion".to_string() => { //// matching on the Dovomi arm if the value was only "wildonion" string
                 println!("stringeeee");
                 },
-                _ => { //// for Sevomi and Chaharomi fields
+                Chie::Chaharomi{name, age} => { //// using its own fields' names for unpacking on struct arm
+
+                },
+                Chie::Chaharomi{esm, sen} => { //// using our arbitrary names for the struct fields for unpacking on struct arm
+
+                },
+                Chie::Chaharomi{name: esm, age: sen} => { //// we can also give another names to the current struct fields using `:` for unpacking on struct arm
+
+                },
+                _ => { //// for Sevomi fields
                 println!("none of them");
                 }
             }
