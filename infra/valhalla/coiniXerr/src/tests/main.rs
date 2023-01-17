@@ -512,9 +512,6 @@ pub async fn trash(){
                 Chie::Chaharomi{name, age} => { //// using its own fields' names for unpacking on struct arm
 
                 },
-                Chie::Chaharomi{esm, sen} => { //// using our arbitrary names for the struct fields for unpacking on struct arm
-
-                },
                 Chie::Chaharomi{name: esm, age: sen} => { //// we can also give another names to the current struct fields using `:` for unpacking on struct arm
 
                 },
