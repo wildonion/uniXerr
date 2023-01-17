@@ -84,7 +84,7 @@ use riker_patterns::ask::*; //// used to ask any actor to give us the info about
 //// to build a p2p blockchain node.
 use libp2p::{
     core::either::EitherError,
-    kad::{record::store::MemoryStore, GetProvidersOk, Kademlia, KademliaEvent, QueryId, QueryResult},
+    kad::{record::store::MemoryStore, GetClosestPeersError, GetProvidersOk, Kademlia, KademliaEvent, QueryId, QueryResult},
     gossipsub,
     multiaddr::Protocol,
     gossipsub::error::GossipsubHandlerError,

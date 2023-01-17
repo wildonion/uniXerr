@@ -34,7 +34,7 @@ pub static BUFFER: [u8; 1024] = [0 as u8; 1024]; //// filling the first 1024 ele
 //// which is a thread safe structure
 //// that we can create static type.
 //// Lazy also works with local variable
-pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519); //// generating a thread safe static keypair (public and private)
+pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519()); //// generating a thread safe static keypair (public and private)
 pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //// generating a thread safe peer id from the generated keypair its public key
 pub static KADEMLIA_KEY_SEARCH: Lazy<PeerId> = Lazy::new(|| identity::Keypair::generate_ed25519().public().into()); //// generating a keypair to use its public key as the kademlia key search for node discovery
 pub static CHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("chain"));

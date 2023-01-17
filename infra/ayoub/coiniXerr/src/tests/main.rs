@@ -470,7 +470,9 @@ pub async fn trash(){
             };
 
 
-            let User{username, age} = user; //// unpacking struct
+            // let User{username, age} = user; //// unpacking struct
+            let User{username: name, age: sen} = user; //// unpacking struct with arbitrary field names
+            let User{..} = user; //// unpacking struct with `..` since we don't care about all fields
 
             let hello = "Здравствуйте";
             let s = &hello[0..2];
@@ -503,6 +505,9 @@ pub async fn trash(){
                 },
                 Chie::Dovomi(value) if value == "wildonion".to_string() => { //// matching on the Dovomi arm if the value was only "wildonion" string
                 println!("stringeeee");
+                },
+                Chie::Chaharomi{name, ..} => { //// we only care about name and the rest of field will be filled by `..`
+
                 },
                 Chie::Chaharomi{name, age} => { //// using its own fields' names for unpacking on struct arm
 

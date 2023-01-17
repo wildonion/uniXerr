@@ -9,6 +9,8 @@
 
 
 
+
+
 use crate::*; // loading all defined crates, structs and functions from the root crate which is lib.rs in our case
 
 
@@ -248,6 +250,7 @@ pub struct P2PSwarmEventLoop{
     pub swarm: Swarm<P2PAppBehaviour>,
     pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
     pub actor_sys: ActorSystem,
+    pub nodes: Vec<PeerId>,
     pub pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>>,
     pub pending_start_providing: HashMap<QueryId, oneshot::Sender<()>>,
     pub pending_get_providers: HashMap<QueryId, oneshot::Sender<HashSet<PeerId>>>,
@@ -268,6 +271,7 @@ impl P2PSwarmEventLoop{
             swarm,
             parachain,
             actor_sys,
+            nodes: Vec::default(),
             pending_dial: Default::default(),
             pending_start_providing: Default::default(),
             pending_get_providers: Default::default(),
@@ -348,7 +352,7 @@ impl P2PSwarmEventLoop{
 
     }
 
-    async fn handle_event(&self, event: SwarmEvent<P2PAppBehaviourEvent, EitherError<GossipsubHandlerError, std::io::Error>>){
+    async fn handle_event(&mut self, event: SwarmEvent<P2PAppBehaviourEvent, EitherError<GossipsubHandlerError, std::io::Error>>){
         //// following we're taking care of the swarm events 
         //// both kademlia and gossipsub events which is one of 
         //// the variant inside the `P2PAppBehaviourEvent`.
@@ -449,6 +453,31 @@ impl P2PSwarmEventLoop{
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
                 KademliaEvent::OutboundQueryProgressed{ 
                     id, 
+                    result: QueryResult::GetClosestPeers(result), //// naming the value of the GetClosestPeers variant with result
+                    .. //// rest of the fields of `OutboundQueryProgressed` struct variant that we don't care about
+                },
+            )) => {
+                match result{
+                    Ok(ok) => {
+                        if !ok.peers.is_empty(){
+                            self.nodes = ok.peers;
+                            info!("⚛️ query finished closest peers {#:?}", ok.peers);
+                        } else{
+                            info!("😧 query finished with no closest peers");
+                        }
+                    },
+                    Err(GetClosestPeersError::Timeout { peers, .. }) => { //// in unpacking Timeout we only care about the peers and the rest of fields can be filled with `..`
+                        if !peers.is_empty(){
+                            info!("⚛️⌛ query timed out with closest peers {#:?}", peers);
+                        } else{
+                            info!("😧⌛ query timed out with no closest peers {#:?}", peers);
+                        }
+                    }
+                }
+            },
+            SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
+                KademliaEvent::OutboundQueryProgressed{ 
+                    id, 
                     result: QueryResult::GetProviders(
                         Ok(
                             GetProvidersOk::FoundProviders{ 
@@ -514,11 +543,12 @@ impl P2PSwarmEventLoop{
     }
 
     async fn list_peers(&self) -> Vec<String>{
-        // TODO - get all kademlia peers related to a key
-        // ...
-        let peers = vec![String::from("")];
         info!("⚛️ discovered nodes {}", peers.len());
-        vec![]
+        let unique_peers = HashSet::new();
+        for peer in self.nodes{
+            unique_peers.insert(peer);
+        }
+        unique_peers.iter().map(|p| p.to_string()).collect() //// iterate over all nodes to convert each peer_id to string then collect them as Vec<String>
     }
 
     async fn print_peers(&self){
@@ -543,45 +573,37 @@ impl P2PSwarmEventLoop{
         parachain_instance
     }
 
-    async fn get_providers(&mut self, key: String) -> HashSet<PeerId>{
-        // TODO - where to call this method
-        // https://github.com/Frederik-Baetens/libp2p-kad-peer_discovery/blob/main/src/main.rs
-        // ...
+    pub async fn get_providers(&mut self, parachain_id: Uuid) -> HashSet<PeerId>{
         //// performs a lookup for providers 
-        //// of a value to the given key
+        //// of a value to the given chain_id
         //// returning the QueryId of the initial query 
         //// that announces the local node as a provider.
-        let to_search = KADEMLIA_KEY_SEARCH.clone();
         let (sender, receiver) = oneshot::channel();
         let query_id = self
             .swarm
             .behaviour_mut()
             .kademlia
-            .get_providers(to_search.into_bytes().into());
+            .get_providers(chain_id.into_bytes().into());
         self.pending_get_providers.insert(query_id, sender);
         receiver.await.expect("❌ sender MUST not be dropped")
     }
 
-    async fn start_providing(&mut self, key: String){
-        // TODO - where to call this method
-        https://github.com/Frederik-Baetens/libp2p-kad-peer_discovery/blob/main/src/main.rs
-        // ...
+    pub async fn start_providing(&mut self, parachain_id: Uuid){
         //// establishes the local node as a provider 
-        //// of a value for the given key, this operation 
+        //// of a value for the given chain_id, this operation 
         //// publishes a provider record with the given 
-        //// key and identity of the local node to the peers 
-        //// closest to the key, thus establishing the 
+        //// chain_id and identity of the local node to the peers 
+        //// closest to the passed in chain_id, thus establishing the 
         //// local node as a provider; returns Ok if a 
         //// provider record has been stored locally, 
         //// providing the QueryId of the initial query 
         //// that announces the local node as a provider.
-        let to_search = KADEMLIA_KEY_SEARCH.clone();
         let (sender, receiver) = oneshot::channel();
         let query_id = self
             .swarm
             .behaviour_mut()
             .kademlia
-            .start_providing(to_search.into_bytes().into())
+            .start_providing(chain_id.into_bytes().into())
             .expect("❌ there MUST be no kademlia store error");
         self.pending_start_providing.insert(query_id, sender);
         receiver.await.expect("❌ sender MUST not be dropped");
@@ -1190,6 +1212,8 @@ impl Node{
 //// to an array of `utf8` bytes) finally for the transaction, 
 //// block and `merkle` root hash and generating wallet address 
 //// (hash of the public key) `Argon2` is being used as the `KDF` method.
+//// I've dropped the first 27 bytes from the generated Argon2 hash 
+//// to generate a real hash for the transaction, block and merkle root.
  
 unsafe impl Send for TransactionMem {} //// due to unsafeness manner of C based raw pointers we implement the Send trait for TransactionMem union in order to be shareable between tokio threads and avoid concurrent mutations.
 //// all fields of a union share common storage and writes to one field of a union can overwrite its other fields, and size of a union is determined by the size of its largest field
