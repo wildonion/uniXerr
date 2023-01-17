@@ -1,15 +1,8 @@
 #!/bin/bash
 sudo chown -R root:root . && sudo chmod -R 777 .
 echo "[?] What App Do You Want To Build?"
-read App
-if [[ $App == "conse" ]]; then
-    echo "[+] Building conse"
-    cargo build --bin conse --release
-    sudo rm conse
-    sudo cp target/release/conse ./conse
-    sudo pm2 delete conse
-    sudo pm2 start conse --name conse
-elif [[ $App == "coiniXerr" ]]; then
+read App    
+if [[ $App == "coiniXerr" ]]; then
     echo "[+] Installing Required Packages for BPF Compiling"
     sudo apt -y install build-essential zlib1g-dev llvm-12-dev libclang-12-dev linux-headers-$(uname -r) libelf-dev
     sudo apt update && sudo apt-get -y install wget software-properties-common lsb-release linux-headers-generic pkg-config

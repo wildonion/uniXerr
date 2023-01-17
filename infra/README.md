@@ -14,4 +14,4 @@
 
 #### `recommender`: AI models responsible for uniXerr recommendation system.
 
-#### `coiniXerr`: Distributed services including Conse PaaS, coiniXerr blockchain and FaaS Rafael Runtime and walleXerr.
+#### `coiniXerr`: Distributed services including coiniXerr blockchain and FaaS Rafael Runtime with walleXerr front-end.
