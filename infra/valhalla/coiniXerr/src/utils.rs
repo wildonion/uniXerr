@@ -885,7 +885,7 @@ macro_rules! user_data {
             
 
 
-            let coiniXerr_http_port = env::var("CONSE_PORT").expect("⚠️ please set ayoub port in .env");
+            let coiniXerr_http_port = env::var("CONSE_PORT").expect("⚠️ please set valhalla port in .env");
             let host = env::var("HOST").expect("⚠️ please set host in .env");
             let url = format!("http://{}:{}/auth/check-token", host, coiniXerr_http_port);
             match reqwest::Client::builder().build(){
@@ -898,7 +898,7 @@ macro_rules! user_data {
                             Ok(res) => {
                                 match res.json::<UserData>().await{ //// deserializing response utf8 bytes into the UserData struct
                                     Ok(resp) => {
-                                        info!("[+] CURRENT SERVER TIME : {:?} | USER DATA FROM THE AYOUB SERVER : {:?}", chrono::Local::now().naive_local(), resp);
+                                        info!("[+] CURRENT SERVER TIME : {:?} | USER DATA FROM THE VALHALLA SERVER : {:?}", chrono::Local::now().naive_local(), resp);
                                         Ok(resp)
                                     },
                                     Err(e) => {
@@ -908,7 +908,7 @@ macro_rules! user_data {
                                 }
                             },
                             Err(e) => {
-                                info!("[!] CURRENT SERVER TIME : {:?} | AYOUB SERVER STATUS : {:?}", chrono::Local::now().naive_local(), e);
+                                info!("[!] CURRENT SERVER TIME : {:?} | VALHALLA SERVER STATUS : {:?}", chrono::Local::now().naive_local(), e);
                                 Err(e)
                             }
                         }
