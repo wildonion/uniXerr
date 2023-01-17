@@ -6007,6 +6007,7 @@ version = "0.1.0"
 dependencies = [
  "borsh",
  "chrono",
+ "coiniXerr",
  "js-sys",
  "serde 1.0.144",
  "serde_json",

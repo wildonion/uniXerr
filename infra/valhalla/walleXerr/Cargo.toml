@@ -13,6 +13,7 @@ chrono = { version = "0.4", features = ["serde"] }
 yew = { version="0.20.0", features=["csr"] }
 yew-router = "0.1"
 js-sys = "0.3"
+coiniXerr = {path = "../coiniXerr"}
 
 
 
