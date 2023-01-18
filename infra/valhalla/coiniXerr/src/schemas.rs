@@ -247,9 +247,22 @@ pub struct P2PSwarmEventLoop{
     pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
     pub actor_sys: ActorSystem,
     pub nodes: Vec<PeerId>,
-    pub pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>>,
+    //// the following map will be used for peer advertising 
+    //// about an specific parachain uuid, dialing to an specific
+    //// peer and getting all peers that are the providers of the 
+    //// a specific parachain uuid.
     pub pending_start_providing: HashMap<QueryId, oneshot::Sender<()>>,
+    //// following is a map between each query_id and a tokio oneshot channel
+    //// of type HashSet<PeerId> that will be used to send and receive advertisers
+    //// or providers of a specific parachain uuid. 
     pub pending_get_providers: HashMap<QueryId, oneshot::Sender<HashSet<PeerId>>>,
+    //// following is a map between each peer_id and a tokio oneshot channel of type
+    //// Result that will be used to send and receive either Ok or the Err 
+    //// between different parts of the app which is inside the ConnectionEstablished
+    //// and OutgoingConnectionError swarm events when we want to try to dial to a peer,
+    //// by removing it from the map when stablishes a new connection or 
+    //// it goes out of connection.
+    pub pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>>,
 }
 
 impl P2PSwarmEventLoop{
@@ -627,7 +640,7 @@ impl P2PSwarmEventLoop{
     //// dial to a peer with.
     pub async fn dial(&mut self, peer_id: PeerId, peer_addr: Multiaddr) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{
         let (sender, receiver) = oneshot::channel();
-        //// if there was no entry with this peer_id was inside 
+        //// if there was no entry with this peer_id inside 
         //// the map simply we'll add its address to the DHT
         if let hash_map::Entry::Vacant(e) = self.pending_dial.entry(peer_id){ 
             self.swarm
