@@ -411,7 +411,9 @@ impl P2PSwarmEventLoop{
                         };
                         //// blockchain lifetime is accessible from here
                         //// of course if there was some :)
-                        let choosen = blockchain.choose_chain(chain_response.blocks); //// choosing the right chain between the local chain and the received chain
+                        //// we'll choose the right chain between the current
+                        //// one and the decoded one from the response.
+                        let choosen = blockchain.choose_chain(blockchain.blocks.clone(), chain_response.blocks); //// choosing the right chain between the local chain and the received chain
                         blockchain.blocks = choosen;
                         parachain_data.blockchain = Some(blockchain);
                     }
@@ -867,23 +869,24 @@ impl Chain{
     //// remote is the incoming chain from 
     //// other peers and local is the chain 
     //// inside this peer.
-    //
-    //// we can't borrow self as mutable when
-    //// we're borrowing it as immutable.
-    pub fn choose_chain(&mut self, remote: Vec<Block>) -> Vec<Block>{
-        let local_chain = &self.blocks as &[Block]; //// this is an immutable borrow which will be used in an `if` condition 
-        let is_local_valid = self.is_chain_valid(&local_chain);
+    pub fn choose_chain(&mut self, local: Vec<Block>, remote: Vec<Block>) -> Vec<Block>{
+        //// we can't borrow self as mutable when
+        //// we're borrowing it as immutable, the
+        //// following is an immutable borrow which 
+        //// will be used in an `if` condition 
+        // let local_chain = &self.blocks as &[Block]; 
+        let is_local_valid = self.is_chain_valid(&local);
         let is_remote_valid = self.is_chain_valid(&remote);
         if is_local_valid && is_remote_valid {
-            if local_chain.len() >= remote.len(){
-                local_chain.to_vec() //// we'll choose the local chain as the longest chain by converting it back to the Vec
+            if local.len() >= remote.len(){
+                local.to_vec() //// we'll choose the local chain as the longest chain by converting it back to the Vec
             } else{
                 remote //// we'll choose the incoming chain from other peers as the longest chain
             }
         } else if is_remote_valid && !is_local_valid{
             remote //// we must replace the current blocks in this peer with the incoming one since the remote chain is a valid chain
         } else if !is_remote_valid && is_local_valid{
-            local_chain.to_vec() //// we must keep the current blocks by converting it back to the Vec in this peer same as before since the remote chain is an invalid chain
+            local.to_vec() //// we must keep the current blocks by converting it back to the Vec in this peer same as before since the remote chain is an invalid chain
         } else{
             error!("⛔ local and remote chain are both invalid");
             panic!("⛔ local and remote chain are both invalid"); //// when we use panic there is no need to return something else
@@ -1052,8 +1055,8 @@ impl Default for Block{
 pub struct MerkleNode{
     pub id: Uuid,
     pub data: Transaction, //// in each node data is the transaction hash; if the data is of type Transaction just call the data.hash since the hash of the transaction has been generated in different TLPs
-    pub parent: RefCell<Weak<Node>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<Node>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
-    pub children: RefCell<Vec<Rc<Node>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<Node>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
+    pub parent: RefCell<Weak<MerkleNode>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<MerkleNode>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
+    pub children: RefCell<Vec<Rc<MerkleNode>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<MerkleNode>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
 }
 
 impl MerkleNode{
@@ -1062,11 +1065,11 @@ impl MerkleNode{
         todo!();
     }
 
-    pub fn add_child(&mut self, node: Node){
+    pub fn add_child(&mut self, node: MerkleNode){
         self.children.borrow_mut().push(Rc::new(node)); //// in order to push into the self.children field we have to borrow it as mutable at runtime since it has wrapped around the RefCell
     }
 
-    pub fn children(&mut self, node: Node) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
+    pub fn children(&mut self, node: MerkleNode) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
         if node.children.borrow_mut().len() != 0{ //// first borrow the ownership of the self.children field at runtime then check its length
             Ok(node.children.borrow_mut().to_vec()) //// we have to borrow the ownership of the self.children field at runtime and convert it to vector to return it cause it's inside RefCell
         } else{
@@ -1074,7 +1077,7 @@ impl MerkleNode{
         }
     }
 
-    pub fn generate_hash(&mut self, right_node: Node) -> String{
+    pub fn generate_hash(&mut self, right_node: MerkleNode) -> String{
 
         // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
         // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
