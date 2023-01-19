@@ -335,6 +335,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         validator_joined_channel.clone(),
         default_parachain_uuid.clone(),
         parachain_0.clone(), //// this is the first parachain that has been initialized during the actor daemonization
+        parachain_updated_channel.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
         cloned_arc_mutex_validator_actor.clone(),
@@ -512,7 +513,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         // ---------------------------------------------------------------------------------
         //           SECOND PARACHAIN SUBSCRIBES TO UPDATE DEFAULT PARACHAIN TOPIC
         // ---------------------------------------------------------------------------------
-
+        //// also the first or default parachain might gets updated inside the swarm event
+        //// with the new incoming chain from other peers.
+ 
         parachain_updated_channel.tell( //// telling the channel that an actor wants to subscribe to a topic
                                     Subscribe{ 
                                         actor: Box::new(parachain_1.clone()), //// parachain_1 wants to subscribe to - since in subscribing a message the subscriber or the actor must be bounded to Send trait thus we must either take a reference to it like &dyn Tell<Msg> + Send or put it inside the Box like Box<dyn Tell<Msg> + Send> to avoid using lifetime directly since the Box is a smart pointer and has its own lifetime     

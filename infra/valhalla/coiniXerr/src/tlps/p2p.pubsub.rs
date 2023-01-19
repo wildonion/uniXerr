@@ -57,6 +57,7 @@ pub async fn bootstrap(
         validator_joined_channel: ChannelRef<ValidatorJoined>,
         default_parachain_uuid: Uuid,
         parachain: ActorRef<ParachainMsg>,
+        parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>,
         cloned_arc_mutex_runtime_info_object: Arc<Mutex<RafaelRt>>,
         meta_data_uuid: Uuid,
         cloned_arc_mutex_validator_update_channel: Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
@@ -217,7 +218,7 @@ pub async fn bootstrap(
 
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
-    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, coiniXerr_sys);
+    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, coiniXerr_sys, parachain_updated_channel);
     
     // --------------------------------------------
     //          RUNNING SWARM EVENT LOOP 

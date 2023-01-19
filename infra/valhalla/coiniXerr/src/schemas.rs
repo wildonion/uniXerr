@@ -101,9 +101,6 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// to define the event loop structure which is responsible 
 //// for selecting async I/O event from the event loop
 //// that might be happened across our network for execution.
-
-
-
 #[derive(Debug, Serialize, Deserialize)] //// we'll use serde serialization and deserialization traits for json ops
 pub struct P2PChainResponse{ //// local chain response from other peer - used for if someone sends us their local blockchain and use to send them our local chain
     pub blocks: Vec<Block>, //// blocks from other peers
@@ -231,7 +228,14 @@ pub struct P2PSwarmEventLoop{
     //// that has been requested by a node inside the init channel, 
     //// between different parts of the app like differen threads
     //// of the swarm events. 
-    //
+    pub init_receiver: mpsc::Receiver<bool>,
+    pub response_sender: mpsc::Sender<P2PChainResponse>,
+    pub response_receiver: mpsc::Receiver<P2PChainResponse>,
+    pub swarm: Swarm<P2PAppBehaviour>,
+    pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
+    pub actor_sys: ActorSystem,
+    pub parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>,
+    pub nodes: Vec<PeerId>,
     //// oneshot channel is a single producer 
     //// and single consumer job queue channel
     //// in which a single value can be sent and
@@ -240,13 +244,7 @@ pub struct P2PSwarmEventLoop{
     //// () as the Ok arm and Box<dyn std::error::Error + Send + Sync + 'static>
     //// as the Err arm which might be caused during 
     //// the app life cycle if there was any std error.
-    pub init_receiver: mpsc::Receiver<bool>,
-    pub response_sender: mpsc::Sender<P2PChainResponse>,
-    pub response_receiver: mpsc::Receiver<P2PChainResponse>,
-    pub swarm: Swarm<P2PAppBehaviour>,
-    pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
-    pub actor_sys: ActorSystem,
-    pub nodes: Vec<PeerId>,
+    //
     //// the following map will be used for peer advertising 
     //// about an specific parachain uuid, dialing to an specific
     //// peer and getting all peers that are the providers of the 
@@ -270,7 +268,8 @@ impl P2PSwarmEventLoop{
     pub fn new(swarm: Swarm<P2PAppBehaviour>, 
                 init_receiver: mpsc::Receiver<bool>,
                 parachain: ActorRef<ParachainMsg>,
-                actor_sys: ActorSystem) -> Self{
+                actor_sys: ActorSystem,
+                parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>) -> Self{
         let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();            
         let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
         Self{
@@ -280,6 +279,7 @@ impl P2PSwarmEventLoop{
             swarm,
             parachain,
             actor_sys,
+            parachain_updated_channel,
             nodes: Vec::default(),
             pending_dial: Default::default(),
             pending_start_providing: Default::default(),
@@ -415,7 +415,26 @@ impl P2PSwarmEventLoop{
                         //// one and the decoded one from the response.
                         let choosen = blockchain.choose_chain(blockchain.blocks.clone(), chain_response.blocks); //// choosing the right chain between the local chain and the received chain
                         blockchain.blocks = choosen;
-                        parachain_data.blockchain = Some(blockchain);
+                        parachain_data.blockchain = Some(blockchain.clone());
+                        info!("➔ 🔃 updating parachain state");
+                        //// we have to ask the actor that hey we want to update some info about the parachain by sending 
+                        //// the related message cause the parachain is guarded by the ActorRef
+                        //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+                        //// also if we pass None there won't be any update and last value will be returned
+                        //// no need to clone the passed in parachain since we're passing it by reference
+                        //// asking the coiniXerr system to update the state of the passed in parachain actor and return the result or response as a future object
+                        //// also if we paas None the old value will be kept
+                        let update_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, UpdateParachainEvent{slot: None, blockchain: Some(blockchain.clone()), current_block: None}); 
+                        let update_default_parachain = update_parachain_remote_handle.await;
+                        //// broadcasting default parachain update to other parachain actors 
+                        //// those actors are subscribers that can subscribe to this topic.
+                        self.parachain_updated_channel.tell( //// telling the channel that we want to publish something
+                            Publish{
+                                msg: ParachainUpdated(update_default_parachain.id.clone()), //// publishing the ParachainUpdated message event to the parachain_updated_channel channel 
+                                topic: "<default parachain updated>".into(), //// setting the topic to <default parachain updated> so all subscribers of this channel (all parachain actors) can subscribe and react to this topic of this message event
+                            }, 
+                            None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None
+                        );
                     }
                 } 
                 //// deserializing the message.data related to CHAIN_TOPIC
@@ -445,6 +464,7 @@ impl P2PSwarmEventLoop{
                 }
 
                 // TODO - decode other topic messages to their struct
+                // TODO - sign transaction and hash it
                 // ...
 
             },
@@ -896,8 +916,9 @@ impl Chain{
 }
 
 
-#[derive(Serialize, Deserialize, Clone, Debug)] //// encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone, Debug)] //// encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Block{
+    #[borsh_skip] //// we have to skip serializing the id since brosh doesn't support uuid 
     pub id: Uuid,
     pub index: u32,
     pub is_genesis: bool,
@@ -1292,11 +1313,9 @@ impl Transaction{
     }
     
     fn cut_extra_bytes_from(hash: String) -> String{
-        //////////////
-        // SAMPLE HASH
-        //////////////
-        // $argon2i$v=19$m=16,t=2,p=1$d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
-        let hash = &hash[27..]; //// d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        // SAMPLE HASH: $argon2i$v=19$m=16,t=2,p=1$d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        // OUTPUT     : d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        let hash = &hash[27..]; 
         hash.to_string()
     }
 
