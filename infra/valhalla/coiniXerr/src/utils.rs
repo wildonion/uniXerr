@@ -709,7 +709,7 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
   
 //// ➔ trait based proc macro attribute:
 ////    derive like macros like #[derive(Serialize, Deserialize, Copy, Clone, Debug)] to bound a struct to the trait which delegates trait implementation for the struct which contains the trait methods that will extend the interface of the type
-////    cutom like macros like #[custom(out="code.wasm"] or #[near_bindgen] #[cfg(os)] or #[deprecated()] on top of struct or enum fields
+////    cutom like macros like #[custom(out="code.wasm"] or #[near_bindgen] #[cfg(os)] or #[deprecated()] on top of struct, enum fields and methods and functions
 ////    convert a trait into a module that will extend the trait methods like near #[ex_contract(contract_name)] proc macro 
 ////    #[..] applies an attribute to the thing after it (struct, struct fields or crate) and  #![..] applies an attribute to the containing thing or crate
 ////    TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes

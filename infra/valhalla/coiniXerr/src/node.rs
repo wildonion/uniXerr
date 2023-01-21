@@ -273,22 +273,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// scheduling the "getting default parachain blockchain" task
     //// to be executed every 5 seconds using tokio cron scheduler.
 
-    let mut sched = JobScheduler::new().await;
-    sched.add(Job::new_repeated_async(Duration::from_secs(5), |_uuid, _l| Box::pin(async move {
+    let mut parachain_scheduler = JobScheduler::new().await;
+    parachain_scheduler.add(Job::new_repeated_async(Duration::from_secs(5), |_uuid, _l| Box::pin(async move {
         info!("➔ 🔗🧊 getting blockchain every 5 seconds from the default parachain");
         //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current blockchain event cause the parachain is guarded by the ActorRef
         //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
         let blockchain_remote_handle: RemoteHandle<Chain> = ask(&coiniXerr_sys, &parachain_0, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
-        blockchain = blockchain_remote_handle.await;
+        blockchain = blockchain_remote_handle.await; //// update the blockchain variable with the latest one inside the parachain
     })).await.unwrap());
-    #[cfg(feature = "signal")]
-    sched.shutdown_on_ctrl_c();
-    sched.set_shutdown_handler(Box::new(|| {
+    #[cfg(feature="signal")]
+    parachain_scheduler.shutdown_on_ctrl_c();
+    parachain_scheduler.set_shutdown_handler(Box::new(|| {
       Box::pin(async move {
-        println!("Shut down done");
+        info!("🔌 shut down parachain scheduler done");
       })
     }));
-    sched.start().await;
+    parachain_scheduler.start().await;
     tokio::time::sleep(Duration::from_secs(100)).await; //// waiting a while so that the job actually run
 
 

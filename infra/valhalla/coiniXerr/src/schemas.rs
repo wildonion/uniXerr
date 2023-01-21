@@ -427,6 +427,10 @@ impl P2PSwarmEventLoop{
                         //// no need to clone the passed in parachain since we're passing it by reference
                         //// asking the coiniXerr system to update the state of the passed in parachain actor and return the result or response as a future object
                         //// also if we paas None values the old ones will be kept
+                        //
+                        //// we'll get the updated blockchain field inside the node.rs
+                        //// every 5 seconds to make sure that the block mining and verifying
+                        //// process will be done on the latest chain.
                         let update_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, UpdateParachainEvent{slot: None, blockchain: Some(blockchain.clone()), current_block: None}); 
                         let update_default_parachain = update_parachain_remote_handle.await;
                         //// broadcasting default parachain update to other parachain actors 
@@ -482,7 +486,6 @@ impl P2PSwarmEventLoop{
                 }
 
                 // TODO - decode other topic messages to their struct
-                // TODO - sign transaction and hash it
                 // ...
 
             },

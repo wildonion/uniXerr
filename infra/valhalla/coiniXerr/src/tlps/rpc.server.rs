@@ -54,7 +54,8 @@ pub async fn bootstrap(
     // https://capnproto.org/language.html
     // https://capnproto.org/rpc.html
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
-    // TODO - we must send the new decoded transaction to the downside of the mempool channel for mining and verifying process
+    // TODO - first decode transaction then sign it 
+    // TODO - send the signed transaction to the downside of the mempool channel for mining and verifying process inside the node.rs
     // ... 
 
 
