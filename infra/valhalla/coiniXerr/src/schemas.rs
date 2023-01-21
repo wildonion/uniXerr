@@ -235,6 +235,7 @@ pub struct P2PSwarmEventLoop{
     pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
     pub actor_sys: ActorSystem,
     pub parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>,
+    pub cloned_arc_mutex_new_chain_channel: Arc<Mutex<ActorRef<ChannelMsg<UpdateValidatorAboutNewChain>>>>,
     pub nodes: Vec<PeerId>,
     //// oneshot channel is a single producer 
     //// and single consumer job queue channel
@@ -269,7 +270,8 @@ impl P2PSwarmEventLoop{
                 init_receiver: mpsc::Receiver<bool>,
                 parachain: ActorRef<ParachainMsg>,
                 actor_sys: ActorSystem,
-                parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>) -> Self{
+                parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>,
+                cloned_arc_mutex_new_chain_channel: Arc<Mutex<ActorRef<ChannelMsg<UpdateValidatorAboutNewChain>>>>) -> Self{
         let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();            
         let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
         Self{
@@ -280,6 +282,7 @@ impl P2PSwarmEventLoop{
             parachain,
             actor_sys,
             parachain_updated_channel,
+            cloned_arc_mutex_new_chain_channel,
             nodes: Vec::default(),
             pending_dial: Default::default(),
             pending_start_providing: Default::default(),
@@ -423,15 +426,30 @@ impl P2PSwarmEventLoop{
                         //// also if we pass None there won't be any update and last value will be returned
                         //// no need to clone the passed in parachain since we're passing it by reference
                         //// asking the coiniXerr system to update the state of the passed in parachain actor and return the result or response as a future object
-                        //// also if we paas None the old value will be kept
+                        //// also if we paas None values the old ones will be kept
                         let update_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, UpdateParachainEvent{slot: None, blockchain: Some(blockchain.clone()), current_block: None}); 
                         let update_default_parachain = update_parachain_remote_handle.await;
                         //// broadcasting default parachain update to other parachain actors 
-                        //// those actors are subscribers that can subscribe to this topic.
+                        //// those actors are subscribers that MUST subscribe to this topic.
                         self.parachain_updated_channel.tell( //// telling the channel that we want to publish something
                             Publish{
                                 msg: ParachainUpdated(update_default_parachain.id.clone()), //// publishing the ParachainUpdated message event to the parachain_updated_channel channel 
                                 topic: "<default parachain updated>".into(), //// setting the topic to <default parachain updated> so all subscribers of this channel (all parachain actors) can subscribe and react to this topic of this message event
+                            }, 
+                            None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None
+                        );
+                        //// broadcasting default parachain update to other validator actors 
+                        //// those actors are subscribers that MUST subscribe to this topic
+                        //// by doing this we're updating the state of the default parachain
+                        //// in the whole network so the mining and verifying process can be
+                        //// done with the latest chain also the subscribers of following channel
+                        //// should be inside the streaming loop of the mempool channels to notify
+                        //// validators about the new chain in every stream of incoming transaction
+                        //// which will be slided into the downside of the mempool channel.
+                        self.cloned_arc_mutex_new_chain_channel.tell( //// telling the channel that we want to publish something
+                            Publish{
+                                msg: UpdateValidatorAboutNewChain((parachain_data.id.clone(), PEER_ID.clone().to_string())), //// publishing the UpdateValidatorAboutNewChain message event to the cloned_arc_mutex_new_chain_channel channel, passing the parachain uuid and the peer_id as the params
+                                topic: "<parachain updated with a new chain from a peer>".into(), //// setting the topic to <parachain updated with a new chain from a peer> so all subscribers of this channel (all validator actors) can subscribe and react to this topic of this message event
                             }, 
                             None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None
                         );

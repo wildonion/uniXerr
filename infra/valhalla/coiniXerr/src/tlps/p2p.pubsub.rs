@@ -62,6 +62,7 @@ pub async fn bootstrap(
         meta_data_uuid: Uuid,
         cloned_arc_mutex_validator_update_channel: Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
         cloned_arc_mutex_validator_actor: Arc<Mutex<ActorRef<ValidatorMsg>>>, //// the validator actor
+        cloned_arc_mutex_new_chain_channel: Arc<Mutex<ActorRef<ChannelMsg<UpdateValidatorAboutNewChain>>>>,
         coiniXerr_sys: ActorSystem
     ){
 
@@ -109,7 +110,7 @@ pub async fn bootstrap(
     //                      GETTING THE UUID OF THE PARACHAIN
     // ----------------------------------------------------------------------
     
-    info!("➔ 🎫 getting uuid of the second parachain");
+    info!("➔ 🎫 getting uuid of the default parachain");
     //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the uuid event cause the parachain is guarded by the ActorRef
     //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
     let current_uuid_remote_handle: RemoteHandle<Uuid> = ask(&coiniXerr_sys, &parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetParachainUuid}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the uuid of the passed in parachain actor as a future object
@@ -218,19 +219,23 @@ pub async fn bootstrap(
 
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
-    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, coiniXerr_sys, parachain_updated_channel);
+    info!("➔ ➰ building the swarm event loop");
+    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, 
+                                                coiniXerr_sys, parachain_updated_channel, 
+                                                cloned_arc_mutex_new_chain_channel);
     
     // --------------------------------------------
     //          RUNNING SWARM EVENT LOOP 
     // --------------------------------------------
     
-    
+    info!("➔ 😵‍💫 running the swarm event loop");
     event_loop.run().await; //// run the swarm event loop to control the flow of the entire network based on coming event I/O task 
     
     // ----------------------------------
     //         DIALING TO A PEER
     // ----------------------------------
 
+    info!("➔ 📞 dialing to a peer");
     let peer: Option<Multiaddr> = Some(Multiaddr::with_capacity(64)); //// create a new, empty multiaddress utf8 bytes with the 64 bytes capacity
     if let Some(addr) = peer{
         //// the Some variant of the addr.iter().last()
@@ -254,7 +259,9 @@ pub async fn bootstrap(
     //       EVENT LOOP ADVERTISING
     // ----------------------------------
     
+    info!("➔ 📢 start advertising as a provider of of the parachain with uuid [{}]", parachain_uuid.clone());
     event_loop.start_providing(parachain_uuid.clone()).await; //// advertise oneself as a provider of the parachain with the passed in id on the DHT
+    info!("➔ 📥 get all providers from the DHT of the parachain with uuid [{}]", parachain_uuid.clone());
     event_loop.get_providers(parachain_uuid.clone()).await; //// locate all nodes providing the parachain with the passed in id
 
 

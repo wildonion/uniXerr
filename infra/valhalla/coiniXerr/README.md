@@ -47,6 +47,10 @@ An Actor, Gossipsub P2P Pub/Sub, Sharded TCP, UDP and RPC Based Design Pattern R
 
 ### 🚧 WIP 
 
+* handle other P2P topics inside the swarm event loop
+
+* complete RPC setup and `rcp_tx_emultator()` function
+
 * HAProxy, k8s-ing docker containers in `docker-compose.yml` and CI/CD in `app.sh`.
 
 * `StorageModel` ORM trait methods, Rafael runtime and its log, onion actors, utils macros and methods, reset slot in parachain actor and consensus algorithms

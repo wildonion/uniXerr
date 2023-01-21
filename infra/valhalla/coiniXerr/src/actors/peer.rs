@@ -78,6 +78,9 @@ pub struct ValidatorUpdated(pub String); //// a message event to broadcast it by
 pub struct UpdateValidatorAboutMempoolTx(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about incoming a new transaction inside the mempool - first element of this struct is the transaction Uuid
 
 #[derive(Clone, Debug)]
+pub struct UpdateValidatorAboutNewChain(pub (Uuid, String)); //// a message event to broadcast it by the channel to all validator subscriber actors about new chain - first element of this struct is the updated parachain Uuid and the second one is the peer_id that we've received the chain from
+
+#[derive(Clone, Debug)]
 pub struct UpdateValidatorAboutMiningProcess(pub Uuid); //// a message event to broadcast it by the channel to all validator subscriber actors about mining process - first element of this struct is the block Uuid
 
 
@@ -96,7 +99,7 @@ pub struct UpdateValidatorAboutMiningProcess(pub Uuid); //// a message event to 
 //                 Validator type actor
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
-#[actor(Communicate, Contract, UpdateTx, UpdateMode, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess)] //// Validator actor will receive a message from other actors or a channel to subscribe to of type Communicate, Contract, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx and UpdateValidatorAboutMiningProcess
+#[actor(Communicate, Contract, UpdateTx, UpdateMode, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutNewChain, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess)] //// Validator actor will receive a message from other actors or a channel to subscribe to of type Communicate, Contract, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutNewChain, UpdateValidatorAboutMempoolTx and UpdateValidatorAboutMiningProcess
 #[derive(Debug, Serialize, Deserialize, Clone)] //// trait Clone is required to prevent the object of this struct from moving
 pub struct Validator {
     pub peer_id: String, //// the libp2p peer id 
@@ -149,10 +152,10 @@ impl Validator{
 
 impl Actor for Validator{
 
-    //// Validator actor must support the message type of the channels related to the validator message events (ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess) that they want to subscribe to
+    //// Validator actor must support the message type of the channels related to the validator message events (ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutNewChain, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess) that they want to subscribe to
     //// When using the #[actor()] attribute, the actor's Msg generic associated type (GAT) should be set to '[DataType]Msg'. 
     //// E.g. if an actor is a struct named MyActor, then the Actor::Msg generic associated type (GAT) will be MyActorMsg.
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess //// Msg generic associated type (GAT) is the actor mailbox type and is of type ValidatorMsg which is the Validator type itself; actors can communicate with each other by sending message to each other
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess //// Msg generic associated type (GAT) is the actor mailbox type and is of type ValidatorMsg which is the Validator type itself; actors can communicate with each other by sending message to each other
 
     fn recv(&mut self, 
             ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -190,7 +193,7 @@ impl ActorFactoryArgs<(String, Option<Transaction>, Mode, Option<u8>)> for Valid
 // ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 impl Receive<Contract> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type Contract
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -206,7 +209,7 @@ impl Receive<Contract> for Validator{ //// implementing the Receive trait for th
 
 
 impl Receive<UpdateTx> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type UpdateTx
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -222,7 +225,7 @@ impl Receive<UpdateTx> for Validator{ //// implementing the Receive trait for th
 
 
 impl Receive<UpdateMode> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type UpdateMode
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -238,7 +241,7 @@ impl Receive<UpdateMode> for Validator{ //// implementing the Receive trait for 
 
 
 impl Receive<Communicate> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type Communicate
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -288,7 +291,7 @@ impl Receive<Communicate> for Validator{ //// implementing the Receive trait for
 
 
 impl Receive<ValidatorJoined> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type ValidatorJoined
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -307,7 +310,7 @@ impl Receive<ValidatorJoined> for Validator{ //// implementing the Receive trait
 
 
 impl Receive<ValidatorUpdated> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type ValidatorUpdated
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -325,7 +328,7 @@ impl Receive<ValidatorUpdated> for Validator{ //// implementing the Receive trai
 
 
 impl Receive<UpdateValidatorAboutMempoolTx> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type UpdateValidatorAboutMempoolTx
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
@@ -342,8 +345,25 @@ impl Receive<UpdateValidatorAboutMempoolTx> for Validator{ //// implementing the
 }
 
 
+impl Receive<UpdateValidatorAboutNewChain> for Validator{
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+
+    fn receive(&mut self, 
+                _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 
+                _msg: UpdateValidatorAboutNewChain, //// _msg is of type UpdateValidatorAboutNewChain since we're implementing the Receive trait for the UpdateValidatorAboutNewChain type
+                _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
+        
+        info!("➔ new chain with id [{}] has been update by peer with [{}]", _msg.0, _msg.1) //// UpdateValidatorAboutNewChain is a tuple like struct so first elem is the parachain uuid and the second one is the peer_id that we've received the chain from
+   
+        // other logics goes here
+        // ...
+
+    }
+}
+
+
 impl Receive<UpdateValidatorAboutMiningProcess> for Validator{ //// implementing the Receive trait for the Validator actor to handle the incoming message of type UpdateValidatorAboutMiningProcess
-    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
+    type Msg = ValidatorMsg; //// we can access all the message event actors which has defined for Validator using ValidatorMsg::Communicate, ValidatorMsg::Contract, ValidatorMsg::UpdateTx, ValidatorMsg::UpdateMode, ValidatorMsg::UpdateValidatorAboutNewChain, ValidatorMsg::UpdateValidatorAboutMempoolTx, ValidatorMsg::UpdateValidatorAboutMiningProcess
 
     fn receive(&mut self,
                 _ctx: &Context<Self::Msg>, //// ctx is the actor system which we can build child actors with it also sender is another actor 

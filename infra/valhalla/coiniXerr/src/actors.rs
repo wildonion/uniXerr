@@ -32,6 +32,7 @@ pub async fn daemonize()
         Arc<Mutex<RafaelRt>>,
         Uuid,
         Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
+        Arc<Mutex<ActorRef<ChannelMsg<UpdateValidatorAboutNewChain>>>>,
         Arc<Mutex<ActorRef<ValidatorMsg>>>, //// the validator actor
         ActorSystem,
         ActorRef<ChannelMsg<ParachainUpdated>>,
@@ -73,7 +74,7 @@ pub async fn daemonize()
     let parachain_updated_channel: ChannelRef<ParachainUpdated>            = channel("parachain-updated-channel", &coiniXerr_sys).unwrap(); //// parachain actors which are interested in this message event (the message type is supported by and implemented for all parachain actors) must subscribe to all topics (like updating a parachain) of this event for parachain_updated_channel channel actor
     let mempool_updated_channel: ChannelRef<UpdateValidatorAboutMempoolTx> = channel("mempool-transaction-joined-channel", &coiniXerr_sys).unwrap(); //// validator actors which are interested in this message event (the message type is supported by and implemented for all validator actors) must subscribe to all topics (like incoming a new transaction inside the mempool channel) of this event for mempool_updated_channel channel actor
     let mining_channel: ChannelRef<UpdateValidatorAboutMiningProcess>      = channel("mining-channel", &coiniXerr_sys).unwrap(); //// validator actors which are interested in this message event (the message type is supported by and implemented for all validator actors) must subscribe to all topics (like starting mining process) of this event for mining_channel channel actor
-
+    let new_chain_channel: ChannelRef<UpdateValidatorAboutNewChain>        = channel("new-parachain-accepted", &coiniXerr_sys).unwrap(); //// validator actors which are interested in this message event (the message type is supported by and implemented for all validator actors) must subscribe to all topics (like a new chain accepted from a peer) of this event for new_chain_channel channel actor 
 
 
     
@@ -469,9 +470,9 @@ pub async fn daemonize()
     };
     info!("➔ 🎞️ rafael runtime instance log {}", rafael_event_log); //// it'll log to the console like RAFAEL_EVENT_JSON:{"time": 167836438974, "event": "event name, "data": [{...RuntimeLog_instance...}] or [{...ServerlessLog_instance...}]}
 
-    // --------------------------------------------------------------------------------------------------------------------------------------------
-    //                 SENDING THE STREAM, RUNTIME, VALIDATOR, VALIDATOR UPDATE CHANNEL AND ACTOR SYSTEM TO DOWN SIDE OF THE CHANNEL 
-    // --------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //                 SENDING THE STREAM, RUNTIME, VALIDATOR, VALIDATOR UPDATE CHANNEL ABOUT NEW CHAIN, VALIDATOR UPDATE CHANNEL AND ACTOR SYSTEM TO DOWN SIDE OF THE CHANNEL 
+    // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     let arc_mutex_validator_actor = Arc::new(Mutex::new(validator_actor)); //// creating an Arc object which is inside a Mutex to share and mutate data between threads cause Validator actor addr object doesn't implement Clone trait and the object inside Arc is not mutable thus we have to put the validator_actor object inside a mutex to be updatable between threads
     let cloned_arc_mutex_validator_actor = Arc::clone(&arc_mutex_validator_actor); //// we're borrowing the ownership of the Arc-ed and Mutex-ed validator_actor object to move it between threads without loosing the ownership 
@@ -480,6 +481,8 @@ pub async fn daemonize()
     let arc_mutex_validator_update_channel = Arc::new(Mutex::new(validator_updated_channel));
     let cloned_arc_mutex_validator_update_channel = Arc::clone(&arc_mutex_validator_update_channel);
 
+    let arc_mutex_new_chain_channel = Arc::new(Mutex::new(new_chain_channel));
+    let cloned_arc_mutex_new_chain_channel = Arc::clone(&arc_mutex_new_chain_channel);
 
 
     (   
@@ -489,6 +492,7 @@ pub async fn daemonize()
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_new_chain_channel.clone(),
         cloned_arc_mutex_validator_actor.clone(),
         coiniXerr_sys.clone(),
         parachain_updated_channel.clone(),

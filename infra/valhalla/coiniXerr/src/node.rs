@@ -55,6 +55,7 @@ use is_type::Is;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use log::{info, error, LevelFilter};
+use tokio_cron_scheduler::{JobScheduler, JobToRun, Job};
 use tokio::net::{TcpListener, TcpStream, UdpSocket}; //// async tcp and udp streamer
 ///// read from the input and write to the output - AsyncReadExt and AsyncWriteExt 
 //// are traits which are implemented for an object of type TcpStream and based 
@@ -102,7 +103,7 @@ use libp2p::{
 use crate::engine::{cvm, consensus::*};
 use crate::actors::{
                     parathread::{Parachain, ParachainMsg, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
-                    peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
+                    peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutNewChain, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //// loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
 use crate::schemas::{
@@ -238,20 +239,57 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         default_parachain_uuid,
         cloned_arc_mutex_runtime_info_object,
         meta_data_uuid,
-        cloned_arc_mutex_validator_actor,
         cloned_arc_mutex_validator_update_channel,
+        cloned_arc_mutex_new_chain_channel,
+        cloned_arc_mutex_validator_actor,
         coiniXerr_sys,
         parachain_updated_channel,
         parachain_1,
         parachain_0,
         mining_channel,
         mempool_updated_channel,
-        blockchain,
+        mut blockchain,
         mut current_block,
     ) = actors::daemonize().await;
 
 
     
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////         getting the latest chain of the default parachain 
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    //// we MUST get the latest chain of the default parachain 
+    //// every 5 seconds since it might be updated with a new 
+    //// chain from a peer inside the swarm event loop thus
+    //// we have to update the `blockchain` variable returned 
+    //// from the daemonize() function to make sure that we're 
+    //// mining and verifying on the latest chain. 
+    
+    // ----------------------------------------------------------------------
+    //            GETTING THE BLOCKCHAIN OF THE DEFAULT PARACHAIN
+    // ----------------------------------------------------------------------
+    //// scheduling the "getting default parachain blockchain" task
+    //// to be executed every 5 seconds using tokio cron scheduler.
+
+    let mut sched = JobScheduler::new().await;
+    sched.add(Job::new_repeated_async(Duration::from_secs(5), |_uuid, _l| Box::pin(async move {
+        info!("➔ 🔗🧊 getting blockchain every 5 seconds from the default parachain");
+        //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current blockchain event cause the parachain is guarded by the ActorRef
+        //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+        let blockchain_remote_handle: RemoteHandle<Chain> = ask(&coiniXerr_sys, &parachain_0, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
+        blockchain = blockchain_remote_handle.await;
+    })).await.unwrap());
+    #[cfg(feature = "signal")]
+    sched.shutdown_on_ctrl_c();
+    sched.set_shutdown_handler(Box::new(|| {
+      Box::pin(async move {
+        println!("Shut down done");
+      })
+    }));
+    sched.start().await;
+    tokio::time::sleep(Duration::from_secs(100)).await; //// waiting a while so that the job actually run
 
 
 
@@ -340,6 +378,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         meta_data_uuid.clone(),
         cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_new_chain_channel.clone(),
         coiniXerr_sys.clone()
     ).await; //// libp2p stack based on tokio TCP and gossipsub pub/sub pattern
 
@@ -394,6 +433,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         let current_validator_uuid = current_uuid_remote_handle.await; //// getting the uuid of the current validator which has passed in to the stream mpsc channel
         info!("➔ 👷🏼‍♂️ validator actor with id [{}] and info {:?} in mempool", current_validator_uuid, mutex_validator_actor);
         
+        // ---------------------------------------------------------------------------------
+        //          CURRENT VALIDATOR SUBSCRIBES TO NEW CHAIN ACCEPTED FROM A PEER
+        // ---------------------------------------------------------------------------------
+        
+        info!("➔ 🙌🏻 current validator subscribes to the new chain accepted from a peer");
+        cloned_arc_mutex_new_chain_channel.tell( //// telling the channel that an actor wants to subscribe to a topic
+            Subscribe{ 
+                actor: Box::new(mutex_validator_actor.clone()), //// mutex_validator_actor wants to subscribe to - since in subscribing a message the subscriber or the actor must be bounded to Send trait thus we must either take a reference to it like &dyn Tell<Msg> + Send or put it inside the Box like Box<dyn Tell<Msg> + Send> to avoid using lifetime directly since the Box is a smart pointer and has its own lifetime     
+                topic: "<parachain updated with a new chain from a peer>".into() //// <parachain updated with a new chain from a peer> topic
+            },
+            None
+        );
+
         // ----------------------------------------------------------------------
         //            COMMUNICATE WITH THE VALIDATOR BASED ON TX TYPE
         // ----------------------------------------------------------------------
