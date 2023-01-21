@@ -376,6 +376,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// since we can't move receiver between new scopes
     //// and threads thus we must receive from the 
     //// job queue channel in here.
+    //
+    //// below we're streaming asyncly over incoming transaction
+    //// sent by the sender by awaiting on the receiver side 
+    //// as long as we receive an ok transaction.
  
     while let Ok((transaction, 
                     validator, 
