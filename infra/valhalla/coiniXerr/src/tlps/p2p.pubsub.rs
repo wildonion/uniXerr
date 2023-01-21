@@ -57,6 +57,7 @@ pub async fn bootstrap(
         validator_joined_channel: ChannelRef<ValidatorJoined>,
         default_parachain_uuid: Uuid,
         parachain: ActorRef<ParachainMsg>,
+        parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>,
         cloned_arc_mutex_runtime_info_object: Arc<Mutex<RafaelRt>>,
         meta_data_uuid: Uuid,
         cloned_arc_mutex_validator_update_channel: Arc<Mutex<ChannelRef<ValidatorUpdated>>>,
@@ -217,46 +218,46 @@ pub async fn bootstrap(
 
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
-    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, coiniXerr_sys);
+    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, coiniXerr_sys, parachain_updated_channel);
     
-    // ----------------------------------------------------------------------------------
-    //          RUNNING SWARM EVENT LOOP INSIDE TOKIO WORKER GREEN THREADPOOL 
-    // ----------------------------------------------------------------------------------
+    // --------------------------------------------
+    //          RUNNING SWARM EVENT LOOP 
+    // --------------------------------------------
     
-    tokio::spawn(async move{
-        
-        event_loop.run().await; //// run the swarm event loop to control the flow of the entire network based on coming event I/O task 
-        
-        // ----------------------------------
-        //         DIALING TO A PEER
-        // ----------------------------------
+    
+    event_loop.run().await; //// run the swarm event loop to control the flow of the entire network based on coming event I/O task 
+    
+    // ----------------------------------
+    //         DIALING TO A PEER
+    // ----------------------------------
 
-        let peer: Option<Multiaddr> = Some(Multiaddr::with_capacity(64)); //// create a new, empty multiaddress utf8 bytes with the 64 bytes capacity
-        if let Some(addr) = peer{
-            let peer_id = match addr.iter().last(){ //// getting the last element of the addr iterator
-                //// triying to turn a Multihash into a PeerId
-                //// if the multihash does not use a valid 
-                //// hashing algorithm for peer IDs, or the h
-                //// ash value does not satisfy the constraints 
-                //// for a hashed peer ID, it is returned as an Err.
-                //
-                //// actually we're building a peer_id public key 
-                //// from the hash of the alst element of the generated 
-                //// 64 bytes multiaddr. 
-                Some(Protocol::P2p(hash)) => PeerId::from_multihash(hash).expect("❌ valid hash MUST be passed"),
-                _ => error!("❌ expect peer multiaddr to contain peer ID.".into()),
-            };
+    let peer: Option<Multiaddr> = Some(Multiaddr::with_capacity(64)); //// create a new, empty multiaddress utf8 bytes with the 64 bytes capacity
+    if let Some(addr) = peer{
+        //// the Some variant of the addr.iter().last()
+        //// is a Protocol::P2p(hash)
+        if let Some(Protocol::P2p(hash)) = addr.iter().last(){ //// getting the last element of the addr iterator
+            //// triying to turn a Multihash into a PeerId
+            //// if the multihash does not use a valid 
+            //// hashing algorithm for peer IDs, or the h
+            //// ash value does not satisfy the constraints 
+            //// for a hashed peer ID, it is returned as an Err.
+            //
+            //// actually we're building a peer_id public key 
+            //// from the hash of the alst element of the generated 
+            //// 64 bytes multiaddr. 
+            let peer_id = PeerId::from_multihash(hash).expect("❌ valid hash MUST be passed");
+            event_loop.dial(peer_id, addr).await; //// dial the given peer at the given address
         }
-        event_loop.dial(peer_id, addr).await; //// dial the given peer at the given address
-        
-        // ----------------------------------
-        //       EVENT LOOP ADVERTISING
-        // ----------------------------------
-        
-        event_loop.start_providing(parachain_uuid.clone()).await; //// advertise oneself as a provider of the parachain with the passed in id on the DHT
-        event_loop.get_providers(parachain_uuid.clone()).await; //// locate all nodes providing the parachain with the passed in id
+    }
+    
+    // ----------------------------------
+    //       EVENT LOOP ADVERTISING
+    // ----------------------------------
+    
+    event_loop.start_providing(parachain_uuid.clone()).await; //// advertise oneself as a provider of the parachain with the passed in id on the DHT
+    event_loop.get_providers(parachain_uuid.clone()).await; //// locate all nodes providing the parachain with the passed in id
 
-    });
+
 
     
 }

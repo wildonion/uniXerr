@@ -42,17 +42,18 @@ pub struct UpdateParachainEvent{
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, Default)]
 pub enum Cmd{
     #[default] //// enum data types can only have one field as the default value
-    GetCurrentBlock, //// Mine field is the default value; borsh utf8 encoded variant is 0
-    GetSlot, //// borsh utf8 encoded variant is 1
-    GetBlockchain, //// borsh utf8 encoded variant is 2
-    GetSelf, ///// borsh utf8 encoded variant is 3
-    GetNextParachain, //// borsh utf8 encoded variant is 4
-    GetGenesis, //// borsh utf8 encoded variant is 5
-    GetParachainUuid, //// borsh utf8 encoded variant is 6
-    WaveResetSlotFrom(String), //// borsh utf8 encoded variant is 7 - Uuid is the id of the parachain that waved a hi
-    WaveSlotToNextParachainActor, //// borsh utf8 encoded variant is 8
-    WaveSlotToParachainActor(String), //// borsh utf8 encoded variant is 9 - String is the path of the selected parachain actor
-    WaveResetSlotFromSystem, //// borsh utf8 encoded variant is 10
+    GetCurrentBlock, //// Mine field is the default value; the offset of borsh utf8 encoded variant is 0
+    GetSlot, //// the offset of borsh utf8 encoded variant is 1
+    GetBlockchain, //// the offset of borsh utf8 encoded variant is 2
+    SetBlockchain(Vec<Block>), //// the offset of borsh utf8 encoded variant is 3
+    GetSelf, ///// the offset of borsh utf8 encoded variant is 4
+    GetNextParachain, //// the offset of borsh utf8 encoded variant is 5
+    GetGenesis, //// the offset of borsh utf8 encoded variant is 6
+    GetParachainUuid, //// the offset of borsh utf8 encoded variant is 7
+    WaveResetSlotFrom(String), //// the offset of borsh utf8 encoded variant is 8 - Uuid is the id of the parachain that waved a hi
+    WaveSlotToNextParachainActor, //// the offset of borsh utf8 encoded variant is 9
+    WaveSlotToParachainActor(String), //// the offset of borsh utf8 encoded variant is 10 - String is the path of the selected parachain actor
+    WaveResetSlotFromSystem, //// the offset of borsh utf8 encoded variant is 11
 }
 
 #[derive(Clone, Debug)]
@@ -140,14 +141,20 @@ impl Parachain{ //// Parachain is the parallel chain of the coiniXerr network wh
         }
     }
 
-    pub fn set_blockchain(&mut self, blockchain: Chain) -> Self{ //// Self referes to the Parachain struct
-        self.blockchain = Some(blockchain);
-        Self{ //// Self referes to the Parachain struct 
-            id: self.id, 
-            slot: self.slot.clone(), 
-            blockchain: self.blockchain.clone(), 
-            next_parachain: self.next_parachain.clone(), 
-            current_block: self.current_block.clone() 
+    pub fn set_blockchain(&mut self, chain: Vec<Block>) -> Option<Self>{ //// Self referes to the Parachain struct
+        if let Some(mut current_blockchain) = self.blockchain.clone(){
+            current_blockchain.blocks = chain;
+            Some(
+                    Self{ //// Self referes to the Parachain struct 
+                    id: self.id, 
+                    slot: self.slot.clone(), 
+                    blockchain: Some(current_blockchain), 
+                    next_parachain: self.next_parachain.clone(), 
+                    current_block: self.current_block.clone() 
+                }
+            )
+        } else{ //// if and else must contains same return type and because of that we'll return Some(Self) and None if there was no chain available inside the blockchain  
+            None
         }
     }
 
@@ -300,6 +307,17 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                     .unwrap()
                     .try_tell(
                         blockchain, //// sending the blockchain as the response message 
+                        Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
+                    );
+            },
+            Cmd::SetBlockchain(chain) => { //// chain is of type Vec<Block> which contains the new block coming from other peers
+                info!("➔ 🔙 setting the new blockchain of the parachain with id [{}]", self.id);
+                let parachain = self.set_blockchain(chain);
+                _sender
+                    .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                    .unwrap()
+                    .try_tell(
+                        parachain, //// sending the parachain as the response message 
                         Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
                     );
             },

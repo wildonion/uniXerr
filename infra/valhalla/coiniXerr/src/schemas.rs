@@ -45,7 +45,8 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// scopes also if we move the type the lifetime of that will be dropped 
 //// due to not having garbage collector feature;
 //// the solution is to borrow the ownership of them from where they are stored 
-//// either by cloning which is expensive or by taking a reference to them using
+//// either by cloning and move that clone between other scopes also 
+//// which is expensive or by taking a reference to them using
 //// as_ref() method or putting & behind them to create a pointer which will 
 //// point to the location of their heap area and is good to know that their 
 //// pointers are fat ones since extra bytes which has been dedicated to their 
@@ -83,11 +84,6 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                        P2P Schemas                      
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //// most important issues in p2p is to solve the 
 //// NAT issue, peer routing or finding and peer 
 //// dialing; also the pub/sub pattern stack 
@@ -105,10 +101,7 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// to define the event loop structure which is responsible 
 //// for selecting async I/O event from the event loop
 //// that might be happened across our network for execution.
-
-
-
-#[derive(Debug, Serialize, Deserialize, BorshDeserialize, BorshSerialize)] //// we'll use serde serialization and deserialization traits for json ops
+#[derive(Debug, Serialize, Deserialize)] //// we'll use serde serialization and deserialization traits for json ops
 pub struct P2PChainResponse{ //// local chain response from other peer - used for if someone sends us their local blockchain and use to send them our local chain
     pub blocks: Vec<Block>, //// blocks from other peers
     pub receiver: String, //// the receiver node (peer_id) of the incoming chain or blocks
@@ -235,7 +228,14 @@ pub struct P2PSwarmEventLoop{
     //// that has been requested by a node inside the init channel, 
     //// between different parts of the app like differen threads
     //// of the swarm events. 
-    //
+    pub init_receiver: mpsc::Receiver<bool>,
+    pub response_sender: mpsc::Sender<P2PChainResponse>,
+    pub response_receiver: mpsc::Receiver<P2PChainResponse>,
+    pub swarm: Swarm<P2PAppBehaviour>,
+    pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
+    pub actor_sys: ActorSystem,
+    pub parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>,
+    pub nodes: Vec<PeerId>,
     //// oneshot channel is a single producer 
     //// and single consumer job queue channel
     //// in which a single value can be sent and
@@ -244,16 +244,23 @@ pub struct P2PSwarmEventLoop{
     //// () as the Ok arm and Box<dyn std::error::Error + Send + Sync + 'static>
     //// as the Err arm which might be caused during 
     //// the app life cycle if there was any std error.
-    pub init_receiver: mpsc::Receiver<bool>,
-    pub response_sender: mpsc::Sender<P2PChainResponse>,
-    pub response_receiver: mpsc::Receiver<P2PChainResponse>,
-    pub swarm: Swarm<P2PAppBehaviour>,
-    pub parachain: ActorRef<ParachainMsg>, //// parachain actor is the back bone of the coiniXerr node
-    pub actor_sys: ActorSystem,
-    pub nodes: Vec<PeerId>,
-    pub pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>>,
+    //
+    //// the following map will be used for peer advertising 
+    //// about an specific parachain uuid, dialing to an specific
+    //// peer and getting all peers that are the providers of the 
+    //// a specific parachain uuid.
     pub pending_start_providing: HashMap<QueryId, oneshot::Sender<()>>,
+    //// following is a map between each query_id and a tokio oneshot channel
+    //// of type HashSet<PeerId> that will be used to send and receive advertisers
+    //// or providers of a specific parachain uuid. 
     pub pending_get_providers: HashMap<QueryId, oneshot::Sender<HashSet<PeerId>>>,
+    //// following is a map between each peer_id and a tokio oneshot channel of type
+    //// Result that will be used to send and receive either Ok or the Err 
+    //// between different parts of the app which is inside the ConnectionEstablished
+    //// and OutgoingConnectionError swarm events when we want to try to dial to a peer,
+    //// by removing it from the map when stablishes a new connection or 
+    //// it goes out of connection.
+    pub pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>>,
 }
 
 impl P2PSwarmEventLoop{
@@ -261,7 +268,8 @@ impl P2PSwarmEventLoop{
     pub fn new(swarm: Swarm<P2PAppBehaviour>, 
                 init_receiver: mpsc::Receiver<bool>,
                 parachain: ActorRef<ParachainMsg>,
-                actor_sys: ActorSystem) -> Self{
+                actor_sys: ActorSystem,
+                parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>) -> Self{
         let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();            
         let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
         Self{
@@ -271,6 +279,7 @@ impl P2PSwarmEventLoop{
             swarm,
             parachain,
             actor_sys,
+            parachain_updated_channel,
             nodes: Vec::default(),
             pending_dial: Default::default(),
             pending_start_providing: Default::default(),
@@ -392,28 +401,49 @@ impl P2PSwarmEventLoop{
                 //// that has been published through the network, if we could 
                 //// decode it into the `P2PChainResponse` structure means that
                 //// we're receiving a local chain from `propagation_source` or a peer.
-                if let Ok(chain_response) = P2PChainResponse::deserialize(&message.data){ //// decode incoming message that has been published inside the event loop
+                if let Ok(chain_response) = serde_json::from_slice::<P2PChainResponse>(&message.data){ //// decode incoming message that has been published inside the event loop
                     if chain_response.receiver == PEER_ID.to_string(){ //// the message receiver must be this peer 
                         info!("🗨️ a chain response from {:?}", message.source);
                         chain_response.blocks.iter().for_each(|b| info!("{:?}", b)); //// logging each received block
                         let mut parachain_data = self.get_parachain_data().await;
-                        let Some(blockchain) = parachain_data.blockchain else{
+                        let Some(mut blockchain) = parachain_data.blockchain else{ //// choose_chain() method is mutable thus blockchain must be mutable 
                             panic!("⛔ no chain at all :/");
                         };
                         //// blockchain lifetime is accessible from here
                         //// of course if there was some :)
-                        let choosen = blockchain.choose_chain(chain_response.blocks); //// choosing the right chain between the local chain and the received chain
+                        //// we'll choose the right chain between the current
+                        //// one and the decoded one from the response.
+                        let choosen = blockchain.choose_chain(blockchain.blocks.clone(), chain_response.blocks); //// choosing the right chain between the local chain and the received chain
                         blockchain.blocks = choosen;
-                        parachain_data.blockchain = Some(blockchain);
+                        parachain_data.blockchain = Some(blockchain.clone());
+                        info!("➔ 🔃 updating parachain state");
+                        //// we have to ask the actor that hey we want to update some info about the parachain by sending 
+                        //// the related message cause the parachain is guarded by the ActorRef
+                        //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+                        //// also if we pass None there won't be any update and last value will be returned
+                        //// no need to clone the passed in parachain since we're passing it by reference
+                        //// asking the coiniXerr system to update the state of the passed in parachain actor and return the result or response as a future object
+                        //// also if we paas None the old value will be kept
+                        let update_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, UpdateParachainEvent{slot: None, blockchain: Some(blockchain.clone()), current_block: None}); 
+                        let update_default_parachain = update_parachain_remote_handle.await;
+                        //// broadcasting default parachain update to other parachain actors 
+                        //// those actors are subscribers that can subscribe to this topic.
+                        self.parachain_updated_channel.tell( //// telling the channel that we want to publish something
+                            Publish{
+                                msg: ParachainUpdated(update_default_parachain.id.clone()), //// publishing the ParachainUpdated message event to the parachain_updated_channel channel 
+                                topic: "<default parachain updated>".into(), //// setting the topic to <default parachain updated> so all subscribers of this channel (all parachain actors) can subscribe and react to this topic of this message event
+                            }, 
+                            None, //// since we're not sending this message from another actor actually we're sending from the main() (main() is the sender) and main() is not an actor thus the sender param must be None
+                        );
                     }
                 } 
                 //// deserializing the message.data related to CHAIN_TOPIC
                 //// that has been published through the network, if we could 
                 //// decode it into the `P2PLocalChainRequest` structure means that
                 //// we're sending a local chain to `propagation_source` or a peer.
-                else if let Ok(chain_request) = P2PLocalChainRequest::deserialize(&message.data){
+                else if let Ok(chain_request) = serde_json::from_slice::<P2PLocalChainRequest>(&message.data){
                     let sender_peer_id = chain_request.from_peer_id;
-                    if PEER_ID.clone() == sender_peer_id{
+                    if PEER_ID.clone().to_string() == sender_peer_id{
                         let mut parachain_data = self.get_parachain_data().await;
                         //// sending a local chain response to the peer
                         //// that has initialized the request to downside 
@@ -425,15 +455,16 @@ impl P2PSwarmEventLoop{
                         //// and receiving between different part of the app 
                         //// will be done asyncly by tokio channels. 
                         if let Err(e) = self.response_sender.send(P2PChainResponse{ 
-                            blocks: parachain_data.blockchain, 
-                            receiver: message.source.to_string(), 
-                        }){
+                            blocks: parachain_data.blockchain.unwrap().blocks, 
+                            receiver: message.source.unwrap().to_string(), 
+                        }).await{
                             error!("⛔ error sending p2p chain response to the job queue channel caused by: {}", e);
                         }
                     }
                 }
 
                 // TODO - decode other topic messages to their struct
+                // TODO - sign transaction and hash it
                 // ...
 
             },
@@ -460,17 +491,17 @@ impl P2PSwarmEventLoop{
                 match result{
                     Ok(ok) => {
                         if !ok.peers.is_empty(){
-                            self.nodes = ok.peers;
-                            info!("⚛️ query finished closest peers {#:?}", ok.peers);
+                            self.nodes = ok.peers.clone();
+                            info!("⚛️ query finished closest peers {:#?}", ok.peers);
                         } else{
                             info!("😧 query finished with no closest peers");
                         }
                     },
                     Err(GetClosestPeersError::Timeout { peers, .. }) => { //// in unpacking Timeout we only care about the peers and the rest of fields can be filled with `..`
                         if !peers.is_empty(){
-                            info!("⚛️⌛ query timed out with closest peers {#:?}", peers);
+                            info!("⚛️⌛ query timed out with closest peers {:#?}", peers);
                         } else{
-                            info!("😧⌛ query timed out with no closest peers {#:?}", peers);
+                            info!("😧⌛ query timed out with no closest peers {:#?}", peers);
                         }
                     }
                 }
@@ -543,9 +574,12 @@ impl P2PSwarmEventLoop{
     }
 
     async fn list_peers(&self) -> Vec<String>{
-        info!("⚛️ discovered nodes {}", peers.len());
-        let unique_peers = HashSet::new();
-        for peer in self.nodes{
+        let mut unique_peers = HashSet::new();
+        info!("⚛️ discovered nodes {}", self.nodes.len());
+        //// cannot move out of `self.nodes` which is behind a shared reference
+        //// thus we MUST dereference it by getting a clone of it and move 
+        //// that clone between other scopes.
+        for peer in self.nodes.clone(){
             unique_peers.insert(peer);
         }
         unique_peers.iter().map(|p| p.to_string()).collect() //// iterate over all nodes to convert each peer_id to string then collect them as Vec<String>
@@ -578,13 +612,20 @@ impl P2PSwarmEventLoop{
         //// of a value to the given chain_id
         //// returning the QueryId of the initial query 
         //// that announces the local node as a provider.
+        //
+        //// we'll create a result based oneshot job queue channel just 
+        //// to make sure that either everything went ok or wrong 
+        //// between different parts of the app whenever we want to 
+        //// get all the providers of the passed in parachain id.
         let (sender, receiver) = oneshot::channel();
         let query_id = self
             .swarm
             .behaviour_mut()
             .kademlia
-            .get_providers(chain_id.into_bytes().into());
+            .get_providers(parachain_id.to_string().into_bytes().into());
         self.pending_get_providers.insert(query_id, sender);
+        //// receiving the value which is either Ok() or Err() 
+        //// sent by the sender inside the swarm event loop
         receiver.await.expect("❌ sender MUST not be dropped")
     }
 
@@ -598,15 +639,22 @@ impl P2PSwarmEventLoop{
         //// provider record has been stored locally, 
         //// providing the QueryId of the initial query 
         //// that announces the local node as a provider.
+        //
+        //// we'll create a result based oneshot job queue channel just 
+        //// to make sure that either everything went ok or wrong 
+        //// between different parts of the app whenever we want to 
+        //// advertising by being a provider for the passed in parachain id.
         let (sender, receiver) = oneshot::channel();
         let query_id = self
             .swarm
             .behaviour_mut()
             .kademlia
-            .start_providing(chain_id.into_bytes().into())
+            .start_providing(parachain_id.to_string().into_bytes().into())
             .expect("❌ there MUST be no kademlia store error");
         self.pending_start_providing.insert(query_id, sender);
-        receiver.await.expect("❌ sender MUST not be dropped");
+        //// receiving the value which is either Ok() or Err() 
+        //// sent by the sender inside the swarm event loop 
+        receiver.await.expect("❌ sender MUST not be dropped"); 
     }
 
     //// following method will be used if the user
@@ -614,13 +662,13 @@ impl P2PSwarmEventLoop{
     //// dial to a peer with.
     pub async fn dial(&mut self, peer_id: PeerId, peer_addr: Multiaddr) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{
         let (sender, receiver) = oneshot::channel();
-        //// if there was no entry with this peer_id was inside 
+        //// if there was no entry with this peer_id inside 
         //// the map simply we'll add its address to the DHT
         if let hash_map::Entry::Vacant(e) = self.pending_dial.entry(peer_id){ 
             self.swarm
                     .behaviour_mut()
                     .kademlia
-                    .add_address(&peer_id, peer_id.clone()); //// adding a known listen address of a peer participating in the DHT to the routing table
+                    .add_address(&peer_id, peer_addr.clone()); //// adding a known listen address of a peer participating in the DHT to the routing table
             match self
                 .swarm
                 .dial(peer_addr.with(Protocol::P2p(peer_id.into()))){
@@ -628,7 +676,7 @@ impl P2PSwarmEventLoop{
                         e.insert(sender); //// add the entry with this peer_id into the map
                     },
                     Err(e) => {
-                        let _ = sender.send(Err(Box::new(error)));
+                        let _ = sender.send(Err(Box::new(e)));
                     }
                 }
         } else{
@@ -637,27 +685,8 @@ impl P2PSwarmEventLoop{
         receiver.await.expect("❌ sender MUST not be dropped")
     }
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                        Stake Info Schema                      
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[derive(Debug, Clone)]
 pub struct Staker{
     pub id: Uuid,
@@ -666,25 +695,8 @@ pub struct Staker{
     pub rewards: Option<i32>,
     pub signed_at: Option<i64>,
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                        Voter Info Schema                      
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Voter{
     pub parachain_id: Uuid, //// voter will vote in this parachain using delegator stakes
@@ -693,27 +705,8 @@ pub struct Voter{
     pub signed_at: Option<i64>,
     pub staker_id: Option<Uuid>, //// delegator id who staked his/her money for this voter
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                  Parachain Slot Schema                      
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Slot{ //// pool of validators for slot auctions
     pub id: Uuid,
@@ -756,26 +749,8 @@ impl Slot{
     }
 
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                   Parachain mongodb schema
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct InsertParachainInfo{
     pub id: Uuid,
@@ -825,25 +800,8 @@ impl StorageModel for InsertParachainInfo{
     }
 
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                         Chain Schema
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 #[derive(Serialize, Deserialize, Clone, Debug)] //// encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Chain{
     pub branch_id: Uuid, //// chain id
@@ -931,20 +889,24 @@ impl Chain{
     //// remote is the incoming chain from 
     //// other peers and local is the chain 
     //// inside this peer.
-    pub fn choose_chain(&mut self, remote: Vec<Block>) -> Vec<Block>{
-        let local_chain = self.blocks as &[Block];
-        let is_local_valid = self.is_chain_valid(&local_chain);
+    pub fn choose_chain(&mut self, local: Vec<Block>, remote: Vec<Block>) -> Vec<Block>{
+        //// we can't borrow self as mutable when
+        //// we're borrowing it as immutable, the
+        //// following is an immutable borrow which 
+        //// will be used in an `if` condition 
+        // let local_chain = &self.blocks as &[Block]; 
+        let is_local_valid = self.is_chain_valid(&local);
         let is_remote_valid = self.is_chain_valid(&remote);
         if is_local_valid && is_remote_valid {
             if local.len() >= remote.len(){
-                local //// we'll choose the local chain as the longest chain
+                local.to_vec() //// we'll choose the local chain as the longest chain by converting it back to the Vec
             } else{
                 remote //// we'll choose the incoming chain from other peers as the longest chain
             }
         } else if is_remote_valid && !is_local_valid{
             remote //// we must replace the current blocks in this peer with the incoming one since the remote chain is a valid chain
         } else if !is_remote_valid && is_local_valid{
-            local //// we must keep the current blocks in this peer same as before since the remote chain is an invalid chain
+            local.to_vec() //// we must keep the current blocks by converting it back to the Vec in this peer same as before since the remote chain is an invalid chain
         } else{
             error!("⛔ local and remote chain are both invalid");
             panic!("⛔ local and remote chain are both invalid"); //// when we use panic there is no need to return something else
@@ -952,29 +914,11 @@ impl Chain{
     }
 
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                         Block Schema
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-#[derive(Serialize, Deserialize, Clone, Debug, BorshDeserialize, BorshSerialize)] //// encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone, Debug)] //// encoding or serializing process is converting struct object into utf8 bytes - decoding or deserializing process is converting utf8 bytes into the struct object
 pub struct Block{
+    #[borsh_skip] //// we have to skip serializing the id since brosh doesn't support uuid 
     pub id: Uuid,
     pub index: u32,
     pub is_genesis: bool,
@@ -1120,24 +1064,8 @@ impl Default for Block{
 
     }
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                      Merkle Tree Schema
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //// Rc is a smart pointer used for counting the incoming references to the type which shared its ownership using &
 //// and see how many owners the borrowed type has in its entire scope as long as its lifetime is not dropped also 
 //// it has nothing to do with the garbage collection rule cause rust doesn't have it.
@@ -1145,24 +1073,24 @@ impl Default for Block{
 //// all transactions inside a block will be stored in form of a merkle tree and since 
 //// it'll chain transaction hash together is a useful algorithm for proof of chain.
 #[derive(Debug)]
-pub struct Node{
+pub struct MerkleNode{
     pub id: Uuid,
     pub data: Transaction, //// in each node data is the transaction hash; if the data is of type Transaction just call the data.hash since the hash of the transaction has been generated in different TLPs
-    pub parent: RefCell<Weak<Node>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<Node>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
-    pub children: RefCell<Vec<Rc<Node>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<Node>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
+    pub parent: RefCell<Weak<MerkleNode>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<MerkleNode>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
+    pub children: RefCell<Vec<Rc<MerkleNode>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<MerkleNode>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
 }
 
-impl Node{
+impl MerkleNode{
 
     pub fn is_leaf(&mut self) -> bool{
         todo!();
     }
 
-    pub fn add_child(&mut self, node: Node){
+    pub fn add_child(&mut self, node: MerkleNode){
         self.children.borrow_mut().push(Rc::new(node)); //// in order to push into the self.children field we have to borrow it as mutable at runtime since it has wrapped around the RefCell
     }
 
-    pub fn children(&mut self, node: Node) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
+    pub fn children(&mut self, node: MerkleNode) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
         if node.children.borrow_mut().len() != 0{ //// first borrow the ownership of the self.children field at runtime then check its length
             Ok(node.children.borrow_mut().to_vec()) //// we have to borrow the ownership of the self.children field at runtime and convert it to vector to return it cause it's inside RefCell
         } else{
@@ -1170,7 +1098,7 @@ impl Node{
         }
     }
 
-    pub fn generate_hash(&mut self, right_node: Node) -> String{
+    pub fn generate_hash(&mut self, right_node: MerkleNode) -> String{
 
         // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
         // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
@@ -1182,26 +1110,8 @@ impl Node{
 
     }
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                        Transaction Schema
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 //// `Ed25519` is being used instead of `ECDSA` as the public-key 
 //// (asymmetric) digital signature encryption to generate the 
 //// wallet address keypair the public and private keys; the hash 
@@ -1403,11 +1313,9 @@ impl Transaction{
     }
     
     fn cut_extra_bytes_from(hash: String) -> String{
-        //////////////
-        // SAMPLE HASH
-        //////////////
-        // $argon2i$v=19$m=16,t=2,p=1$d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
-        let hash = &hash[27..]; //// d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        // SAMPLE HASH: $argon2i$v=19$m=16,t=2,p=1$d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        // OUTPUT     : d2lsZG9uaW9uMjAxNw$+KaF8vyVKUdY/NqU9wf2Pg
+        let hash = &hash[27..]; 
         hash.to_string()
     }
 
@@ -1454,27 +1362,8 @@ impl Transaction{
     }
 
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-//                                                      Db and Storage Schemas
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 
 #[derive(Clone, Debug)] //// can't bound Copy trait cause engine and url are String which are heap data structure 
 pub struct Db{
@@ -1538,11 +1427,5 @@ pub enum Mode{ //// enum uses 8 bytes (usize which is 64 bits on 64 bits arch) t
     On, //// zero byte size
     Off, //// zero byte size
 }
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-
-
-
-
 
  
