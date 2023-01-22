@@ -251,7 +251,7 @@ pub async fn bootstrap(
             //// from the hash of the alst element of the generated 
             //// 64 bytes multiaddr. 
             let peer_id = PeerId::from_multihash(hash).expect("❌ valid hash MUST be passed");
-            event_loop.dial(peer_id, addr).await; //// dial the given peer at the given address
+            event_loop.dial(peer_id, addr).await.unwrap(); //// dial the given peer at the given address
         }
     }
     

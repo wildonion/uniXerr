@@ -273,14 +273,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// scheduling the "getting default parachain blockchain" task
     //// to be executed every 5 seconds using tokio cron scheduler.
 
-    let mut parachain_scheduler = JobScheduler::new().await;
-    parachain_scheduler.add(Job::new_repeated_async(Duration::from_secs(5), |_uuid, _l| Box::pin(async move {
+    let mut parachain_scheduler = JobScheduler::new().await.unwrap();
+    parachain_scheduler.add(Job::new_repeated_async(Duration::from_secs(5), |_uuid, _l| Box::pin({
         info!("➔ 🔗🧊 getting blockchain every 5 seconds from the default parachain");
         //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current blockchain event cause the parachain is guarded by the ActorRef
         //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
-        let blockchain_remote_handle: RemoteHandle<Chain> = ask(&coiniXerr_sys, &parachain_0, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
-        blockchain = blockchain_remote_handle.await; //// update the blockchain variable with the latest one inside the parachain
-    })).await.unwrap());
+        let blockchain_remote_handle: RemoteHandle<Chain> = ask(&coiniXerr_sys.clone(), &parachain_0.clone(), ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
+        blockchain = block_on(blockchain_remote_handle) //// update the blockchain variable with the latest one inside the parachain
+    })).unwrap());
     #[cfg(feature="signal")]
     parachain_scheduler.shutdown_on_ctrl_c();
     parachain_scheduler.set_shutdown_handler(Box::new(|| {
@@ -288,8 +288,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         info!("🔌 shut down parachain scheduler done");
       })
     }));
-    parachain_scheduler.start().await;
-    tokio::time::sleep(Duration::from_secs(100)).await; //// waiting a while so that the job actually run
+
+    tokio::spawn(async move{
+        parachain_scheduler.start(); //// start the cron job insise the tokio worker green threadpool
+    });
+
+
 
 
 
@@ -315,8 +319,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         default_parachain_uuid.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
         coiniXerr_sys.clone()
       ).await; //// cap'n proto RPC
     
@@ -335,8 +339,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         default_parachain_uuid.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
         coiniXerr_sys.clone()
       ).await; //// tokio TCP 
 
@@ -355,8 +359,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         default_parachain_uuid.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
         coiniXerr_sys.clone()
       ).await; //// tokio UDP 
     
@@ -376,8 +380,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         parachain_updated_channel.clone(),
         cloned_arc_mutex_runtime_info_object.clone(),
         meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_new_chain_channel.clone(),
         coiniXerr_sys.clone()
     ).await; //// libp2p stack based on tokio TCP and gossipsub pub/sub pattern
@@ -437,8 +441,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         //          CURRENT VALIDATOR SUBSCRIBES TO NEW CHAIN ACCEPTED FROM A PEER
         // ---------------------------------------------------------------------------------
         
+        let new_chain_channel = cloned_arc_mutex_new_chain_channel.lock().unwrap(); //// lockcing on the mutex to avoid deadlock and race condition in other threads
         info!("➔ 🙌🏻 current validator subscribes to the new chain accepted from a peer");
-        cloned_arc_mutex_new_chain_channel.tell( //// telling the channel that an actor wants to subscribe to a topic
+        new_chain_channel.tell( //// telling the channel that an actor wants to subscribe to a topic
             Subscribe{ 
                 actor: Box::new(mutex_validator_actor.clone()), //// mutex_validator_actor wants to subscribe to - since in subscribing a message the subscriber or the actor must be bounded to Send trait thus we must either take a reference to it like &dyn Tell<Msg> + Send or put it inside the Box like Box<dyn Tell<Msg> + Send> to avoid using lifetime directly since the Box is a smart pointer and has its own lifetime     
                 topic: "<parachain updated with a new chain from a peer>".into() //// <parachain updated with a new chain from a peer> topic

@@ -450,7 +450,8 @@ impl P2PSwarmEventLoop{
                         //// should be inside the streaming loop of the mempool channels to notify
                         //// validators about the new chain in every stream of incoming transaction
                         //// which will be slided into the downside of the mempool channel.
-                        self.cloned_arc_mutex_new_chain_channel.tell( //// telling the channel that we want to publish something
+                        let new_chain_channel = self.cloned_arc_mutex_new_chain_channel.lock().unwrap(); //// lockcing on the mutex to avoid deadlock and race condition in other threads
+                        new_chain_channel.tell( //// telling the channel that we want to publish something
                             Publish{
                                 msg: UpdateValidatorAboutNewChain((parachain_data.id.clone(), PEER_ID.clone().to_string())), //// publishing the UpdateValidatorAboutNewChain message event to the cloned_arc_mutex_new_chain_channel channel, passing the parachain uuid and the peer_id as the params
                                 topic: "<parachain updated with a new chain from a peer>".into(), //// setting the topic to <parachain updated with a new chain from a peer> so all subscribers of this channel (all validator actors) can subscribe and react to this topic of this message event
