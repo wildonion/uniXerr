@@ -353,7 +353,7 @@ impl Receive<UpdateValidatorAboutNewChain> for Validator{
                 _msg: UpdateValidatorAboutNewChain, //// _msg is of type UpdateValidatorAboutNewChain since we're implementing the Receive trait for the UpdateValidatorAboutNewChain type
                 _sender: Sender){ //// _sender is a BasicActorRef that can setup a message that must be sent to an actor using try_tell() method
         
-        info!("➔ new chain with id [{:#?}] has been update by peer with [{:#?}]", _msg.0.0, _msg.0.1) //// _msg.0 is of type UpdateValidatorAboutNewChain which is a tuple like struct so first elem is the parachain uuid and the second one is the peer_id that we've received the chain from
+        info!("➔ new chain with id [{:#?}] has been updated by peer with id [{:#?}]", _msg.0.0, _msg.0.1) //// _msg.0 is of type UpdateValidatorAboutNewChain which is a tuple like struct so first elem is the parachain uuid and the second one is the peer_id that we've received the chain from
    
         // other logics goes here
         // ...
