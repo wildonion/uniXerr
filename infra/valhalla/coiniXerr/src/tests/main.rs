@@ -724,6 +724,20 @@ pub async fn trash(){
             }
         )().await;
     });
+
+    //----------------------------
+    let clsMe = |name: String| { //// we can also put the closure body inside a curly braces
+        Box::pin(async {
+            name
+        });
+    };
+    let clsMe = |name: String| Box::pin(async{ //// since the return type is a Pin<Box<T>> there is no need to put the Box::pin inside curly braces since it's a single line code logic
+        name
+    });
+    //----------------------------
+
+    
+    cls("wildonion".to_string());
 	
 	
     pub struct Complex{
