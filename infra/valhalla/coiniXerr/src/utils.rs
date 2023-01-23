@@ -443,30 +443,49 @@ pub fn gen_random_number(from: u32, to: u32) -> u32{
 
 
 
-// TODO - implement custom error for the coiniXerr app
+// TODO - implement custom error for the coiniXerr node
 // ...
+pub type NodeErr<'m> = AppError<'m>;
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Debug)]
-pub struct AppError{
+pub struct AppError<'m>{
     pub code: u16,
-    pub msg: String,
+    pub msg: &'m str,
 }
 
 
-impl AppError{
+impl<'m> AppError<'m>{
 
-    pub async fn show(){
-        (
-            || async move{
-                34
-            }
-        )().await;
+    pub fn new(msg: &'m str, code: u16) -> Self{
+        Self{
+            msg,
+            code,
+        }
+    }
+
+    pub fn get_uuid(&self) -> Option<u16>{
+        Some(self.code)
+    }
+
+    pub fn get_msg(&self) -> Option<String>{
+        Some(self.msg.to_string())
+    }
+
+    //// here we're using the passed in lifetime ('m) into the implementation 
+    //// to set the msg field since is of type &str and we can't return a reference
+    //// from the function which is owned by the function without a specific lifetime.
+    pub fn set_msg(&mut self, msg: &'m str) -> Self{
+        self.msg = msg;
+        Self{ 
+            msg: self.msg,
+            code: self.code
+        }
     }
 
 }
 
 
 
-impl fmt::Display for AppError{ // implementing the formatter Display trait for the AppError struct to log every instance of it in a specific format to the console using println!() macro
+impl<'m> fmt::Display for AppError<'m>{ // implementing the formatter Display trait for the AppError struct to log every instance of it in a specific format to the console using println!() macro
     
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result{ // self refers to the instance of the AppError
         f.write_fmt( // write the TheDoError args into a formatter which is `f` in here

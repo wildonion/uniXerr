@@ -23,7 +23,7 @@ use std::fmt;
 
 
 
-pub static mut ARR: [u8; 3] = [0; 3];
+pub static mut ARR: [u8; 3] = [0; 3]; //// filling the array with zeros 3 times
 
 
 
@@ -439,7 +439,7 @@ pub async fn trash(){
 	}
 
     // by returning the impl Interface for the type that is being returned we can call the trait methods on the type when we're calling the following method since we're returning acutally kinda an instance of the type
-	fn return_impl_trait() -> impl Interface { // NOTE - returning impl Trait from function means we're implementing the trait for the object that is returning from the function regardless of its type that we're returning from the function cause compiler will detect the correct type in compile time and implement or bound the trait for that type
+	fn return_impl_trait() -> impl Interface { // NOTE - returning impl Trait from function means we're implementing the trait for the object that is returning from the function regardless of its type that we're returning from the function cause compiler will detect the correct type in compile time and implement or bound the trait for that type if the trait has implemented for that type (the trait MUST be implemented for that type)
 	    Pack {}
 	}
 
@@ -532,9 +532,9 @@ pub async fn trash(){
 	    }
 
 	    fn ref_struct(num_thread: &u8) -> &Pack{ //// returning ref from function to a pre allocated data type (not inside the function) Pack struct in our case, is ok
-            let instance = Pack::new(); //// since new() method of the Pack struct will return a new instance of the struct which is allocated on the stack and is owned by the function thus we can't return a reference to it or as a borrowed type
-            // &t //// it's not ok to return a reference to `instance` since `instance` is a local variable which is owned by the current function and its lifetime is valid as long as the function is inside the stack and executing which means after executing the function its lifetime will be dropped
-            let instance = &Pack{}; //// since we're allocating nothing on the stack inside this function thus by creating the instance directly using the the Pack struct and without calling the new() method which is already lives in memory with long enough lifetime we can return a reference to the location of the instance of the pack from the function
+            let instance = Pack::new(); //// since new() method of the Pack struct will return a new instance of the struct which is allocated on the stack and is owned by the function thus we can't return a reference to it or as a borrowed type because it's owned by the function scope
+            // &instance //// it's not ok to return a reference to `instance` since `instance` is a local variable which is owned by the current function and its lifetime is valid as long as the function is inside the stack and executing which means after executing the function its lifetime will be dropped
+            let instance = &Pack{}; //// since we're allocating nothing on the stack inside this function thus by creating the instance directly using the the Pack struct and without calling the new() method (which is already lives in memory with long enough lifetime) we can return a reference to the location of the instance of the pack from the function and the reference will be stored inside the caller (where this function has called)
             instance //// it's ok to return a reference to `instance` since the instance does not allocate anything on the stack thus taking a reference to already allocated memory with long enough lifetime is ok since the allocated memory is happened in struct definition line
 	    }
 
@@ -715,6 +715,15 @@ pub async fn trash(){
     // (||async move{})().await
     let this = (||async move{});
     this().await;
+
+    // a closure inside a Box which will call another closure
+    Box::new( || async move{
+        (
+            || async move{
+                34
+            }
+        )().await;
+    });
 	
 	
     pub struct Complex{
@@ -797,7 +806,7 @@ pub async fn trash(){
 
     
 
-    let names = ( //// building and calling the async closure at the same time
+    let names =  //// building and calling the async closure at the same time
         (|x| async move{ //// the return body is a future object which must be solved later using .await and move will move everything from the last scope into its scope  
             let names = (0..x)
                 .into_iter()
@@ -807,8 +816,7 @@ pub async fn trash(){
                 })
                 .collect::<Vec<String>>();
             names
-        })
-    )(23).await;
+        })(23).await;
 
 
 
@@ -817,6 +825,10 @@ pub async fn trash(){
         panic!("the else part");
     };
 
+    // a function is created using () also
+    // calling a function is done by using ()
+    // thus by using ()() we're building and calling
+    // the function at the same time
     let res = { // res doesn't have any type
         ( // building and calling at the same time inside the res scope
             |x| async move{
@@ -824,7 +836,6 @@ pub async fn trash(){
             }
         )(34).await; 
     };
-    
 
 
     // nodejs like function call
@@ -867,13 +878,13 @@ pub async fn trash(){
 pub async fn mactrait(){
 
 
-    
+    struct DataGat;
     /////////////////////////////////////////////////////////
     trait BorrowArray<T> where Self: Send + Sized{
         
         // GAT example with lifetime, generic and trait bounding
         type Array<'x, const N: usize> where Self: 'x;
-        type Data: Send + Sync + 'static;
+        type Data: Send + Sync + 'static = DataGat;
     
         fn borrow_array<'a, const N: usize>(&'a mut self) -> Self::Array<'a, N>;
     }
@@ -1255,6 +1266,23 @@ pub async fn unsafer(){
     // *pointer_var = *changed; // ERROR - even though `pointer_var` is mutable but can't rewrite the data which `pointer_var` is refering to cause `var` is not mutable
     // println!("`pointer_var` is not changed cause the data it referes (`var`) to it's not mutable {}", pointer_var);
 
+
+    let mut x = 0;
+    let mut y = &mut x; //// mutable borrow to x
+    
+    *y = 2; // since y is a reference in order to change its value we have to dereference it first
+    
+    // can't use both immutable and mutable borrow at the same time 
+    // one of the following must be commented in order to compile correctly
+    // since in logging the type will be passed in its borrowed form to 
+    // the println!() macro thus in the first line of the following
+    // x is passed immutably or &x to the println!() on the other hand in
+    // the second line y is a mutable pointer of x means its a &mut x
+    // thus we have two pointers of a same type one is immutable and the other
+    // is mutable rust doesn't allow us to have immutable pointer when we're borrowing
+    // it as mutable: cannot borrow `x` as immutable because it is also borrowed as mutable
+    println!("x is {}", x); // immutable logging
+    println!("y is {}", y); // mutable pointer to x logging 
 
 
     let mut a = 32;

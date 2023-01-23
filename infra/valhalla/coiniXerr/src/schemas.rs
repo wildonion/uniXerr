@@ -466,7 +466,9 @@ impl P2PSwarmEventLoop{
                 //// we're sending a local chain to `propagation_source` or a peer.
                 else if let Ok(chain_request) = serde_json::from_slice::<P2PLocalChainRequest>(&message.data){
                     let sender_peer_id = chain_request.from_peer_id;
-                    if PEER_ID.clone().to_string() == sender_peer_id{
+                    //// if the sender id was this node we must send the 
+                    //// current blockchain to the downside of the channel 
+                    if PEER_ID.clone().to_string() == sender_peer_id{ 
                         let mut parachain_data = self.get_parachain_data().await;
                         //// sending a local chain response to the peer
                         //// that has initialized the request to downside 
@@ -500,8 +502,8 @@ impl P2PSwarmEventLoop{
                 let sender: oneshot::Sender<()> = self
                     .pending_start_providing
                     .remove(&id)
-                    .expect("❌ key with this id MUST be exists");
-                let _ = sender.send(());    
+                    .expect("❌ in `pending_start_providing` hashmap key with this id MUST be exists");
+                let _ = sender.send(()); 
             },
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
                 KademliaEvent::OutboundQueryProgressed{ 

@@ -257,6 +257,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
+    
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     ///////         getting the latest chain of the default parachain 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -270,17 +271,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     // ----------------------------------------------------------------------
     //            GETTING THE BLOCKCHAIN OF THE DEFAULT PARACHAIN
     // ----------------------------------------------------------------------
-    //// scheduling the "getting default parachain blockchain" task
-    //// to be executed every 5 seconds using tokio cron scheduler.
+    //// scheduling to get the default parachain blockchain
+    //// every 5 seconds using tokio cron scheduler.
 
     let mut parachain_scheduler = JobScheduler::new().await.unwrap();
-    parachain_scheduler.add(Job::new_repeated(Duration::from_secs(5), move |_uuid, _l| -> (ActorSystem, ActorRef<ParachainMsg>, ){
+    parachain_scheduler.add(Job::new_async(Duration::from_secs(5), |_uuid, mut _lock| Box::pin(async{
         info!("➔ 🔗🧊 getting blockchain every 5 seconds from the default parachain");
         //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current blockchain event cause the parachain is guarded by the ActorRef
         //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
         let blockchain_remote_handle: RemoteHandle<Chain> = ask(&coiniXerr_sys.clone(), &parachain_0.clone(), ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
-        blockchain = block_on(blockchain_remote_handle); //// update the blockchain variable with the latest one inside the parachain
-    }).unwrap());
+        blockchain = blockchain_remote_handle.await; //// update the blockchain variable with the latest one inside the parachain
+    })).await.unwrap());
     #[cfg(feature="signal")]
     parachain_scheduler.shutdown_on_ctrl_c();
     parachain_scheduler.set_shutdown_handler(Box::new(|| {
@@ -290,8 +291,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     }));
 
     tokio::spawn(async move{
-        parachain_scheduler.start(); //// start the cron job insise the tokio worker green threadpool
+        parachain_scheduler.start(); //// start the cron job insise the tokio worker green threadpool in the background
     });
+
+
 
 
 
