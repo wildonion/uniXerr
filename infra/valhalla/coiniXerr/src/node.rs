@@ -268,9 +268,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// from the daemonize() function to make sure that we're 
     //// mining and verifying on the latest chain. 
     
-    // ----------------------------------------------------------------------
-    //            GETTING THE BLOCKCHAIN OF THE DEFAULT PARACHAIN
-    // ----------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------
+    //            GETTING THE BLOCKCHAIN OF THE DEFAULT PARACHAIN EVERY 5 SECONDS
+    // -------------------------------------------------------------------------------------
     //// scheduling to get the default parachain blockchain
     //// every 5 seconds using tokio cron scheduler.
 
@@ -387,7 +387,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         cloned_arc_mutex_validator_actor.clone(),
         cloned_arc_mutex_new_chain_channel.clone(),
         coiniXerr_sys.clone()
-    ).await; //// libp2p stack based on tokio TCP and gossipsub pub/sub pattern
+    ).await; //// libp2p stack based on tokio TCP, kademlia DHT peer routing and gossipsub pub/sub pattern
 
 
 

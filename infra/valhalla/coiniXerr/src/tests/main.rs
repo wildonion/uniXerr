@@ -386,7 +386,7 @@ pub async fn trash(){
 	// =============================================================================================================================
     // =============================================================================================================================
     // =============================================================================================================================
-    //                                                 GENERIC AND LIFETIMES
+    //                                                GENERIC, LIFETIMES AND CLOSURES
 	// =============================================================================================================================
     // =============================================================================================================================
     // =============================================================================================================================
@@ -395,7 +395,22 @@ pub async fn trash(){
     //    use it it'll be unused which the won't compile hence to fix the issue we must put the generic type inside a PhantomData struct
 	// ➔ generic types in function signature can be bounded to lifetimes and traits so we can use the lifetime to avoid having dangling pointer of the generic type in function body and traits to extend the type interface
 
+    // defining closure in struct field using where, Box and trait bounding   
+    struct TestMe<F>
+        where F: FnMut(String) -> String{
+        pub method: F,
+    }
+     
+    struct TestMe<F: FnMut(String) -> String>{
+        pub method: F,
+    }
+
+    struct TestMeAgain{
+        pub method : Box<dyn FnMut(String) -> String>
+    }
+
     // https://stackoverflow.com/questions/27831944/how-do-i-store-a-closure-in-a-struct-in-rust
+    // NOTE - defaults for type parameters are only allowed in `struct`, `enum`, `type`, or `trait` definitions
     pub struct GenFn<T, F = fn() -> T>{ //// the default type parameter of generic F is a function pointe or fn() 
         pub one_field: T,
         pub sec_field: F,
@@ -414,6 +429,7 @@ pub async fn trash(){
     };
 
 
+    // order must be lifetimes, then consts and types
 	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //// based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we wanto to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field
 	    fn into(self) -> Vec<u8> {
             self.arr.to_vec()
@@ -712,11 +728,13 @@ pub async fn trash(){
     // =============================================================================================================================
     // closure coding - trait must be inside Box or use with &dyn Trait if they want to be referenced
 	
-    // (||async move{})().await
-    let this = (||async move{});
-    this().await;
+    (||async move{})().await; // building, calling and awaiting at the same time
+    let this = (||async move{})(); // building and calling closure at the same time
+    this.await; // await on the this since the closure body is a future object
+    let this = (||async move{}); // building the closure inside ()
+    this().await; // calling the closure and await on it since the body of the closure inside () is a future object
 
-    // a closure inside a Box which will call another closure
+    // a closure inside a Box with async body which will build, call and await on another closure with async body 
     Box::new( || async move{
         (
             || async move{
@@ -725,11 +743,63 @@ pub async fn trash(){
         )().await;
     });
 
+
+    // ===========================================================================================
+    // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
+    // ➔ closures can be Copy but the dyn Trait are not. dyn means its concrete type(and its size) 
+    //      can only be determined at runtime, but function parameters and return types 
+    //      must have statically known size.
+    // ➔ dyn Trait types are dynamically sized types, and cannot be passed as parameters directly. 
+    //      They need to be behind a pointer like &dyn Trait or Box<dyn Trait>.
+    // ➔ dynamic sized types like traits must be in form dyn T which is not an exact type, 
+    //      it is an unsized type, we'd have to use some kind of reference or Box to address it
+    //      means Trait objects can only be returned behind some kind of pointer.
+    pub trait Interface{}
+    pub type BoxeFutureShodeh = Box<dyn Future<Output=BoxedShodeh>>;
+    pub type BoxedShodeh = Box<dyn FnOnce(String) -> String + Send + Sync + 'static>;
+    impl Interface for BoxedShodeh{}
+    impl Interface for (){} // we must impl Interface for () in order to be able to impl Interface for () (the return type) inside the test_() function
+
+    fn test<'l, T>() where T: FnMut(String) -> String + Send + Sync + 'static + 'l{
+        
+        () // or simply comment this :)
+        
+    }
+    fn _test<'l, T: FnMut(String) -> String + Send + Sync + 'static>(){
+        
+        () // or simply comment this :)
+                
+    }
+    // type aliases cannot be used as traits so test_<'l, T: BoxedShodeh> is wrong
+    // also the return type is () and we're impl Interface for the return type in
+    // function signature thus Interface trait must be implemented for () before 
+    // doing this.
+    fn test_<'l>(param: BoxeFutureShodeh) -> impl Interface{ // or impl Future<Output=Boxed> the default type param output is of type Boxed
+        
+        () // or simply comment this :)
+        
+    }
+    // ERROR: expected trait object `dyn FnMut`, found closure
+    fn test_0() -> BoxeFutureShodeh{
+        Box::new(
+            async{ // async blocks are future objects
+                Box::new(
+                    |name: String|{
+                        name
+                    }
+                )
+            }
+        )
+    }
+    // ===========================================================================================
+
+    
+
     //----------------------------
     let clsMe = |name: String| { //// we can also put the closure body inside a curly braces
         Box::pin(async {
             name
-        });
+        })
     };
     let clsMe = |name: String| Box::pin(async{ //// since the return type is a Pin<Box<T>> there is no need to put the Box::pin inside curly braces since it's a single line code logic
         name

@@ -44,15 +44,3 @@ An Actor, Gossipsub P2P Pub/Sub, Sharded TCP, UDP and RPC Based Design Pattern R
 * use `rpc_tx_emulator` method to send fake transactions to the coiniXerr nodes through the RPC Protocol.
 
 * coiniXerr node can use the `user_data` macro to fetch all the information of a specific user from the **Conse** server for the authentication process. 
-
-### 🚧 WIP 
-
-* handle other P2P topics inside the swarm event loop
-
-* complete RPC setup and `rcp_tx_emultator()` function
-
-* HAProxy, k8s-ing docker containers in `docker-compose.yml` and CI/CD in `app.sh`.
-
-* `StorageModel` ORM trait methods, Rafael runtime and its log, onion actors, utils macros and methods, reset slot in parachain actor and consensus algorithms
-
-* complete wiki
