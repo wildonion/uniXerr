@@ -394,21 +394,6 @@ pub async fn trash(){
     // ➔ the generic type of a structure must be used for one of its field since compiler allocated some sapce for it and if we don't
     //    use it it'll be unused which the won't compile hence to fix the issue we must put the generic type inside a PhantomData struct
 	// ➔ generic types in function signature can be bounded to lifetimes and traits so we can use the lifetime to avoid having dangling pointer of the generic type in function body and traits to extend the type interface
-
-    // defining closure in struct field using where, Box and trait bounding   
-    struct TestMe<F>
-        where F: FnMut(String) -> String{
-        pub method: F,
-    }
-     
-    struct TestMe<F: FnMut(String) -> String>{
-        pub method: F,
-    }
-
-    struct TestMeAgain{
-        pub method : Box<dyn FnMut(String) -> String>
-    }
-
     // https://stackoverflow.com/questions/27831944/how-do-i-store-a-closure-in-a-struct-in-rust
     // NOTE - defaults for type parameters are only allowed in `struct`, `enum`, `type`, or `trait` definitions
     pub struct GenFn<T, F = fn() -> T>{ //// the default type parameter of generic F is a function pointe or fn() 
@@ -744,7 +729,43 @@ pub async fn trash(){
     });
 
 
-    // ===========================================================================================
+    //// when an object or a value is moved into another value
+    //// it'll relocate into a new position inside the ram and we can 
+    //// prevent this from happening using Pin
+    //
+    //// Pin<P> are objects of pointer type P that are fixed in memory. 
+    //// It occupies and keeps its position until it is dropped. In Rust, 
+    //// basically all types are portable. In other words, we can move 
+    //// an object of a type to another variable by-value. When the 
+    //// ownership of an object is moved from one variable to another, 
+    //// the object can be relocated. Pin<P> is a type surrounding a 
+    //// pointer, we can use Pin<Box <T>> like Box<T> and similarly 
+    //// Pin<&mut T> can be used as & mut T
+    //
+    //// type behind a pointer means that there is a pointer that 
+    //// is pointing to the location of that type either inside
+    //// the stack or heap also we have to put a pointer of the
+    //// type that we want to pin it into the memory inside the Pin
+    //// which can be done either by using Box (Box<dyn> or &dyn for dynamic sized) 
+    //// or & like Pin<Box<dyn Trait>>, Pin<Box<T>>, Pin<&mut T> or Pin<&T>
+    //
+    //// Rust provides three different traits Fn , FnMut , and FnOnce that 
+    //// can be used as trait bounds for closure arguments, each closure 
+    //// implements one of these three traits, and what trait is automatically 
+    //// implemented depends on how the closure captures its environment
+    //
+    // https://blog.cloudflare.com/pin-and-unpin-in-rust/
+    // https://fasterthanli.me/articles/pin-and-suffering
+    // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
+    // https://medium.com/tips-for-rust-developers/pin-276bed513fd1
+    //// - for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
+    //// - future objects must be Send and static and types that must be shared between threads must be send sync and static 
+    //// - Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
+    type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //// capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
+    type CallbackResponse = Box<dyn Future<Output=GenericResult<hyper::Response<hyper::Body>, hyper::Error>> + Send + Sync + 'static>; //// CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
+    type SafeShareAsync = Arc<Mutex<std::pin::Pin<Box<dyn Future<Output=u8> + Send + Sync + 'static>>>>; //// this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and threads until we await on it 
+    type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<hyper::Body>) -> hyper::Response<hyper::Body> + Send + Sync + 'static>>>; //// this type is safe and sendable to share between threads also it can be mutated by a thread using a mutex guard; we have to use the &dyn keyword or put them inside the Box<dyn> for traits if we want to treat them as a type since they have no sepecific size at compile time thus they must be referenced by the &dyn or the Box<dyn> 
+    // trait bounding using where, Box and trait bounding   
     // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
     // ➔ closures can be Copy but the dyn Trait are not. dyn means its concrete type(and its size) 
     //      can only be determined at runtime, but function parameters and return types 
@@ -754,6 +775,19 @@ pub async fn trash(){
     // ➔ dynamic sized types like traits must be in form dyn T which is not an exact type, 
     //      it is an unsized type, we'd have to use some kind of reference or Box to address it
     //      means Trait objects can only be returned behind some kind of pointer.
+    struct TestMeWhere<F>
+        where F: FnMut(String) -> String{
+        pub method: F,
+    }
+     
+    struct TestMeBound<F: FnMut(String) -> String>{
+        pub method: F,
+    }
+
+    struct TestMeBox{
+        pub method : Box<dyn FnMut(String) -> String>
+    }
+    
     pub trait Interface{}
     pub type BoxeFutureShodeh = Box<dyn Future<Output=BoxedShodeh>>;
     pub type BoxedShodeh = Box<dyn FnOnce(String) -> String + Send + Sync + 'static>;
@@ -779,21 +813,33 @@ pub async fn trash(){
         () // or simply comment this :)
         
     }
-    // ERROR: expected trait object `dyn FnMut`, found closure
-    fn test_0() -> BoxeFutureShodeh{
-        Box::new(
-            async{ // async blocks are future objects
+    //// a trait object (dyn Trait) is an unsized type, it can't be used directly 
+    //// instead, we interact with it through a reference, typically we put trait 
+    //// objects in a Box<dyn Trait> or use &dyn Trat, though with futures we might have to 
+    //// pin the box as well means if we want to return a future object first we
+    //// must put the future inside the Box since Future is a trait and second 
+    //// we must pin the Box to prevent it from being relocated inside the ram
+    //// the reason that why we must put the Box inside the Pin is because Pin
+    //// takes a pointer of the type to pin it and our pointer in our case must 
+    //// be either &dyn Future or Box<dyn Future> since Future is a trait and 
+    //// trait objects are dynamic sized we must use dyn keyword thus our type 
+    //// will be Pin<Box<dyn Future<Output=T>>>
+    fn test_1<C
+                // : FnOnce(String) -> String + Send + Sync + 'static // or we can use this syntax
+                >() 
+        -> Pin<Box<dyn Future<Output=Box<C>>>> 
+    where C: FnOnce(String) -> String + Send + Sync + 'static{
+        let b = async{ // async blocks are future objects
                 Box::new(
-                    |name: String|{
+                    move |name: String|{
                         name
                     }
                 )
-            }
-        )
+            };
+        
+        Box::pin(b) // ERROR: expected trait object `dyn FnOnce`, found closure
     }
-    // ===========================================================================================
 
-    
 
     //----------------------------
     let clsMe = |name: String| { //// we can also put the closure body inside a curly braces
