@@ -761,10 +761,13 @@ pub async fn trash(){
     //// - for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
     //// - future objects must be Send and static and types that must be shared between threads must be send sync and static 
     //// - Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
+    type GenericResult<T, E> = std::result::Result<T, E>;
     type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //// capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
-    type CallbackResponse = Box<dyn Future<Output=GenericResult<hyper::Response<hyper::Body>, hyper::Error>> + Send + Sync + 'static>; //// CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
-    type SafeShareAsync = Arc<Mutex<std::pin::Pin<Box<dyn Future<Output=u8> + Send + Sync + 'static>>>>; //// this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and threads until we await on it 
+    type CallbackResponse = Box<dyn std::future::Future<Output=GenericResult<hyper::Response<hyper::Body>, hyper::Error>> + Send + Sync + 'static>; //// CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
+    type SafeShareAsync = Arc<Mutex<std::pin::Pin<Box<dyn std::future::Future<Output=u8> + Send + Sync + 'static>>>>; //// this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and threads until we await on it 
     type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<hyper::Body>) -> hyper::Response<hyper::Body> + Send + Sync + 'static>>>; //// this type is safe and sendable to share between threads also it can be mutated by a thread using a mutex guard; we have to use the &dyn keyword or put them inside the Box<dyn> for traits if we want to treat them as a type since they have no sepecific size at compile time thus they must be referenced by the &dyn or the Box<dyn> 
+    
+    
     // trait bounding using where, Box and trait bounding   
     // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
     // ➔ closures can be Copy but the dyn Trait are not. dyn means its concrete type(and its size) 
@@ -788,11 +791,11 @@ pub async fn trash(){
         pub method : Box<dyn FnMut(String) -> String>
     }
     
-    pub trait Interface{}
-    pub type BoxeFutureShodeh = Box<dyn Future<Output=BoxedShodeh>>;
+    pub trait InterfaceMe{}
+    pub type BoxeFutureShodeh = Box<dyn std::future::Future<Output=BoxedShodeh>>;
     pub type BoxedShodeh = Box<dyn FnOnce(String) -> String + Send + Sync + 'static>;
-    impl Interface for BoxedShodeh{}
-    impl Interface for (){} // we must impl Interface for () in order to be able to impl Interface for () (the return type) inside the test_() function
+    impl InterfaceMe for BoxedShodeh{}
+    impl InterfaceMe for (){} // we must impl InterfaceMe for () in order to be able to impl InterfaceMe for () (the return type) inside the test_() function
 
     fn test<'l, T>() where T: FnMut(String) -> String + Send + Sync + 'static + 'l{
         
@@ -805,10 +808,10 @@ pub async fn trash(){
                 
     }
     // type aliases cannot be used as traits so test_<'l, T: BoxedShodeh> is wrong
-    // also the return type is () and we're impl Interface for the return type in
-    // function signature thus Interface trait must be implemented for () before 
+    // also the return type is () and we're impl InterfaceMe for the return type in
+    // function signature thus InterfaceMe trait must be implemented for () before 
     // doing this.
-    fn test_<'l>(param: BoxeFutureShodeh) -> impl Interface{ // or impl Future<Output=Boxed> the default type param output is of type Boxed
+    fn test_<'l>(param: BoxeFutureShodeh) -> impl InterfaceMe{ // or impl Future<Output=Boxed> the default type param output is of type Boxed
         
         () // or simply comment this :)
         
@@ -825,9 +828,9 @@ pub async fn trash(){
     //// trait objects are dynamic sized we must use dyn keyword thus our type 
     //// will be Pin<Box<dyn Future<Output=T>>>
     fn test_1<C
-                // : FnOnce(String) -> String + Send + Sync + 'static // or we can use this syntax
+                // : FnOnce(String) -> String + Send + Sync + 'static // or we can use this syntax instead of where
                 >() 
-        -> Pin<Box<dyn Future<Output=Box<C>>>> 
+        -> std::pin::Pin<Box<dyn std::future::Future<Output=Box<C>>>> 
     where C: FnOnce(String) -> String + Send + Sync + 'static{
         let b = async{ // async blocks are future objects
                 Box::new(
@@ -853,7 +856,7 @@ pub async fn trash(){
     //----------------------------
 
     
-    cls("wildonion".to_string());
+    clsMe("wildonion".to_string());
 	
 	
     pub struct Complex{
@@ -1014,7 +1017,7 @@ pub async fn mactrait(){
         
         // GAT example with lifetime, generic and trait bounding
         type Array<'x, const N: usize> where Self: 'x;
-        type Data: Send + Sync + 'static = DataGat;
+        type Data: Send + Sync + 'static; // can't set Data equals to DataGat here in trait defenition
     
         fn borrow_array<'a, const N: usize>(&'a mut self) -> Self::Array<'a, N>;
     }
