@@ -910,7 +910,7 @@ pub async fn generic(){
     this().await; // calling the closure and await on it since the body of the closure inside () is a future object
 
     // a closure inside a Box with async body which will build, call and await on another closure with async body 
-    Box::new( || async move{
+    let _ = Box::new( || async move{
         (
             || async move{
                 34
@@ -966,12 +966,12 @@ pub async fn generic(){
         () // or simply comment this :)
         
     } 
-    fn test_1<C
+    fn test_1<C, 'lifetime
                 // : FnOnce(String) -> String + Send + Sync + 'static // or we can use this syntax instead of where
                 >(c: C) // the passed in param is of type C which is a generic type which is bounded to the FnOnce trait
         -> (std::pin::Pin<Box<dyn std::future::Future<Output=Box<C>>>>,  //// we must put the generic C inside the Box not its equivalent which is a closure bounded to FnMut trait
             impl std::future::Future<Output=u8>) //// the return type is a tuple in which the second one impl a trait for the returned type
-        where C: FnOnce(String) -> String + Send + Sync + 'static //// the whole `FnOnce(String) -> String` is the trait defenition returns String type which we're bounding it to other traits and lifetimes
+        where C: FnOnce(String) -> String + Send + Sync + 'static + 'lifetime //// the whole `FnOnce(String) -> String` is the trait defenition returns String type which we're bounding it to other traits and lifetimes
     { 
         (
             Box::pin(
@@ -981,7 +981,7 @@ pub async fn generic(){
                     //// generic C itself not |name: String| name explicity!
                     Box::new(c) 
                 }
-            ), // ERROR: expected trait object `dyn FnOnce`, found closure
+            ),
             async{
                 78
             }

@@ -107,7 +107,7 @@ pub async fn bootstrap(
     ////       }
     ////    }
 
-    while let Some((
+    while let Some(( //// we're only interested in the Some part of the receiver channel
                     mut stream, 
                     generated_uuid, 
                     cloned_arc_mutex_runtime_info_object, 

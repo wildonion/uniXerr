@@ -190,7 +190,7 @@ pub async fn bootstrap(
     //// tokio worker green threadpool.
     tokio::spawn(async move{ 
         info!("➔ 📻 sending network initializing event to downside of the mpsc channel");
-        init_sender.send(true).await;
+        init_sender.send(true).await.unwrap(); //// sending true flag to downside of the channel of the network initialization event 
     });
 
     // -------------------------------------------
@@ -231,9 +231,9 @@ pub async fn bootstrap(
     info!("➔ 😵‍💫 running the swarm event loop");
     event_loop.run().await; //// run the swarm event loop to control the flow of the entire network based on coming event I/O task 
     
-    // ----------------------------------
-    //         DIALING TO A PEER
-    // ----------------------------------
+    // -------------------------------------------
+    //         DIALING TO A SPECIFIC PEER
+    // -------------------------------------------
 
     info!("➔ 📞 dialing to a peer");
     let peer: Option<Multiaddr> = Some(Multiaddr::with_capacity(64)); //// create a new, empty multiaddress utf8 bytes with the 64 bytes capacity

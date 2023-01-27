@@ -234,7 +234,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// returned here to pass them to different TLPs. 
     
     let (
-        mut current_slot, 
+        current_slot, 
         validator_joined_channel, 
         default_parachain_uuid,
         cloned_arc_mutex_runtime_info_object,
@@ -260,14 +260,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////         getting the latest chain of the default parachain 
+    ///////       getting the latest chain of the default parachain 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// we MUST get the latest chain of the default parachain 
     //// every 5 seconds since it might be updated with a new 
     //// chain from a peer inside the swarm event loop thus
     //// we have to update the `blockchain` variable returned 
     //// from the daemonize() function to make sure that we're 
-    //// mining and verifying on the latest chain. 
+    //// mining and verifying on the latest and verified chain. 
     
     // -------------------------------------------------------------------------------------
     //            GETTING THE BLOCKCHAIN OF THE DEFAULT PARACHAIN EVERY 5 SECONDS

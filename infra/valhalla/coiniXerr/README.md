@@ -35,7 +35,9 @@ An Actor, Gossipsub P2P Pub/Sub, Sharded TCP, UDP and RPC Based Design Pattern R
 
 * walleXerr communicates with coiniXerr network through the RPC stream with the cap'n proto as the serialization protocol.
 
-* a transaction can also be sent through a TCP and UDP stream (bootstrapped with tokio) from a TCP or UDP client
+* a transaction can also be sent through a TCP and UDP stream (bootstrapped with tokio) from a TCP or UDP client for verifying and block mining process.
+
+* only TCP, UDP and RPC protocols are responsible for transaction and block verifying and mining process. 
 
 * use `tcp_tx_emulator` method to send fake transactions to the coiniXerr nodes through the TCP Protocol.
 

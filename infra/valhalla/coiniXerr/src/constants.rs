@@ -26,10 +26,6 @@ pub const EMPTY: &str = "";
 pub const NEW_TRANSACTION_TOPIC: &str = "new transaction";
 pub const VERIFYING_TRANSACTION_TOPIC: &str = "verifyin new transaction";
 pub static BUFFER: [u8; 1024] = [0 as u8; 1024]; //// filling the first 1024 elements with zero in u8 format
-
-
-
-
 //// Lazy is just like lazy_static! macro 
 //// which is a thread safe structure
 //// that we can create static type.
@@ -38,9 +34,7 @@ pub static KEYS: Lazy<Keypair> = Lazy::new(identity::Keypair::generate_ed25519);
 pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //// generating a thread safe peer id from the generated keypair its public key
 pub static KADEMLIA_KEY_SEARCH: Lazy<PeerId> = Lazy::new(|| identity::Keypair::generate_ed25519().public().into()); //// generating a keypair to use its public key as the kademlia key search for node discovery
 pub static CHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("chain"));
-pub static NETWORK_STAT: Lazy<Topic> = Lazy::new(|| Topic::new("netstat")); //// this is the topic about network status and updates
-pub static TRANSACTION_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("transaction"));
-pub static SLOT_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("slot"));
+pub static WAVE_SLOT_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("wave-slot"));
 
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup
