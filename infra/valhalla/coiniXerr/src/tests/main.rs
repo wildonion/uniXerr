@@ -23,7 +23,7 @@ use std::fmt;
 
 
 
-pub static mut ARR: [u8; 3] = [0; 3]; //// filling the array with zeros 3 times
+pub static mut ARR: [u8; 3] = [0 as u8; 3]; //// filling the array with zeros 3 times
 
 
 
@@ -125,7 +125,7 @@ async fn function_with_callback(cb: Box<dyn FnOnce(i32) -> i32>){
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-pub async fn trash(){
+pub async fn generic(){
 	
 	   {
             'outer: loop{ // outter labeled block 
@@ -414,8 +414,125 @@ pub async fn trash(){
     };
 
 
+    /////////////////////////////////////////////////////////
+    trait BorrowArray<T> where Self: Send + Sized{
+        
+        // GAT example with lifetime, generic and trait bounding
+        type Array<'x, const N: usize> where Self: 'x;
+        type Data: Send + Sync + 'static; // can't set Data equals to DataGat here in trait defenition
+    
+        fn borrow_array<'a, const N: usize>(&'a mut self) -> Self::Array<'a, N>;
+    }
+
+
+
+    /////////////////////////////////////////////////////////
+    // default type parameter example
+    struct Valid(u8, u8);
+    struct test<Output = Valid>{ // default type parameter
+        name: Output,
+        id: i32,
+    }
+    ///// ========================================================================
+    trait SuperTrait: Give + See{}
+
+    trait Give{
+        fn take(&self) -> &i32;
+    }
+    
+    trait See{
+        fn what(&self) -> &String;
+    }
+    
+    struct Who{
+        a: i32,
+        name: String,
+    }
+    
+    impl See for Who{
+        fn what(&self) -> &String{
+            &self.name
+        }
+    }
+    
+    impl Give for Who{
+        fn take(&self) -> &i32{
+            &self.a // take() function doesn't own the `a` variable so we can return a reference to the type i32
+        }
+    }
+    
+    fn test_trait_0<T: Give + See>(item: &T){ // T is bounded to Give and See trait
+        let val: &i32 = item.take();
+        let name: &str = item.what().as_str();
+        println!("the value of w.a is : {}", val);
+        println!("the value of w.name is : {}", name);
+    }
+    
+    fn test_trait_1(item: &(impl Give + See)){ // item is bounded to Give and See trait
+        let val: &i32 = item.take();
+        let name: &str = item.what().as_str();
+        println!("the value of w.a is : {}", val);
+        println!("the value of w.name is : {}", name);
+    }
+    
+    fn test_trait_2(item: Box<dyn SuperTrait>){ // item is bounded to SuperTrait cause SuperTrait is an object safe trait
+        let val: &i32 = item.take();
+        let name: &str = item.what().as_str();
+        println!("the value of w.a is : {}", val);
+        println!("the value of w.name is : {}", name);
+    }
+    
+    fn test_trait_3<T>(item: &T) where T: Give + See{ // T is bounded to Give and See trait
+        let val: &i32 = item.take();
+        let name: &str = item.what().as_str();
+        println!("the value of w.a is : {}", val);
+        println!("the value of w.name is : {}", name);
+    }
+    
+    
+    let w = Who{a: 64, name: "wildonion".to_string()};
+    let p_to_w: *const Who = &w; // a const raw pointer to the Who truct
+    println!("address of w is : {:p}", p_to_w);
+    test_trait_0(&w);
+    ///// ========================================================================
+
+      
+    // Used in a pattern.
+    macro_rules! pat {
+        ($i:ident) => (Some($i))
+    }
+
+    if let pat!(x) = Some(1) {
+        assert_eq!(x, 1);
+    }
+
+    // Used in a type.
+    macro_rules! Tuple {
+        { $A:ty, $B:ty } => { ($A, $B) };
+    }
+
+    type N2 = Tuple!(i32, i32);
+
+
+    // Used as an associated item.
+    macro_rules! const_maker {
+        ($t:ty, $v:tt) => { const CONST: $t = $v; };
+    }
+    trait T {
+        const_maker!{i32, 7}
+    }
+
+    // Macro calls within macros.
+    macro_rules! example {
+        () => { println!("Macro call in a macro!") };
+    }
+    // Outer macro `example` is expanded, then inner macro `println` is expanded.
+    example!();
+
+
+
     // order must be lifetimes, then consts and types
-	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //// based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we wanto to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field
+	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //// based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we want to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field
 	    fn into(self) -> Vec<u8> {
             self.arr.to_vec()
 	    }
@@ -711,24 +828,8 @@ pub async fn trash(){
 
     
     // =============================================================================================================================
-    // closure coding - trait must be inside Box or use with &dyn Trait if they want to be referenced
-	
-    (||async move{})().await; // building, calling and awaiting at the same time
-    let this = (||async move{})(); // building and calling closure at the same time
-    this.await; // await on the this since the closure body is a future object
-    let this = (||async move{}); // building the closure inside ()
-    this().await; // calling the closure and await on it since the body of the closure inside () is a future object
-
-    // a closure inside a Box with async body which will build, call and await on another closure with async body 
-    Box::new( || async move{
-        (
-            || async move{
-                34
-            }
-        )().await;
-    });
-
-
+    // closure coding - trait must be referenced by putting them inside Box or use with &dyn Trait if they want to be used as param or struct field
+    // --------------------------------------------------------------------------
     //// when an object or a value is moved into another value
     //// it'll relocate into a new position inside the ram and we can 
     //// prevent this from happening using Pin
@@ -754,22 +855,27 @@ pub async fn trash(){
     //// implements one of these three traits, and what trait is automatically 
     //// implemented depends on how the closure captures its environment
     //
-    // https://blog.cloudflare.com/pin-and-unpin-in-rust/
-    // https://fasterthanli.me/articles/pin-and-suffering
-    // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
-    // https://medium.com/tips-for-rust-developers/pin-276bed513fd1
-    //// - for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
-    //// - future objects must be Send and static and types that must be shared between threads must be send sync and static 
-    //// - Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
-    type GenericResult<T, E> = std::result::Result<T, E>;
-    type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //// capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
-    type CallbackResponse = Box<dyn std::future::Future<Output=GenericResult<hyper::Response<hyper::Body>, hyper::Error>> + Send + Sync + 'static>; //// CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
-    type SafeShareAsync = Arc<Mutex<std::pin::Pin<Box<dyn std::future::Future<Output=u8> + Send + Sync + 'static>>>>; //// this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and threads until we await on it 
-    type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<hyper::Body>) -> hyper::Response<hyper::Body> + Send + Sync + 'static>>>; //// this type is safe and sendable to share between threads also it can be mutated by a thread using a mutex guard; we have to use the &dyn keyword or put them inside the Box<dyn> for traits if we want to treat them as a type since they have no sepecific size at compile time thus they must be referenced by the &dyn or the Box<dyn> 
-    
-    
-    // trait bounding using where, Box and trait bounding   
-    // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
+    //// a trait object (dyn Trait) is an abstract unsized or dynamic type, 
+    //// it can't be used directly instead, we interact with it through a reference, 
+    //// typically we put trait objects in a Box<dyn Trait> or use &dyn Trat, though 
+    //// with futures we might have to pin the box as well means if we want to return 
+    //// a future object first we must put the future inside the Box since Future is 
+    //// a trait and second we must pin the Box to prevent it from being relocated 
+    //// inside the ram the reason that why we must put the Box inside the Pin is because Pin
+    //// takes a pointer of the type to pin it and our pointer in our case must 
+    //// be either &dyn Future or Box<dyn Future> since Future is a trait and 
+    //// trait objects are dynamic sized we must use dyn keyword thus our type 
+    //// will be Pin<Box<dyn Future<Output=T>>>
+    //
+    //// if we want to return a trait from a function or use it as a param in 
+    //// struct fields or functions we must use the generic form like defining 
+    //// a generic `T` and bound it to that trait using `where` or in function 
+    //// signature directly or the trait must be behind a pointer since it's a dynamic 
+    //// types and we must put it either inside the Box<dyn Trait> or use &dyn Traut 
+    //
+    // ➔ traits are abstract dynamic sized types which their size depends on the 
+    //      implementor at runtime thus they must be behind a pointer using either
+    //      Box<dyn Trait> or &dyn Trait.
     // ➔ closures can be Copy but the dyn Trait are not. dyn means its concrete type(and its size) 
     //      can only be determined at runtime, but function parameters and return types 
     //      must have statically known size.
@@ -778,25 +884,67 @@ pub async fn trash(){
     // ➔ dynamic sized types like traits must be in form dyn T which is not an exact type, 
     //      it is an unsized type, we'd have to use some kind of reference or Box to address it
     //      means Trait objects can only be returned behind some kind of pointer.
-    struct TestMeWhere<F>
-        where F: FnMut(String) -> String{
-        pub method: F,
-    }
-     
-    struct TestMeBound<F: FnMut(String) -> String>{
-        pub method: F,
-    }
-
-    struct TestMeBox{
-        pub method : Box<dyn FnMut(String) -> String>
-    }
-    
+    // https://blog.cloudflare.com/pin-and-unpin-in-rust/
+    // https://fasterthanli.me/articles/pin-and-suffering
+    // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
+    // https://medium.com/tips-for-rust-developers/pin-276bed513fd1
+    // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
+    //// - for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
+    //// - future objects must be Send and static and types that must be shared between threads must be send sync and static 
+    //// - Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
+    type GenericResult<T, E> = std::result::Result<T, E>;
+    type Callback = Box<dyn 'static + FnMut(hyper::Request<hyper::Body>, hyper::http::response::Builder) -> CallbackResponse>; //// capturing by mut T - the closure inside the Box is valid as long as the Callback is valid due to the 'static lifetime and will never become invalid until the variable that has the Callback type drop
+    type CallbackResponse = Box<dyn std::future::Future<Output=GenericResult<hyper::Response<hyper::Body>, hyper::Error>> + Send + Sync + 'static>; //// CallbackResponse is a future object which will be returned by the closure and has bounded to Send to move across threads and .awaits - the future inside the Box is valid as long as the CallbackResponse is valid due to the 'static lifetime and will never become invalid until the variable that has the CallbackResponse type drop
+    type SafeShareAsync = Arc<Mutex<std::pin::Pin<Box<dyn std::future::Future<Output=u8> + Send + Sync + 'static>>>>; //// this type is a future object which has pinned to the ram inside a Box pointer and can be shared between thread safely also it can be mutated by threads - pinning the Boxed future object into the ram to prevent from being moved (cause rust don't have gc and each type will be dropped once it goes out of its scope) since that future object must be valid across scopes and threads until we await on it 
+    type SafeShareClosure = Arc<Mutex<Box<dyn FnOnce(hyper::Request<hyper::Body>) -> hyper::Response<hyper::Body> + Send + Sync + 'static>>>; //// this type is safe and sendable to share between threads also it can be mutated by a thread using a mutex guard; we have to use the &dyn keyword or put them inside the Box<dyn> for traits if we want to treat them as a type since they have no sepecific size at compile time thus they must be referenced by the &dyn or the Box<dyn> 
     pub trait InterfaceMe{}
     pub type BoxeFutureShodeh = Box<dyn std::future::Future<Output=BoxedShodeh>>;
     pub type BoxedShodeh = Box<dyn FnOnce(String) -> String + Send + Sync + 'static>;
     impl InterfaceMe for BoxedShodeh{}
     impl InterfaceMe for (){} // we must impl InterfaceMe for () in order to be able to impl InterfaceMe for () (the return type) inside the test_() function
+    
+    (||async move{})().await; // building, calling and awaiting at the same time
+    let this = (||async move{})(); // building and calling closure at the same time
+    this.await; // await on the this since the closure body is a future object
+    let this = (||async move{}); // building the closure inside ()
+    this().await; // calling the closure and await on it since the body of the closure inside () is a future object
 
+    // a closure inside a Box with async body which will build, call and await on another closure with async body 
+    Box::new( || async move{
+        (
+            || async move{
+                34
+            }
+        )().await;
+    });
+    
+    //--------------------------------------------------------------------
+    // trait bounding using generics (where and function signature) and Box
+    //--------------------------------------------------------------------
+    struct TestMeWhere<F>
+        where F: FnMut(String) -> String{ // setting a FnMut closure in struct field using where
+        pub method: F,
+    }
+     
+    struct TestMeBound<F: FnMut(String) -> String>{ // setting a FnMut closure in struct field using generics
+        pub method: F,
+    }
+
+    struct TestMeBox{ // setting a FnMut closure in struct field using Box<dyn>
+        pub method : Box<dyn FnMut(String) -> String>
+    }
+
+    struct TestMeFunc<T, F = fn() -> T>{ // setting a function pointer in struct field using generics
+        pub method: F,
+        pub t_type: T, // T must refer to a field, or be a `PhantomData` otherwise must be removed
+    }
+    
+    struct TestMeFunc1<T>{ // setting a function pointer in struct field directly  
+        pub method: fn() -> T,
+        pub t_type: T, // T must refer to a field, or be a `PhantomData` otherwise must be removed
+    }
+    
+    
     fn test<'l, T>() where T: FnMut(String) -> String + Send + Sync + 'static + 'l{
         
         () // or simply comment this :)
@@ -807,40 +955,37 @@ pub async fn trash(){
         () // or simply comment this :)
                 
     }
-    // type aliases cannot be used as traits so test_<'l, T: BoxedShodeh> is wrong
-    // also the return type is () and we're impl InterfaceMe for the return type in
-    // function signature thus InterfaceMe trait must be implemented for () before 
-    // doing this.
+    // we can impl a trait for the return type so we can call 
+    // trait methods on the return type also type aliases cannot 
+    // be used as traits so test_<'l, T: BoxedShodeh> is wrong
+    // also the return type is () and we're impl InterfaceMe for 
+    // the return type in function signature thus InterfaceMe 
+    // trait must be implemented for () before doing this.
     fn test_<'l>(param: BoxeFutureShodeh) -> impl InterfaceMe{ // or impl Future<Output=Boxed> the default type param output is of type Boxed
         
         () // or simply comment this :)
         
-    }
-    //// a trait object (dyn Trait) is an unsized type, it can't be used directly 
-    //// instead, we interact with it through a reference, typically we put trait 
-    //// objects in a Box<dyn Trait> or use &dyn Trat, though with futures we might have to 
-    //// pin the box as well means if we want to return a future object first we
-    //// must put the future inside the Box since Future is a trait and second 
-    //// we must pin the Box to prevent it from being relocated inside the ram
-    //// the reason that why we must put the Box inside the Pin is because Pin
-    //// takes a pointer of the type to pin it and our pointer in our case must 
-    //// be either &dyn Future or Box<dyn Future> since Future is a trait and 
-    //// trait objects are dynamic sized we must use dyn keyword thus our type 
-    //// will be Pin<Box<dyn Future<Output=T>>>
+    } 
     fn test_1<C
                 // : FnOnce(String) -> String + Send + Sync + 'static // or we can use this syntax instead of where
-                >() 
-        -> std::pin::Pin<Box<dyn std::future::Future<Output=Box<C>>>> 
-    where C: FnOnce(String) -> String + Send + Sync + 'static{
-        let b = async{ // async blocks are future objects
-                Box::new(
-                    move |name: String|{
-                        name
-                    }
-                )
-            };
-        
-        Box::pin(b) // ERROR: expected trait object `dyn FnOnce`, found closure
+                >(c: C) // the passed in param is of type C which is a generic type which is bounded to the FnOnce trait
+        -> (std::pin::Pin<Box<dyn std::future::Future<Output=Box<C>>>>,  //// we must put the generic C inside the Box not its equivalent which is a closure bounded to FnMut trait
+            impl std::future::Future<Output=u8>) //// the return type is a tuple in which the second one impl a trait for the returned type
+        where C: FnOnce(String) -> String + Send + Sync + 'static //// the whole `FnOnce(String) -> String` is the trait defenition returns String type which we're bounding it to other traits and lifetimes
+    { 
+        (
+            Box::pin(
+                async{ // async blocks are future objects
+                    //// we have to put the passed in param in here 
+                    //// since the type inside the Box must be the 
+                    //// generic C itself not |name: String| name explicity!
+                    Box::new(c) 
+                }
+            ), // ERROR: expected trait object `dyn FnOnce`, found closure
+            async{
+                78
+            }
+        )
     }
 
 
@@ -1003,133 +1148,6 @@ pub async fn trash(){
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-
-pub async fn mactrait(){
-
-
-    struct DataGat;
-    /////////////////////////////////////////////////////////
-    trait BorrowArray<T> where Self: Send + Sized{
-        
-        // GAT example with lifetime, generic and trait bounding
-        type Array<'x, const N: usize> where Self: 'x;
-        type Data: Send + Sync + 'static; // can't set Data equals to DataGat here in trait defenition
-    
-        fn borrow_array<'a, const N: usize>(&'a mut self) -> Self::Array<'a, N>;
-    }
-
-
-
-    /////////////////////////////////////////////////////////
-    // default type parameter example
-    struct Valid(u8, u8);
-    struct test<Output = Valid>{ // default type parameter
-        name: Output,
-        id: i32,
-    }
-    ///// ========================================================================
-    trait SuperTrait: Give + See{}
-
-    trait Give{
-        fn take(&self) -> &i32;
-    }
-    
-    trait See{
-        fn what(&self) -> &String;
-    }
-    
-    struct Who{
-        a: i32,
-        name: String,
-    }
-    
-    impl See for Who{
-        fn what(&self) -> &String{
-            &self.name
-        }
-    }
-    
-    impl Give for Who{
-        fn take(&self) -> &i32{
-            &self.a // take() function doesn't own the `a` variable so we can return a reference to the type i32
-        }
-    }
-    
-    fn test_trait_0<T: Give + See>(item: &T){ // T is bounded to Give and See trait
-        let val: &i32 = item.take();
-        let name: &str = item.what().as_str();
-        println!("the value of w.a is : {}", val);
-        println!("the value of w.name is : {}", name);
-    }
-    
-    fn test_trait_1(item: &(impl Give + See)){ // item is bounded to Give and See trait
-        let val: &i32 = item.take();
-        let name: &str = item.what().as_str();
-        println!("the value of w.a is : {}", val);
-        println!("the value of w.name is : {}", name);
-    }
-    
-    fn test_trait_2(item: Box<dyn SuperTrait>){ // item is bounded to SuperTrait cause SuperTrait is an object safe trait
-        let val: &i32 = item.take();
-        let name: &str = item.what().as_str();
-        println!("the value of w.a is : {}", val);
-        println!("the value of w.name is : {}", name);
-    }
-    
-    fn test_trait_3<T>(item: &T) where T: Give + See{ // T is bounded to Give and See trait
-        let val: &i32 = item.take();
-        let name: &str = item.what().as_str();
-        println!("the value of w.a is : {}", val);
-        println!("the value of w.name is : {}", name);
-    }
-    
-    
-    let w = Who{a: 64, name: "wildonion".to_string()};
-    let p_to_w: *const Who = &w; // a const raw pointer to the Who truct
-    println!("address of w is : {:p}", p_to_w);
-    test_trait_0(&w);
-    ///// ========================================================================
-
-      
-    // Used in a pattern.
-    macro_rules! pat {
-        ($i:ident) => (Some($i))
-    }
-
-    if let pat!(x) = Some(1) {
-        assert_eq!(x, 1);
-    }
-
-    // Used in a type.
-    macro_rules! Tuple {
-        { $A:ty, $B:ty } => { ($A, $B) };
-    }
-
-    type N2 = Tuple!(i32, i32);
-
-
-    // Used as an associated item.
-    macro_rules! const_maker {
-        ($t:ty, $v:tt) => { const CONST: $t = $v; };
-    }
-    trait T {
-        const_maker!{i32, 7}
-    }
-
-    // Macro calls within macros.
-    macro_rules! example {
-        () => { println!("Macro call in a macro!") };
-    }
-    // Outer macro `example` is expanded, then inner macro `println` is expanded.
-    example!();
-
-}
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1201,7 +1219,7 @@ pub async fn unsafer(){
 
 
 
-    ///// -------------- changing the vaule in runtime using its pointer -------------- /////
+    ///// -------------- unsafe: changing the vaule in runtime using its pointer -------------- /////
     let v = vec![1, 2, 3];
     // let raw_parts = v.into_raw_parts(); //// getting the pointer, len and capacity of the vector only in unstable rust! 
     let mut v = std::mem::ManuallyDrop::new(v); // a wrapper to inhibit compiler from automatically calling T’s destructor, this wrapper is 0-cost
@@ -1414,7 +1432,7 @@ pub async fn unsafer(){
     // thus we have two pointers of a same type one is immutable and the other
     // is mutable rust doesn't allow us to have immutable pointer when we're borrowing
     // it as mutable: cannot borrow `x` as immutable because it is also borrowed as mutable
-    println!("x is {}", x); // immutable logging
+    // println!("x is {}", x); // immutable logging
     println!("y is {}", y); // mutable pointer to x logging 
 
 

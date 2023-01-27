@@ -253,6 +253,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     ) = actors::daemonize().await;
 
 
+
     
 
 
@@ -273,31 +274,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     // -------------------------------------------------------------------------------------
     //// scheduling to get the default parachain blockchain
     //// every 5 seconds using tokio cron scheduler.
-    //
-    //// a trait object (dyn Trait) is an unsized type, it can't be used directly 
-    //// instead, we interact with it through a reference, typically we put trait 
-    //// objects in a Box<dyn Trait> or use &dyn Trat, though with futures we might have to 
-    //// pin the box as well means if we want to return a future object first we
-    //// must put the future inside the Box since Future is a trait and second 
-    //// we must pin the Box to prevent it from being relocated inside the ram
-    //// the reason that why we must put the Box inside the Pin is because Pin
-    //// takes a pointer of the type to pin it and our pointer in our case must 
-    //// be either &dyn Future or Box<dyn Future> since Future is a trait and 
-    //// trait objects are dynamic sized we must use dyn keyword thus our type 
-    //// will be Pin<Box<dyn Future<Output=T>>>.
 
     let (get_blockchain_flag_sender, mut get_blockchain_flag_receiver) = mpsc::channel::<bool>(env_vars.get("IO_BUFFER_SIZE").unwrap().parse::<usize>().unwrap()); //// reading or receiving from the mpsc channel is a mutable process
     let mut parachain_scheduler = JobScheduler::new().await.unwrap();
     parachain_scheduler.add(Job::new("1/5 * * * * *", move |_uuid, mut _lock| {
         info!("➔ 🔗🧊 getting blockchain every 5 seconds from the default parachain");
         //// if we use `move` keyword in closure, for every types 
-        //// that we want to use it in closure body will be moved 
+        //// that we want to use it in closure body that will be moved 
         //// from its scope into the closure body.
         block_on(get_blockchain_flag_sender.send(true)).unwrap();
     }).unwrap()).await.unwrap();
 
     // ----------------------------------------------------------------------
-    //            HANDLING SHUTDOWN SIGNALE OF THE CRON SCHEDULER
+    //             HANDLING SHUTDOWN SIGNAL OF THE CRON SCHEDULER
     // ----------------------------------------------------------------------
 
     #[cfg(feature="signal")]
@@ -308,27 +297,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         })
     }));
     
-    // ----------------------------------------------------------------------
-    //             STARTING THE DEFAULT PARACHAIN CRON SCHEDULER
-    // ----------------------------------------------------------------------
-    
+    // -------------------------------------------------------
+    //              STARTING THE CRON SCHEDULER
+    // -------------------------------------------------------
+    //// start the cron job insise the tokio worker 
+    //// green threadpool in the background
+
     tokio::spawn(async move{
+        info!("🎬 starting the parachain cron scheduler 🗓️");
         parachain_scheduler
             .start()
             .await
-            .unwrap(); //// start the cron job insise the tokio worker green threadpool in the background
+            .unwrap(); 
     });
 
-    // ----------------------------------------------------------------------
-    //               RECEIVING THE FLAG FROM THE MPSC CHANNEL
-    // ----------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------------------------
+    //               RECEIVING THE FLAG FROM THE MPSC CHANNEL TO UPDATE THE DEFAULT PARACHAIN BLOCKCHAIN
+    // ------------------------------------------------------------------------------------------------------------------
+    //// in here if the received flag from the channel was true
+    //// means that we should update the default parachain blockchain
+    //// since it might be a new blockchain has set from a peer inside 
+    //// the swarm event loop.
 
-    if let Some(get_blockchain_flag) = get_blockchain_flag_receiver.recv().await{
-        if get_blockchain_flag{
+    while let Some(_get_blockchain_flag) = get_blockchain_flag_receiver.recv().await{ //// receiving untill there is no value inside the channel sent by the sender
+        if _get_blockchain_flag{
+            info!("🏳️ true flag received, updating parachain blockchain");
             //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current blockchain event cause the parachain is guarded by the ActorRef
             //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
             let blockchain_remote_handle: RemoteHandle<Chain> = ask(&coiniXerr_sys.clone(), &parachain_0.clone(), ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
             blockchain = blockchain_remote_handle.await; //// update the blockchain variable with the latest one inside the parachain
+        } else{ //// there is no need to update the current blockchain since we're inside the 5 seconds loop not after it! 
+            info!("🚩 false flag received, no need to update parachain blockchain");
         }
     }
 

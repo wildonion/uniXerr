@@ -10,11 +10,13 @@
 
 ### 🚧 WIP 
 
-* compile coiniXerr
-
-* handle other P2P topics inside the swarm event loop
+* compile coiniXerr to BPF
 
 * complete RPC setup and `rcp_tx_emultator()` function
+
+* https://github.com/wildonion/cs-concepts#-blogs-and-books
+
+* handle other P2P topics inside the swarm event loop
 
 * `StorageModel` ORM trait methods, Rafael runtime and its log, onion actors, utils macros and methods, reset slot in parachain actor and consensus algorithms
 
