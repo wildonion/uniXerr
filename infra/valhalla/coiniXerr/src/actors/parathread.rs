@@ -359,13 +359,6 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                 
                 let next_parachain = self.get_next_parachain().unwrap(); //// getting the next parachain field
                 let actor_system = &_ctx.system; //// getting the borrowed form of the actor system from the _ctx
-
-                // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm (rl) which is position clustering coin generation model
-                // NOTE - validator actors or voters will vote to a bid or auction process by staking their coins on the coiniXerr network and get rewarded based on the coiniXerr liquidity or token pool or every tax of the voted transaction of the contract
-                // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
-                // TODO - when we reached 600k blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot  (next epoch)
-                // ....
-                
                 //// resetting the slot field of the next parachain but untouched other fields using ask() function 
                 //// since the parachain is guared by ActorRef thus in order to access its field we have to ask the guardian :)
                 //// passing other fields as the None won't update them to None they will be remained as their last value
@@ -403,13 +396,6 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
 
                 //// logging the incoming wave reset slot from the waver parachain to this parachain
                 info!("➔ ⭕ got a reset wave sent from parachain with id [{}] to this parachain with id [{}]", waver_id, self.id);
-
-                // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm (rl) which is position clustering coin generation model
-                // NOTE - validator actors or voters will vote to a bid or auction process by staking their coins on the coiniXerr network and get rewarded based on the coiniXerr liquidity or token pool or every tax of the voted transaction of the contract
-                // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
-                // TODO - when we reached 600k blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot (next epoch)
-                // ....
-                
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     .unwrap()
@@ -420,13 +406,6 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
             },
             Cmd::WaveResetSlotFromSystem => {
                 info!("➔ ⭕ got a reset wave sent from system to this parachain with [{}]", self.id);
-
-                // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm (rl) which is position clustering coin generation model
-                // NOTE - validator actors or voters will vote to a bid or auction process by staking their coins on the coiniXerr network and get rewarded based on the coiniXerr liquidity or token pool or every tax of the voted transaction of the contract
-                // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
-                // TODO - when we reached 600k created blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot (next epoch)
-                // ....
-
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     .unwrap()

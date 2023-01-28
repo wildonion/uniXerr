@@ -294,7 +294,7 @@ impl P2PSwarmEventLoop{
 
     pub async fn run(&mut self){ //// swarm.select_next_some() is a mutable method thus we must define the self as mutable
 
-        info!("➔ ⌨️ enter messages via STDIN and they will be sent to connected peers using Gossipsub");
+        info!("➔ ➔ ⌨️ enter messages via STDIN and they will be sent to connected peers using Gossipsub");
         let mut stdin = tokio::io::BufReader::new(tokio::io::stdin()).lines();
         loop{
             //// inside select! macro we can have multiple async tasks and 
@@ -326,7 +326,7 @@ impl P2PSwarmEventLoop{
                 //// the latest chain from other peers.
                 local_chain_request = self.init_receiver.recv() => { //// in here the async task is receiving from the init mpsc channel
                     let peers = self.list_peers().await;
-                    info!("⚛️ connected nodes {}", peers.len());
+                    info!("➔ ⚛️ connected nodes {}", peers.len());
                     if !peers.is_empty(){
                         let chain_request = P2PLocalChainRequest{
                             from_peer_id: peers
@@ -363,8 +363,8 @@ impl P2PSwarmEventLoop{
                             .unwrap(); 
                 },
                 swarm_event = self.swarm.select_next_some() => { //// //// in here the async task is the swarm event; handling the swarm events if there was some
-                    info!("🤌 handling a swarm event {:?}", swarm_event);
-                    self.handle_event(swarm_event).await; //// calling handle_event() here to handle all swarm events
+                    info!("➔ 🤌 handling a swarm event {:?}", swarm_event);
+                    self.handle_event(swarm_event).await; //// calling handle_event() here to handle all swarm events inside the event loop
                 },
             }
        }
@@ -413,8 +413,8 @@ impl P2PSwarmEventLoop{
                 //// we're receiving a local chain from `propagation_source` or a peer.
                 if let Ok(chain_response) = serde_json::from_slice::<P2PChainResponse>(&message.data){ //// decode incoming message that has been published inside the event loop
                     if chain_response.receiver == PEER_ID.to_string(){ //// the message receiver must be this peer 
-                        info!("🗨️ a chain response from {:?}", message.source);
-                        chain_response.blocks.iter().for_each(|b| info!("{:?}", b)); //// logging each received block
+                        info!("➔ 🗨️ a chain response from {:?}", message.source);
+                        chain_response.blocks.iter().for_each(|b| info!("➔ {:?}", b)); //// logging each received block
                         let mut parachain_data = self.get_parachain_data().await;
                         let Some(mut blockchain) = parachain_data.blockchain else{ //// choose_chain() method is mutable thus blockchain must be mutable 
                             panic!("⛔ no chain at all :/");
@@ -426,7 +426,7 @@ impl P2PSwarmEventLoop{
                         let choosen = blockchain.choose_chain(blockchain.blocks.clone(), chain_response.blocks); //// choosing the right chain between the local chain and the received chain
                         blockchain.blocks = choosen;
                         parachain_data.blockchain = Some(blockchain.clone());
-                        info!("➔ 🔃 updating parachain state");
+                        info!("➔ ➔ 🔃 updating parachain state");
                         //// we have to ask the actor that hey we want to update some info about the parachain by sending 
                         //// the related message cause the parachain is guarded by the ActorRef,
                         //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
@@ -497,9 +497,11 @@ impl P2PSwarmEventLoop{
                 }
                 else if let Ok(wave_slot) = serde_json::from_slice::<P2PWaveSlot>(&message.data){
                     
-                    // TODO - like when we reach 600k blocks inside a slot then we have to reset the slot
+                    // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm (rl) which is position clustering coin generation model
+                    // NOTE - validator actors or voters will vote to a bid or auction process by staking their coins on the coiniXerr network and get rewarded based on the coiniXerr liquidity or token pool or every tax of the voted transaction of the contract
+                    // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
+                    // TODO - when we reached 600k blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot  (next epoch)
                     // TODO - also handle them inside the tokio::select!
-                    // TODO - handle wave slot topic
                     // ..
 
                 }                
@@ -528,16 +530,16 @@ impl P2PSwarmEventLoop{
                     Ok(ok) => {
                         if !ok.peers.is_empty(){
                             self.nodes = ok.peers.clone();
-                            info!("⚛️ query finished closest peers {:#?}", ok.peers);
+                            info!("➔ ⚛️ query finished closest peers {:#?}", ok.peers);
                         } else{
-                            info!("😧 query finished with no closest peers");
+                            info!("➔ 😧 query finished with no closest peers");
                         }
                     },
                     Err(GetClosestPeersError::Timeout { peers, .. }) => { //// in unpacking Timeout we only care about the peers and the rest of fields can be filled with `..`
                         if !peers.is_empty(){
-                            info!("⚛️⌛ query timed out with closest peers {:#?}", peers);
+                            info!("➔ ⚛️⌛ query timed out with closest peers {:#?}", peers);
                         } else{
-                            info!("😧⌛ query timed out with no closest peers {:#?}", peers);
+                            info!("➔ 😧⌛ query timed out with no closest peers {:#?}", peers);
                         }
                     }
                 }
@@ -599,19 +601,19 @@ impl P2PSwarmEventLoop{
             },
             SwarmEvent::NewListenAddr{ address, .. } => {
                 let local_peer_id = *self.swarm.local_peer_id(); //// dereferencing the self to get the local peer id of the current swarm
-                info!("local node is listening on {:?}", address.with(Protocol::P2p(local_peer_id.into())));
+                info!("➔ 👂 local node is listening on {:?}", address.with(Protocol::P2p(local_peer_id.into())));
             },
             SwarmEvent::ConnectionClosed{ .. } => {}, 
             SwarmEvent::IncomingConnection{ .. } => {},
             SwarmEvent::IncomingConnectionError{ .. } => {},
-            SwarmEvent::Dialing(peer_id) => info!("📞 dialing {}", peer_id),
+            SwarmEvent::Dialing(peer_id) => info!("➔ 📞 dialing {}", peer_id),
             e => panic!("⛔ {e:?}"),
         }
     }
 
     async fn list_peers(&self) -> Vec<String>{
         let mut unique_peers = HashSet::new();
-        info!("⚛️ discovered nodes {}", self.nodes.len());
+        info!("➔ ⚛️ discovered nodes {}", self.nodes.len());
         //// cannot move out of `self.nodes` which is behind a shared reference
         //// thus we MUST dereference it by getting a clone of it and move 
         //// that clone between other scopes.
@@ -623,21 +625,21 @@ impl P2PSwarmEventLoop{
 
     async fn print_peers(&self){
         let peers = self.list_peers().await;
-        peers.iter().for_each(|p| info!("🎡 peer : {}", p));
+        peers.iter().for_each(|p| info!("➔ 🎡 peer : {}", p));
     }
 
     async fn print_chain(&self){
-        info!("🔗🧊 local blockchain");
+        info!("➔ 🔗🧊 local blockchain");
         let parachain_data = self.get_parachain_data().await;
         let Some(chain) = parachain_data.blockchain else{ //// in later scopes we can access the chain
             panic!("⛔ no chain is available inside the parachain");
         };
         let blockchain_pretty_json = serde_json::to_string_pretty(&chain).unwrap();
-        info!("{}", blockchain_pretty_json);
+        info!("➔ {}", blockchain_pretty_json);
     }
 
     async fn print_net_stat(&self){
-        info!("📊 network status");
+        info!("➔ 📊 network status");
         let parachain_data = self.get_parachain_data().await;
         let Some(chain) = parachain_data.get_blockchain() else{
             panic!("⛔ no chain is available inside the parachain");
@@ -645,12 +647,12 @@ impl P2PSwarmEventLoop{
         let Some(slot) = parachain_data.get_slot() else{
             panic!("⛔ no slot is available inside the parachain");
         };
-        info!("🧐 🇪 parachin info: current epoch is {}", slot.epoch);
-        info!("🧐 🧊 parachin info: total verified block is {}", chain.blocks.len());
+        info!("➔ 🧐 🇪 parachin info: current epoch is {}", slot.epoch);
+        info!("➔ 🧐 🧊 parachin info: total verified block is {}", chain.blocks.len());
     }
 
     async fn get_parachain_data(&self) -> Parachain{
-        info!("🔗🌉 getting the data of the parachain actor");
+        info!("➔ 🔗🌉 getting the data of the parachain actor");
         let fetch_parachain_remote_handle: RemoteHandle<Parachain> = ask(&self.actor_sys, &self.parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSelf}); //// we're asking the parachain actor to send us the parachain data
         let parachain_instance = fetch_parachain_remote_handle.await;
         parachain_instance
@@ -729,7 +731,7 @@ impl P2PSwarmEventLoop{
                     }
                 }
         } else{
-            info!("📞 already dialing peer, not need to insert into  the map");
+            info!("➔ 📞 already dialing peer, not need to insert into  the map");
         }
         receiver.await.expect("❌ sender MUST not be dropped")
     }
@@ -1242,7 +1244,7 @@ impl Default for Transaction{
         //// signing the data which is the serialized transaction bytes
         //// with the generated private key; the result is the transaction
         //// signature which must be verified inside the coiniXerr node.
-        info!("➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
+        info!("➔ ➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
         let signature = coiniXerr_node_keypair
                                         .sign(
                                             //// at this moment when we serialize the tx
@@ -1375,14 +1377,14 @@ impl Transaction{
     }
 
     fn verify_signature(&self) -> bool{
-        info!("➔ 🏷️ verifying transaction signature using public-key (asymmetric) digital signature encryption based on Ed25519");
+        info!("➔ ➔ 🏷️ verifying transaction signature using public-key (asymmetric) digital signature encryption based on Ed25519");
         match self.signature.clone(){ // https://cryptobook.nakov.com/digital-signatures | we'll use the self.signature later thus we have to clone it
             Some(tx_sig) => {                
-                info!("➔ 🕵🏾‍♀️ verifying transaction signature using public key 🔑"); 
+                info!("➔ ➔ 🕵🏾‍♀️ verifying transaction signature using public key 🔑"); 
                 let json_string_serialized_transaction = self.serialize_transaction(); //// we're generating a longer lifetime since in self.serialize_transaction().as_bytes(); the self.serialize_transaction() will be dropped before we calling as_bytes() method;
                 let serialized_tx_bytes = json_string_serialized_transaction .as_bytes(); 
                 if let None = self.signature{ //// we can use self.signature.is_none() also 
-                    info!("➔ ⛔ null signature 🔑"); 
+                    info!("➔ ➔ ⛔ null signature 🔑"); 
                     //// since we have separated if blocks 
                     //// we must return something using the 
                     //// `return` keyword only.

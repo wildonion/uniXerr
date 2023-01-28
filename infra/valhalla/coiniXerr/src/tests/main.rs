@@ -633,6 +633,9 @@ pub async fn generic(){
                 Chie::Chaharomi{name: esm, age: sen} => { //// we can also give another names to the current struct fields using `:` for unpacking on struct arm
 
                 },
+                Chie::Chaharomi{name: esm, ..} => { //// we can also give another names to the current struct fields using `:` for unpacking on struct arm also we don't care about age field thus we can fill it up using `..`
+
+                },
                 _ => { //// for Sevomi fields
                 println!("none of them");
                 }
@@ -722,6 +725,10 @@ pub async fn generic(){
             26
 
             // let res = run.await;
+        }
+
+        pub async fn unpack_self(&self) -> (){
+            let Pack{..} = self; //// unpacking self into the struct itself, there is no explicit field naming and we filled all the fields using `..`
         }
 
 	}
@@ -826,10 +833,20 @@ pub async fn generic(){
 
     
 
-    
     // =============================================================================================================================
     // closure coding - trait must be referenced by putting them inside Box or use with &dyn Trait if they want to be used as param or struct field
+    // https://zhauniarovich.com/post/2020/2020-12-closures-in-rust/
+    // https://blog.cloudflare.com/pin-and-unpin-in-rust/
+    // https://fasterthanli.me/articles/pin-and-suffering
+    // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
+    // https://medium.com/tips-for-rust-developers/pin-276bed513fd1
+    // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
     // --------------------------------------------------------------------------
+    //// FnOnce: there might be multiple references of a type due to the borrowing rules 
+    //// and all of them must be dropped if the closure wants to eat the type 
+    //// since the type can't be available after moving into the closure 
+    //// and we should avoid dangling pointer by dropping all the references 
+    //// of the moved type.
     //// when an object or a value is moved into another value
     //// it'll relocate into a new position inside the ram and we can 
     //// prevent this from happening using Pin
@@ -871,24 +888,19 @@ pub async fn generic(){
     //// struct fields or functions we must use the generic form like defining 
     //// a generic `T` and bound it to that trait using `where` or in function 
     //// signature directly or the trait must be behind a pointer since it's a dynamic 
-    //// types and we must put it either inside the Box<dyn Trait> or use &dyn Traut 
+    //// types thus we must put it either inside the Box<dyn Trait> or use &dyn Traut 
     //
-    // ➔ traits are abstract dynamic sized types which their size depends on the 
-    //      implementor at runtime thus they must be behind a pointer using either
-    //      Box<dyn Trait> or &dyn Trait.
-    // ➔ closures can be Copy but the dyn Trait are not. dyn means its concrete type(and its size) 
-    //      can only be determined at runtime, but function parameters and return types 
-    //      must have statically known size.
-    // ➔ dyn Trait types are dynamically sized types, and cannot be passed as parameters directly. 
-    //      They need to be behind a pointer like &dyn Trait or Box<dyn Trait>.
-    // ➔ dynamic sized types like traits must be in form dyn T which is not an exact type, 
-    //      it is an unsized type, we'd have to use some kind of reference or Box to address it
-    //      means Trait objects can only be returned behind some kind of pointer.
-    // https://blog.cloudflare.com/pin-and-unpin-in-rust/
-    // https://fasterthanli.me/articles/pin-and-suffering
-    // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
-    // https://medium.com/tips-for-rust-developers/pin-276bed513fd1
-    // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
+    //// traits are abstract dynamic sized types which their size depends on the 
+    //// implementor at runtime thus they must be behind a pointer using either
+    //// Box<dyn Trait> or &dyn Trait.
+    //// closures can be Copy but the dyn Trait are not. dyn means its concrete type(and its size) 
+    //// can only be determined at runtime, but function parameters and return types 
+    //// must have statically known size.
+    //// dyn Trait types are dynamically sized types, and cannot be passed as parameters directly. 
+    //// They need to be behind a pointer like &dyn Trait or Box<dyn Trait>.
+    //// dynamic sized types like traits must be in form dyn T which is not an exact type, 
+    //// it is an unsized type, we'd have to use some kind of reference or Box to address it
+    //// means Trait objects can only be returned behind some kind of pointer.
     //// - for sharing data between threads safeyly the data must be inside Arc<Mutex<T>> and also must be bounded to the Send + Sync + 'static lifetime or have a valid lifetime across threads, awaits and other scopes when we move them between threads using tokio job queue channels
     //// - future objects must be Send and static and types that must be shared between threads must be send sync and static 
     //// - Box<dyn Future<Output=Result<u8, 8u>> + Send + Sync + 'static> means this future can be sharead acorss threads and .awaits safely
@@ -919,7 +931,13 @@ pub async fn generic(){
     });
     
     //--------------------------------------------------------------------
-    // trait bounding using generics (where and function signature) and Box
+    // implementing trait by 
+    //      - bounding it to generics (where and function signature)
+    //      - in function return
+    //      - directly by using impl Trait for Type
+    // returning traits from the function or us it as a function param by
+    //      - Box<dyn Trait>
+    //      - &dyn Trait  
     //--------------------------------------------------------------------
     struct TestMeWhere<F>
         where F: FnMut(String) -> String{ // setting a FnMut closure in struct field using where
