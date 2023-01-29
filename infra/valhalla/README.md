@@ -10,11 +10,11 @@
 
 ### 🚧 WIP 
 
-* parachain heartbeat and reset slot auction process in swarm event loop
+* parachain heartbeat and validator reward distribution
 
 * merkle tree from all transactions
 
-* first coiniXerr node test with BPF
+* first coiniXerr node test with BPF (complete BPF setup in code)
 
 * complete RPC setup and `rcp_tx_emultator()` function
 

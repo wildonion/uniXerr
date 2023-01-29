@@ -985,7 +985,7 @@ pub async fn generic(){
         
     } 
     fn test_1<C, 'lifetime
-                // : FnOnce(String) -> String + Send + Sync + 'static // or we can use this syntax instead of where
+                // : FnOnce(String) -> String + Send + Sync + 'static + 'lifetime // or we can use this syntax instead of where
                 >(c: C) // the passed in param is of type C which is a generic type which is bounded to the FnOnce trait
         -> (std::pin::Pin<Box<dyn std::future::Future<Output=Box<C>>>>,  //// we must put the generic C inside the Box not its equivalent which is a closure bounded to FnMut trait
             impl std::future::Future<Output=u8>) //// the return type is a tuple in which the second one impl a trait for the returned type

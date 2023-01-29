@@ -116,7 +116,9 @@ pub struct P2PLocalChainRequest{ //// local chain request from a specific peer
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct P2PWaveSlot; //// a P2P waving slot to start slot auction process on the current parachain
+pub struct P2PWaveSlot{ //// a P2P waving reset slot to start slot auction process on the current parachain
+    pub received_wave_flag_at: Option<i64>, //// the last timestamp of the resetting wave
+}; 
 
 
 //// since we provide a custom `out_event` thus we must implement `From` trait 
@@ -231,6 +233,7 @@ pub struct P2PSwarmEventLoop{
     //// between different parts of the app like differen threads
     //// of the swarm events. 
     pub init_receiver: mpsc::Receiver<bool>,
+    pub reset_slot_receiver: mpsc::Receiver<bool>,
     pub response_sender: mpsc::Sender<P2PChainResponse>,
     pub response_receiver: mpsc::Receiver<P2PChainResponse>,
     pub swarm: Swarm<P2PAppBehaviour>,
@@ -263,13 +266,14 @@ pub struct P2PSwarmEventLoop{
     //// and OutgoingConnectionError swarm events when we want to try to dial to a peer,
     //// by removing it from the map when stablishes a new connection or 
     //// it goes out of connection.
-    pub pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>>,
+    pub pending_dial: HashMap<PeerId, oneshot::Sender<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>>, //// sender will send nothing and if there was any error it'll send the std error which is send, sync and static
 }
 
 impl P2PSwarmEventLoop{
 
     pub fn new(swarm: Swarm<P2PAppBehaviour>, 
                 init_receiver: mpsc::Receiver<bool>,
+                reset_slot_receiver: mpsc::Receiver<bool>
                 parachain: ActorRef<ParachainMsg>,
                 actor_sys: ActorSystem,
                 parachain_updated_channel: ActorRef<ChannelMsg<ParachainUpdated>>,
@@ -278,6 +282,7 @@ impl P2PSwarmEventLoop{
         let (response_sender, mut response_receiver) = mpsc::channel::<P2PChainResponse>(buffer_size);
         Self{
             init_receiver,
+            reset_slot_receiver,
             response_sender,
             response_receiver,
             swarm,
@@ -320,6 +325,22 @@ impl P2PSwarmEventLoop{
                         cmd if cmd.starts_with("ls ns") => self.print_net_stat().await,
                         _ => error!("🛑 unknown command"),
                     }                 
+                },
+                //// once we received the true flag of the wave slot 
+                //// we'll publish a wave slot to the network to notify
+                //// all the peers that an epoch is reacheaded and 
+                //// default parachain slot voters must get paid with
+                //// their rewards. 
+                wave_slot = self.reset_slot_receiver.recv() => {
+                    let p2p_wave_slot = P2PWaveSlot{
+                        received_wave_flag_at: Some(chrono::Local::now().naive_local().timestamp())
+                    };
+                    let json_request = serde_json::to_string(&p2p_wave_slot).unwrap();
+                    self.swarm
+                            .behaviour_mut() //// it'll return a mutable reference to the swarm behaviour
+                            .gossipsub
+                            .publish(WAVE_SLOT_TOPIC.clone(), json_request.as_bytes()) //// publishing reset slot wave to the p2p network using gossipsub protocol   
+                            .unwrap();
                 },
                 //// once we received the init signal from the channel 
                 //// we'll publish a chain request to the network to get
@@ -495,15 +516,25 @@ impl P2PSwarmEventLoop{
                         }
                     }
                 }
-                else if let Ok(wave_slot) = serde_json::from_slice::<P2PWaveSlot>(&message.data){
+                else if let Ok(wave_rest_slot) = serde_json::from_slice::<P2PWaveSlot>(&message.data){
+                    info!("➔ ⏲️ an epoch has reacheaded at [{}] since {}k blocks are verified, distributing rewards between slot voters", wave_rest_slot.received_wave_flag_at.unwrap(), daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap());
+                    let parachain_data = self.get_parachain_data().await;
+                    let Some(parachain) = parachain_data.blockchain else{ //// in later scopes we can access the chain
+                        panic!("⛔ no chain is available inside the parachain");
+                    };
+                    let Some(mut slot) = parachain.slot{
+                        panic!("⛔ no slot is available inside the parachain");
+                    }
+                    //// store takes an Ordering (Atomic memory orderings) argument 
+                    //// which describes the memory ordering of this operation also
+                    //// we have to set the is_locked field to true until we done with
+                    //// paying validator rewards.
+                    slot.is_locked.store(true, Ordering::Relaxed); 
                     
-                    // NOTE - validator actors get rewarded based on total values of their contracts and an AI based algorithm (rl) which is position clustering coin generation model
-                    // NOTE - validator actors or voters will vote to a bid or auction process by staking their coins on the coiniXerr network and get rewarded based on the coiniXerr liquidity or token pool or every tax of the voted transaction of the contract
-                    // TODO - update the default parachain slot using a successful auction process by the coiniXerr validators like when we reach 600k blocks inside a slot then we have to reset the slot
-                    // TODO - when we reached 600k blocks inside the slot means we've finished an epoch which a new auction process must be started to select new validators from the runtime object for the new slot  (next epoch)
-                    // TODO - also handle them inside the tokio::select!
-                    // ..
+                    // TODO - reward distribution between current_slot.voters
+                    // ...
 
+                    slot.is_locked.store(false, Ordering::Relaxed); //// update the is_locked field to false
                 }                
             },
             SwarmEvent::Behaviour(P2PAppBehaviourEvent::Kademlia(
@@ -647,7 +678,7 @@ impl P2PSwarmEventLoop{
         let Some(slot) = parachain_data.get_slot() else{
             panic!("⛔ no slot is available inside the parachain");
         };
-        info!("➔ 🧐 🇪 parachin info: current epoch is {}", slot.epoch);
+        info!("➔ 🧐 ⏲️ parachin info: current epoch is {}", slot.epoch);
         info!("➔ 🧐 🧊 parachin info: total verified block is {}", chain.blocks.len());
     }
 
@@ -763,10 +794,59 @@ pub struct Slot{ //// pool of validators for slot auctions
     pub id: Uuid,
     pub name: String,
     pub voters: Vec<Voter>, //// auction voters for this slot
-    pub epoch: u32, //// one epoch is the time taken to process 600k blocks which might takes 1 day or less depends on the coiniXerr network performence, after end of each epoch a new slot auction process will be started 
-} 
+    //// one epoch is the time taken to process 600k blocks 
+    //// which might takes 1 day or less depends on the coiniXerr 
+    //// network performence, after end of each epoch a new slot 
+    //// auction process will be started 
+    pub epoch: u32, 
+    //// we've used the mpsc job queue channel
+    //// to send the reset slot flag inside the 
+    //// WaveResetSlotFromSystem, WaveResetSlotFrom
+    //// and WaveSlotToNextParachainActor parachain actor
+    //// commands in order to be able to receive the flag
+    //// inside the swarm event loop to publish the reset
+    //// slot wave to all the peers inside the whole network.
+    pub reset_sender: Option<mpsc::Sender<bool>>,
+    //// this will be used to lock the slot until we pay validator rewards
+    //// this field is of type AtomicBool which gives us a shareable 
+    //// thread safe type which can be shared between swarm event loop and
+    //// other threads inside the coiniXerr networks,
+    //// also the borrowing is not supported by the standard library
+    //// for atomic bool if we want to share the ownership of an atomic bool
+    //// between threads we have to put it inside the Arc.
+    //
+    //// the reason behind using this field is when we're 
+    //// distributing reward between voters we don't want 
+    //// to accept any new voter since we have to pay the 
+    //// old ones first and don't want a massive coflict
+    //// because new entries weren't inside the last epoch
+    //// thus they MUST not get paid. 
+    pub is_locked: AtomicBool,
+    //// if the current slot is locked then we have
+    //// to put all the incoming validator or voters
+    //// inside a pending list and once the slot gets 
+    //// unlocked we must put them back into the voters.
+    pub pending_voters: Vec<String>, //// vector of all pending validator peer_id  
+
+}
 
 impl Slot{
+
+    pub fn new_default(reset_sender: mpsc::Sender<bool>) -> Self{
+        let new_name = utils::gen_chars(utils::gen_random_number(5, 11)); //// generate a random name for the slot
+        Self{
+            id: Uuid::new_v4(),
+            name: new_name,
+            voters: vec![],
+            epoch: 0,
+            reset_sender: Some(reset_sender),
+            is_locked: AtomicBool::new(false),
+        }
+    }
+
+    pub fn get_name(&self) -> Option<String>{
+        Some(self.name)
+    }
 
     //// we've cloned the self.validators and current_validators to prevent ownership moving
     pub fn get_validator(&self, validator_peer_id: String) -> Option<Validator>{
@@ -780,23 +860,71 @@ impl Slot{
     }
 
     pub fn add_validator(&mut self, pid: Uuid, validator_peer_id: String) -> Self{
-        
-        //// building a new voter to push into the voters 
-        let new_voter = Voter{
-            parachain_id: pid,
-            owner: Validator{
-                peer_id: validator_peer_id,
-                recent_transaction: None, //// it must be filled inside the stream channel the receiver side once the his/her incoming transaction gets signed
-                mode: ValidatorMode::Mine,
-                ttype_request: None, //// it must be filled inside the transaction mempool channel the receiver side once the transaction arrived
-            },
-            rewards: Some(0),
-            signed_at: Some(chrono::Local::now().naive_local().timestamp()),
-            staker_id: None,
-        };
-
-        self.voters.push(new_voter);
+        let is_locked = self.is_locked.load(Ordering::Relaxed);
+        //// while the slot is locked it means we're distributing 
+        //// rewards between voters inside the swarm event loop 
+        //// also we have to store the incoming validators inside 
+        //// the pending vectors and add them to voters once the 
+        //// is_locked field gets unlocked.
+        while self.is_locked.load(Ordering::Relaxed){
+            self.pending_voters.push(validator_peer_id.clone());
+            //// if we're here means the is_locked field might gets unlocked 
+            //// inside the swarm event loop or maybe not which in that case
+            //// we're still inside the loop :)
+            if !self.is_locked.load(Ordering::Relaxed){ 
+                break; //// we simply break the loop since we're done with this slot and all voters has been paid 
+            }
+        }
+        //// if we're here means that we've breaked the loop
+        //// and the slot is unlocked and we must either
+        //// put the pending voters inside the voters
+        //// or add a new voters to the voters, in the
+        //// second case we can understand that the slot 
+        //// wasn't locked at all.
+        if self.pending_voters.len() > 0{
+            for pv in self.pending_voters{
+                self.voters.push(Voter{
+                                    parachain_id: pid,
+                                    owner: Validator{
+                                        peer_id: validator_peer_id,
+                                        recent_transaction: None, //// it must be filled inside the stream channel the receiver side once the his/her incoming transaction gets signed
+                                        mode: ValidatorMode::Mine,
+                                        ttype_request: None, //// it must be filled inside the transaction mempool channel the receiver side once the transaction arrived
+                                    },
+                                    rewards: Some(0),
+                                    signed_at: Some(chrono::Local::now().naive_local().timestamp()),
+                                    staker_id: None,
+                                });
+            }
+            self.pending_voters = Vec::<String>::new(); //// making an empty pending_voters since we've added all the pending ones
+        } else{ //// there is no pending voter at all 
+            //// building a new voter to push into the voters 
+            let new_voter = Voter{
+                parachain_id: pid,
+                owner: Validator{
+                    peer_id: validator_peer_id,
+                    recent_transaction: None, //// it must be filled inside the stream channel the receiver side once the his/her incoming transaction gets signed
+                    mode: ValidatorMode::Mine,
+                    ttype_request: None, //// it must be filled inside the transaction mempool channel the receiver side once the transaction arrived
+                },
+                rewards: Some(0),
+                signed_at: Some(chrono::Local::now().naive_local().timestamp()),
+                staker_id: None,
+            };
+            self.voters.push(new_voter);
+        }
         Self { id: self.id, name: self.name.clone(), voters: self.voters.clone(), epoch: self.epoch }
+    }
+
+    pub update_epoch(&mut self) -> Self{
+        self.epoch += 1
+        Self{
+            id: self.id,
+            name: self.name,
+            voters: self.voters,
+            epoch: self.epoch,
+            reset_sender: self.reset_sender,
+        }
     }
 
 }

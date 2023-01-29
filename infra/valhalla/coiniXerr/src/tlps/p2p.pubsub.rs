@@ -50,6 +50,7 @@ use crate::*;
 //// to the downside of the mempool channel 
 //// for mining and consensus process.
 pub async fn bootstrap(
+        reset_slot_receiver: mpsc::Receiver<bool>,
         mempool_sender: broadcast::Sender<(Arc<Mutex<Transaction>>, Arc<Mutex<ActorRef<ValidatorMsg>>>, ActorSystem)>, //// we'll use this sender to send transactions to downside of the mempool channel for mining process
         storage: Option<Arc<Storage>>, 
         env_vars: HashMap<String, String>,
@@ -220,9 +221,9 @@ pub async fn bootstrap(
     //// we'll receive the init signal from the mpsc channel
     //// inside the event loop
     info!("➔ ➰ building the swarm event loop");
-    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, parachain, 
+    let mut event_loop = P2PSwarmEventLoop::new(swarm, init_receiver, reset_slot_receiver, parachain, 
                                                 coiniXerr_sys, parachain_updated_channel, 
-                                                cloned_arc_mutex_new_chain_channel);
+                                                cloned_arc_mutex_new_chain_channel,);
     
     // --------------------------------------------
     //          RUNNING SWARM EVENT LOOP 

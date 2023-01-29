@@ -118,6 +118,15 @@ impl Parachain{ //// Parachain is the parallel chain of the coiniXerr network wh
         self.slot.clone()
     }
 
+    pub fn get_reset_slot_sender(&self) -> Option<mpsc::Sender<bool>>{
+        let current_slot = self.get_slot();
+        if let Some(slot) = current_slot{
+            slot.reset_sender
+        } else{
+            None //// no active slot is available 
+        }
+    }
+
     pub fn get_blockchain(&self) -> Option<Chain>{
         self.blockchain.clone()
     }
@@ -332,6 +341,17 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                         Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
                     );
             },
+            Cmd::GetResetSlotSender => {
+                info!("➔ 🔙 returning the reset slot sender of the parachain with id [{}]", self.id);
+                let reset_slot_sender = self.get_reset_slot_sender();
+                _sender
+                    .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
+                    .unwrap()
+                    .try_tell(
+                        reset_slot_sender, //// sending the reset_slot_sender as the response message 
+                        Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
+                    );
+            },
             Cmd::GetGenesis => {
                 info!("➔ 🔙 returning the genesis block of the parachain with id [{}]", self.id);
                 let genesis_block = self.get_genesis();
@@ -356,18 +376,46 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
             },
             Cmd::WaveSlotToNextParachainActor => {
                 info!("➔ 👋🏼 waving from parachain with id [{}] to its next parachain", self.id);
-                
-                let next_parachain = self.get_next_parachain().unwrap(); //// getting the next parachain field
                 let actor_system = &_ctx.system; //// getting the borrowed form of the actor system from the _ctx
+                let next_parachain = self.get_next_parachain().unwrap(); //// getting the next parachain field
+                info!("➔ 🎫 getting blockchain of the second parachain");
+                //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the uuid event cause the parachain is guarded by the ActorRef
+                //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+                let next_parachain_blockchain_remote_handle: RemoteHandle<Uuid> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
+                let next_parachain_blockchain = block_on(next_parachain_blockchain_remote_handle);
+                info!("➔ 🎫 getting slot of the next parachain");
+                //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the uuid event cause the parachain is guarded by the ActorRef
+                //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+                let next_parachain_slot_remote_handle: RemoteHandle<Uuid> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSlot}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the slot of the passed in parachain actor as a future object
+                let next_parachain_slot = block_on(next_parachain_slot_remote_handle);
+                info!("➔ 🎫 getting reset slot sender of the next parachain");
+                //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the uuid event cause the parachain is guarded by the ActorRef
+                //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+                let next_parachain_reset_slot_sender_remote_handle: RemoteHandle<Uuid> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetResetSlotSender}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the reset slot sender of the passed in parachain actor as a future object
+                let next_parachain_reset_slot_sender = block_on(next_parachain_reset_slot_sender_remote_handle);
+                let new_slot = {
+                    if let Some(chain) = next_parachain_blockchain{
+                        if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
+                            if let Some(sender) = reset_slot_sender{
+                                block_on(sender.send(true)).unwrap();
+                                let updated_slot = current_slot.update_epoch() //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
+                                Some(updated_slot)
+                            }
+                        }
+                        next_parachain_slot
+                    } else{ //// no chain at all :/
+                        info!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                        next_parachain_slot
+                    }
+                };
                 //// resetting the slot field of the next parachain but untouched other fields using ask() function 
                 //// since the parachain is guared by ActorRef thus in order to access its field we have to ask the guardian :)
                 //// passing other fields as the None won't update them to None they will be remained as their last value
                 //// we can also put the instance of the UpdateParachainEvent inside the ParachainMsg::UpdateParachainEvent() tuple struct
                 //// the receiver must be an actor of type ActorRef since Tell<Msg> the trait `riker::actor::Tell<T>` is implemented for `riker::actor::ActorRef<M>` 
-                let update_next_parachain_remote_handle: RemoteHandle<Parachain> = ask(actor_system, &next_parachain, ParachainMsg::UpdateParachainEvent(UpdateParachainEvent{slot: Some(Slot::default()), current_block: None, blockchain: None})); //// asking the coiniXerr system to update the state of the passed in parachain actor as a future object
+                let update_next_parachain_remote_handle: RemoteHandle<Parachain> = ask(actor_system, &next_parachain, ParachainMsg::UpdateParachainEvent(UpdateParachainEvent{slot: new_slot, current_block: None, blockchain: None})); //// asking the coiniXerr system to update the state of the passed in parachain actor as a future object
                 let update_next_parachain_future = update_next_parachain_remote_handle;
                 let update_next_parachain = block_on(update_next_parachain_future); //// we can't use .await here since we're not inside an async function
-
                 //// sending the updated next parachain (slot field) to the caller or the previous actor 
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
@@ -376,7 +424,6 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                         update_next_parachain, //// sending the update_next_parachain as the response message 
                         Some(_ctx.myself().into()) //// to the actor or the caller itself - sender is the caller itself which the passed in message will be sent back to this actor
                     );
-
             },
             Cmd::WaveSlotToParachainActor(parachain_path) => {
                 info!("➔ 👋🏼 waving from parachain with id [{}] to parachain [{}]", self.id, parachain_path);
@@ -393,24 +440,59 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
             
             },
             Cmd::WaveResetSlotFrom(waver_id) => {
-
                 //// logging the incoming wave reset slot from the waver parachain to this parachain
                 info!("➔ ⭕ got a reset wave sent from parachain with id [{}] to this parachain with id [{}]", waver_id, self.id);
+                let blockchain = self.get_blockchain();
+                let current_slot = self.get_slot();
+                let reset_slot_sender = self.get_reset_slot_sender();
+                let new_slot = {
+                    if let Some(chain) = blockchain{
+                        if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
+                            if let Some(sender) = reset_slot_sender{
+                                block_on(sender.send(true)).unwrap();
+                                let updated_slot = current_slot.update_epoch() //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
+                                Some(updated_slot)
+                            }
+                        }
+                        current_slot
+                    } else{ //// no chain at all :/
+                        info!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                        current_slot
+                    }
+                };
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     .unwrap()
                     .try_tell( //// try to tell this parachain
-                        ParachainMsg::UpdateParachainEvent(UpdateParachainEvent{slot: Some(Slot::default()), current_block: None, blockchain: None}), //// that we want to update the slot field
+                        ParachainMsg::UpdateParachainEvent(UpdateParachainEvent{slot: new_slot, current_block: None, blockchain: None}), //// that we want to update the slot field
                         None //// there is no need to pass a sender since we're communicating with this parachain itself and not returning a response (not the caller of this Cmd arm) to tell a message that we've just gotten from this parachain
                     );
             },
             Cmd::WaveResetSlotFromSystem => {
                 info!("➔ ⭕ got a reset wave sent from system to this parachain with [{}]", self.id);
+                let blockchain = self.get_blockchain();
+                let current_slot = self.get_slot();
+                let reset_slot_sender = self.get_reset_slot_sender();
+                let new_slot = {
+                    if let Some(chain) = blockchain{
+                        if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
+                            if let Some(sender) = reset_slot_sender{
+                                block_on(sender.send(true)).unwrap();
+                                let updated_slot = current_slot.update_epoch() //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
+                                Some(updated_slot)
+                            }
+                        }
+                        current_slot
+                    } else{ //// no chain at all :/
+                        info!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                        current_slot
+                    }
+                };
                 _sender
                     .as_ref() //// convert to Option<&T> - we can also use clone() method instead of as_ref() method in order to borrow the content inside the Option to prevent the content from moving and loosing ownership
                     .unwrap()
                     .try_tell( //// try to tell this parachain
-                        ParachainMsg::UpdateParachainEvent(UpdateParachainEvent{slot: Some(Slot::default()), current_block: None, blockchain: None}), //// that we want to update the slot field
+                        ParachainMsg::UpdateParachainEvent(UpdateParachainEvent{slot: new_slot, current_block: None, blockchain: None}), //// that we want to update the slot field
                         None //// there is no need to pass a sender since we're communicating with this parachain itself and not returning a response (not the caller of this Cmd arm) to tell a message that we've just gotten from this parachain
                     );
             },

@@ -26,6 +26,7 @@ pub mod rafael;
 //// and receiving asyncly from the mempool channel for mining and verifying process. 
 pub async fn daemonize() 
     -> ( //// returning types inside the Arc<Mutex<T>> will allow us to share the type between threads safely with a valid lifetime using tokio job queue channels
+        mpsc::Receiver<bool>,
         Slot, 
         ChannelRef<ValidatorJoined>,
         Uuid,
@@ -60,6 +61,26 @@ pub async fn daemonize()
     let arc_mutex_runtime_info_object = Arc::new(Mutex::new(runtime_instance)); //// we can clone the runtime_instance without using Arc cause Clone trait is implemented for RafaelRt -> MetaData -> Validator actor
     let buffer_size = daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let storage = APP_STORAGE.clone(); //// cloning it in order not to move since Copy trait is not implemented for the dereferenced type or Option<Arc<schemas::Storage>>
+
+
+
+
+
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////           reset slot job queue channel initialization
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    //// following is a oneshot channel that will be used
+    //// to broadcast the reset slot wave to downside of 
+    //// the channel, the sender will send the flag inside 
+    //// the daemonize() method since a reset slot wave will 
+    //// be initialized once we reached 600k blocks inside the 
+    //// slot which when this happens we'll send a true 
+    //// flag to the channel to receive it inside the swarm 
+    //// event loop in order to notify all 
+    //// the peers inside the network. 
+    
+    let (reset_slot_sender, mut reset_slot_receiver) = mpsc::channel::<bool>(daemon::get_env_vars().get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap());
+
 
 
 
@@ -138,7 +159,7 @@ pub async fn daemonize()
     
     info!("➔ 🔗 starting default parachain");
     let mut chain = Some(Chain::default());
-    let current_slot_for_default_parachain = Slot::default(); //// default slot on the first run of the coiniXerr network; this field will be updated every 5 seconds for default and second parachain 
+    let current_slot_for_default_parachain = Slot::new_default(reset_slot_sender.clone()); //// default slot on the first run of the coiniXerr network; this field will be updated every 5 seconds for default and second parachain 
     let parachain_0_props = Props::new_args::<actors::parathread::Parachain, _>( //// prop types are inside Arc and Mutex thus we can clone them and move them between threads
                                                                                                                             (Uuid::new_v4(), 
                                                                                                                             Some(current_slot_for_default_parachain),
@@ -177,7 +198,8 @@ pub async fn daemonize()
     //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
     let current_slot_remote_handle: RemoteHandle<Slot> = ask(&coiniXerr_sys, &parachain_0, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSlot}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the current slot of the passed in parachain actor as a future object
     let mut current_slot = current_slot_remote_handle.await;
-
+    info!("➔ 🆔 default parachain slot with name: {}", current_slot.get_name());
+    
     // ----------------------------------------------------------------------
     //                  GETTING THE UUID OF THE PARACHAIN
     // ----------------------------------------------------------------------
@@ -486,6 +508,7 @@ pub async fn daemonize()
 
 
     (   
+        reset_slot_receiver,
         current_slot.clone(), 
         validator_joined_channel.clone(),
         default_parachain_uuid.clone(),

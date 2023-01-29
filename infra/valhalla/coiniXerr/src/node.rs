@@ -69,6 +69,7 @@ use tokio::net::{TcpListener, TcpStream, UdpSocket}; //// async tcp and udp stre
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt}; 
 use tokio::sync::{mpsc, oneshot, broadcast}; //// to broadcast transactions to from multiple senders to multiple receivers
 use uuid::Uuid;
+use std::sync::atomic::AtomicBool;
 use std::hash::{Hash, Hasher};
 use std::{fmt, fmt::Write, num::ParseIntError};
 use std::sync::{Arc, Mutex, mpsc as std_mpsc, mpsc::channel as heavy_mpsc}; //// communication between threads is done using mpsc job queue channel and end of the channel can only be owned by one thread at the time to avoid being in deadlock and race condition situations, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
@@ -196,7 +197,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
 
 
-    
+
+
+
+
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
     ///////                  getting env vars
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
@@ -234,6 +238,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// returned here to pass them to different TLPs. 
     
     let (
+        reset_slot_receiver,
         current_slot, 
         validator_joined_channel, 
         default_parachain_uuid,
@@ -260,7 +265,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////       getting the latest chain of the default parachain 
+    ///////         getting the latest chain of the default parachain 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// we MUST get the latest chain of the default parachain 
     //// every 5 seconds since it might be updated with a new 
@@ -268,6 +273,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// we have to update the `blockchain` variable returned 
     //// from the daemonize() function to make sure that we're 
     //// mining and verifying on the latest and verified chain. 
+    //
+    //// we can't use coiniXerr_sys.schedule() method since 
+    //// it'll return an id of the scheduled message in which 
+    //// there is no data available to update the parachain. 
     
     // -------------------------------------------------------------------------------------
     //            GETTING THE BLOCKCHAIN OF THE DEFAULT PARACHAIN EVERY 5 SECONDS
@@ -282,7 +291,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         //// if we use `move` keyword in closure, for every types 
         //// that we want to use it in closure body that will be moved 
         //// from its scope into the closure body.
-        block_on(get_blockchain_flag_sender.send(true)).unwrap();
+        block_on(get_blockchain_flag_sender.send(true)).unwrap(); //// when we use block_on() all in-flight I/O will be cancelled
     }).unwrap()).await.unwrap();
 
     // ----------------------------------------------------------------------
@@ -409,6 +418,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //// used to communicate with other coiniXerr nodes
 
     p2p::bootstrap( //// bootstrapping libp2p pub/sub swarm stream to broadcast actors' events and topics to the whole networks
+        reset_slot_receiver,
         mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
         APP_STORAGE.clone(), 
         env_vars.clone(),
