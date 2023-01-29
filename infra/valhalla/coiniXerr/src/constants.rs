@@ -25,10 +25,7 @@ pub const AUTHORIZATION: &str = "Authorization";
 pub const EMPTY: &str = "";
 pub const NEW_TRANSACTION_TOPIC: &str = "new transaction";
 pub const VERIFYING_TRANSACTION_TOPIC: &str = "verifyin new transaction";
-pub const A_LONG_BLOCK_CONST: &u8 = {
-    2 * 5 as u8
-}
-pub static BUFFER: [u8; 1024] = [const {2 * 5 as u8}; 1024]; //// filling the first 1024 elements with a const 2 * 5 value bytes or as u8 format
+pub static BUFFER: [u8; 1024] = [0; 1024]; //// filling the first 1024 elements with zero bytes or as u8 format
 //// Lazy is just like lazy_static! macro 
 //// which is a thread safe structure
 //// that we can create static type.

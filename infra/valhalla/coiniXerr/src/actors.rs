@@ -198,7 +198,7 @@ pub async fn daemonize()
     //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
     let current_slot_remote_handle: RemoteHandle<Slot> = ask(&coiniXerr_sys, &parachain_0, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSlot}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the current slot of the passed in parachain actor as a future object
     let mut current_slot = current_slot_remote_handle.await;
-    info!("➔ 🆔 default parachain slot with name: {}", current_slot.get_name());
+    info!("➔ 🆔 default parachain slot with name: {}", current_slot.get_name().unwrap());
     
     // ----------------------------------------------------------------------
     //                  GETTING THE UUID OF THE PARACHAIN

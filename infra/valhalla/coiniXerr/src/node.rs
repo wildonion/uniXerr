@@ -69,7 +69,7 @@ use tokio::net::{TcpListener, TcpStream, UdpSocket}; //// async tcp and udp stre
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt}; 
 use tokio::sync::{mpsc, oneshot, broadcast}; //// to broadcast transactions to from multiple senders to multiple receivers
 use uuid::Uuid;
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::hash::{Hash, Hasher};
 use std::{fmt, fmt::Write, num::ParseIntError};
 use std::sync::{Arc, Mutex, mpsc as std_mpsc, mpsc::channel as heavy_mpsc}; //// communication between threads is done using mpsc job queue channel and end of the channel can only be owned by one thread at the time to avoid being in deadlock and race condition situations, however the sender half can be cloned and through such cloning the conceptual sender part of a channel can be shared among threads which is how you do the multi-producer, single-consumer part
@@ -104,7 +104,9 @@ use libp2p::{
 use crate::engine::{cvm, consensus::*};
 use crate::actors::{
                     parathread::{Parachain, ParachainMsg, Communicate as ParachainCommunicate, Cmd as ParachainCmd, UpdateParachainEvent, ParachainCreated, ParachainUpdated}, //// parathread message evenrs
-                    peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutNewChain, UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
+                    peer::{Validator, ValidatorMsg, Contract, Mode as ValidatorMode, Communicate as ValidatorCommunicate, Cmd as ValidatorCmd, 
+                            UpdateMode, UpdateTx, ValidatorJoined, ValidatorUpdated, UpdateValidatorAboutNewChain, 
+                            UpdateValidatorAboutMempoolTx, UpdateValidatorAboutMiningProcess}, //// peer message events
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //// loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
 use crate::schemas::{

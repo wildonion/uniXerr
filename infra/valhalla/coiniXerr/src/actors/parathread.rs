@@ -50,10 +50,11 @@ pub enum Cmd{
     GetNextParachain, //// the offset of borsh utf8 encoded variant is 5
     GetGenesis, //// the offset of borsh utf8 encoded variant is 6
     GetParachainUuid, //// the offset of borsh utf8 encoded variant is 7
-    WaveResetSlotFrom(String), //// the offset of borsh utf8 encoded variant is 8 - Uuid is the id of the parachain that waved a hi
-    WaveSlotToNextParachainActor, //// the offset of borsh utf8 encoded variant is 9
-    WaveSlotToParachainActor(String), //// the offset of borsh utf8 encoded variant is 10 - String is the path of the selected parachain actor
-    WaveResetSlotFromSystem, //// the offset of borsh utf8 encoded variant is 11
+    GetResetSlotSender, //// the offset of borsh utf8 encoded variant is 8
+    WaveResetSlotFrom(String), //// the offset of borsh utf8 encoded variant is 9 - Uuid is the id of the parachain that waved a hi
+    WaveSlotToNextParachainActor, //// the offset of borsh utf8 encoded variant is 10
+    WaveSlotToParachainActor(String), //// the offset of borsh utf8 encoded variant is 11 - String is the path of the selected parachain actor
+    WaveResetSlotFromSystem, //// the offset of borsh utf8 encoded variant is 12
 }
 
 #[derive(Clone, Debug)]
@@ -381,30 +382,30 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                 info!("➔ 🎫 getting blockchain of the second parachain");
                 //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the uuid event cause the parachain is guarded by the ActorRef
                 //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
-                let next_parachain_blockchain_remote_handle: RemoteHandle<Uuid> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
+                let next_parachain_blockchain_remote_handle: RemoteHandle<Option<Chain>> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
                 let next_parachain_blockchain = block_on(next_parachain_blockchain_remote_handle);
                 info!("➔ 🎫 getting slot of the next parachain");
                 //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the uuid event cause the parachain is guarded by the ActorRef
                 //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
-                let next_parachain_slot_remote_handle: RemoteHandle<Uuid> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSlot}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the slot of the passed in parachain actor as a future object
+                let next_parachain_slot_remote_handle: RemoteHandle<Option<Slot>> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSlot}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the slot of the passed in parachain actor as a future object
                 let next_parachain_slot = block_on(next_parachain_slot_remote_handle);
                 info!("➔ 🎫 getting reset slot sender of the next parachain");
                 //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the uuid event cause the parachain is guarded by the ActorRef
                 //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
-                let next_parachain_reset_slot_sender_remote_handle: RemoteHandle<Uuid> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetResetSlotSender}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the reset slot sender of the passed in parachain actor as a future object
+                let next_parachain_reset_slot_sender_remote_handle: RemoteHandle<Option<mpsc::Sender<bool>>> = ask(actor_system, &next_parachain, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetResetSlotSender}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the reset slot sender of the passed in parachain actor as a future object
                 let next_parachain_reset_slot_sender = block_on(next_parachain_reset_slot_sender_remote_handle);
                 let new_slot = {
-                    if let Some(chain) = next_parachain_blockchain{
-                        if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
-                            if let Some(sender) = reset_slot_sender{
-                                block_on(sender.send(true)).unwrap();
-                                let updated_slot = current_slot.update_epoch() //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
-                                Some(updated_slot)
-                            }
-                        }
-                        next_parachain_slot
-                    } else{ //// no chain at all :/
-                        info!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                    let Some(chain) = next_parachain_blockchain else{
+                        panic!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                    };
+                    if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
+                        let Some(sender) = next_parachain_reset_slot_sender else{
+                            panic!("⛔ reset slot sender MUST be available"); //// when we use panic there is no need to return something else
+                        };
+                        block_on(sender.send(true)).unwrap();
+                        let updated_slot = next_parachain_slot.unwrap().update_epoch(); //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
+                        Some(updated_slot)
+                    } else{
                         next_parachain_slot
                     }
                 };
@@ -446,17 +447,17 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                 let current_slot = self.get_slot();
                 let reset_slot_sender = self.get_reset_slot_sender();
                 let new_slot = {
-                    if let Some(chain) = blockchain{
-                        if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
-                            if let Some(sender) = reset_slot_sender{
-                                block_on(sender.send(true)).unwrap();
-                                let updated_slot = current_slot.update_epoch() //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
-                                Some(updated_slot)
-                            }
-                        }
-                        current_slot
-                    } else{ //// no chain at all :/
-                        info!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                    let Some(chain) = blockchain else{
+                        panic!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                    };
+                    if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
+                        let Some(sender) = reset_slot_sender else{
+                            panic!("⛔ reset slot sender MUST be available"); //// when we use panic there is no need to return something else
+                        };
+                        block_on(sender.send(true)).unwrap();
+                        let updated_slot = current_slot.unwrap().update_epoch(); //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
+                        Some(updated_slot)
+                    } else{
                         current_slot
                     }
                 };
@@ -474,17 +475,17 @@ impl Receive<Communicate> for Parachain{ //// implementing the Receive trait for
                 let current_slot = self.get_slot();
                 let reset_slot_sender = self.get_reset_slot_sender();
                 let new_slot = {
-                    if let Some(chain) = blockchain{
-                        if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
-                            if let Some(sender) = reset_slot_sender{
-                                block_on(sender.send(true)).unwrap();
-                                let updated_slot = current_slot.update_epoch() //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
-                                Some(updated_slot)
-                            }
-                        }
-                        current_slot
-                    } else{ //// no chain at all :/
-                        info!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                    let Some(chain) = blockchain else{
+                        panic!("⛔ no chain is available inside the parachain, canceling resetting slot");
+                    };
+                    if chain.blocks.len() == daemon::get_env_vars().get("MAX_EPOCH").unwrap().parse::<usize>().unwrap(){
+                        let Some(sender) = reset_slot_sender else{
+                            panic!("⛔ reset slot sender MUST be available"); //// when we use panic there is no need to return something else
+                        };
+                        block_on(sender.send(true)).unwrap();
+                        let updated_slot = current_slot.unwrap().update_epoch(); //// we reached MAX_EPOCH blocks inside the slot means we've finished an epoch
+                        Some(updated_slot)
+                    } else{
                         current_slot
                     }
                 };
