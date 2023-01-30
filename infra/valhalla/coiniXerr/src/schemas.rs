@@ -926,18 +926,21 @@ impl Slot{
         self.epoch += 1;
         //// we can share ownership between other scopes 
         //// and threads either by cloning or borrowing
-        //// and if we want to move out of dynamic types
-        //// like String, Vec and traits which are 
-        //// behind a shared reference like &self we
-        //// can't simply return them since other methods,
-        //// scopes and threads might be using them, 
-        //// we need to either clone them or take reference 
-        //// to them to dereference them, in our case since 
-        //// returning reference from methods and functions 
-        //// are is tricky we've cloned the self.name, 
-        //// self.voters, self.reset_sender and 
-        //// self.pending_voters to move them 
-        //// out of the &self 
+        //// and if we want to move out of a shared references
+        //// like &self we can't simply return or pass them 
+        //// since other methods, scopes and threads might 
+        //// be using them, we need to either clone them or 
+        //// take reference to them to dereference them, 
+        //// in our case since returning reference from 
+        //// methods and functions are is tricky we've cloned 
+        //// the self.name, self.voters, self.reset_sender and 
+        //// self.pending_voters to move them out of the &self
+        //// also they are dynamic types which must clone them  
+        //// to move them out of the shared reference (&self)
+        //// the other solution is to use the slice form of the 
+        //// dynamic types, &str instead of String, &[u8] 
+        //// instead of Vec<u8> and Box<dyn Trait> or &dyn Trait
+        //// instead of using (returning) traits directly.
         Self{
             id: self.id,
             name: self.name.clone(),
