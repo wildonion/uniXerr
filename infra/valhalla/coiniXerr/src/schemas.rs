@@ -298,7 +298,7 @@ impl P2PSwarmEventLoop{
 
     pub async fn run(&mut self){ //// swarm.select_next_some() is a mutable method thus we must define the self as mutable
 
-        info!("➔ ➔ ⌨️ enter messages via STDIN and they will be sent to connected peers using Gossipsub");
+        info!("➔ ⌨️ enter messages via STDIN and they will be sent to connected peers using Gossipsub");
         let mut stdin = tokio::io::BufReader::new(tokio::io::stdin()).lines();
         loop{
             //// inside select! macro we can have multiple async tasks and 
@@ -446,7 +446,7 @@ impl P2PSwarmEventLoop{
                         let choosen = blockchain.choose_chain(blockchain.blocks.clone(), chain_response.blocks); //// choosing the right chain between the local chain and the received chain
                         blockchain.blocks = choosen;
                         parachain_data.blockchain = Some(blockchain.clone());
-                        info!("➔ ➔ 🔃 updating parachain state");
+                        info!("➔ 🔃 updating parachain state");
                         //// we have to ask the actor that hey we want to update some info about the parachain by sending 
                         //// the related message cause the parachain is guarded by the ActorRef,
                         //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
@@ -924,17 +924,20 @@ impl Slot{
 
     pub fn update_epoch(&mut self) -> Self{
         self.epoch += 1;
-        //// if we want to move out of dynamic types
+        //// we can share ownership between other scopes 
+        //// and threads either by cloning or borrowing
+        //// and if we want to move out of dynamic types
         //// like String, Vec and traits which are 
         //// behind a shared reference like &self we
         //// can't simply return them since other methods,
         //// scopes and threads might be using them, 
         //// we need to either clone them or take reference 
-        //// to them, in our case since returning reference 
-        //// from methods and functions are is tricky
-        //// we've cloned the self.name, self.voters,
-        //// self.reset_sender and self.pending_voters
-        //// to move them out of the &self 
+        //// to them to dereference them, in our case since 
+        //// returning reference from methods and functions 
+        //// are is tricky we've cloned the self.name, 
+        //// self.voters, self.reset_sender and 
+        //// self.pending_voters to move them 
+        //// out of the &self 
         Self{
             id: self.id,
             name: self.name.clone(),
@@ -1361,9 +1364,9 @@ impl Default for Transaction{
         let public_key = coiniXerr_node_keypair.public_key().as_ref(); //// as_ref() converts to &[u8] which is an array or an slice of the Vec<u8> since Vec<u8> will be coerced to &[u8] at compile time
         let wallet_address = 
                 Self::cut_extra_bytes_from( //// cutting the extra byte (the first 27 bytes) from the argon2 hash and use the rest as the wallet address
-                    Self::generate_wallet_address_from(
+                    Self::generate_wallet_address_from( //// generating wallet address from the public key, we'll hash the public key using argon2
                         public_key
-                    ) //// generating wallet address from the public key
+                    ) 
                 );
 
 
@@ -1391,7 +1394,7 @@ impl Default for Transaction{
         //// signing the data which is the serialized transaction bytes
         //// with the generated private key; the result is the transaction
         //// signature which must be verified inside the coiniXerr node.
-        info!("➔ ➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
+        info!("➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
         let signature = coiniXerr_node_keypair
                                         .sign(
                                             //// at this moment when we serialize the tx
@@ -1518,20 +1521,18 @@ impl Transaction{
     }
 
     pub fn is_transaction_valid(&self) -> bool{
-
        self.verify_signature() 
-
     }
 
     fn verify_signature(&self) -> bool{
-        info!("➔ ➔ 🏷️ verifying transaction signature using public-key (asymmetric) digital signature encryption based on Ed25519");
+        info!("➔ 🏷️ verifying transaction signature using public-key (asymmetric) digital signature encryption based on Ed25519");
         match self.signature.clone(){ // https://cryptobook.nakov.com/digital-signatures | we'll use the self.signature later thus we have to clone it
             Some(tx_sig) => {                
-                info!("➔ ➔ 🕵🏾‍♀️ verifying transaction signature using public key 🔑"); 
+                info!("➔ 🕵🏾‍♀️ verifying transaction signature using public key 🔑"); 
                 let json_string_serialized_transaction = self.serialize_transaction(); //// we're generating a longer lifetime since in self.serialize_transaction().as_bytes(); the self.serialize_transaction() will be dropped before we calling as_bytes() method;
-                let serialized_tx_bytes = json_string_serialized_transaction .as_bytes(); 
+                let serialized_tx_bytes = json_string_serialized_transaction.as_bytes(); 
                 if let None = self.signature{ //// we can use self.signature.is_none() also 
-                    info!("➔ ➔ ⛔ null signature 🔑"); 
+                    info!("➔ ⛔ null signature 🔑"); 
                     //// since we have separated if blocks 
                     //// we must return something using the 
                     //// `return` keyword only.
