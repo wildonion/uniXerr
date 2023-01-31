@@ -390,6 +390,15 @@ pub async fn generic(){
 	// =============================================================================================================================
     // =============================================================================================================================
     // =============================================================================================================================
+    //// if we're using multiple traits in a crate 
+    //// in order to use their GATs on a type we should
+    //// cast the type to that trait like <Struct as Trait> 
+    //// then call the GAT using `::`, <Struct as Trait>::SimpleGat 
+    //// since their GATs might have a same name and based 
+    //// on orphan rule we should name the GAT explicity 
+    //// to avoid conflict and ambiguous calls, also we 
+    //// have to make sure that the trait is 
+    //// implemented for the type.
     // ➔ we can return the reference from function with the lifetime of the passed in args, with a static ref or a specific lifetiem
     // ➔ the generic type of a structure must be used for one of its field since compiler allocated some sapce for it and if we don't
     //    use it it'll be unused which the won't compile hence to fix the issue we must put the generic type inside a PhantomData struct

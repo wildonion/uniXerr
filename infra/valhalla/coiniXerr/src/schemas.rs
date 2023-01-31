@@ -802,9 +802,9 @@ pub struct Slot{ //// pool of validators for slot auctions
     //// to send the reset slot flag inside the 
     //// WaveResetSlotFromSystem, WaveResetSlotFrom
     //// and WaveSlotToNextParachainActor parachain actor
-    //// commands in order to be able to receive the flag
-    //// inside the swarm event loop to publish the reset
-    //// slot wave to all the peers inside the whole network.
+    //// commands in order to be able to receive the sent flag
+    //// inside the swarm event loop to publish the wave
+    //// slot to all the peers inside the whole network.
     //
     //// we must skip serding the mpsc channel
     #[serde(skip_serializing)]

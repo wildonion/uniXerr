@@ -10,13 +10,13 @@
 
 ### 🚧 WIP 
 
-* parachain heartbeat and validator reward distribution
+* complete RPC setup and `rcp_tx_emultator()` function
 
-* merkle tree from all transactions
+* merkle tree from all transactions and parachain heartbeat 
+
+* validator reward distribution
 
 * first coiniXerr node test with BPF (complete BPF setup in code)
-
-* complete RPC setup and `rcp_tx_emultator()` function
 
 * https://github.com/wildonion/cs-concepts#-blogs-and-books
 

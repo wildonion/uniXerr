@@ -39,7 +39,6 @@ pub mod env{
     pub use std::{fmt, env, sync::{Arc, Mutex}};
     pub use borsh::{BorshSerialize, BorshDeserialize};
     pub use uuid::Uuid;
-    pub use std::net::SocketAddr;
     pub use serde::{Serialize, Deserialize};
     use futures::channel::mpsc as future_mpsc;
     use tokio::sync::mpsc as tokio_mpsc;
@@ -83,6 +82,18 @@ pub mod env{
         pub time: Option<i64>, //// the time of the event data log
         #[serde(flatten)] //// flatten to not have "event": {<EventVariant>} in the JSON, just have the contents of {<EventVariant>} which is the value of the data key itself - we can use #[serde(flatten)] attribute on a field of a struct or enum in those cases that we don't know about the number of exact fields inside the struct or enum or what's exactly inside the body of an api comming from the client to decode or map it into the struct or enum thus we can use this attribute to hold additional data that is not captured by any other fields of the struct or enum
         pub event: EventVariant, //// the data which is a vector of all either Serverless or Runime variant events - we'll have {"time": 167836438974, "event": "event name, "data": [{...RuntimeLog_instance...}] or [{...ServerlessLog_instance...}]}
+    }
+
+    
+    impl EventLog{
+
+        pub async fn emit(&self){
+            
+            // TODO - emit (log) the current event 
+            // ...
+        
+        }
+
     }
 
 
@@ -289,7 +300,7 @@ pub mod env{
         fn current_timestamp(&self) -> u64; //// current runtime timestamp in nanoseconds
         fn init(&self) -> Self::App; //// initialize the whole app for the first time; this method will panic on second call
         fn health(&self) -> Self;
-        fn caller(&self) -> SocketAddr; //// the current caller of one of the Serverless trait methods
+        fn caller(&self) -> String; //// the current caller of one of the Serverless trait methods which is the public key
         fn future_result(&self, idx: u64) -> FutureResult; //// getting the result of the passed in future id
         fn make_tx(&mut self) -> schemas::Transaction;
 
@@ -473,9 +484,9 @@ pub mod env{
 
         }
         
-        fn caller(&self) -> SocketAddr{
+        fn caller(&self) -> String{
         
-            // TODO - return the socket address of the caller of a method for handling method call costs
+            // TODO - return the public key of the caller of a method for handling method call costs
             // ...
     
             todo!()
