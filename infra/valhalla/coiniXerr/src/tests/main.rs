@@ -851,6 +851,12 @@ pub async fn generic(){
     // https://medium.com/tips-for-rust-developers/pin-276bed513fd1
     // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
     // --------------------------------------------------------------------------
+    //// the location of dynamic types in rust is on the heap and don't impl Copy trait  
+    //// and their pointers, cap and length will be stored on the stack 
+    //// also due to the expensive memory cost they must be either cloned, 
+    //// borrowed or be in their sliced form like &str, &[u8], Box<dyn Trait> or &dyn Trait
+    //// to move them in other scopes with losing ownership.
+    //
     //// FnOnce: there might be multiple references of a type due to the borrowing rules 
     //// and all of them must be dropped if the closure wants to eat the type 
     //// since the type can't be available after moving into the closure 
@@ -993,7 +999,7 @@ pub async fn generic(){
         () // or simply comment this :)
         
     } 
-    fn test_1<C, 'lifetime
+    fn test_1<'lifetime, C 
                 // : FnOnce(String) -> String + Send + Sync + 'static + 'lifetime // or we can use this syntax instead of where
                 >(c: C) // the passed in param is of type C which is a generic type which is bounded to the FnOnce trait
         -> (std::pin::Pin<Box<dyn std::future::Future<Output=Box<C>>>>,  //// we must put the generic C inside the Box not its equivalent which is a closure bounded to FnMut trait
@@ -1014,6 +1020,34 @@ pub async fn generic(){
             }
         )
     }
+    pub async fn return_vec_of_box_traits<G>(c: 
+            Box<dyn InterfaceMe + Send + Sync + 'static>, 
+            //// if we want to use generic in rust we have to specify the generic name in function signature  
+            //// since G is a closure that is bounded to FnMut we have to define it a mutable type 
+            mut b: G) 
+        -> Vec<Box<dyn InterfaceMe + Send + Sync + 'static>>
+        where G: FnMut(u8) -> (){
+ 
+            let mut n_c = 2; //// since the closure is bounded to FnMut thus we have to define teh cores as mutable since it'll get a mutable borrow
+            b(n_c); //// we're calling the closure here and pass the mutable n_c param
+            let mut vector_of_boxed = vec![];
+            vector_of_boxed.push(c);
+            vector_of_boxed
+
+    } 
+    //// first param of the `return_vec_of_box_traits` function
+    //// is a type that accepts a Box of `InterfaceMe` trait 
+    //// whence the `InterfaceMe` trait is implemented for () or
+    //// the empty type, we can create a Box of () or Box::new(())
+    //// and pass it as the first param, for the second param 
+    //// we've passed a closure with empty return body
+    //
+    //// we'll pass the u8 value when we're calling the 
+    //// closure but we can use it here and store it in 
+    //// cores variable
+    return_vec_of_box_traits(Box::new(()), |cores|{ 
+        println!("number of cores is : {}", cores);
+    }).await;
 
 
     //----------------------------
@@ -1287,6 +1321,53 @@ pub async fn unsafer(){
     println!("new `a` is {}", new_a);
     
     ///// -------------- union, enum and struct -------------- /////
+    struct Object{
+        a: u8,
+        b: u16,
+        c: u32,
+    }
+
+    let obj = Object{
+        //// since `a` field is of type u8 thus we have to fill 
+        //// it with only two chars in hex since every 4 bits 
+        //// in base 2 is a hex char; the 0xaa is 170 in decimal
+        //// 0xaa is one byte or 8 bits
+        a: 0xaa, 
+        //// since `b` field is of type u16 thus we have to fill 
+        //// it with only four chars in hex since every 4 bits 
+        //// in base 2 is a hex char; the 0xaa is 48059 in decimal
+        //// 0xbbbb is two bytes or 16 bits
+        b: 0xbbbb, 
+        //// since `c` field is of type u32 thus we have to fill 
+        //// it with only eight chars in hex since every 4 bits 
+        //// in base 2 is a hex char; the 0xcccccccc is 3435973836 in decimal
+        //// 0xcccccccc is two bytes or 32 bits
+        c: 0xcccccccc
+    };
+
+    //// usize is an unsigned size which is big enough
+    //// to store any pointer and in 32 bits arch is 4 bytes
+    //// and in 64 bits is 8 bytes 
+    let base = &obj as *const _ as usize; //// we're considering the pointer of the obj instance as the starting point of the offset by converting its pointer into usize 
+    let a_off = &obj.a as *const _ as usize - base; //// this is the `a` field offset by subtracting its usize pointer from the base offset
+    let b_off = &obj.b as *const _ as usize - base; //// this is the `b` field offset by subtracting its usize pointer from the base offset
+    let c_off = &obj.c as *const _ as usize - base; //// this is the `c` field offset by subtracting its usize pointer from the base offset
+    println!("base: {}", base);
+    println!("a: {}", a_off as usize - base);
+    println!("b: {}", b_off as usize - base);
+    println!("c: {}", c_off as usize - base);
+
+
+
+    enum MultiEnum{
+        A(u32),
+        B(f32, u64),
+        C{x: u8, b: u16},
+        D
+    }
+
+    let both = MultiEnum::B(2.5, 4);
+    let strc = MultiEnum::C{x: 24, b: 25};
 
     #[repr(u32)]
     enum Tag{I, F}

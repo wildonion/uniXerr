@@ -1,8 +1,15 @@
 
 
 
+// hardware coding, 
+// memory layout and offset, 
+// playing with byte, hex and pointers
+// unsafe coding
 
-
+// https://github.com/wildonion/cs-concepts#%EF%B8%8F-system
+// https://doc.rust-lang.org/nomicon/index.html
+// https://stackoverflow.com/questions/26271151/precise-memory-layout-control-in-rust
+// https://docs.rust-embedded.org/book/
 // https://crates.io/crates/hotham
 // https://developers.google.com/protocol-buffers/docs/encoding
 // https://capnproto.org/encoding.html

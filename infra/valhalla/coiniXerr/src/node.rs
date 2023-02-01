@@ -505,6 +505,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         // ----------------------------------------------------------------------
         //            COMMUNICATE WITH THE VALIDATOR BASED ON TX TYPE
         // ----------------------------------------------------------------------
+        //// we can fill the ttype field which is of type u8,
+        //// with hex numbers since every 4 bits in base 2 can represent 
+        //// a hex char thus every 2 hex chars represent one byte 
+        //// or 8 bits, we have to make sure we use only two chars
+        //// in hex since the field is of type u8 and we have to pass
+        //// only one byte or two chars.
 
         //// since we're not sending following messages from another actor actually we're sending from the main() and main() is not an actor thus the sender in tell() method must be None
         if mutex_transaction.ttype == 0x00{ //// regular transaction comming from walleXerr

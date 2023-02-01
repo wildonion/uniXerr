@@ -16,7 +16,9 @@
 
 * validator reward distribution
 
-* first coiniXerr node test with BPF (complete BPF setup in code)
+* first coiniXerr node compilation test
+
+* first coiniXerr node test with BPF (complete BPF setup in code and `cvm.rs`)
 
 * https://github.com/wildonion/cs-concepts#-blogs-and-books
 
