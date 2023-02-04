@@ -1321,6 +1321,18 @@ pub async fn unsafer(){
     println!("new `a` is {}", new_a);
     
     ///// -------------- union, enum and struct -------------- /////
+    //// offset is the size in bytes and in order to get
+    //// the starting offset of a type or struct instance 
+    //// we can get a pointer to the instance then cast
+    //// the pointer to usize which is the size in bytes 
+    //// of the instance pointer itself
+    //
+    //// a pointer contains the memory address of an obejct
+    //// and it has either 32 or 64 bits (depends on the os arc)
+    //// size hence we can get it's size by casting it into the 
+    //// usize type that contains the size of that pointer in bytes
+    //// inside the stack
+ 
     struct Object{
         a: u8,
         b: u16,
@@ -1347,17 +1359,23 @@ pub async fn unsafer(){
 
     //// usize is an unsigned size which is big enough
     //// to store any pointer and in 32 bits arch is 4 bytes
-    //// and in 64 bits is 8 bytes 
+    //// and in 64 bits is 8 bytes also each usize contains 
+    //// the size in bytes in either 32 or 64 bits format
+    //
+    //// base is the usize pointer of the object itself 
+    //// which contains the size of the starting offset 
+    //// in bytes in memory, we've just cast the pointer 
+    //// to the location of the obj instance into the usize
+    //// to get the size of its pointer in bytes which is the 
+    //// starting offset of all its fields
     let base = &obj as *const _ as usize; //// we're considering the pointer of the obj instance as the starting point of the offset by converting its pointer into usize 
-    let a_off = &obj.a as *const _ as usize - base; //// this is the `a` field offset by subtracting its usize pointer from the base offset
-    let b_off = &obj.b as *const _ as usize - base; //// this is the `b` field offset by subtracting its usize pointer from the base offset
-    let c_off = &obj.c as *const _ as usize - base; //// this is the `c` field offset by subtracting its usize pointer from the base offset
-    println!("base: {}", base);
+    let a_off = &obj.a as *const _ as usize - base; //// this is the `a` field offset by subtracting its usize pointer (cast its *const pointer to usize) from the base offset
+    let b_off = &obj.b as *const _ as usize - base; //// this is the `b` field offset by subtracting its usize pointer (cast its *const pointer to usize) from the base offset
+    let c_off = &obj.c as *const _ as usize - base; //// this is the `c` field offset by subtracting its usize pointer (cast its *const pointer to usize) from the base offset
+    println!("base: {}", base); 
     println!("a: {}", a_off as usize - base);
     println!("b: {}", b_off as usize - base);
     println!("c: {}", c_off as usize - base);
-
-
 
     enum MultiEnum{
         A(u32),

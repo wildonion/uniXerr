@@ -1528,8 +1528,9 @@ impl Transaction{
     }
 
     fn verify_signature(&self) -> bool{
+        // https://cryptobook.nakov.com/digital-signatures 
         info!("➔ 🏷️ verifying transaction signature using public-key (asymmetric) digital signature encryption based on Ed25519");
-        match self.signature.clone(){ // https://cryptobook.nakov.com/digital-signatures | we'll use the self.signature later thus we have to clone it
+        match self.signature.clone(){ //// we'll use the self.signature later thus we have to clone it
             Some(tx_sig) => {                
                 info!("➔ 🕵🏾‍♀️ verifying transaction signature using public key 🔑"); 
                 let json_string_serialized_transaction = self.serialize_transaction(); //// we're generating a longer lifetime since in self.serialize_transaction().as_bytes(); the self.serialize_transaction() will be dropped before we calling as_bytes() method;
@@ -1541,18 +1542,27 @@ impl Transaction{
                     //// `return` keyword only.
                     return false; 
                 }
-                if !self.public_key_bytes.is_empty() && self.signature.is_some(){ 
-                    let peer_public_key = ring_signature::UnparsedPublicKey::new(&ring_signature::ED25519, self.public_key_bytes.clone()); //// generating the public key from the public key bytes 
-                    let sig = &self.signature.clone().unwrap() as &[u8]; //// casting the &Vec<u8> to &[u8]
-                    //// verifying the signature based on the 
-                    //// serialized transaction bytes and the  
-                    //// public key; public key will be used to 
-                    //// find the private key of the signer 
-                    //// which is inside the walleXerr to 
-                    //// complete the verification process.
-                    match peer_public_key.verify(serialized_tx_bytes, sig){ 
-                        Ok(_) => true,
-                        Err(_) => false
+                if !self.public_key_bytes.is_empty() && self.signature.is_some(){
+                    let mut generated_wallet_address = Self::generate_wallet_address_from(self.public_key_bytes.clone().as_slice());
+                    generated_wallet_address = Self::cut_extra_bytes_from(generated_wallet_address);
+                    //// generated wallet address must be equals 
+                    //// to the incoming wallet address from the walleXerr 
+                    if generated_wallet_address == self.from_address{ 
+                        let peer_public_key = ring_signature::UnparsedPublicKey::new(&ring_signature::ED25519, self.public_key_bytes.clone()); //// generating the public key from the public key bytes 
+                        let sig = &self.signature.clone().unwrap() as &[u8]; //// casting the &Vec<u8> to &[u8]
+                        //// verifying the signature based on the 
+                        //// serialized transaction bytes and the  
+                        //// public key; public key will be used to 
+                        //// find the private key of the signer 
+                        //// which is inside the walleXerr to 
+                        //// complete the verification process.
+                        match peer_public_key.verify(serialized_tx_bytes, sig){ 
+                            Ok(_) => true,
+                            Err(_) => false
+                        }
+                    } else{
+                        error!("➔ ⛔ generated wallet address from the public key MUST be equals to the incoming wallet address or `from_address` from the walleXerr; sender's public key is fake"); 
+                        false
                     }
                 } else{
                     false //// public address is empty which contains zero bytes
