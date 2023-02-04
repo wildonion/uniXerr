@@ -41,11 +41,9 @@ pub async fn bootstrap(
     //          RPC SERVER USING CAP'N PROTO SERIALIZATION
     // -----------------------------------------------------------
     //// with RPC we can call a method of an encoded actor object
-    //// using cap'n proto directly from other devices.
-    //
-    //// the results of an RPC call are returned 
-    //// to the client instantly, before the server 
-    //// even receives the initial request.
+    //// like actors using cap'n proto directly from other devices
+    //// also the results of an RPC call are returned to the client 
+    //// instantly, before the server even receives the initial request.
     
 
 

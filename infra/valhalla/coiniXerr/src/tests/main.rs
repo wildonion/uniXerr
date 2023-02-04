@@ -1183,11 +1183,14 @@ pub async fn generic(){
         callback(None, HashMap::new());
     }
 
-    let mut map = HashMap::new();
-    map.insert("wildonion".to_string(), "another_wildonion".to_string());
-    let none_call: Option<u8> = None;
-    sayHelloAgain(23, |none_call, map|{
-        
+
+    sayHelloAgain(23, |n_c, m|{
+        let inputs: Vec<Vec<f64>> = vec![vec![5.6, 5.3]];
+        for index in 0..inputs.len(){
+            let row = &inputs[index]; //// inputs in the first iteration will be moved from the memory thus we have to borrow it or clone it
+        }
+        let map = m;
+        let none_call = n_c;
     });
 
     let callback = |_| Some(1); // |_| means that the param name can be anything  
@@ -1319,7 +1322,7 @@ pub async fn unsafer(){
     };
 
     println!("new `a` is {}", new_a);
-    
+
     ///// -------------- union, enum and struct -------------- /////
     //// offset is the size in bytes and in order to get
     //// the starting offset of a type or struct instance 

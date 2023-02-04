@@ -5,6 +5,7 @@
 // memory layout and offset, 
 // playing with byte, hex and pointers
 // unsafe coding
+// writing engines
 
 // https://github.com/wildonion/cs-concepts#%EF%B8%8F-system
 // https://doc.rust-lang.org/nomicon/index.html
