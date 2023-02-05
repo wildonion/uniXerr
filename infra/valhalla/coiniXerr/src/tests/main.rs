@@ -1191,6 +1191,23 @@ pub async fn generic(){
         }
         let map = m;
         let none_call = n_c;
+
+        pub struct Nft{
+            pub id: u16,
+            pub title: String,
+            pub royalties: Vec<Royalty>,
+        }
+        pub struct Royalty{
+            pub receiver: String,
+            pub amount: u128,
+        }
+        let nfts: Vec<Nft> = Vec::new();
+        nfts.into_iter().map(|nft| {
+            for r in nft.royalties{
+                let who = r.receiver;
+                let much = r.amount;
+            }
+        });
     });
 
     let callback = |_| Some(1); // |_| means that the param name can be anything  
@@ -1326,9 +1343,10 @@ pub async fn unsafer(){
     ///// -------------- union, enum and struct -------------- /////
     //// offset is the size in bytes and in order to get
     //// the starting offset of a type or struct instance 
-    //// we can get a pointer to the instance then cast
-    //// the pointer to usize which is the size in bytes 
-    //// of the instance pointer itself
+    //// we can get a raw pointer (since smart pointer in rust 
+    //// will be coerced to raw pointers at compile time) 
+    //// to the instance then cast that pointer to usize 
+    //// which is the size in bytes of the instance pointer itself
     //
     //// a pointer contains the memory address of an obejct
     //// and it has either 32 or 64 bits (depends on the os arc)
