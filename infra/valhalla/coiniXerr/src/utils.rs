@@ -694,6 +694,7 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 // https://stackoverflow.com/questions/26731243/how-do-i-use-a-macro-across-module-files
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
+// https://www.qovery.com/blog/a-guided-tour-of-streams-in-rust
 // https://veykril.github.io/tlborm/
 // https://danielkeep.github.io/tlborm/book/
 // https://dhghomon.github.io/easy_rust/Chapter_61.html
@@ -747,6 +748,9 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 //// ------------------------------------------------------------------------------------
 //// macro based for pub/sub streamer actor on top of tokio, zmq and libp2p sockets like:
 //// ------------------------------------------------------------------------------------
+//// streaming of future IO objects like array of utf8 bytes 
+//// comming from libp2p, zmq and tokio socket actors
+  
 let stream = streamer!{
     tlp: "p2p|zmq|rpc|tokio-tcp|tokio-udp|local"
     type: "pub/sub"
