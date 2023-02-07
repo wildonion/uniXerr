@@ -494,6 +494,17 @@ impl<'m> fmt::Display for AppError<'m>{ // implementing the formatter Display tr
 
 
 
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+///////        loading compiled transaction cap'np into transaction_capnp.rs
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+
+pub mod transaction_capnp{
+    include!(concat!(std::env!("OUT_DIR"), "/transaction_capnp.rs"));
+}
+
+
+
+
 
 
 

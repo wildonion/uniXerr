@@ -41,22 +41,25 @@ pub async fn bootstrap(
     //          RPC SERVER USING CAP'N PROTO SERIALIZATION
     // -----------------------------------------------------------
     //// with RPC we can call a method of an encoded actor object
-    //// like actors using cap'n proto directly from other devices
-    //// also the results of an RPC call are returned to the client 
-    //// instantly, before the server even receives the initial request.
+    //// with cap'n proto directly from other devices also the 
+    //// results of an RPC call are returned to the client instantly, 
+    //// before the server even receives the initial request.
     
-
+    
+    let client = utils::transaction_capnp::Client;
 
     
-    // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc
+    // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples
     // https://capnproto.org/language.html
     // https://capnproto.org/rpc.html
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
-    // TODO - first decode transaction then sign it 
+    // TODO - first decode transaction then sign it like in tcp and udp server
     // TODO - send the signed transaction to the downside of the mempool channel for mining and verifying process inside the node.rs
     // ... 
 
+    
 
+    
 
 
     

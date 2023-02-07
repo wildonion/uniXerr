@@ -7,7 +7,7 @@
  
 
 
-// capnp build schemas method
+// transaction capnp build schemas method
 
 
 use capnpc::CompilerCommand;
@@ -15,5 +15,9 @@ use capnpc::CompilerCommand;
 
 
 fn main(){
-    CompilerCommand::new().file("schemas.capnp").run().unwrap(); //// building the capnp schema to generate the rust code
+    // ::capnpc::CompilerCommand::new().file("transaction.capnp").run().unwrap();
+    CompilerCommand::new()
+        .file("transaction.capnp")
+        .run()
+        .unwrap(); //// building the transaction capnp schema to generate the rust code
 }
