@@ -1640,7 +1640,10 @@ pub enum Mode{ //// enum uses 8 bytes (usize which is 64 bits on 64 bits arch) t
     Off, //// zero byte size
 }
 
- 
+
+//// RpcPublisher is also an actor that can communicate with other 
+//// RPC actors inside the node through the riker pub/sub messaging 
+//// channels and with outside world RPC actors through the RPC method calls 
 pub struct RpcPublisher{}
 
 impl Actor for RpcPublisher{ //// implementing Actor interface for the RpcPublisher
