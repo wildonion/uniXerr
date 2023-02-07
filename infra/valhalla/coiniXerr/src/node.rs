@@ -110,6 +110,7 @@ use crate::actors::{
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //// loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
 use crate::schemas::{
+                    RpcServer,
                     Transaction, Block, Slot, Chain, 
                     Staker, Db, Storage, Mode, P2PChainResponse, 
                     P2PLocalChainRequest, 

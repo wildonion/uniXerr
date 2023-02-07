@@ -44,9 +44,22 @@ pub async fn bootstrap(
     //// with cap'n proto directly from other devices also the 
     //// results of an RPC call are returned to the client instantly, 
     //// before the server even receives the initial request.
+    //
+    //// the generated code from the compiled capnp file 
+    //// includes a Server trait for each interfaces,
+    //// and to create an RPC-enabled object, we must implement 
+    //// that trait for the RPC object which can be an actor object
+    //// also for each defined interface, the generated 
+    //// code includes a Client struct that can be used 
+    //// to call the interface's or actor object's methods.
+
+
+    let client = utils::transaction_capnp::Transaction::Client; 
     
     
-    let client = utils::transaction_capnp::Client;
+    impl utils::transaction_capnp::Transaction::Server for RpcServer{
+
+    }
 
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples

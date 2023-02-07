@@ -1641,3 +1641,5 @@ pub enum Mode{ //// enum uses 8 bytes (usize which is 64 bits on 64 bits arch) t
 }
 
  
+
+pub struct RpcServer{}
