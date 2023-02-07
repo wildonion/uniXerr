@@ -491,7 +491,7 @@ pub async fn generic(){
         println!("the value of w.name is : {}", name);
     }
     
-    fn test_trait_3<T>(item: &T) where T: Give + See{ // T is bounded to Give and See trait
+    fn test_trait_3<T>(item: &T) where T: Give + See{ // the generic T is bounded to Give and See trait
         let val: &i32 = item.take();
         let name: &str = item.what().as_str();
         println!("the value of w.a is : {}", val);
@@ -504,41 +504,6 @@ pub async fn generic(){
     println!("address of w is : {:p}", p_to_w);
     test_trait_0(&w);
     ///// ========================================================================
-
-      
-    // Used in a pattern.
-    macro_rules! pat {
-        ($i:ident) => (Some($i))
-    }
-
-    if let pat!(x) = Some(1) {
-        assert_eq!(x, 1);
-    }
-
-    // Used in a type.
-    macro_rules! Tuple {
-        { $A:ty, $B:ty } => { ($A, $B) };
-    }
-
-    type N2 = Tuple!(i32, i32);
-
-
-    // Used as an associated item.
-    macro_rules! const_maker {
-        ($t:ty, $v:tt) => { const CONST: $t = $v; };
-    }
-    trait T {
-        const_maker!{i32, 7}
-    }
-
-    // Macro calls within macros.
-    macro_rules! example {
-        () => { println!("Macro call in a macro!") };
-    }
-    // Outer macro `example` is expanded, then inner macro `println` is expanded.
-    example!();
-
-
 
     // order must be lifetimes, then consts and types
 	impl<'a, Pack: Interface + 'a> Into<Vec<u8>> for Unpack<'a, Pack, SIZE>{ //// based on orphan rule we have to import the trait inside where the struct is or bound the instance of the struct into the Into trait in function calls - we want to return the T inside the wrapper thus we can implement the Into trait for the wrapper struct which will return the T from the wrapper field

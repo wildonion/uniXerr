@@ -12,6 +12,8 @@ coiniXerr Wallet Front-end
 
 * users can send transactions from this wallet to the coiniXerr nodes for mining processes through RPC channels with cap'n proto as the serialization protocol
 
+* realtime streaming over RPC cap'n proto for stock monitoring
+
 * the `ttype` must be `0x00` which is a regular transaction.
 
 * all transactions need to be signed with the sender's private key.

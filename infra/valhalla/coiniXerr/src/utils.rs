@@ -1062,6 +1062,32 @@ macro_rules! impl_engine_constructor {
     };
 }
 
+macro_rules! pat {
+    ($i:ident) => (Some($i))
+}
+
+// if let pat!(x) = Some(1) {
+//     assert_eq!(x, 1);
+// }
+
+macro_rules! Tuple {
+    { $A:ty, $B:ty } => { ($A, $B) };
+}
+
+type N2 = Tuple!(i32, i32);
+
+macro_rules! const_maker {
+    ($t:ty, $v:tt) => { const CONST: $t = $v; };
+}
+trait T {
+    const_maker!{i32, 7}
+}
+
+macro_rules! example {
+    () => { println!("Macro call in a macro!"); };
+}
+
+example!();
 
 // #[derive(Debug, Clone)]
 // pub struct Shape{
