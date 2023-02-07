@@ -1425,7 +1425,7 @@ impl Default for Transaction{
                                 )
                             )
                         );
-        tx //// returning the default and hashed transaction 
+        tx //// returning the default and signed transaction 
 
     }
 }
@@ -1641,5 +1641,24 @@ pub enum Mode{ //// enum uses 8 bytes (usize which is 64 bits on 64 bits arch) t
 }
 
  
+pub struct RpcPublisher{}
 
-pub struct RpcServer{}
+impl Actor for RpcPublisher{ //// implementing Actor interface for the RpcPublisher
+
+    type Msg = Vec<u8>; 
+
+    fn recv(&mut self, 
+            ctx: &Context<Self::Msg>, 
+            msg: Self::Msg, 
+            sender: Sender){ //// ctx is the actor system which we can build child actors with it also sender is another actor 
+
+        todo!();        
+
+    }
+
+}
+
+impl utils::transaction_capnp::Transaction::Server for RpcServer{
+
+
+}
