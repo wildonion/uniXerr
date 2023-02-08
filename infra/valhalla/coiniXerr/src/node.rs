@@ -138,7 +138,7 @@ use daemon; //// import lib.rs methods
 pub mod udp;
 #[path="tlps/tcp.server.rs"]
 pub mod tcp;
-#[path="tlps/rpc.server.rs"]
+#[path="tlps/rpc.pubsub.rs"]
 pub mod rpc;
 #[path="tlps/p2p.pubsub.rs"]
 pub mod p2p;
