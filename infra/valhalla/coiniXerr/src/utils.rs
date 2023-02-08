@@ -494,12 +494,12 @@ impl<'m> fmt::Display for AppError<'m>{ // implementing the formatter Display tr
 
 
 
-/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
-///////        loading compiled transaction cap'np into transaction_capnp.rs
-/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+///////         loading compiled transaction cap'np into pubsub_transaction_capnp.rs
+/////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 
-pub mod transaction_capnp{
-    include!(concat!(std::env!("OUT_DIR"), "/transaction_capnp.rs"));
+pub mod pubsub_transaction_capnp{
+    include!(concat!(std::env!("OUT_DIR"), "/pubsub_transaction_capnp.rs"));
 }
 
 
@@ -512,8 +512,11 @@ pub mod transaction_capnp{
 ///////             sending fake transaction to the coiniXerr rpc server  
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 
-pub async fn rpc_tx_emulatro() -> (){
+pub async fn rpc_tx_emulatro() -> (){ //// it can be any number of client emulators
 
+    // https://github.com/capnproto/capnproto-rust/blob/master/capnp-rpc/examples/pubsub/client.rs
+    // TODO - 
+    
 }
 
 

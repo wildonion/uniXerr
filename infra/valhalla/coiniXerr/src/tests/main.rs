@@ -912,9 +912,9 @@ pub async fn generic(){
     
     //--------------------------------------------------------------------
     // implementing trait by 
-    //      - bounding it to generics (where and function signature)
-    //      - in function return
-    //      - directly by using impl Trait for Type
+    //      - bounding it to generics (where and function signature) like where T: FnMut() -> ()
+    //      - in function return (-> impl Trait)
+    //      - directly by using impl Trait for Type in other scopes
     // returning traits from the function or us it as a function param by
     //      - Box<dyn Trait>
     //      - &dyn Trait  

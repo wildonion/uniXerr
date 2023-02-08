@@ -54,7 +54,6 @@ pub async fn bootstrap(
     //// to call the interface's or actor object's methods.
 
 
-    let client = utils::transaction_capnp::Transaction::Client; 
 
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples

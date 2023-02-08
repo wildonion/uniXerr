@@ -79,6 +79,7 @@ use std::rc::{Rc, Weak};
 use std::cell::RefCell;
 use std::net::SocketAddr; //// these structures are not async; to be async in reading and writing from and to socket we must use tokio::net
 use std::collections::{HashMap, HashSet, hash_map::{self, DefaultHasher}};
+use snow::resolvers::RingResolver;
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
@@ -110,7 +111,7 @@ use crate::actors::{
                     rafael::env::{Serverless, MetaData, Runtime as RafaelRt, EventLog, EventVariant, RuntimeLog, LinkToService} //// loading Serverless trait to use its method on Runtime instance (based on orphan rule) since the Serverless trait has been implemented for the Runtime type
                 }; 
 use crate::schemas::{
-                    RpcServer,
+                    RpcPublisher,
                     Transaction, Block, Slot, Chain, 
                     Staker, Db, Storage, Mode, P2PChainResponse, 
                     P2PLocalChainRequest, 
@@ -138,7 +139,7 @@ use daemon; //// import lib.rs methods
 pub mod udp;
 #[path="tlps/tcp.server.rs"]
 pub mod tcp;
-#[path="tlps/rpc.pubsub.rs"]
+#[path="tlps/rpc.pubsub.server.rs"]
 pub mod rpc;
 #[path="tlps/p2p.pubsub.rs"]
 pub mod p2p;
@@ -169,6 +170,16 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 //// inside the Box since we have no idea about the size of the error or 
 //// the type that caused this error happened at compile time thus we have 
 //// to take a reference to it but without defining a specific lifetime.
+//
+//// since we're using tokio runtime which is an async threadpool handler 
+//// for tasks we might have errors that coming from other threads which 
+//// must be Send, Sync and have a static lifetime across threads thus 
+//// as the Err part of the result in main() we're returning the Error 
+//// trait that is bounded to Send + Sync + 'static traits and lifetime
+//// also traits are dynamic abstract types and in order to return them
+//// from function they must be inside the Box or behind a pointer like &dyn
+//// the Error trait will be implemented for the type that caused the error 
+//// at runtime.   
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ 
  

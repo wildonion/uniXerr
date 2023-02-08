@@ -1660,8 +1660,3 @@ impl Actor for RpcPublisher{ //// implementing Actor interface for the RpcPublis
     }
 
 }
-
-impl utils::transaction_capnp::Transaction::Server for RpcServer{
-
-
-}

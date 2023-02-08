@@ -14,7 +14,7 @@ use capnpc::CompilerCommand;
 
 
 // https://doc.rust-lang.org/cargo/reference/build-scripts.html#build-scripts
-fn main(){
+fn main() -> Result<(), Box<dyn std::error::Error>>{
     // ::capnpc::CompilerCommand::new().file("transaction.capnp").run().unwrap();
     CompilerCommand::new()
         .file("transaction.capnp")
