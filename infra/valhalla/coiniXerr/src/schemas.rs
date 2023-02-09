@@ -1175,8 +1175,8 @@ impl Block{
         let salt = daemon::get_env_vars().get("SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
         let json_string_serialized_block = self.serialize_block(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
-        let block_hash_bytes = json_string_serialized_block.as_bytes(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
-        let hash = argon2::hash_encoded(block_hash_bytes, salt_bytes, &argon2::Config::default()).unwrap();
+        let block_serialized_bytes = json_string_serialized_block.as_bytes(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
+        let hash = argon2::hash_encoded(block_serialized_bytes, salt_bytes, &argon2::Config::default()).unwrap();
         self.hash = Some(Self::cut_extra_bytes_from(hash)); //// cutting the extra byte (the first 27 bytes) from the argon2 hash
     }
 
@@ -1184,9 +1184,25 @@ impl Block{
         let salt = daemon::get_env_vars().get("GENESIS_SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
         let json_string_serialized_block = self.serialize_block(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
-        let block_hash_bytes = json_string_serialized_block.as_bytes(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
-        let hash = argon2::hash_encoded(block_hash_bytes, salt_bytes, &argon2::Config::default()).unwrap();
+        let block_serialized_bytes = json_string_serialized_block.as_bytes(); //// we're generating a longer lifetime since in self.serialize_block().as_bytes(); the self.serialize_block() will be dropped before we calling as_bytes() method;
+        let hash = argon2::hash_encoded(block_serialized_bytes, salt_bytes, &argon2::Config::default()).unwrap();
         self.hash = Some(Self::cut_extra_bytes_from(hash)); //// cutting the extra byte (the first 27 bytes) from the argon2 hash
+    }
+
+    pub fn generate_merkle_hash(&mut self, mut first_tx_hash: String, second_tx_hash: String) -> Option<String>{ //// first_tx_hash is defined as mutable since we want to concat it with second_tx_hash 
+        let salt = daemon::get_env_vars().get("MERKLE_ROOT_SECRET_KEY").unwrap().to_string();
+        let salt_bytes = salt.as_bytes();
+        let str_ = first_tx_hash.as_str();
+        //// dynamic types can be in their sliced form by borrowing them using &
+        //// since all of them will be coerced to their slice type at compile time
+        //// with this in mind bellow we're pushing the slice of the second_tx_hash 
+        //// or &second_tx_hash into the first_tx_hash String.
+        first_tx_hash.push_str(&second_tx_hash);
+        let combined_first_and_second_tx_hash_to_bytes = first_tx_hash.as_bytes();
+        let hash = argon2::hash_encoded(combined_first_and_second_tx_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap();
+        Some(
+            Self::cut_extra_bytes_from(hash) //// cutting the extra byte (the first 27 bytes) from the argon2 hash
+        )
     }
 
     fn cut_extra_bytes_from(hash: String) -> String{
@@ -1236,13 +1252,34 @@ impl Block{
     }
 
     pub fn generate_merkle_root_hash(&mut self) -> Self{
+        let mut generated_merkle_root = String::from("");
+        for index in 0..self.transactions.clone().len(){
+            if index == 0{
+                continue;
+            } else{ //// hash of each transaction is generated inside the TLPs
+                let first_tx = self.transactions[index - 1];
+                let second_tx = self.transactions[index];
+                let first_tx_hash = first_tx.hash.unwrap(); 
+                let second_tx_hash = second_tx.hash.unwrap();
+                let hash_of_first_and_second = self.generate_merkle_hash(first_tx_hash, second_tx_hash).unwrap();
+                
+                //// creating a merkle ndoe from the combined hashl
+                let merkle_node = MerkleNode::new(hash_of_first_and_second);
 
-        // TODO - generate merkle root hash of this block
-        // TODO - update self.merkle_root field
-        // ...
 
-        todo!()
-
+            }
+        }
+        Self{
+            id: self.id,
+            index: self.index,
+            is_genesis: self.is_genesis,
+            prev_hash: self.prev_hash,
+            hash: self.hash,
+            merkle_root: Some(generated_merkle_root),
+            timestamp: self.timestamp,
+            transactions: self.transactions,
+            is_valid: self.is_valid,
+        }
     }
 
 }
@@ -1278,25 +1315,38 @@ impl Default for Block{
 //// it'll chain transaction hash together is a useful algorithm for proof of chain.
 #[derive(Debug)]
 pub struct MerkleNode{
+    //// without Rc we'll have a infinite
+    //// loop of a struct which contains 
+    //// field that is pointing to the struct
+    //// itself and with Rc we can break the loop.
     pub id: Uuid,
-    pub data: Transaction, //// in each node data is the transaction hash; if the data is of type Transaction just call the data.hash since the hash of the transaction has been generated in different TLPs
-    pub parent: RefCell<Weak<MerkleNode>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<MerkleNode>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
-    pub children: RefCell<Vec<Rc<MerkleNode>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<MerkleNode>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
+    pub data: String, //// the combined two transaction hashes
+    pub parent: Option<RefCell<Weak<MerkleNode>>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<MerkleNode>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
+    pub children: Option<RefCell<Vec<Rc<MerkleNode>>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<MerkleNode>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
 }
 
 impl MerkleNode{
+
+    pub fn new(data: String) -> Self{
+        Self{
+            id: Uuid::new_v4(),
+            data,
+            parent: None,
+            children: None
+        }
+    }
 
     pub fn is_leaf(&mut self) -> bool{
         todo!();
     }
 
     pub fn add_child(&mut self, node: MerkleNode){
-        self.children.borrow_mut().push(Rc::new(node)); //// in order to push into the self.children field we have to borrow it as mutable at runtime since it has wrapped around the RefCell
+        self.children.unwrap().borrow_mut().push(Rc::new(node)); //// in order to push into the self.children field we have to borrow it as mutable at runtime since it has wrapped around the RefCell
     }
 
     pub fn children(&mut self, node: MerkleNode) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
-        if node.children.borrow_mut().len() != 0{ //// first borrow the ownership of the self.children field at runtime then check its length
-            Ok(node.children.borrow_mut().to_vec()) //// we have to borrow the ownership of the self.children field at runtime and convert it to vector to return it cause it's inside RefCell
+        if node.children.unwrap().borrow_mut().len() != 0{ //// first borrow the ownership of the self.children field at runtime then check its length
+            Ok(node.children.unwrap().borrow_mut().to_vec()) //// we have to borrow the ownership of the self.children field at runtime and convert it to vector to return it cause it's inside RefCell
         } else{
             Err(format!("node -{}- has no children", node.id).to_string())
         }

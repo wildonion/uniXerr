@@ -12,7 +12,6 @@ reqwest = { version = "0.11", default-features = false, features = ["blocking", 
 tokio = { version = "1", features = ["full"] }
 tokio-cron-scheduler = "0.9.1"
 libp2p = { version = "0.50.0", features = ["full"] }
-tarpc = { version = "0.31", features = ["tokio1"] }
 riker = "0.4.2"
 riker-patterns = "0.4.2"
 serde = {version = "1", features = ["derive"] }

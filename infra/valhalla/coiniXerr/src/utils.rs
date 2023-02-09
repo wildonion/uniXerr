@@ -115,11 +115,11 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //// without &mut self would
             • References must always be valid.
 
 
-        ➔ types bounded to Sync and Send:
+        ➔ types bounded to Sync and Send so they are thread safe for data mutation:
             Arc
             Mutex
             RwLock
-        ➔ types not bounded to Sync and Send:
+        ➔ types not bounded to Sync and Send so they are not thread safe for data mutation:
             Rc
             RefCell
             Cell

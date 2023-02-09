@@ -168,8 +168,9 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 //// threads and awaits; Box is an smart pointer which has valid lifetime 
 //// for what's inside of it, we're putting the error part of the Result 
 //// inside the Box since we have no idea about the size of the error or 
-//// the type that caused this error happened at compile time thus we have 
-//// to take a reference to it but without defining a specific lifetime.
+//// the type that caused this error happened at compile time because it'll 
+//// be specified at runtime thus we have to take a reference to it but 
+//// without defining a specific lifetime.
 //
 //// since we're using tokio runtime which is an async threadpool handler 
 //// for tasks we might have errors that coming from other threads which 
@@ -180,6 +181,14 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 //// from function they must be inside the Box or behind a pointer like &dyn
 //// the Error trait will be implemented for the type that caused the error 
 //// at runtime.   
+//
+//// in the error part of the Result type we must put an error trait which 
+//// will be implemented for the type that will cause the error at runtime 
+//// since traits are abstract dynamic sized types in order to return them we have to
+//// put them inside the Box or take a reference to them using &dyn thus they
+//// can't be just returned in their normal form also the reason we're putting
+//// an error trait inside the Box is that we can't specify the type that will 
+//// cause the error at compile time cause it might be generated at runtime. 
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ 
  
@@ -570,7 +579,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
         while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //// returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
             current_block.push_transaction(mutex_transaction.clone()); //// cloning transaction object in every iteration to prevent ownership moving and losing ownership - adding pending transaction from the mempool channel into the current block for validating that block
-            if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){
+            if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap() && current_block.transactions.len() % 2 ==0{ //// also the number of transaction inside the block must be even to generate merkle root hash
                 info!("➔ 🔋🧊 passing the full block to consensus algorithms");
                 // TODO - consensus::zpk::consensus_on(current_block) || 
                 //        consensus::raft::consensus_on(current_block) || 

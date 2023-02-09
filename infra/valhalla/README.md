@@ -12,7 +12,7 @@
 
 * complete RPC pub/sub streaming setup and `rcp_tx_emultator()` function
 
-* setup noise protocol over ring encryption algorithms using [snow](https://crates.io/crates/snow) for TCP and UDP server
+* setup noise protocol over ring encryption algorithms using [snow](https://crates.io/crates/snow) for tokio TCP and UDP server
 
 * merkle tree from all transactions and parachain heartbeat 
 
