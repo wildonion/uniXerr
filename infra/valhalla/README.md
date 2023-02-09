@@ -10,7 +10,7 @@
 
 ## 🚧 WIP 
 
-* complete RPC setup and `rcp_tx_emultator()` function
+* complete RPC pub/sub streaming setup and `rcp_tx_emultator()` function
 
 * setup noise protocol over ring encryption algorithms using [snow](https://crates.io/crates/snow) for TCP and UDP server
 

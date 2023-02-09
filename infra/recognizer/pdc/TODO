@@ -1,7 +1,13 @@
 
 
 
-
+                                            |image and text <-> speech processing|
+                                                     |text <-> image|
+                                    |natural language processing with BERT & GPT & BART|
+                                   |spaCy - stanza - pytorch lightning - plotly - sklearn|
+                                          |deep fakee - lip sync - talking head|
+                                       |image segmentation (semantic and instance)|
+                             |object detection - classification with localization - GAN ops|
 
 
 📌 fix backpropagation algorithm, the issue with the size of each weights (weights updating process issue for mlp model)

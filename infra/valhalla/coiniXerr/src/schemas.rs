@@ -1302,7 +1302,7 @@ impl MerkleNode{
         }
     }
 
-    pub fn generate_hash(&mut self, right_node: MerkleNode) -> String{
+    pub fn generate_hash(&mut self, right_node: MerkleNode) -> String{ //// self.data refers to the left node data
 
         // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
         // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
@@ -1546,7 +1546,9 @@ impl Transaction{
                     let mut generated_wallet_address = Self::generate_wallet_address_from(self.public_key_bytes.clone().as_slice());
                     generated_wallet_address = Self::cut_extra_bytes_from(generated_wallet_address);
                     //// generated wallet address must be equals 
-                    //// to the incoming wallet address from the walleXerr 
+                    //// to the incoming wallet address from the walleXerr
+                    //// since the incoming public key must be the one 
+                    //// that will be used in building wallet address. 
                     if generated_wallet_address == self.from_address{ 
                         let peer_public_key = ring_signature::UnparsedPublicKey::new(&ring_signature::ED25519, self.public_key_bytes.clone()); //// generating the public key from the public key bytes 
                         let sig = &self.signature.clone().unwrap() as &[u8]; //// casting the &Vec<u8> to &[u8]
@@ -1641,12 +1643,30 @@ pub enum Mode{ //// enum uses 8 bytes (usize which is 64 bits on 64 bits arch) t
 }
 
 
-//// RpcPublisher is also an actor that can communicate with other 
-//// RPC actors inside the node through the riker pub/sub messaging 
-//// channels and with outside world RPC actors through the RPC method calls 
+//// RpcPublisher and RpcSubscriber are also actors that 
+//// can communicate with other RPC actors inside the node 
+//// through the riker pub/sub messaging channels and with 
+//// outside world RPC actors through the RPC method calls.
 pub struct RpcPublisher{}
 
+pub struct RpcSubscriber{}
+
 impl Actor for RpcPublisher{ //// implementing Actor interface for the RpcPublisher
+
+    type Msg = Vec<u8>; 
+
+    fn recv(&mut self, 
+            ctx: &Context<Self::Msg>, 
+            msg: Self::Msg, 
+            sender: Sender){ //// ctx is the actor system which we can build child actors with it also sender is another actor 
+
+        todo!();        
+
+    }
+
+}
+
+impl Actor for RpcSubscriber{ //// implementing Actor interface for the RpcSubscriber
 
     type Msg = Vec<u8>; 
 
