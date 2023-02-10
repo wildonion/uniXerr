@@ -742,12 +742,39 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afaa14ddcf4553e700608c1c0ee3ca1f4cf673470462b99ff6dd6bedcdb6c6ce"
 
 [[package]]
+name = "capnp"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35400c6acb55f1a91e6843beca189aba6bccd3c11fae5a7c0288fe5a1c3da822"
+
+[[package]]
+name = "capnp-futures"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6cbe2479d667c6d44219a07d3da971379e4321ea7343b319994695be7da97a17"
+dependencies = [
+ "capnp 0.16.0",
+ "futures",
+]
+
+[[package]]
+name = "capnp-rpc"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62097700b1da1dd567d77e91ddd7da0fd22c790599ce56c4eea346d60dff0acd"
+dependencies = [
+ "capnp 0.16.0",
+ "capnp-futures",
+ "futures",
+]
+
+[[package]]
 name = "capnpc"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "476b328e8298e5454f9d72b53a15da8d8725e572bc3d43e4e4cdb77a49093ee9"
 dependencies = [
- "capnp",
+ "capnp 0.15.2",
 ]
 
 [[package]]
@@ -896,7 +923,9 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "borsh",
- "capnp",
+ "capnp 0.15.2",
+ "capnp-futures",
+ "capnp-rpc",
  "capnpc",
  "chrono",
  "clap",

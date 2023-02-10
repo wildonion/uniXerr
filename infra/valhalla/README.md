@@ -12,7 +12,7 @@
 
 * complete RPC pub/sub streaming setup and `rcp_tx_emultator()` function
 
-* setup noise protocol over ring encryption algorithms using [snow](https://crates.io/crates/snow) for tokio TCP and UDP server
+* setup noise protocol over ring encryption algorithms using [snow](https://crates.io/crates/snow) for tokio TCP, UDP and RPC server
 
 * merkle tree from all transactions and parachain heartbeat 
 
@@ -20,7 +20,7 @@
 
 * first coiniXerr node compilation test
 
-* first coiniXerr node test with BPF (complete BPF setup in code and `cvm.rs`)
+* second coiniXerr node test with BPF (complete BPF setup in code and `cvm.rs`)
 
 * https://github.com/wildonion/cs-concepts#-blogs-and-books
 

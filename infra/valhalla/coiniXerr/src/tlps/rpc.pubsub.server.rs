@@ -26,9 +26,9 @@ pub async fn bootstrap(
         coiniXerr_sys: ActorSystem
     ){
 
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////           RPC stream to decode incoming transactions using cap'n proto serialization from walleXerr
-    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
+    ///////          RPC stream to verify cap'n proto transactions coming from walleXerr
+    /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
@@ -36,14 +36,15 @@ pub async fn bootstrap(
 
     let buffer_size = env_vars.get("BUFFER_SIZE").unwrap().parse::<usize>().unwrap();
     let rpc_addr = env_vars.get("RPC_ADDR").unwrap().as_str();                                                                                                                         //// there is no need to pass other actor channels through mempool channel since there is no tokio::spawn(async move{}) thus all the vars won't be moved and we can access them in second iteration of the loop                                                                                                                                            )>(buffer_size); //// transaction mempool channel using mpsc channel to send all transactions of all peers' stream plus the related validator actor info to down side of the channel asynchronously for mining process - buffer_size is the number of total bytes we can send and have through and inside the channel
-
+    
     // -----------------------------------------------------------       
     //        RPC PUBLISHER USING CAP'N PROTO SERIALIZATION
     // -----------------------------------------------------------
-    //// with RPC we can call a method of an encoded actor object
-    //// with cap'n proto directly from other devices also the 
-    //// results of an RPC call are returned to the client instantly, 
-    //// before the server even receives the initial request.
+    // https://capnproto.org/rpc.html
+    //// with RPC we can call a method of an cap'n proto encoded 
+    //// actor object directly from other devices also the results 
+    //// of an RPC call are returned to the client instantly, before 
+    //// the server even receives the initial request.
     //
     //// the generated code from the compiled capnp file 
     //// includes a Server trait for each interfaces,
@@ -58,7 +59,6 @@ pub async fn bootstrap(
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples
     // https://capnproto.org/language.html
-    // https://capnproto.org/rpc.html
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
     // TODO - first decode transaction then sign it like in tcp and udp server
     // TODO - send the signed transaction to the downside of the mempool channel for mining and verifying process inside the node.rs

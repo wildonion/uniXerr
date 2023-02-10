@@ -499,6 +499,21 @@ impl<'m> fmt::Display for AppError<'m>{ // implementing the formatter Display tr
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ 
 
 pub mod pubsub_transaction_capnp{
+    //// the following will load all the compiled 
+    //// methods and structs of the `transaction.capnp`
+    //// inside the `pubsub_transaction_capnp.rs` in here
+    //// hence we can access them directly from other
+    //// scopes also std::env!() will inspects an env 
+    //// var at compile time, because `OUT_DIR` variables 
+    //// are not yet set (it'll set at compile time) 
+    //// when the build script is compiled, using env! 
+    //// won't work here.
+    //
+    //// `OUT_DIR` will be handled by the capnpc lib
+    //// but since the build.rs will be compiled first 
+    //// before any rust crates accessing OUT_DIR in here
+    //// is not possible since this rust crate is not yet
+    //// compiled. 
     include!(concat!(std::env!("OUT_DIR"), "/pubsub_transaction_capnp.rs"));
 }
 

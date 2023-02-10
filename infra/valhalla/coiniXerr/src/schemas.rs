@@ -1253,6 +1253,7 @@ impl Block{
 
     pub fn generate_merkle_root_hash(&mut self) -> Self{
         let mut generated_merkle_root = String::from("");
+        let merkle_nodes = Vec::<MerkleNode>::new();
         for index in 0..self.transactions.clone().len(){
             if index == 0{
                 continue;
@@ -1263,8 +1264,8 @@ impl Block{
                 let second_tx_hash = second_tx.hash.unwrap();
                 let hash_of_first_and_second = self.generate_merkle_hash(first_tx_hash, second_tx_hash).unwrap();
                 
-                //// creating a merkle ndoe from the combined hashl
-                let merkle_node = MerkleNode::new(hash_of_first_and_second);
+                //// creating a merkle ndoe from the combined hash
+                merkle_nodes.push(MerkleNode::new(hash_of_first_and_second));
 
 
             }
@@ -1344,7 +1345,7 @@ impl MerkleNode{
         self.children.unwrap().borrow_mut().push(Rc::new(node)); //// in order to push into the self.children field we have to borrow it as mutable at runtime since it has wrapped around the RefCell
     }
 
-    pub fn children(&mut self, node: MerkleNode) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
+    pub fn get_children(&mut self, node: MerkleNode) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
         if node.children.unwrap().borrow_mut().len() != 0{ //// first borrow the ownership of the self.children field at runtime then check its length
             Ok(node.children.unwrap().borrow_mut().to_vec()) //// we have to borrow the ownership of the self.children field at runtime and convert it to vector to return it cause it's inside RefCell
         } else{
