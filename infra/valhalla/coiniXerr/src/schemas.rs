@@ -1390,10 +1390,12 @@ impl MerkleNode{
         let right_node_hash = right_node.data;
         let salt = daemon::get_env_vars().get("MERKLE_ROOT_SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
-        //// dynamic types can be in their sliced form by borrowing them using &
-        //// since all of them will be coerced to their slice type at compile time
-        //// with this in mind bellow we're pushing the slice of the right_node_hash 
-        //// or &right_node_hash into the left_node_hash String.
+        //// dynamic types can be in their sliced form by 
+        //// borrowing them using & since all of them will 
+        //// be coerced to their slice type at compile time
+        //// with this in mind bellow we're pushing the slice 
+        //// of the right_node_hash or &right_node_hash into 
+        //// the left_node_hash String.
         left_node_hash.push_str(&right_node_hash);
         //// Rc::downgrade() creates a new weak pointer 
         //// from the passed in type;
@@ -1410,7 +1412,7 @@ impl MerkleNode{
         let combined_first_and_right_node_hash_to_bytes = left_node_hash.as_bytes(); //// converting the combined hash into utf8 bytes
         let hash = argon2::hash_encoded(combined_first_and_right_node_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap(); //// generating the hash from the combined left and right node hash to create the merkle root hash
         let merkle_root_hash = hash[27..].to_owned(); //// cutting the extra byte (the first 27 bytes) from the argon2 hash to generate the merkle root hash
-        let parent = Some(RefCell::new(Weak::<MerkleNode>::new())); //// creating the parent node 
+        let parent = Some(RefCell::new(Weak::<MerkleNode>::new())); //// creating the parent node; the type of Weak is MerkleNode
         let p = parent.unwrap().borrow_mut().upgrade().unwrap();
         p.data = merkle_root_hash;
         p.add_child(
