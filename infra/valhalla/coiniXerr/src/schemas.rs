@@ -1189,17 +1189,16 @@ impl Block{
         self.hash = Some(Self::cut_extra_bytes_from(hash)); //// cutting the extra byte (the first 27 bytes) from the argon2 hash
     }
 
-    pub fn generate_merkle_hash(&mut self, mut first_tx_hash: String, second_tx_hash: String) -> Option<String>{ //// first_tx_hash is defined as mutable since we want to concat it with second_tx_hash 
+    fn generate_merkle_hash(&mut self, mut first_node_hash: String, second_node_hash: String) -> Option<String>{ //// first_node_hash is defined as mutable since we want to concat it with second_node_hash 
         let salt = daemon::get_env_vars().get("MERKLE_ROOT_SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
-        let str_ = first_tx_hash.as_str();
         //// dynamic types can be in their sliced form by borrowing them using &
         //// since all of them will be coerced to their slice type at compile time
-        //// with this in mind bellow we're pushing the slice of the second_tx_hash 
-        //// or &second_tx_hash into the first_tx_hash String.
-        first_tx_hash.push_str(&second_tx_hash);
-        let combined_first_and_second_tx_hash_to_bytes = first_tx_hash.as_bytes();
-        let hash = argon2::hash_encoded(combined_first_and_second_tx_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap();
+        //// with this in mind bellow we're pushing the slice of the second_node_hash 
+        //// or &second_node_hash into the first_node_hash String.
+        first_node_hash.push_str(&second_node_hash);
+        let combined_first_and_second_node_hash_to_bytes = first_node_hash.as_bytes();
+        let hash = argon2::hash_encoded(combined_first_and_second_node_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap();
         Some(
             Self::cut_extra_bytes_from(hash) //// cutting the extra byte (the first 27 bytes) from the argon2 hash
         )
@@ -1251,9 +1250,9 @@ impl Block{
 
     }
 
-    pub fn generate_merkle_root_hash(&mut self) -> Self{
+    pub fn generate_merkle_nodes(&mut self) -> Self{
         let mut generated_merkle_root = String::from("");
-        let merkle_nodes = Vec::<MerkleNode>::new();
+        let merkle_node_hashes = Vec::<MerkleNode>::new();
         for index in 0..self.transactions.clone().len(){
             if index == 0{
                 continue;
@@ -1263,11 +1262,7 @@ impl Block{
                 let first_tx_hash = first_tx.hash.unwrap(); 
                 let second_tx_hash = second_tx.hash.unwrap();
                 let hash_of_first_and_second = self.generate_merkle_hash(first_tx_hash, second_tx_hash).unwrap();
-                
-                //// creating a merkle ndoe from the combined hash
-                merkle_nodes.push(MerkleNode::new(hash_of_first_and_second));
-
-
+                merkle_node_hashes.push(MerkleNode::new(hash_of_first_and_second)); //// creating a merkle ndoe from the combined hash
             }
         }
         Self{
@@ -1308,6 +1303,8 @@ impl Default for Block{
 }
 
 
+// https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
+// https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
 //// Rc is a smart pointer used for counting the incoming references to the type which shared its ownership using &
 //// and see how many owners the borrowed type has in its entire scope as long as its lifetime is not dropped also 
 //// it has nothing to do with the garbage collection rule cause rust doesn't have it.
@@ -1316,14 +1313,45 @@ impl Default for Block{
 //// it'll chain transaction hash together is a useful algorithm for proof of chain.
 #[derive(Debug)]
 pub struct MerkleNode{
-    //// without Rc we'll have a infinite
-    //// loop of a struct which contains 
-    //// field that is pointing to the struct
-    //// itself and with Rc we can break the loop.
+    //// we can count the references or the 
+    //// number of borrowed and shared ownerships of 
+    //// the type at runtime which can 
+    //// be done using Rc and Weak.
+    //
+    //// a structure might circularly referencing 
+    //// itself either directly or indirectly like
+    //// contains field that is pointing to the struct
+    //// itself in which we can break the infinite loop
+    //// using weak pointer but it should not hold a 
+    //// strong reference to itself to 
+    //// prevent a memory leak.
     pub id: Uuid,
     pub data: String, //// the combined two transaction hashes
-    pub parent: Option<RefCell<Weak<MerkleNode>>>, //// we want to modify which nodes are parent of another node at runtime, so we have a RefCell<T> in parent around the Vec<Weak<MerkleNode>> - child -> parent using Weak to break the cycle, counting immutable none owning references to parent - weak pointer or none owning reference to a parent cause deleting the child shouldn't delete the parent node
-    pub children: Option<RefCell<Vec<Rc<MerkleNode>>>>, //// we want to modify which nodes are children of another node at runtime, so we have a RefCell<T> in children around the Vec<Rc<MerkleNode>> - parent -> child, counting immutable references or borrowers to childlren - strong pointer to all children cause every child has a parent which the parent owns multiple node as its children and once we remove it all its children must be removed
+    //// counting immutable none owning references (Weak) to parent; 
+    //// since child -> parent or self.parent in which self referes 
+    //// to a none parent node or a child must be Weak to break 
+    //// the cycle so we've used a weak pointer or none owning 
+    //// reference to a parent cause deleting the child shouldn't 
+    //// delete the parent node means a child can be removed later
+    //// and the parent must be exists but and no longer enable to point
+    //// to that child so the connection from every child to the parent
+    //// must be weak or a none owning reference to the parent also 
+    //// weak pointer means once a child node gets dropped the 
+    //// parent node must be exists and must not be dropped
+    //// also since we want to mutate the parent at runtime 
+    //// we've put them parent inside the RefCell.    
+    pub parent: Option<RefCell<Weak<MerkleNode>>>, 
+    //// counting immutable references or borrowers (Rc) to childlren;
+    //// since parent -> child or parent.children must be a string pointer,
+    //// or Rc to break the cycle so we've used an strong pointer to children
+    //// cause deleting the parent node must delete the children nodes. 
+    //// strong pointer or rc means once a parent gets dropped all its children
+    //// must be drop to since every time we put the child inside the vector,
+    //// the reference count to that child will be increased because the parent 
+    //// will be the owner of that child hence by removing the parent the counter 
+    //// must be decreased by one also since we want to mutate the child 
+    //// at runtime we've put them parent inside the RefCell.
+    pub children: Option<RefCell<Vec<Rc<MerkleNode>>>>, 
 }
 
 impl MerkleNode{
@@ -1338,7 +1366,11 @@ impl MerkleNode{
     }
 
     pub fn is_leaf(&mut self) -> bool{
-        todo!();
+        if self.children.unwrap().borrow().len() == 0{ //// no need to call borrow_mut() method since we don't want to mutate the children field
+            true
+        } else{
+            false
+        }
     }
 
     pub fn add_child(&mut self, node: MerkleNode){
@@ -1353,17 +1385,47 @@ impl MerkleNode{
         }
     }
 
-    pub fn generate_hash(&mut self, right_node: MerkleNode) -> String{ //// self.data refers to the left node data
-
-        // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
-        // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
-        // https://nomicon.io/DataStructures/MerkleProof
-        // TODO - use argon2 to generate the hash of self.data.hash + right_node.data.hash
-        // ...
-
-        todo!()
-
+    pub fn generate_hash(&mut self, mut right_node: MerkleNode){ //// self.data refers to the left node hash
+        let left_node_hash = self.data;
+        let right_node_hash = right_node.data;
+        let salt = daemon::get_env_vars().get("MERKLE_ROOT_SECRET_KEY").unwrap().to_string();
+        let salt_bytes = salt.as_bytes();
+        //// dynamic types can be in their sliced form by borrowing them using &
+        //// since all of them will be coerced to their slice type at compile time
+        //// with this in mind bellow we're pushing the slice of the right_node_hash 
+        //// or &right_node_hash into the left_node_hash String.
+        left_node_hash.push_str(&right_node_hash);
+        //// Rc::downgrade() creates a new weak pointer 
+        //// from the passed in type;
+        //// calling upgrade() on the weak pointer returns 
+        //// an Option<Rc<T>> in which T is the allocation
+        //// also is used to prevent circular references 
+        //// between Rc pointers.
+        //
+        //// since a weak reference does not count 
+        //// towards ownership, it will not prevent 
+        //// the value stored in the allocation from 
+        //// being dropped but Rc itself will do the 
+        //// mentioned note. 
+        let combined_first_and_right_node_hash_to_bytes = left_node_hash.as_bytes(); //// converting the combined hash into utf8 bytes
+        let hash = argon2::hash_encoded(combined_first_and_right_node_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap(); //// generating the hash from the combined left and right node hash to create the merkle root hash
+        let merkle_root_hash = hash[27..].to_owned(); //// cutting the extra byte (the first 27 bytes) from the argon2 hash to generate the merkle root hash
+        let parent = Some(RefCell::new(Weak::<MerkleNode>::new())); //// creating the parent node 
+        let p = parent.unwrap().borrow_mut().upgrade().unwrap();
+        p.data = merkle_root_hash;
+        p.add_child(
+            MerkleNode{ 
+                id: self.id, 
+                data: self.data, 
+                parent: self.parent, 
+                children: self.children 
+            }
+        );
+        p.add_child(right_node);
+        self.parent = parent;
+        right_node.parent = parent;
     }
+
 }
 
 

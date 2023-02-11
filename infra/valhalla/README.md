@@ -10,15 +10,13 @@
 
 ## 🚧 WIP 
 
+* parachain heartbeat and validator reward distribution
+
+* first coiniXerr node compilation test
+
 * complete RPC pub/sub streaming setup and `rcp_tx_emultator()` function
 
 * setup noise protocol over ring encryption algorithms using [snow](https://crates.io/crates/snow) for tokio TCP, UDP and RPC server
-
-* merkle tree from all transactions and parachain heartbeat 
-
-* validator reward distribution
-
-* first coiniXerr node compilation test
 
 * second coiniXerr node test with BPF (complete BPF setup in code and `cvm.rs`)
 
