@@ -12,7 +12,7 @@ echo "[?] What App Do You Want To Build?"
 read App    
 if [[ $App == "coiniXerr" ]]; then
     echo "☕ Building coiniXerr"
-    sudo apt -y install build-essential zlib1g-dev llvm-12-dev libclang-12-dev linux-headers-$(uname -r) libelf-dev
+    sudo apt -y install build-essential zlib1g-dev llvm-12-dev libclang-12-dev linux-headers-$(uname -r) libelf-dev libudev-dev
     sudo apt update && sudo apt-get -y install wget software-properties-common lsb-release linux-headers-generic pkg-config
     sudo wget https://apt.llvm.org/llvm.sh && sudo chmod +x sudo llvm.sh && ./llvm.sh 13 && rm -f ./llvm.sh
     sudo apt install -y capnproto && sudo apt install -y protobuf-compiler

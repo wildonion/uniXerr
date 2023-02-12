@@ -42,7 +42,8 @@ pub async fn bootstrap(
     // -----------------------------------------------------------
     // https://capnproto.org/rpc.html
     //// with RPC we can call a method of an cap'n proto encoded 
-    //// actor object directly from other devices also the results 
+    //// actor object directly from other devices like calling 
+    //// a contract method from another contract also the results 
     //// of an RPC call are returned to the client instantly, before 
     //// the server even receives the initial request.
     //

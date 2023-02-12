@@ -1358,7 +1358,17 @@ pub struct MerkleNode{
     //// means once a child node gets dropped the parent node must 
     //// be exists and must not be dropped also because we want to 
     //// mutate the parent at runtime we've put them 
-    //// parent inside the RefCell.    
+    //// parent inside the RefCell.
+    //
+    //// since the child might be removed or gets dropped 
+    //// thus the connection between child and parent must be 
+    //// weak means the parent of a child node must be inside 
+    //// a weak pointer since the child node has a parent 
+    //// field which must be filled with a weak reference 
+    //// to the parent hence by doing this when the child 
+    //// goes out of scope or gets dropped the weak count
+    //// can be 1 in worst case and that is a pointer to 
+    //// the parent since the parent still exists.
     pub parent: Option<RefCell<Weak<MerkleNode>>>, 
     //// counting immutable references or borrowers (Rc) to childlren;
     //// since parent -> child or parent.children must be a string pointer,
@@ -1370,6 +1380,18 @@ pub struct MerkleNode{
     //// will be the owner of that child hence by removing the parent the counter 
     //// must be decreased by one also because we want to mutate the child 
     //// at runtime we've put them parent inside the RefCell.
+    //
+    //// since the parent might gets dropped
+    //// thus the connection between parent and 
+    //// its children must be inside an rc pointer
+    //// because by dropping the parent all its children
+    //// must drop too also the if the strong reference count 
+    //// of the parent reaches 0 then the parent can drop 
+    //// means there must be no pointer coming from child 
+    //// to the parent before it gets dropped in other words
+    //// the children pointers to the parent must drop first
+    //// in order we reach a 0 count in strong count then the parent
+    //// can go out of scope or drop. 
     pub children: Option<RefCell<Vec<Rc<MerkleNode>>>>, 
 }
 
@@ -1444,7 +1466,7 @@ impl MerkleNode{
             }
         );
         p.add_child(right_node);
-        MerkleNode::get_children_of(p);
+        let parent_children = MerkleNode::get_children_of(p);
         self.parent = parent;
         right_node.parent = parent;
     }
@@ -1454,7 +1476,7 @@ impl MerkleNode{
 
 //// `Ed25519` is being used instead of `ECDSA` as the public-key 
 //// (asymmetric) digital signature encryption to generate the 
-//// wallet address keypair the public and private keys; the hash 
+//// wallet address keypair the public and private keys; like solana the hash 
 //// of the public key is being used to generate the wallet address 
 //// also we **MUST** use the public key for transaction signature 
 //// verification; the private key on the other hand will be used 
