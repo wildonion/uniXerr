@@ -967,7 +967,7 @@ macro_rules! user_data {
 #[macro_export]
 macro_rules! list {
     ($id1:ident | $id2:ident <- [$start:expr; $end:expr], $cond:expr) => { //// the match pattern can be any syntax :) - only ident can be followed by some symbols and words like <-, |, @ and etc
-        { //.... code block to return vec since using let statements must be inside {} block
+        { //.... code block to return vec since if we want to use let statements we must be inside {} block
             let mut vec = Vec::new();
             for num in $start..$end + 1{
                 if $cond(num){
@@ -987,7 +987,7 @@ macro_rules! list {
 #[macro_export]
 macro_rules! dict {
     ($($key:expr => $val:expr)*) => { //// if this pattern matches the input the following code will be executed - * means we can pass more than one key => value statement
-        { //.... code block to return vec since using let statements must be inside {} block
+        { //.... code block to return vec since if we want to use let statements we must be inside {} block
             use std::collections::HashMap;
             let mut map = HashMap::new();
             $(
@@ -1079,6 +1079,32 @@ macro_rules! impl_engine_constructor {
         )* //// * means defining function for every new Pos
     };
 }
+
+
+#[macro_export]
+macro_rules! iterator{
+    ($ty:ty, $ident:ident; $($state_ident:ident: $state_ty:ty),*; $next:expr) => (
+        struct $ident {
+            $($state_ident: $state_ty), *
+        }
+
+        impl Iterator for $ident {
+            type Item = $ty;
+
+            fn next(&mut self) -> Option<$ty> {
+                $next(self)
+            }
+        }
+    );
+}
+//////
+// iterator!(i32, TestIterator; index: i32; |me: &mut TestIterator| {
+//     let value = Some(me.index);
+//     me.index += 1;
+//     value
+// });
+//////
+
 
 macro_rules! pat {
     ($i:ident) => (Some($i))

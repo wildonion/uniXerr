@@ -55,8 +55,9 @@ use crate::*; // loading all defined crates, structs and functions from the root
 //// issue since we can't return a pointer from a scope which is owned by a that scope 
 //// to fix this we can either by defining a lifetime in struct, enum 
 //// fields or function signatur or by putting them inside the Box 
-//// (with dyn keyword for trait) which is a smart pointer and 
-//// have a valid lifetime in itself; as_ref() will convert the type into a shared 
+//// (with dyn keyword for trait) which is a smart pointer (smart pointers are wrapper
+////  around the allocation T which manages the allocation by borrowing the ownership of T)
+//// and have a valid lifetime in itself; as_ref() will convert the type into a shared 
 //// reference by returning the T as &T which we can't move out of it when it's being 
 //// used by other scopes and threads thus we have to dereferene it either by * or 
 //// cloning if the Clone trait is implemented for that, otherwise we CAN'T 
@@ -1265,6 +1266,10 @@ impl Block{
                 merkle_node_hashes.push(MerkleNode::new(hash_of_first_and_second)); //// creating a merkle ndoe from the combined hash
             }
         }
+
+        // TODO - generate merkle root hash here
+        // ...
+
         Self{
             id: self.id,
             index: self.index,
@@ -1305,26 +1310,39 @@ impl Default for Block{
 
 // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
 // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
-//// Rc is a smart pointer used for counting the incoming references to the type which shared its ownership using &
-//// and see how many owners the borrowed type has in its entire scope as long as its lifetime is not dropped also 
-//// it has nothing to do with the garbage collection rule cause rust doesn't have it.
+//// Rc is a smart pointer used for counting the incoming references 
+//// to the type which shared its ownership using & and see how many 
+//// owners the borrowed type has in its entire scope as long as its 
+//// lifetime is not dropped also it has nothing to do with the garbage 
+//// collection rule cause rust doesn't have it.
 //
 //// all transactions inside a block will be stored in form of a merkle tree and since 
 //// it'll chain transaction hash together is a useful algorithm for proof of chain.
+//// by calling Rc::clone(&RcType) the strong count of the passed in Rc<T> 
+//// will be increased by 1 thus Rc<T> is only cleaned up if its strong count 
+//// is 0 means that the T can't be dropped unless the strong count reaches 0 
+//// like the rules in GC languages; on the other hand we can create a weak 
+//// reference to the allocation T by calling downgrade method on the Rc and 
+//// passing a reference to the Rc<T> to it which will return a smart 
+//// pointer of type Weak<T> also calling Rc::downgrade(&RcType) instead 
+//// of increasing the strong count it'll increase the weak count by 1 
+//// also Weak<T> doesn't need to be 0 for the passed in &Rc<T> to 
+//// Rc::downgrade method to be cleaned up, means the allocation T can be drop 
+//// at any time before the weak count reaches 0 although the value that Weak<T> 
+//// references might have been dropped but to do anything with the value 
+//// that a Weak<T> is pointing to we must make sure the value is still exists 
+//// which we can achive this by calling upgrade method on the Weak<T> which 
+//// will return an Option<Rc<T>> in which we'll get the some part if the Rc<T> value
+//// has not been dropped yet and none if the it's dropped, by doing this
+//// we make sure that there won't by any invalid pointer.
+//
+//// we can count the references or the number of borrowed and shared ownerships of 
+//// the type at runtime with Rc and Weak; a structure might circularly referencing 
+//// itself either directly or indirectly like contains field that is pointing to the 
+//// struct itself in which we can break the infinite loop using weak pointer but it 
+//// should not hold a strong reference to itself to prevent a memory leak.
 #[derive(Debug)]
 pub struct MerkleNode{
-    //// we can count the references or the 
-    //// number of borrowed and shared ownerships of 
-    //// the type at runtime which can 
-    //// be done using Rc and Weak.
-    //
-    //// a structure might circularly referencing 
-    //// itself either directly or indirectly like
-    //// contains field that is pointing to the struct
-    //// itself in which we can break the infinite loop
-    //// using weak pointer but it should not hold a 
-    //// strong reference to itself to 
-    //// prevent a memory leak.
     pub id: Uuid,
     pub data: String, //// the combined two transaction hashes
     //// counting immutable none owning references (Weak) to parent; 
@@ -1333,23 +1351,24 @@ pub struct MerkleNode{
     //// the cycle so we've used a weak pointer or none owning 
     //// reference to a parent cause deleting the child shouldn't 
     //// delete the parent node means a child can be removed later
-    //// and the parent must be exists but and no longer enable to point
-    //// to that child so the connection from every child to the parent
-    //// must be weak or a none owning reference to the parent also 
-    //// weak pointer means once a child node gets dropped the 
-    //// parent node must be exists and must not be dropped
-    //// also since we want to mutate the parent at runtime 
-    //// we've put them parent inside the RefCell.    
+    //// regardless of its weak count references and the parent must 
+    //// be exists but and no longer enables to point to that child 
+    //// so the connection from every child to the parent must be weak 
+    //// or a none owning reference to the parent also weak pointer 
+    //// means once a child node gets dropped the parent node must 
+    //// be exists and must not be dropped also because we want to 
+    //// mutate the parent at runtime we've put them 
+    //// parent inside the RefCell.    
     pub parent: Option<RefCell<Weak<MerkleNode>>>, 
     //// counting immutable references or borrowers (Rc) to childlren;
     //// since parent -> child or parent.children must be a string pointer,
     //// or Rc to break the cycle so we've used an strong pointer to children
     //// cause deleting the parent node must delete the children nodes. 
     //// strong pointer or rc means once a parent gets dropped all its children
-    //// must be drop to since every time we put the child inside the vector,
+    //// must be drop too since every time we put the child inside the vector,
     //// the reference count to that child will be increased because the parent 
     //// will be the owner of that child hence by removing the parent the counter 
-    //// must be decreased by one also since we want to mutate the child 
+    //// must be decreased by one also because we want to mutate the child 
     //// at runtime we've put them parent inside the RefCell.
     pub children: Option<RefCell<Vec<Rc<MerkleNode>>>>, 
 }
@@ -1398,11 +1417,12 @@ impl MerkleNode{
         //// the left_node_hash String.
         left_node_hash.push_str(&right_node_hash);
         //// Rc::downgrade() creates a new weak pointer 
-        //// from the passed in type;
-        //// calling upgrade() on the weak pointer returns 
-        //// an Option<Rc<T>> in which T is the allocation
-        //// also is used to prevent circular references 
-        //// between Rc pointers.
+        //// from the passed in type; calling upgrade() 
+        //// on the weak pointer returns an Option<Rc<T>> 
+        //// in which T is the allocation also is used to 
+        //// prevent circular references between Rc pointers
+        //// by returning an Option of type Rc<T> to avoid
+        //// invalid pointers.
         //
         //// since a weak reference does not count 
         //// towards ownership, it will not prevent 
@@ -1413,7 +1433,7 @@ impl MerkleNode{
         let hash = argon2::hash_encoded(combined_first_and_right_node_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap(); //// generating the hash from the combined left and right node hash to create the merkle root hash
         let merkle_root_hash = hash[27..].to_owned(); //// cutting the extra byte (the first 27 bytes) from the argon2 hash to generate the merkle root hash
         let parent = Some(RefCell::new(Weak::<MerkleNode>::new())); //// creating the parent node; the type of Weak is MerkleNode
-        let p = parent.unwrap().borrow_mut().upgrade().unwrap();
+        let p = parent.unwrap().borrow_mut().upgrade().unwrap(); //// calling upgrade method on weak reference will return an option of Rc<T> which we can use its some part 
         p.data = merkle_root_hash;
         p.add_child(
             MerkleNode{ 

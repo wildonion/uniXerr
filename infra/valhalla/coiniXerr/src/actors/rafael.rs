@@ -353,10 +353,11 @@ pub mod env{
             //// the reason that solana contract gets compiled to .so is because 
             //// they can be loaded from the linux kernel which is blazingly 
             //// fast also from the browsers, a json RPC call must be invoked 
-            //// with a contract method name to the RPC server on the runtime node 
-            //// in which it can load the .so contract which has bee deployed 
-            //// that contains the BPF bytecode in it and can call the method name
-            //// inside the incoming RPC request to change the state of the blockchain.
+            //// with a contract method name and id (wallet address or public key) 
+            //// to the RPC server on the solana runtime node to load the .so contract which 
+            //// has bee deployed and contains the BPF bytecode in it to 
+            //// call the method name inside the incoming RPC request to change 
+            //// the state of the blockchain.
             
             // https://doc.rust-lang.org/nightly/rust-by-example/unsafe/asm.html
             // https://crates.io/crates/wasmtime
