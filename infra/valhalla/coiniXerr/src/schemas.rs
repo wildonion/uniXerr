@@ -1396,7 +1396,7 @@ impl MerkleNode{
         self.children.unwrap().borrow_mut().push(Rc::new(node)); //// in order to push into the self.children field we have to borrow it as mutable at runtime since it has wrapped around the RefCell
     }
 
-    pub fn get_children(&mut self, node: MerkleNode) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
+    pub fn get_children_of(node: Rc<MerkleNode>) -> Result<Vec<Rc<Self>>, String>{ //// &mut self means we're borrowing Node fields using a mutable pointer which is a shallow copy of the fields (if we change the pointer value the actual object will be changed) for updaing the desired field
         if node.children.unwrap().borrow_mut().len() != 0{ //// first borrow the ownership of the self.children field at runtime then check its length
             Ok(node.children.unwrap().borrow_mut().to_vec()) //// we have to borrow the ownership of the self.children field at runtime and convert it to vector to return it cause it's inside RefCell
         } else{
@@ -1444,6 +1444,7 @@ impl MerkleNode{
             }
         );
         p.add_child(right_node);
+        MerkleNode::get_children_of(p);
         self.parent = parent;
         right_node.parent = parent;
     }
