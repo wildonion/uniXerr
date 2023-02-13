@@ -189,10 +189,20 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 //// can't be just returned in their normal form also the reason we're putting
 //// an error trait inside the Box is that we can't specify the type that will 
 //// cause the error at compile time cause it might be generated at runtime. 
+//
+//// the error part of the Result is a Box contains 
+//// trait boundings means that the type that will cause 
+//// the error at runtime must be inside the Box like 
+//// Err(Box::new(error_type_instance)); there is no 
+//// way to return trait without putting them inside 
+//// the Box or use them like &dyn since they're dynamic
+//// abstract types which their size are not know at 
+//// compile time, also the type inside the Box in 
+//// Err part must be bounded to this trait before
+//// some where inside the create. 
 #[tokio::main(flavor="multi_thread", worker_threads=10)] //// use the tokio multi threaded runtime by spawning 10 threads
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>{ 
  
-
     
 
           

@@ -758,7 +758,13 @@ impl P2PSwarmEventLoop{
                         e.insert(sender); //// add the entry with this peer_id into the map
                     },
                     Err(e) => {
-                        let _ = sender.send(Err(Box::new(e)));
+                        //// as long as the io error trait is implemented 
+                        //// for the DialError enum we can return an instance 
+                        //// of this error inside the Box since the err part 
+                        //// of the oneshot channel Result is the error trait 
+                        //// inside the Box means that we can also return the
+                        //// implementor of this trait and not the trait itself.
+                        let _ = sender.send(Err(Box::new(e))); 
                     }
                 }
         } else{
@@ -1316,6 +1322,12 @@ impl Default for Block{
 //// lifetime is not dropped also it has nothing to do with the garbage 
 //// collection rule cause rust doesn't have it.
 //
+//// we can count the references or the number of borrowed and shared ownerships of 
+//// the type at runtime with Rc and Weak; a structure might circularly referencing 
+//// itself either directly or indirectly like contains field that is pointing to the 
+//// struct itself in which we can break the infinite loop using weak pointer but it 
+//// should not hold a strong reference to itself to prevent a memory leak.
+//
 //// all transactions inside a block will be stored in form of a merkle tree and since 
 //// it'll chain transaction hash together is a useful algorithm for proof of chain.
 //// by calling Rc::clone(&RcType) the strong count of the passed in Rc<T> 
@@ -1335,12 +1347,6 @@ impl Default for Block{
 //// will return an Option<Rc<T>> in which we'll get the some part if the Rc<T> value
 //// has not been dropped yet and none if the it's dropped, by doing this
 //// we make sure that there won't by any invalid pointer.
-//
-//// we can count the references or the number of borrowed and shared ownerships of 
-//// the type at runtime with Rc and Weak; a structure might circularly referencing 
-//// itself either directly or indirectly like contains field that is pointing to the 
-//// struct itself in which we can break the infinite loop using weak pointer but it 
-//// should not hold a strong reference to itself to prevent a memory leak.
 #[derive(Debug)]
 pub struct MerkleNode{
     pub id: Uuid,
@@ -1554,7 +1560,9 @@ impl Default for Transaction{
         //  
         //// signing the data which is the serialized transaction bytes
         //// with the generated private key; the result is the transaction
-        //// signature which must be verified inside the coiniXerr node.
+        //// signature which must be verified inside the coiniXerr node
+        //// using the public key also this process must be done inside 
+        //// the walleXerr.
         info!("➔ 🖊️ signing serialized transaction bytes using private key 🔑"); 
         let signature = coiniXerr_node_keypair
                                         .sign(
