@@ -10,7 +10,7 @@
 
 ## 🚧 WIP 
 
-* parachain heartbeat and validator reward distribution
+* merkle root, parachain heartbeat and validator reward distribution
 
 * first coiniXerr node compilation test
 
