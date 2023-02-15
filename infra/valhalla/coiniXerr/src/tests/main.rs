@@ -1022,6 +1022,15 @@ pub async fn generic(){
         job: J, //// the job itself
         res: T, //// job response
     }
+    let task_ = TaskStruct{
+        job: {
+            |function|{ //// the passed in param is of type function since the signature inside the struct accepts a function
+                function(); //// call that function
+                Ok(())
+            }
+        },
+        res: "response_message".to_string()
+    };
     pub async fn return_vec_of_box_traits<G>(c: 
             Box<dyn InterfaceMe + Send + Sync + 'static>, 
             //// if we want to use generic in rust we have to specify the generic name in function signature  
