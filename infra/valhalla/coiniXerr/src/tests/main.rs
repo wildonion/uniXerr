@@ -1012,6 +1012,7 @@ pub async fn generic(){
             }
         )
     }
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //// the following is a struct that takes two generics 
     //// the `J` is a FnMut closure which takes a function 
     //// that returns the generic `T` as its param and return 
@@ -1024,13 +1025,33 @@ pub async fn generic(){
     }
     let task_ = TaskStruct{
         job: {
-            |function|{ //// the passed in param is of type function since the signature inside the struct accepts a function
-                function(); //// call that function
+            //// the passed in param is of type function since 
+            //// the signature inside the struct accepts a function 
+            |function: fn() -> String|{ //// building the closure with a param called function and type a function which returns String
+                function(); //// calling the function inside the closure body
                 Ok(())
             }
         },
         res: "response_message".to_string()
     };
+    fn ret_string() -> String{
+        "wildonion".to_string()
+    }
+    //// since the `job` field is a FnMut closure thus 
+    //// we ahve to define the instance of the `TaskStruct`
+    //// as mutable to be able to call the `job` field.
+    //
+    //// task_.job is of type FnMut closure in which 
+    //// it accepts a function as its param thus we've
+    //// defined res_string() function which returns a
+    //// String to pass it to the task_.job closure
+    //// finally we can call it like task_.job() by 
+    //// passing the ret_string() function as the param.
+    let mut job = task_.job; 
+    let res = job(ret_string);
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
     pub async fn return_vec_of_box_traits<G>(c: 
             Box<dyn InterfaceMe + Send + Sync + 'static>, 
             //// if we want to use generic in rust we have to specify the generic name in function signature  

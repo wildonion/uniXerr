@@ -143,6 +143,8 @@ pub mod tcp;
 pub mod rpc;
 #[path="tlps/p2p.pubsub.rs"]
 pub mod p2p;
+#[path="tlps/websocket.pubsub.p2p.rs"]
+pub mod websocket;
 pub mod constants;
 pub mod schemas;
 pub mod actors;
@@ -324,6 +326,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         //// if we use `move` keyword in closure, for every types 
         //// that we want to use it in closure body that will be moved 
         //// from its scope into the closure body.
+        //
+        //// in multithreading environment we must 
+        //// use tokio channels to share cloneable 
+        //// data between threads like sharing a flag 
+        //// between threads to check that is either 
+        //// true or false since we can't use it simply
+        //// in other threads because it's been moved
+        //// in the first attempt.
         block_on(get_blockchain_flag_sender.send(true)).unwrap(); //// when we use block_on() all in-flight I/O will be cancelled
     }).unwrap()).await.unwrap();
 
@@ -367,6 +377,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
             //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current blockchain event cause the parachain is guarded by the ActorRef
             //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
             let blockchain_remote_handle: RemoteHandle<Chain> = ask(&coiniXerr_sys.clone(), &parachain_0.clone(), ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetBlockchain}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the blockchain of the passed in parachain actor as a future object
+            info!("🏳️ true flag received, updating parachain slot");
+            //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current slot event cause the parachain is guarded by the ActorRef
+            //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+            let current_slot_remote_handle: RemoteHandle<Slot> = ask(&coiniXerr_sys, &parachain_0, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetSlot}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the current slot of the passed in parachain actor as a future object
+            info!("🏳️ true flag received, updating parachain current block");
+            //// we have to ask the actor that hey we want to return some info as a future object about the parachain by sending the related message like getting the current block event cause the parachain is guarded by the ActorRef
+            //// ask returns a future object which can be solved using block_on() method or by awaiting on it 
+            let current_block_remote_handle: RemoteHandle<Block> = ask(&coiniXerr_sys, &parachain_0, ParachainCommunicate{id: Uuid::new_v4(), cmd: ParachainCmd::GetCurrentBlock}); //// no need to clone the passed in parachain since we're passing it by reference - asking the coiniXerr system to return the current block of the passed in parachain actor as a future object
+            //// updating the blockchain, slot and the current block
+            //// to the latest one that we might have received 
+            //// from other nodes.
+            current_block = current_block_remote_handle.await;
+            current_slot = current_slot_remote_handle.await;
             blockchain = blockchain_remote_handle.await; //// update the blockchain variable with the latest one inside the parachain
         } else{ //// there is no need to update the current blockchain since we're inside the 5 seconds loop not after it! 
             info!("🚩 false flag received, no need to update parachain blockchain");
@@ -467,6 +490,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         cloned_arc_mutex_new_chain_channel.clone(),
         coiniXerr_sys.clone()
     ).await; //// libp2p stack based on tokio TCP, kademlia DHT peer routing and gossipsub pub/sub pattern
+
+    // ----------------------------------------------------------------------
+    //                STARTING coiniXerr WEBSOCKET PUBSUB STACK
+    // ----------------------------------------------------------------------
+    //// used to send transaction from the walleXerr
+    //// actor daemonization will be bootstrapped by 
+    //// starting the websocket pubsub stack
+    
+    websocket::bootstrap(
+        reset_slot_receiver,
+        mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
+        APP_STORAGE.clone(), 
+        env_vars.clone(),
+        current_slot.clone(),
+        validator_joined_channel.clone(),
+        default_parachain_uuid.clone(),
+        parachain_0.clone(), //// this is the first parachain that has been initialized during the actor daemonization
+        parachain_updated_channel.clone(),
+        cloned_arc_mutex_runtime_info_object.clone(),
+        meta_data_uuid.clone(),
+        cloned_arc_mutex_validator_update_channel.clone(),
+        cloned_arc_mutex_validator_actor.clone(),
+        cloned_arc_mutex_new_chain_channel.clone(),
+        coiniXerr_sys.clone()
+      ).await; //// cap'n proto RPC
+
 
 
 

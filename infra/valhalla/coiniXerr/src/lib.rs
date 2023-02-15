@@ -37,6 +37,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     let environment = env::var("ENVIRONMENT").expect("⚠️ no environment variable set");
     let host = env::var("HOST").expect("⚠️ please set host in .env");
     let rpc_addr = env::var("RPC_ADDR").expect("⚠️ no rpc addr variable set");
+    let websocket_addr = env::var("WEBSOCKET_ADDR").expect("⚠️ no websocket addr variable set");
     let tcp_addr = env::var("TCP_ADDR").expect("⚠️ no tcp addr variable set");
     let udp_addr = env::var("UDP_ADDR").expect("⚠️ no udp addr variable set");
     let swarm_addr = env::var("SWARM_ADDR").expect("⚠️ no swarm addr variable set");
@@ -54,6 +55,7 @@ pub fn get_env_vars() -> HashMap<String, String>{
     vars.insert("MERKLE_ROOT_SECRET_KEY".to_string(), merkle_root_secret_key);
     vars.insert("GENESIS_SECRET_KEY".to_string(), genesis_secret_key);
     vars.insert("RPC_ADDR".to_string(), rpc_addr);
+    vars.insert("WEBSOCKET_ADDR".to_string(), websocket_addr);
     vars.insert("TCP_ADDR".to_string(), tcp_addr);
     vars.insert("UDP_ADDR".to_string(), udp_addr);
     vars.insert("HOST".to_string(), host);

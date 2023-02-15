@@ -161,6 +161,7 @@ pub async fn bootstrap(
                     // ---------------------------------------------------------------------------------------
                     // NOTE - ..size means from the beginning to the limit - 1, we could also use 0..size
 
+                    info!("➔ 📩 executing transaction at epoch slot {}", current_slot.epoch);
                     let deserialized_transaction_union = Transaction::new(&transaction_buffer_bytes[..size]).unwrap(); //// decoding process of incoming transaction - deserializing a new transaction bytes into the Transaction struct object using TransactionMem union
                     let deserialized_transaction_serde = &mut serde_json::from_slice::<Transaction>(&transaction_buffer_bytes[..size]).unwrap(); //// decoding process of incoming transaction - deserializing a new transaction bytes coming from the steamer into a mutable Transaction object using serde_json::from_slice to mutate the signed field 
                     let deserialized_transaction_borsh = &mut Transaction::try_from_slice(&transaction_buffer_bytes[..size]).unwrap(); //// passing the vector of utf8 bytes into the try_from_slice() method to deserialize into the SMSResponse struct - since Vec<u8> will be coerced to &'a [u8] at compile time we've passed Vec<u8> type into the try_from_slice() method; since we want to sign the transaction thus we must define it as mutable
