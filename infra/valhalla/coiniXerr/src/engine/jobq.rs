@@ -45,8 +45,11 @@
 use crate::*;
 
 
-
-
+type ErrType = Box<dyn std::error::Error + Send + Sync + 'static>;
+pub struct TaskStruct<J, T> where J: FnMut(fn() -> T) -> Result<(), ErrType>{ //// generic `J` is a closure type that accept a function as its argument 
+    job: J, //// the job itself
+    res: T, //// job response
+}
 
 
 

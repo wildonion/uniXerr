@@ -484,6 +484,13 @@ pub async fn generic(){
         println!("the value of w.name is : {}", name);
     }
     
+    fn test_trait_just(item: impl Give + See){ // item is bounded to Give and See trait
+        let val: &i32 = item.take();
+        let name: &str = item.what().as_str();
+        println!("the value of w.a is : {}", val);
+        println!("the value of w.name is : {}", name);
+    }
+
     fn test_trait_2(item: Box<dyn SuperTrait>){ // item is bounded to SuperTrait cause SuperTrait is an object safe trait
         let val: &i32 = item.take();
         let name: &str = item.what().as_str();
@@ -547,6 +554,11 @@ pub async fn generic(){
 	    fn new() -> Self{
 
 
+            pub struct TupleStudent(pub String, pub u8);
+
+            let stu_info = TupleStudent("wildonion".to_string(), 26);
+            let TupleStudent(name, age) = stu_info;
+
             let name = Some("wildonion".to_string());
             struct User{
                 username: String,
@@ -554,18 +566,26 @@ pub async fn generic(){
             }
 
             let user = User{
-                username: match name{
-                    Some(name) => name,
+                username: match name.clone(){ //// clone it here to be able use it in another_user instance
+                    Some(name) => name, 
                     None => "".to_string(),
                 },
                 age: 26,
             };
 
+            let another_user = User{
+                username: match name{
+                    Some(name) => name,
+                    None => "".to_string(),
+                },
+                ..user //// filling the remaining fields with other User instance
+            };
 
             // let User{username, age} = user; //// unpacking struct
             let User{username: name, age: sen} = user; //// unpacking struct with arbitrary field names
             let User{..} = user; //// unpacking struct with `..` since we don't care about all fields
 
+            
             let hello = "Здравствуйте";
             let s = &hello[0..2];
             // every index is the place of an element inside the ram which has 1 byte size which is taken by that element
@@ -911,6 +931,13 @@ pub async fn generic(){
     });
     
     //--------------------------------------------------------------------
+    // EXAMPLE - Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>
+    // NOTE - closure types are traits so when we want 
+    //        to have a field of type closure we have 
+    //        to use the generic and bound that generic 
+    //        to the Fn trait in struct signature or use 
+    //        where clause or put the field inside the 
+    //        Box<dyn Trait> or &dyn Trait. 
     // implementing trait or bounding it to generics using: 
     //      - bounding it to generics (where and function signature) like where T: FnMut() -> ()
     //      - in function return (-> impl Trait)
@@ -984,6 +1011,16 @@ pub async fn generic(){
                 78
             }
         )
+    }
+    //// the following is a struct that takes two generics 
+    //// the `J` is a FnMut closure which takes a function 
+    //// that returns the generic `T` as its param and return 
+    //// a Result with a Boxed trait which is bounded to Send 
+    //// Sync traits and 'static lifetime. 
+    type ErrType = Box<dyn std::error::Error + Send + Sync + 'static>;
+    pub struct TaskStruct<J, T> where J: FnMut(fn() -> T) -> Result<(), ErrType>{ //// generic `J` is a closure type that accept a function as its argument 
+        job: J, //// the job itself
+        res: T, //// job response
     }
     pub async fn return_vec_of_box_traits<G>(c: 
             Box<dyn InterfaceMe + Send + Sync + 'static>, 
@@ -1320,9 +1357,9 @@ pub async fn unsafer(){
     //// inside the stack
  
     struct Object{
-        a: u8,
-        b: u16,
-        c: u32,
+        a: u8, //// we can fill this in a hex form
+        b: u16, //// we can fill this in a hex form
+        c: u32, //// we can fill this in a hex form
     }
 
     let obj = Object{
