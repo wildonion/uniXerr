@@ -1021,7 +1021,7 @@ pub async fn generic(){
     //
     //// returning a trait inisde a Box in the error part of the result means 
     //// that Error trait must be implemented for the type (like: ... -> impl Trait 
-    //// in function return) that caused the error at runtime and if so, we can 
+    //// in function return) that has caused the error at runtime and if so, we can 
     //// return that type when we get error at runtime for example if the MyError 
     //// struct implements the Error trait we can put the instance of the MyError 
     /// struct inside the error part of the Result like : Err(my_error_instance)
