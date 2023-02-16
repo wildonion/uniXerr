@@ -1018,6 +1018,13 @@ pub async fn generic(){
     //// that returns the generic `T` as its param and return 
     //// a Result with a Boxed trait which is bounded to Send 
     //// Sync traits and 'static lifetime. 
+    //
+    //// returning a trait inisde a Box in the error part of the result means 
+    //// that Error trait must be implemented for the type (like: ... -> impl Trait 
+    //// in function return) that caused the error at runtime and if so, we can 
+    //// return that type when we get error at runtime for example if the MyError 
+    //// struct implements the Error trait we can put the instance of the MyError 
+    /// struct inside the error part of the Result like : Err(my_error_instance)
     type ErrType = Box<dyn std::error::Error + Send + Sync + 'static>;
     pub struct TaskStruct<J, T> where J: FnMut(fn() -> T) -> Result<(), ErrType>{ //// generic `J` is a closure type that accept a function as its argument 
         job: J, //// the job itself
@@ -1049,6 +1056,18 @@ pub async fn generic(){
     //// passing the ret_string() function as the param.
     let mut job = task_.job; 
     let res = job(ret_string);
+
+    //// NOTE - impl Trait` only allowed in function and inherent 
+    ////        method return types, not in closure return.
+    type GenericT = String;
+    let callback_clstor = |function: fn() -> GenericT| async move{
+        let func_res = function();
+        func_res //// it's a String
+    };
+    fn functionToPass() -> String{
+        "wildonion".to_string()
+    }
+    callback_clstor(functionToPass).await;
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
