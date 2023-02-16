@@ -165,7 +165,7 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 
 
 
-//// bounding the type that is caused to error to Error, Send and Sync 
+//// bounding the type that has caused to error to Error, Send and Sync 
 //// traits to be shareable between threads and have static lifetime across 
 //// threads and awaits; Box is an smart pointer which has valid lifetime 
 //// for what's inside of it, we're putting the error part of the Result 
@@ -181,7 +181,7 @@ pub mod utils; //// we're importing the utils.rs in here as a public module thus
 //// trait that is bounded to Send + Sync + 'static traits and lifetime
 //// also traits are dynamic abstract types and in order to return them
 //// from function they must be inside the Box or behind a pointer like &dyn
-//// the Error trait will be implemented for the type that caused the error 
+//// the Error trait will be implemented for the type that has caused the error 
 //// at runtime.   
 //
 //// in the error part of the Result type we must put an error trait which 
