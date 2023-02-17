@@ -137,7 +137,7 @@ pub async fn generic(){
                     break 'outer;
                 }
 
-                println!("this print will never be reached");
+                println!("this print will never be reached"); //// this is an unreachable code
             }
 
 
@@ -1012,62 +1012,89 @@ pub async fn generic(){
             }
         )
     }
-    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //// the following is a struct that takes two generics 
-    //// the `J` is a FnMut closure which takes a function 
-    //// that returns the generic `T` as its param and return 
-    //// a Result with a Boxed trait which is bounded to Send 
-    //// Sync traits and 'static lifetime. 
-    //
-    //// returning a trait inisde a Box in the error part of the result means 
-    //// that Error trait must be implemented for the type (like: ... -> impl Trait 
-    //// in function return) that has caused the error at runtime and if so, we can 
-    //// return that type when we get error at runtime for example if the MyError 
-    //// struct implements the Error trait we can put the instance of the MyError 
-    /// struct inside the error part of the Result like : Err(my_error_instance)
-    type ErrType = Box<dyn std::error::Error + Send + Sync + 'static>;
-    pub struct TaskStruct<J, T> where J: FnMut(fn() -> T) -> Result<(), ErrType>{ //// generic `J` is a closure type that accept a function as its argument 
-        job: J, //// the job itself
-        res: T, //// job response
-    }
-    let task_ = TaskStruct{
-        job: {
-            //// the passed in param is of type function since 
-            //// the signature inside the struct accepts a function 
-            |function: fn() -> String|{ //// building the closure with a param called function and type a function which returns String
-                function(); //// calling the function inside the closure body
-                Ok(())
-            }
-        },
-        res: "response_message".to_string()
-    };
-    fn ret_string() -> String{
-        "wildonion".to_string()
-    }
-    //// since the `job` field is a FnMut closure thus 
-    //// we ahve to define the instance of the `TaskStruct`
-    //// as mutable to be able to call the `job` field.
-    //
-    //// task_.job is of type FnMut closure in which 
-    //// it accepts a function as its param thus we've
-    //// defined res_string() function which returns a
-    //// String to pass it to the task_.job closure
-    //// finally we can call it like task_.job() by 
-    //// passing the ret_string() function as the param.
-    let mut job = task_.job; 
-    let res = job(ret_string);
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
+    'aSexyLabeledBlock:{
+        type EmptyType = ();
+        //// the type of func variable is
+        //// a function which return an 
+        //// empty type and we can initialize 
+        //// it by putting the run() function
+        //// inside of it. 
+        fn run() -> (){
+            ()
+        }
+        let func: fn() -> EmptyType = run;  
+        //// if the we want to use closures as 
+        //// a type explicity like returning them 
+        //// from function or as a function param
+        //// we must put them inside the Box since 
+        //// closures are of type traits and we 
+        //// must use traits behind a reference 
+        //// because they are not sized. 
+        //
+        //// since cls is of type FnMut we must 
+        //// define it as mutable
+        let mut cls: Box<dyn FnMut(String) -> EmptyType>;
+        cls = Box::new(|name|{
+            ()
+        });
+        cls("wildonion".to_string());
+        //// the following is a struct that takes two generics 
+        //// the `J` is a FnMut closure which takes a function 
+        //// that returns the generic `T` as its param and return 
+        //// a Result with a Boxed trait which is bounded to Send 
+        //// Sync traits and 'static lifetime. 
+        //
+        //// returning a trait inisde a Box in the error part of the result means 
+        //// that Error trait must be implemented for the type (like: ... -> impl Trait 
+        //// in function return) that has caused the error at runtime and if so, we can 
+        //// return that type when we get error at runtime for example if the MyError 
+        //// struct implements the Error trait we can put the instance of the MyError 
+        /// struct inside the error part of the Result like : Err(my_error_instance)
+        type ErrType = Box<dyn std::error::Error + Send + Sync + 'static>;
+        pub struct TaskStruct<J, T> where J: FnMut(fn() -> T) -> Result<(), ErrType>{ //// generic `J` is a closure type that accept a function as its argument 
+            job: J, //// the job itself
+            res: T, //// job response
+        }
+        let task_ = TaskStruct{
+            job: {
+                //// the passed in param is of type function since 
+                //// the signature inside the struct accepts a function 
+                |function: fn() -> String|{ //// building the closure with a param called function and type a function which returns String
+                    function(); //// calling the function inside the closure body
+                    Ok(())
+                }
+            },
+            res: "response_message".to_string()
+        };
+        fn ret_string() -> String{
+            "wildonion".to_string()
+        }
+        //// since the `job` field is a FnMut closure thus 
+        //// we ahve to define the instance of the `TaskStruct`
+        //// as mutable to be able to call the `job` field.
+        //
+        //// task_.job is of type FnMut closure in which 
+        //// it accepts a function as its param thus we've
+        //// defined res_string() function which returns a
+        //// String to pass it to the task_.job closure
+        //// finally we can call it like task_.job() by 
+        //// passing the ret_string() function as the param.
+        let mut job = task_.job; 
+        let res = job(ret_string);
 
-    //// NOTE - impl Trait` only allowed in function and inherent 
-    ////        method return types, not in closure return.
-    type GenericT = String;
-    let callback_clstor = |function: fn() -> GenericT| async move{
-        let func_res = function();
-        func_res //// it's a String
-    };
-    fn functionToPass() -> String{
-        "wildonion".to_string()
+        //// NOTE - impl Trait` only allowed in function and inherent 
+        ////        method return types, not in closure return.
+        type GenericT = String;
+        let callback_clstor = |function: fn() -> GenericT| async move{
+            let func_res = function();
+            func_res //// it's a String
+        };
+        fn functionToPass() -> String{
+            "wildonion".to_string()
+        }
+        callback_clstor(functionToPass).await;
     }
-    callback_clstor(functionToPass).await;
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
