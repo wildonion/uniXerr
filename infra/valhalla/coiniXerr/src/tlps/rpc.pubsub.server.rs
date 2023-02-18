@@ -60,6 +60,8 @@ pub async fn bootstrap(
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples
     // https://capnproto.org/language.html
+    // TODO - RPC capnp and borsh codec method call based on pubsub streaming
+    // TODO - accessing Arc<Mutex<data>> + Send + Sync + 'static between threads using tokio channels  
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 
     // TODO - first decode transaction then sign it like in tcp and udp server
     // TODO - send the signed transaction to the downside of the mempool channel for mining and verifying process inside the node.rs
