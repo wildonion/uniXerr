@@ -17,6 +17,7 @@
 // ➔ task queue will be used to manage tasks from the queue inside a free thread selected from the worker threadpool and also it can be used to broadcast and schedule tasks in a pub/sub manner using tokio mpsc channels
 // ➔ actors use task or job queue channels under the hood like celery which is based on a prod/cons or pub/sub manner to prod tasks and cons tasks from the queue to solve them or schedule them to be executed later by sharing them between threads of the worker threadpool using mpsc channel
 // ➔ celery will be used for producing and consuming async tasks with a distributed message queues (the one that being used inside the rabbitmq)
+// ➔ also fix the head of line blocking issue
 // ...
 
 // https://github.com/codepr/tasq
@@ -32,7 +33,7 @@
 
 /* 
     
-        TOKIO JOBQ CHANNLE ALGORITHMS
+        TOKIO MULTITHREADING JOBQ CHANNLE ALGORITHMS
 
     mpsc: multi-producer, single-consumer channel. Many values can be sent.
     oneshot: single-producer, single consumer channel. A single value can be sent.
