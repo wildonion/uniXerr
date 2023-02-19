@@ -232,7 +232,7 @@ pub async fn daemonize()
     //// we must specify the subscriber actor when telling the
     //// channel for subscription since we're broadcasting 
     //// in the same device using tokio channels not through 
-    //// the ZMQ pub/sub sockets or RPC.
+    //// the ZMQ or RPC pub/sub sockets.
     //
     //// actors are just smart objects that uses multithreading like 
     //// tokio worker green threadpool under the hood and we can 

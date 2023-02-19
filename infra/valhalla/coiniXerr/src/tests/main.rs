@@ -1094,6 +1094,23 @@ pub async fn generic(){
             "wildonion".to_string()
         }
         callback_clstor(functionToPass).await;
+
+        //// the following is a closure that takes a
+        //// closure as input param which takes a
+        //// function as input param, since we can't
+        //// use traits directly as generic type due
+        //// to their unknown size at compile time we 
+        //// must use them behind a pointer like Box<dyn Trait>
+        //// or &dyn Trait; the return type of closures and 
+        //// functions are empty type or (). 
+        let callback = |mut func: Box<dyn FnMut(fn() -> ()) -> ()>|{
+            //// we've passed the a_func function to this closure
+            //// since func is a closure that takes a function 
+            func(a_func); 
+        };
+        fn a_func(){}
+        callback(Box::new(|a_func| {}));
+
     }
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
