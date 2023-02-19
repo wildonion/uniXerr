@@ -530,7 +530,7 @@ pub mod pubsub_transaction_capnp{
 pub async fn rpc_tx_emulatro() -> (){ //// it can be any number of client emulators
 
     // https://github.com/capnproto/capnproto-rust/blob/master/capnp-rpc/examples/pubsub/client.rs
-    // TODO - 
+    // TODO - RPC capnp pubsub client 
     
 }
 
