@@ -29,8 +29,17 @@
     let mut tokio_async_worker = AsyncWorker::new();
     let mut native_sync_worker = NativeSyncWorker::spawn(n_workers);
     let mut rayon_sync_worker  = RayonSyncWorker::new();
+    let (sender, receiver) = std_mpsc::channel::<u8>();
+    let cloned_sender = sender.clone();
     
     native_sync_worker.execute(move ||{
+        let async_heavy_method = ||{
+            // mining();
+            let big_end_bytes = number.to_be_bytes();
+            let index = 0;
+            let new_chunk = cloned_ops(big_end_bytes[index]);
+            cloned_sender.send(new_chunk).unwrap();
+        }
         block_on(async_heavy_method());
     });
     
@@ -44,7 +53,8 @@
     })
     tokio_async_worker.execute().await // wait for all the workers of this worker to complete if there were any
 
-
+    
+    let bytes: Vec<u8> = receiver.iter().take(n_workers).collect() // collecting data from all workers
         
 */
 
