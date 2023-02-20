@@ -143,8 +143,6 @@ pub mod tcp;
 pub mod rpc;
 #[path="tlps/p2p.pubsub.rs"]
 pub mod p2p;
-#[path="tlps/websocket.pubsub.p2p.rs"]
-pub mod websocket;
 pub mod constants;
 pub mod schemas;
 pub mod actors;
@@ -491,30 +489,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         coiniXerr_sys.clone()
     ).await; //// libp2p stack based on tokio TCP, kademlia DHT peer routing and gossipsub pub/sub pattern
 
-    // ----------------------------------------------------------------------
-    //                STARTING coiniXerr WEBSOCKET PUBSUB STACK
-    // ----------------------------------------------------------------------
-    //// used to send transaction from the walleXerr
-    //// actor daemonization will be bootstrapped by 
-    //// starting the websocket pubsub stack
-    
-    websocket::bootstrap(
-        reset_slot_receiver,
-        mempool_sender.clone(), //// we can clone only the sender since it's safe to share between new scopes and threads 
-        APP_STORAGE.clone(), 
-        env_vars.clone(),
-        current_slot.clone(),
-        validator_joined_channel.clone(),
-        default_parachain_uuid.clone(),
-        parachain_0.clone(), //// this is the first parachain that has been initialized during the actor daemonization
-        parachain_updated_channel.clone(),
-        cloned_arc_mutex_runtime_info_object.clone(),
-        meta_data_uuid.clone(),
-        cloned_arc_mutex_validator_update_channel.clone(),
-        cloned_arc_mutex_validator_actor.clone(),
-        cloned_arc_mutex_new_chain_channel.clone(),
-        coiniXerr_sys.clone()
-      ).await; //// cap'n proto RPC
 
 
 
