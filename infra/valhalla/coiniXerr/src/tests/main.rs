@@ -1086,14 +1086,14 @@ pub async fn generic(){
         //// NOTE - impl Trait` only allowed in function and inherent 
         ////        method return types, not in closure return.
         type GenericT = String;
-        let callback_clstor = |function: fn() -> GenericT| async move{
+        let callback_lobstr = |function: fn() -> GenericT| async move{
             let func_res = function();
             func_res //// it's a String
         };
         fn functionToPass() -> String{
             "wildonion".to_string()
         }
-        callback_clstor(functionToPass).await;
+        callback_lobstr(functionToPass).await;
 
         //// the following is a closure that takes a
         //// closure as input param which takes a
