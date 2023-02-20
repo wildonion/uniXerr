@@ -946,6 +946,21 @@ pub async fn generic(){
     //      - Box<dyn Trait>
     //      - &dyn Trait  
     //--------------------------------------------------------------------
+    struct UseramHa;
+    // the following is wrong since we're using trait bounds
+    // thus Arc<Mutex<User>> must be trait
+    // type Data = dyn Arc<Mutex<User>> + Send + Sync + 'static; 
+    
+    // we can use a generic type which referes to this type
+    // and bound the Send + Sync + 'static in function or struct
+    // signature 
+    type UseramHaData = Arc<Mutex<UseramHa>>; 
+    
+    // in here the field d is of type Data which is bounded
+    // to some trait in struct signature
+    struct UserDataHa where Data: Send + Sync + 'static{
+        d: Data
+    }
     struct TestMeWhere<F>
         where F: FnMut(String) -> String{ // setting a FnMut closure in struct field using where
         pub method: F,
