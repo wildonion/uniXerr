@@ -929,7 +929,7 @@ pub async fn generic(){
             }
         )().await;
     });
-    
+
     //--------------------------------------------------------------------
     // EXAMPLE - Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>
     // NOTE - closure types are traits so when we want 
@@ -939,8 +939,9 @@ pub async fn generic(){
     //        where clause or put the field inside the 
     //        Box<dyn Trait> or &dyn Trait. 
     // implementing trait or bounding it to generics using: 
-    //      - bounding it to generics (where and function signature) like where T: FnMut() -> ()
+    //      - bounding it to generics (where in struct and function or function and struct signature) like where T: FnMut() -> () or struct Test<T: FnMut() -> ()>{pub d: T}
     //      - in function return (-> impl Trait)
+    //      - derive like macro on top of the struct or types
     //      - directly by using impl Trait for Type in other scopes
     // returning traits from the function or us it as a function param by:
     //      - Box<dyn Trait>
@@ -956,10 +957,10 @@ pub async fn generic(){
     // signature 
     type UseramHaData = Arc<Mutex<UseramHa>>; 
     
-    // in here the field d is of type Data which is bounded
-    // to some trait in struct signature
-    struct UserDataHa where Data: Send + Sync + 'static{
-        d: Data
+    // in here the field `d` is of type UseramHaData 
+    // which is bounded to some trait in struct signature
+    struct UserDataHa where UseramHaData: Send + Sync + 'static{
+        d: UseramHaData
     }
     struct TestMeWhere<F>
         where F: FnMut(String) -> String{ // setting a FnMut closure in struct field using where
@@ -1006,6 +1007,14 @@ pub async fn generic(){
         () // or simply comment this :)
         
     } 
+    //// the return type is Box<impl InterfaceMe>
+    //// means that the instance of the InterfaceMe
+    //// implementor must be inside the Box and since 
+    //// InterfaceMe is implemented for () we can 
+    //// put it inside the Box like Box::new(())
+    fn test_n() -> Box<impl InterfaceMe>{
+        Box::new(())
+    }
     fn test_1<'lifetime, C 
                 // : FnOnce(String) -> String + Send + Sync + 'static + 'lifetime // or we can use this syntax instead of where
                 >(c: C) // the passed in param is of type C which is a generic type which is bounded to the FnOnce trait
@@ -1014,11 +1023,30 @@ pub async fn generic(){
         where C: FnOnce(String) -> String + Send + Sync + 'static + 'lifetime //// the whole `FnOnce(String) -> String` is the trait defenition returns String type which we're bounding it to other traits and lifetimes
     { 
         (
+            //// we can't have the following async{Box::new(c)}
+            //// inside the Pin since Pin accept a pointer of the 
+            //// passed in type and we can't simply borrow the async{}
+            //// block to put it inside the Pin also we can't have &async{}
+            //// thus we should put the async{} block inside the Box 
+            //// since Box is a smart pointer that has a valid lifetime
+            //// on its own. 
+            //
+            //// &async{} can't be unpinned since async{} is of type 
+            //// Future<Output=<WHATEVERTYPE>> which is a trait and traits
+            //// are abstract dynamic size which can't be sized at compile time
+            //// and they need to be in form &dyn Trait or Box<dyn Trait> thus
+            //// &async{} is a dynamic size type which must be behind a pointer 
+            //// with dyn keyword and valid lifetime in order to be unpinned 
+            //// and this can only be coded and referenced syntatically using Box
+            //// which we can put the Box::new(async{}) inside the Pin or use Box::Pin
+            //// which returns a pinned Box. 
+            // std::pin::Pin::new(&async{Box::new(c)}); // this can not be unppined
             Box::pin(
                 async{ // async blocks are future objects
                     //// we have to put the passed in param in here 
                     //// since the type inside the Box must be the 
-                    //// generic C itself not |name: String| name explicity!
+                    //// generic C itself not the something like closure, 
+                    //// |name: String| name explicity!
                     Box::new(c) 
                 }
             ),

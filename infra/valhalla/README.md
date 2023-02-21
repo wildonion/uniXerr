@@ -12,8 +12,6 @@
 
 * add `quic` protocol for P2P stack
 
-* complete websocket pubsub protcol
-
 * merkle root, parachain heartbeat and validator reward distribution
 
 * first coiniXerr node compilation test
