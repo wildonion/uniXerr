@@ -10,7 +10,7 @@
 
 ## 🚧 WIP 
 
-* add `quic` protocol for P2P stack
+* update crates and add `quic` protocol for P2P stack
 
 * merkle root, parachain heartbeat and validator reward distribution
 

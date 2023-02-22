@@ -1274,6 +1274,7 @@ impl Block{
         }
 
         // TODO - generate merkle root hash here
+        // self.merkle_root = "".to_string();
         // ...
 
         Self{
@@ -1456,7 +1457,21 @@ impl MerkleNode{
         //// towards ownership, it will not prevent 
         //// the value stored in the allocation from 
         //// being dropped but Rc itself will do the 
-        //// mentioned note. 
+        //// mentioned note and it makes sure that the
+        //// reference count has reached zero before 
+        //// dropping the allocation `T` thus with this 
+        //// in mind we must get a Rc from parent to 
+        //// children and Weak from children to parent.
+        //// means that references coming to the parent
+        //// are none ownership references must be Weak 
+        //// since by removing a child the parent 
+        //// and must be still exists but references coming to 
+        //// child from the parent by adding a new node child
+        //// to the list of children must be Rc or Rc::new(child_node) 
+        //// means that the reference count of the parent must be 
+        //// first reaches 0 then it can be dropped in other words 
+        //// all its children must be dropped first then the 
+        //// parent itself can be dropped.
         let combined_first_and_right_node_hash_to_bytes = left_node_hash.as_bytes(); //// converting the combined hash into utf8 bytes
         let hash = argon2::hash_encoded(combined_first_and_right_node_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap(); //// generating the hash from the combined left and right node hash to create the merkle root hash
         let merkle_root_hash = hash[27..].to_owned(); //// cutting the extra byte (the first 27 bytes) from the argon2 hash to generate the merkle root hash
@@ -1464,15 +1479,20 @@ impl MerkleNode{
         let p = parent.unwrap().borrow_mut().upgrade().unwrap(); //// calling upgrade method on weak reference will return an option of Rc<T> which we can use its some part 
         p.data = merkle_root_hash;
         p.add_child(
-            MerkleNode{ 
+            MerkleNode{ //// self refers to the left node so we're building a child from the left node 
                 id: self.id, 
                 data: self.data, 
                 parent: self.parent, 
                 children: self.children 
             }
         );
-        p.add_child(right_node);
+        p.add_child(right_node); //// also adding the right node child
         let parent_children = MerkleNode::get_children_of(p);
+        if let Ok(children) = parent_children{
+            while let child = children{
+                
+            }
+        }
         self.parent = parent;
         right_node.parent = parent;
     }

@@ -975,6 +975,9 @@ pub async fn generic(){
         pub method : Box<dyn FnMut(String) -> String>
     }
 
+    //// fn() -> T is not a trait type it's a function type
+    //// thus there is no need to be behind a reference like
+    //// Box<dyn> or &dyn
     struct TestMeFunc<T, F = fn() -> T>{ // setting a function pointer in struct field using generics
         pub method: F,
         pub t_type: T, // T must refer to a field, or be a `PhantomData` otherwise must be removed
