@@ -17,17 +17,6 @@ use crate::*;
 //// socket connections each of which is an actor communicate 
 //// with each other using a socket or an RPC channels.
 //
-//// each lip2p node is a ZMQ or tokio socket which is an actor with concepts of
-//// worker threadpool (like tokio::spawn() green based worker threadpool + 
-//// tokio channels for sharing messages and tasks between threads), job or task queue for 
-//// async task scheduling, pub/sub channels like socket, RPC (if actors are in not in same machine) 
-//// or tokio channels (if actors are in same machine) for broadcasting async messages to other actors 
-//// and mailbox to receive from other actor or outside of the actor system under the hood.
-//
-//// actors publisher can either broadcast topics through the RPC or socket 
-//// to be subscribed by other actors inside other device or they can use 
-//// tokio channels to broadcast to other actors inside the same machine.
-//
 //// the reason actors use RPC for communication is because with RPC we can directly call 
 //// the method of an encoded object using cap'n proto or protobuf from the different devices.
 //

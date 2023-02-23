@@ -1315,8 +1315,11 @@ impl Default for Block{
 }
 
 
+
 // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
 // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
+// --- Rc will be used to point to a type with strong count 
+// --- Weak will be used to point to a type with weak count
 //// Rc is a smart pointer used for counting the incoming references 
 //// to the type which shared its ownership using & and see how many 
 //// owners the borrowed type has in its entire scope as long as its 

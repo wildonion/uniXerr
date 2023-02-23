@@ -298,7 +298,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
-    ///////         getting the latest chain of the default parachain 
+    ///////       getting the latest chain of the default parachain 
     /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈ --------- ⚈
     //// we MUST get the latest chain of the default parachain 
     //// every 5 seconds since it might be updated with a new 
@@ -309,7 +309,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     //
     //// we can't use coiniXerr_sys.schedule() method since 
     //// it'll return an id of the scheduled message in which 
-    //// there is no data available to update the parachain. 
+    //// there is no data available in it to update the parachain. 
     
     // -------------------------------------------------------------------------------------
     //            GETTING THE BLOCKCHAIN OF THE DEFAULT PARACHAIN EVERY 5 SECONDS
@@ -320,7 +320,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let (get_blockchain_flag_sender, mut get_blockchain_flag_receiver) = mpsc::channel::<bool>(env_vars.get("IO_BUFFER_SIZE").unwrap().parse::<usize>().unwrap()); //// reading or receiving from the mpsc channel is a mutable process
     let mut parachain_scheduler = JobScheduler::new().await.unwrap();
     parachain_scheduler.add(Job::new("1/5 * * * * *", move |_uuid, mut _lock| {
-        info!("➔ 🔗🧊 getting blockchain every 5 seconds from the default parachain");
+        info!("➔ 🔗🧊 getting blockchain every 5 seconds from the default parachain, sending true flag to downside of the mpsc channel");
         //// if we use `move` keyword in closure, for every types 
         //// that we want to use it in closure body that will be moved 
         //// from its scope into the closure body.

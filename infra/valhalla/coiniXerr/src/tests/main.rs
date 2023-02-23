@@ -835,6 +835,12 @@ pub async fn generic(){
     // https://stackoverflow.com/questions/2490912/what-are-pinned-objects
     // https://medium.com/tips-for-rust-developers/pin-276bed513fd1
     // https://users.rust-lang.org/t/expected-trait-object-dyn-fnonce-found-closure/56801/2
+    //// traits are not sized and their size depends on the 
+    //// implementor like the struct size thus they must be 
+    //// behind a pointer like Box<dyn or &dyn and we can put 
+    //// the Boxed trait inside a return type then we can return 
+    //// the instance of that type that this 
+    //// trait is implemented for.
     // --------------------------------------------------------------------------
     //// the location of dynamic types in rust is on the heap and don't impl Copy trait  
     //// and their pointers, cap and length will be stored on the stack 
@@ -981,6 +987,18 @@ pub async fn generic(){
     struct TestMeFunc<T, F = fn() -> T>{ // setting a function pointer in struct field using generics
         pub method: F,
         pub t_type: T, // T must refer to a field, or be a `PhantomData` otherwise must be removed
+    }
+
+    pub struct Server<'e, E>{
+        pub address: String, //// the peer_id of the sevrer
+        pub weights: u16,
+        //// this field contains an array of events of type 
+        //// function each of which returns the generic `E`
+        //// also since the array is a slice form of Vec 
+        //// we need to use it behind a reference because 
+        //// [] is not sized thus we've passed the lifetime
+        //// 'e to the struct signature.  
+        pub events: &'e [fn() -> E], 
     }
     
     struct TestMeFunc1<T>{ // setting a function pointer in struct field directly  
