@@ -3,6 +3,7 @@ sudo chown -R root:root . && sudo chmod -R 777 .
 sudo apt update -y && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 sudo apt-get install -y nodejs && npm install pm2@latest -g
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
 wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
 sudo apt-get install gnupg
 wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
