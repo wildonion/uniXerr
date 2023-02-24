@@ -918,7 +918,7 @@ pub async fn generic(){
     pub trait InterfaceMe{}
     pub type BoxeFutureShodeh = Box<dyn std::future::Future<Output=BoxedShodeh>>;
     pub type BoxedShodeh = Box<dyn FnOnce(String) -> String + Send + Sync + 'static>;
-    impl InterfaceMe for BoxedShodeh{}
+    impl InterfaceMe for BoxedShodeh{} //// implementing for a boxed type
     impl InterfaceMe for (){} // we must impl InterfaceMe for () in order to be able to impl InterfaceMe for () (the return type) inside the test_() function
     
     (||async move{})().await; // building, calling and awaiting at the same time
@@ -1006,6 +1006,40 @@ pub async fn generic(){
         pub t_type: T, // T must refer to a field, or be a `PhantomData` otherwise must be removed
     }
     
+    //// since the return type have a reference
+    //// thus we have to use a valid lifetime 
+    //// for that because we can't return a 
+    //// reference from function which is owned
+    //// by that function thus we've used the 
+    //// 'static lifetime.
+    //
+    //// returning traits as type requires to 
+    //// put them inside the box or use &dyn 
+    //// with a valid lifetime but we can use
+    //// them as generic in struct fields and 
+    //// function params directly using where
+    //// clause or inside the function or struct 
+    //// signature; if we want to return the trait
+    //// we must to return an instance of its 
+    //// implementor since they are abstract 
+    //// dynamic sized types and don't have 
+    //// size at compile time and we can't just
+    //// simply return a trait inside function 
+    //// because everything in rust must be sized.
+    //
+    //// if we want to return the trait behind 
+    //// a pointer like &dyn we must use a valid
+    //// lifetime before &dyn alos bound that
+    //// trait to that lifetime too.
+    struct Test10{}
+    impl InterfaceMe for Test10{} 
+    fn test_10() -> &'static (dyn InterfaceMe + 'static){ //// here we're returning the trait behind a pointer or &dyn with a 'static lifetime thus the trait itself must be bounded to the 'static lifetime too
+        &Test10{} //// since we're returning a reference we need to put the instance behind a reference
+    }
+
+    fn test_11<'validlifetime>() -> &'validlifetime (dyn InterfaceMe + 'validlifetime){ //// here we're returning the trait behind a pointer or &dyn with 'validlifetime lifetime thus the trait itself must be bounded to the 'validlifetime lifetime too
+        &Test10{} //// since we're returning a reference we need to put the instance behind a reference
+    }
     
     fn test<'l, T>() where T: FnMut(String) -> String + Send + Sync + 'static + 'l{
         
@@ -1439,7 +1473,7 @@ pub async fn unsafer(){
         &wrapper.member as *const i32 as *const u8 //// to convert the number to the u8 we have to first convert it to the i32 itself first
     ));
 
-    //// `Trait` has different implementations since their pointers will store extra size about their length so they have 8 bytes long
+    //// `Trait` has different implementations since their pointers will store extra size about their length (because their size will be specified at runtime and depends on their implementor) so they have 8 bytes long
     assert!(!std::ptr::eq(
         &wrapper as &dyn Trait, //// casting the wrapper to the Trait trait we can do this, since Trait is implemented for the underlying type or Wrapper struct (if we want to cast to a trait the trait must be implmeneted for the type) 
         &wrapper.member as &dyn Trait,

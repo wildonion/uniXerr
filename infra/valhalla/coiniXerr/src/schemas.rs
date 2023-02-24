@@ -1492,8 +1492,8 @@ impl MerkleNode{
         p.add_child(right_node); //// also adding the right node child
         let parent_children = MerkleNode::get_children_of(p);
         if let Ok(children) = parent_children{
-            while let child = children{
-                
+            while let child = children.iter().next(){ //// getting the next child of the children vector
+                info!("child data -> {:#?}", child.unwrap().data);
             }
         }
         self.parent = parent;

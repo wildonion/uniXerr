@@ -1,4 +1,6 @@
 #!/bin/bash
+wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 sudo chown -R root:root . && sudo chmod -R 777 .
 sudo apt update -y && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 sudo apt-get install -y nodejs && npm install pm2@latest -g
@@ -9,6 +11,7 @@ sudo apt-get install gnupg
 wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
 echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
 sudo apt-get update -y && sudo apt-get install -y mongodb-org
+sudo mkdir -p /data/db && sudo chown -R $USER /data/db
 echo "[?] What App Do You Want To Build?"
 read App    
 if [[ $App == "coiniXerr" ]]; then
