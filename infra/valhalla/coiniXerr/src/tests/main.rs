@@ -1415,6 +1415,71 @@ pub async fn generic(){
     // =============================================================================================================================
 
 
+
+
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    pub const N: usize = 4;
+    struct Response;
+    struct Api;
+    impl Api{
+        
+        pub fn get_user(path: &str) -> Response{
+            Response{}
+        }
+        
+        pub fn add_user(path: &str) -> Response{
+            Response{}
+        }
+        
+        pub fn add_nft(path: &str) -> Response{
+            Response{}
+        } 
+        
+        pub fn get_nft(path: &str) -> Response{
+            Response{}
+        } 
+        
+    }
+    
+    
+    // arrays cannot have values added or removed at runtime; 
+    // their lengths are fixed at compile time thus we've defined
+    // a fixed size of N for Apis type.
+    // if the array has a size then there is no need to use it
+    // behind a pointer since it's size will specified at compile time
+    // otherwise it's must be behind a pointer which will be a slice
+    // of vector since all dynamic sized types will be coerced to 
+    // their slice form at compile time.
+    type Apis<'p> = [for<'p> fn(&'p str) -> Response; N];
+    let apis: Apis;
+    apis = [
+        Api::get_user,
+        Api::add_user,
+        Api::add_nft,
+        Api::get_nft
+    ];
+    
+    
+    // closures are of type traits hence they are dynamic
+    // abstract size and in order to use them as a type
+    // we have to put them behind a reference like Box<dyn
+    // or &dyn
+    // let regiser_trait = |apis: &[&dyn FnMut() -> Response]|{ //// vector of FnMut closure apis which is of type trait
+    //     for api in apis{
+    //         api("some-path");
+    //     }
+    // };
+    
+    let regiser_fn = |apis: [for<'p> fn(&'p str) -> Response; N]|{ //// vector of function apis with a fixed size of N elements
+        for api in apis{
+            api("some-path");
+        }
+    };
+    
+    regiser_fn(apis);
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 }
 
 
