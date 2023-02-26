@@ -1423,19 +1423,19 @@ pub async fn generic(){
     struct Api;
     impl Api{
         
-        pub fn get_user(path: &str) -> Response{
+        pub fn get_user(path: String) -> Response{
             Response{}
         }
         
-        pub fn add_user(path: &str) -> Response{
+        pub fn add_user(path: String) -> Response{
             Response{}
         }
         
-        pub fn add_nft(path: &str) -> Response{
+        pub fn add_nft(path: String) -> Response{
             Response{}
         } 
         
-        pub fn get_nft(path: &str) -> Response{
+        pub fn get_nft(path: String) -> Response{
             Response{}
         } 
         
@@ -1450,7 +1450,7 @@ pub async fn generic(){
     // otherwise it's must be behind a pointer which will be a slice
     // of vector since all dynamic sized types will be coerced to 
     // their slice form at compile time.
-    type Apis<'p> = [for<'p> fn(&'p str) -> Response; N];
+    type Apis<'p> = [fn(String) -> Response; N];
     let apis: Apis;
     apis = [
         Api::get_user,
@@ -1470,9 +1470,9 @@ pub async fn generic(){
     //     }
     // };
     
-    let regiser_fn = |apis: [for<'p> fn(&'p str) -> Response; N]|{ //// vector of function apis with a fixed size of N elements
+    let regiser_fn = |apis: [fn(String) -> Response; 4]|{ //// vector of function apis with a fixed size of N elements
         for api in apis{
-            api("some-path");
+            api("some-path".to_string());
         }
     };
     
