@@ -1621,7 +1621,15 @@ impl Default for Transaction{
 
 impl Transaction{
     
-    //// a transaction decoder or deserializer using union
+    // https://rkyv.org/zero-copy-deserialization.html
+    //// a transaction decoder or deserializer using union and zero copy deserialization technique
+    //// this technique works by representing data in their borrowed form which has been taken
+    //// from the buffer which contains utf8 bytes of data, zero copy deserialization is about
+    //// deserializing data by taking a reference to the serialized data in which make a guarantees 
+    //// that no data is copied durin deserialization and no work is done to deserialize data,
+    //// to do this we can structure the encoded representation of data in such a way that it is
+    //// the same as the in-memory representation of the source type which we can achieve this
+    //// by mapping the data into a union field which contains the buffer bytes of the whole source.
     pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{ //// self is a copy to all values of the struct; &self is a pointer to those values means by doing this we will borrow ownership of all original values
         unsafe{ // NOTE - if neither Copy nor Clone is not implemented for the object by moving it into a function we loose the ownership of the value of that object; we can borrow the ownership by taking a pointer to it using &
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //// filling the buffer field will also fill the data cause thay have a same memory storage
