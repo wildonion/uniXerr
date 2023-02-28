@@ -1620,8 +1620,7 @@ impl Default for Transaction{
 }
 
 impl Transaction{
-    
-    // https://rkyv.org/zero-copy-deserialization.html
+    // https://rkyv.org/zero-copy-deserialization.html 
     //// a transaction decoder or deserializer using union and zero copy deserialization technique
     //// this technique works by representing data in their borrowed form which has been taken
     //// from the buffer which contains utf8 bytes of data, zero copy deserialization is about
@@ -1630,6 +1629,19 @@ impl Transaction{
     //// to do this we can structure the encoded representation of data in such a way that it is
     //// the same as the in-memory representation of the source type which we can achieve this
     //// by mapping the data into a union field which contains the buffer bytes of the whole source.
+    //
+    //// the zero copy technique: directly
+    //// referencing bytes of the serialized type instead of
+    //// copying the whole serialized type into the memory, for ex
+    //// we can borrow the String of a JSON into &str instead of
+    //// loading those chars into a String also the lifetime of 
+    //// the &str depends on the String buffer itself and because
+    //// there is no copying operation this is called zero copy 
+    //// deserialization technique, also zero copy needs that 
+    //// the Copy trait implemented for the type thus dynamic
+    //// size types like Vec can't be bounded to zero copy and they
+    //// must be in their sliced and borrowed form like &str and &[u8]
+    //// or an array with a fixed size like [0u8; 32]
     pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{ //// self is a copy to all values of the struct; &self is a pointer to those values means by doing this we will borrow ownership of all original values
         unsafe{ // NOTE - if neither Copy nor Clone is not implemented for the object by moving it into a function we loose the ownership of the value of that object; we can borrow the ownership by taking a pointer to it using &
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //// filling the buffer field will also fill the data cause thay have a same memory storage
