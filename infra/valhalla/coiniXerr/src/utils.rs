@@ -642,6 +642,8 @@ pub async fn udp_tx_emulator() -> (){
 // -------------------------------------------------------------------------------------------------
 // https://stackoverflow.com/questions/27324821/why-does-an-enum-require-extra-memory-size
 // https://stackoverflow.com/questions/46557608/what-is-the-null-pointer-optimization-in-rust
+// https://github.com/wildonion/gem/blob/master/conse/SOLANA.rules
+// https://github.com/wildonion/cs-concepts/blob/main/rust.rules
 /*
     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
