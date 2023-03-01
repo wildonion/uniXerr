@@ -1642,6 +1642,13 @@ impl Transaction{
     //// size types like Vec can't be bounded to zero copy and they
     //// must be in their sliced and borrowed form like &str and &[u8]
     //// or an array with a fixed size like [0u8; 32]
+    //
+    //// in zero copy we take a reference to the buffer contains the json string which 
+    //// gives us slice form of the string or &str, a buffer contains encoded data in 
+    //// which we can deserialize it using zero copy by taking a reference to the whole 
+    //// bytes instead of mapping and copying each byte into the structure since the borrowed 
+    //// or slice form of the buffer also contains the whole data which no extra padding and 
+    //// copying is required to get the underlying data. 
     pub fn new(buffer: &[u8]) -> Result<&mut Self, Box<dyn std::error::Error>>{ //// self is a copy to all values of the struct; &self is a pointer to those values means by doing this we will borrow ownership of all original values
         unsafe{ // NOTE - if neither Copy nor Clone is not implemented for the object by moving it into a function we loose the ownership of the value of that object; we can borrow the ownership by taking a pointer to it using &
             let transaction = TransactionMem{buffer: buffer.as_ptr() as *const u8}; //// filling the buffer field will also fill the data cause thay have a same memory storage

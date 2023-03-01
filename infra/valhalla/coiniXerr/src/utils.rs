@@ -678,15 +678,18 @@ pub async fn udp_tx_emulator() -> (){
         ➔ by setting a unique storage key for each collection actually we're putting all the keys and entries of that collection inside a unique storage in memory which has a unique key or flag to avoid data collision for each collection's keys
         ➔ since two different collections might have same key we'll set a prefix key for each collection using enum variant serialized to utf8 to avoid collection collision with same key in their entries, by doing this every collection will have a unique identifier and will be separated from other collection in which a same version of a key exists
         ➔ every instascne of ByOwnerIdInner, ByNFTContractIdInner and ByNFTTokenTypeInner will have a new memory location address thus we can use it as an storage key since the hash of this key will be different and unique each time due to different memory location address of each instacne which won't be the same even if we create a new instance with a same field each time
-        ➔ enum has an extra size like 8 bytes, a 64 bits pointer which is big enough (64 bit arch os) to store the current vairant address for its tag which tells use which variant we have right now, but rust uses null pointer optimization will be used in enum with two variants and in enum with two variants instead of allocating 8 bytes tag  
+        ➔ enum has an extra size like 8 bytes, a 64 bits pointer which is big enough (64 bit arch os) to store the current vairant address for its tag which tells use which variant we have right now, but rust uses null pointer optimization will be used in enum with two variants instead of allocating 8 bytes tag  
         ➔ null pointer optimization will be used in enum with two variants and means a reference can never be null such as Option<&T> which is a pointer with 8 bytes length thus rust uses that reference or pointer as the tag with 8 bytes length for the current variant  
         ➔ none struct variants in Storagekey enum allocates zero byte for the current persistent storage once the tag point to their address at a time
-        ➔ the enum size with zero byte for each variants would be the largest size of its variant + 8 bytes tag which would be 8 bytes in overall
+        ➔ the enum size with zero byte for each variants would be the largest size of its variant + 8 bytes tag which would be 8 bytes in overall (enum size is 8 bytes tag + its largest variant size )
         ➔ an enum is the size of the maximum of its variants plus a discriminant value to know which variant it is, rounded up to be efficiently aligned, the alignment depends on the platform
         ➔ an enum size is equals to a variant or the type with largest size + 8 bytes tag (there is only one 8 byte tag (size of the tag is usize) required since only one variant will be available at the same time)
         ➔ enum size with a single f64 type variant would be 8 bytes and with four f64 variants would be 16 bytes cause one 8 bytes (the tag) wouldn't be enough because there would be no room for the tag
         ➔ the size of the following enum is 24 (is equals to its largest variant size which belongs to the Text variant) + 8 (the tag size) bytes 
-        
+        ➔ enum borsh variant for unique storage key to avoid data collision 
+        ➔ enum borsh serding uses 1 byte tag to avoid zero bytes in serializing which is called the null pointer optimisation technique
+        ➔ to avoid zero bytes borsh uses null pointer optimisation technique for enums in which it'll add 1 extra byte to Option that whenever the None part was selected that extra 1 byte represent the size of the Option.
+
 
 
         ////////////// NULL POINTER OPTIMISATION NOTE
