@@ -691,7 +691,7 @@ pub async fn udp_tx_emulator() -> (){
         ➔ enum borsh variant for unique storage key to avoid data collision 
         ➔ enum borsh serding uses 1 byte tag to avoid zero bytes in serializing which is called the null pointer optimisation technique
         ➔ to avoid zero bytes borsh uses null pointer optimisation technique for enums in which it'll add 1 extra byte to Option that whenever the None part was selected that extra 1 byte represent the size of the Option.
-
+        ➔ null pointer optimisation means adding 1 extra byte to the data if the data contains zero bytes or a null pointer to avoid dangling pointer issue like adding 1 byte to the enum data if the enum was Option and the None part was selected otherwise the size of the enum will be 1 byte + T if T was Some
 
 
         ////////////// NULL POINTER OPTIMISATION NOTE
