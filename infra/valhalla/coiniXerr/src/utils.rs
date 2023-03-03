@@ -553,7 +553,7 @@ pub async fn tcp_tx_emulator() -> (){
     let ip_port = format!("{}:{}", tcp_host, tcp_port);
     let sleep = Duration::from_secs("3".to_string().parse::<u64>().unwrap());
 
-    loop{ //// simulating a transaction emulator by sending infinite tx to the coiniXerr tcp server
+    loop{ //// simulating a transaction emulator by sending infinite tx packets to the coiniXerr tcp server
         
         time+=1;
         let ip_port = ip_port.clone();
@@ -598,7 +598,7 @@ pub async fn udp_tx_emulator() -> (){
     let sleep = Duration::from_secs("3".to_string().parse::<u64>().unwrap());
 
 
-    loop{ //// simulating a transaction emulator by sending infinite tx to the coiniXerr udp server
+    loop{ //// simulating a transaction emulator by sending infinite tx packet to the coiniXerr udp server
         
         time+=1;
         let ip_port = ip_port.clone();
