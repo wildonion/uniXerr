@@ -1414,7 +1414,42 @@ pub async fn generic(){
     assert!(matches!(callback(..), |_| Some(4))); // it'll be unreachable since the first arm of the match is not match with this 
     // =============================================================================================================================
 
-
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    	trait Trait<T>{} //// can't bound generic in trait to other traits since it's not stable 
+	trait Trait1{}
+	struct StrucT(u16);
+	impl Trait1 for StrucT{}
+	impl<T> Trait<T> for StrucT{} 
+	// type Event<StrucT> = fn() -> impl Trait1; //// `impl Trait` in type aliases is unstable
+	// fn one<G>() -> impl Trait<G> + Trait1{
+	//     StrucT(20892)
+	// }
+	// fn two<G>() -> impl Trait<G> + Trait1{
+	//     StrucT(20892)
+	// }
+	// fn three<G>() -> impl Trait<G> + Trait1{
+	//     StrucT(20892)
+	// }
+	// also: `impl Trait` only allowed in function and inherent method return types, not in `fn`
+	// let events: Vec<fn() -> impl Trait1> = vec![one, two, three];
+	type Event<StrucT> = fn() -> StrucT;
+	fn one() -> StrucT{
+	    StrucT(20892)
+	}
+	fn two() -> StrucT{
+	    StrucT(20892)
+	}
+	fn three() -> StrucT{
+	    StrucT(20892)
+	}
+	let events: Vec<Event<StrucT>> = vec![one, two, three];
+	let ids = events
+	    .into_iter()
+	    .map(|e| e())
+	    .collect::<Vec<StrucT>>();
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	
 
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
