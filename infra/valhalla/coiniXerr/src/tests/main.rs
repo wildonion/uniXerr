@@ -935,6 +935,10 @@ pub async fn generic(){
         )().await;
     });
 
+    fn Ankir(name: impl Interface){ //// implementing the Interface trait for the passed in type means that we're bounding the passed in type to this trait
+
+    }
+
     //--------------------------------------------------------------------
     // EXAMPLE - Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>
     // NOTE - closure types are traits so when we want 

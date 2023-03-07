@@ -83,10 +83,10 @@ use snow::resolvers::RingResolver;
 use riker::actors::*;
 use riker::system::ActorSystem;
 use riker_patterns::ask::*; //// used to ask any actor to give us the info about or update the state of its guarded type 
+use either::Either;
 //// loading all the required network stacks
 //// to build a p2p blockchain node.
 use libp2p::{
-    core::either::EitherName,
     kad::{record::store::MemoryStore, GetClosestPeersError, GetProvidersOk, Kademlia, KademliaEvent, QueryId, QueryResult},
     gossipsub,
     multiaddr::Protocol,
