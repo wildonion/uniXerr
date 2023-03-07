@@ -882,12 +882,12 @@ pub async fn generic(){
     //// typically we put trait objects in a Box<dyn Trait> or use &dyn Trat, though 
     //// with futures we might have to pin the box as well means if we want to return 
     //// a future object first we must put the future inside the Box since Future is 
-    //// a trait and second we must pin the Box to prevent it from being relocated 
-    //// inside the ram the reason that why we must put the Box inside the Pin is because Pin
-    //// takes a pointer of the type to pin it and our pointer in our case must 
-    //// be either &dyn Future or Box<dyn Future> since Future is a trait and 
-    //// trait objects are dynamic sized we must use dyn keyword thus our type 
-    //// will be Pin<Box<dyn Future<Output=T>>>
+    //// a trait which must be behind a pointer and second we must pin the Box to prevent 
+    //// it from being relocated inside the ram to solve it later, the reason that why we 
+    //// must put the Box inside the Pin is because Pin takes a pointer of the type to pin 
+    //// it and our pointer in our case must be either &dyn Future or Box<dyn Future> since 
+    //// Future is a trait and trait objects are dynamic sized we must use dyn keyword thus 
+    //// our type will be Pin<Box<dyn Future<Output=T>>>
     //
     //// if we want to return a trait from a function or use it as a param in 
     //// struct fields or functions we must use the generic form like defining 
@@ -1089,8 +1089,8 @@ pub async fn generic(){
             //// Future<Output=<WHATEVERTYPE>> which is a trait and traits
             //// are abstract dynamic size which can't be sized at compile time
             //// and they need to be in form &dyn Trait or Box<dyn Trait> thus
-            //// &async{} is a dynamic size type which must be behind a pointer 
-            //// with dyn keyword and valid lifetime in order to be unpinned 
+            //// async{} is a dynamic size type which must be behind a pointer 
+            //// with dyn keyword with a valid lifetime in order to be unpinned 
             //// and this can only be coded and referenced syntatically using Box
             //// which we can put the Box::new(async{}) inside the Pin or use Box::Pin
             //// which returns a pinned Box. 
@@ -1449,7 +1449,13 @@ pub async fn generic(){
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	
 	
-
+    // struct StructMyself{}
+    // struct CustomErr{}
+    // impl Interface for StructMyself{}
+    // type GenericResultInja<E> = Result<impl Interface, E>; //// impl Trait can only be used inside the function return type and here is unstable
+    // fn ret_instance() -> GenericResultInja<CustomErr>{
+    //     StructMyself{}
+    // } 
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     pub const N: usize = 4;
@@ -1484,7 +1490,7 @@ pub async fn generic(){
     // otherwise it's must be behind a pointer which will be a slice
     // of vector since all dynamic sized types will be coerced to 
     // their slice form at compile time.
-    type Apis<'p> = [fn(String) -> Response; N];
+    type Apis<'p> = [fn(String) -> Response; N]; //// adding N api function inside the array, we don't need to put it behind a pointer since it has a fixed size at compile time
     let apis: Apis;
     apis = [
         Api::get_user,

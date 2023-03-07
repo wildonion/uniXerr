@@ -86,19 +86,19 @@ use riker_patterns::ask::*; //// used to ask any actor to give us the info about
 //// loading all the required network stacks
 //// to build a p2p blockchain node.
 use libp2p::{
-    core::either::EitherError,
+    core::either::EitherName,
     kad::{record::store::MemoryStore, GetClosestPeersError, GetProvidersOk, Kademlia, KademliaEvent, QueryId, QueryResult},
     gossipsub,
     multiaddr::Protocol,
-    gossipsub::error::GossipsubHandlerError,
     futures::StreamExt, //// trait for streams
     core::upgrade,
     identity, identity::Keypair, 
     mdns, mplex, noise::{Keypair as NoiseKeypair, X25519Spec, NoiseConfig}, 
     swarm::{Swarm, behaviour, NetworkBehaviour, SwarmEvent, SwarmBuilder},
     tcp as libp2pTCP, Multiaddr, PeerId, Transport,
+    gossipsub::HandlerError as GossipsubHandlerError,
     gossipsub::{
-      MessageId, Gossipsub, GossipsubEvent, GossipsubMessage, 
+      MessageId, Behaviour as Gossipsub, Event as GossipsubEvent, Message as GossipsubMessage, 
       IdentTopic as Topic, MessageAuthenticity, ValidationMode,
     }
 };
