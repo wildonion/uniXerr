@@ -553,7 +553,7 @@ pub async fn tcp_tx_emulator() -> (){
     let ip_port = format!("{}:{}", tcp_host, tcp_port);
     let sleep = Duration::from_secs("3".to_string().parse::<u64>().unwrap());
 
-    loop{ //// simulating a transaction emulator by sending infinite tx to the coiniXerr tcp server
+    loop{ //// simulating a transaction emulator by sending infinite tx packets to the coiniXerr tcp server
         
         time+=1;
         let ip_port = ip_port.clone();
@@ -598,7 +598,7 @@ pub async fn udp_tx_emulator() -> (){
     let sleep = Duration::from_secs("3".to_string().parse::<u64>().unwrap());
 
 
-    loop{ //// simulating a transaction emulator by sending infinite tx to the coiniXerr udp server
+    loop{ //// simulating a transaction emulator by sending infinite tx packet to the coiniXerr udp server
         
         time+=1;
         let ip_port = ip_port.clone();
@@ -642,6 +642,8 @@ pub async fn udp_tx_emulator() -> (){
 // -------------------------------------------------------------------------------------------------
 // https://stackoverflow.com/questions/27324821/why-does-an-enum-require-extra-memory-size
 // https://stackoverflow.com/questions/46557608/what-is-the-null-pointer-optimization-in-rust
+// https://github.com/wildonion/gem/blob/master/conse/SOLANA.rules
+// https://github.com/wildonion/cs-concepts/blob/main/rust.rules
 /*
     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -689,7 +691,7 @@ pub async fn udp_tx_emulator() -> (){
         ➔ enum borsh variant for unique storage key to avoid data collision 
         ➔ enum borsh serding uses 1 byte tag to avoid zero bytes in serializing which is called the null pointer optimisation technique
         ➔ to avoid zero bytes borsh uses null pointer optimisation technique for enums in which it'll add 1 extra byte to Option that whenever the None part was selected that extra 1 byte represent the size of the Option.
-
+        ➔ null pointer optimisation means adding 1 extra byte to the data if the data contains zero bytes or a null pointer to avoid dangling pointer issue like adding 1 byte to the enum data if the enum was Option and the None part was selected otherwise the size of the enum will be 1 byte + T if T was Some
 
 
         ////////////// NULL POINTER OPTIMISATION NOTE

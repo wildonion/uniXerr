@@ -35,6 +35,7 @@ pub static PEER_ID: Lazy<PeerId> = Lazy::new(|| PeerId::from(KEYS.public())); //
 pub static KADEMLIA_KEY_SEARCH: Lazy<PeerId> = Lazy::new(|| identity::Keypair::generate_ed25519().public().into()); //// generating a keypair to use its public key as the kademlia key search for node discovery
 pub static CHAIN_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("chain"));
 pub static WAVE_SLOT_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("wave-slot"));
+pub static TRANSACTION_TOPIC: Lazy<Topic> = Lazy::new(|| Topic::new("tx"));
 
 /////// ⚈ --------- ⚈ --------- ⚈ --------- ⚈
 ///////           app storage setup

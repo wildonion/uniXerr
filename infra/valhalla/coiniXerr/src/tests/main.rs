@@ -585,8 +585,7 @@ pub async fn generic(){
 
             // let User{username, age} = user; //// unpacking struct
             let User{username: name, age: sen} = user; //// unpacking struct with arbitrary field names
-            let User{..} = user; //// unpacking struct with `..` since we don't care about all fields
-
+            // let User{..} = user; //// unpacking struct with `..` since we don't care about all fields
             
             let hello = "Здравствуйте";
             let s = &hello[0..2];
@@ -885,12 +884,12 @@ pub async fn generic(){
     //// typically we put trait objects in a Box<dyn Trait> or use &dyn Trat, though 
     //// with futures we might have to pin the box as well means if we want to return 
     //// a future object first we must put the future inside the Box since Future is 
-    //// a trait and second we must pin the Box to prevent it from being relocated 
-    //// inside the ram the reason that why we must put the Box inside the Pin is because Pin
-    //// takes a pointer of the type to pin it and our pointer in our case must 
-    //// be either &dyn Future or Box<dyn Future> since Future is a trait and 
-    //// trait objects are dynamic sized we must use dyn keyword thus our type 
-    //// will be Pin<Box<dyn Future<Output=T>>>
+    //// a trait which must be behind a pointer and second we must pin the Box to prevent 
+    //// it from being relocated inside the ram to solve it later, the reason that why we 
+    //// must put the Box inside the Pin is because Pin takes a pointer of the type to pin 
+    //// it and our pointer in our case must be either &dyn Future or Box<dyn Future> since 
+    //// Future is a trait and trait objects are dynamic sized we must use dyn keyword thus 
+    //// our type will be Pin<Box<dyn Future<Output=T>>>
     //
     //// if we want to return a trait from a function or use it as a param in 
     //// struct fields or functions we must use the generic form like defining 
@@ -937,6 +936,10 @@ pub async fn generic(){
             }
         )().await;
     });
+
+    fn Ankir(name: impl Interface){ //// implementing the Interface trait for the passed in type means that we're bounding the passed in type to this trait
+
+    }
 
     //--------------------------------------------------------------------
     // EXAMPLE - Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>
@@ -1092,8 +1095,8 @@ pub async fn generic(){
             //// Future<Output=<WHATEVERTYPE>> which is a trait and traits
             //// are abstract dynamic size which can't be sized at compile time
             //// and they need to be in form &dyn Trait or Box<dyn Trait> thus
-            //// &async{} is a dynamic size type which must be behind a pointer 
-            //// with dyn keyword and valid lifetime in order to be unpinned 
+            //// async{} is a dynamic size type which must be behind a pointer 
+            //// with dyn keyword with a valid lifetime in order to be unpinned 
             //// and this can only be coded and referenced syntatically using Box
             //// which we can put the Box::new(async{}) inside the Pin or use Box::Pin
             //// which returns a pinned Box. 
@@ -1416,8 +1419,49 @@ pub async fn generic(){
     assert!(matches!(callback(..), |_| Some(4))); // it'll be unreachable since the first arm of the match is not match with this 
     // =============================================================================================================================
 
-
-
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    	trait Trait<T>{} //// can't bound generic in trait to other traits since it's not stable 
+	trait Trait1{}
+	struct StrucT(u16);
+	impl Trait1 for StrucT{}
+	impl<T> Trait<T> for StrucT{} 
+	// type Event<StrucT> = fn() -> impl Trait1; //// `impl Trait` in type aliases is unstable
+	// fn one<G>() -> impl Trait<G> + Trait1{
+	//     StrucT(20892)
+	// }
+	// fn two<G>() -> impl Trait<G> + Trait1{
+	//     StrucT(20892)
+	// }
+	// fn three<G>() -> impl Trait<G> + Trait1{
+	//     StrucT(20892)
+	// }
+	// also: `impl Trait` only allowed in function and inherent method return types, not in `fn`
+	// let events: Vec<fn() -> impl Trait1> = vec![one, two, three];
+	type Event<StrucT> = fn() -> StrucT;
+	fn one() -> StrucT{
+	    StrucT(20892)
+	}
+	fn two() -> StrucT{
+	    StrucT(20892)
+	}
+	fn three() -> StrucT{
+	    StrucT(20892)
+	}
+	let events: Vec<Event<StrucT>> = vec![one, two, three];
+	let ids = events
+	    .into_iter()
+	    .map(|e| e())
+	    .collect::<Vec<StrucT>>();
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	
+    // struct StructMyself{}
+    // struct CustomErr{}
+    // impl Interface for StructMyself{}
+    // type GenericResultInja<E> = Result<impl Interface, E>; //// impl Trait can only be used inside the function return type and here is unstable
+    // fn ret_instance() -> GenericResultInja<CustomErr>{
+    //     StructMyself{}
+    // } 
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     pub const N: usize = 4;
@@ -1452,7 +1496,7 @@ pub async fn generic(){
     // otherwise it's must be behind a pointer which will be a slice
     // of vector since all dynamic sized types will be coerced to 
     // their slice form at compile time.
-    type Apis<'p> = [fn(String) -> Response; N];
+    type Apis<'p> = [fn(String) -> Response; N]; //// adding N api function inside the array, we don't need to put it behind a pointer since it has a fixed size at compile time
     let apis: Apis;
     apis = [
         Api::get_user,

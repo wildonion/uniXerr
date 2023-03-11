@@ -112,9 +112,9 @@ pub async fn bootstrap(
     // -------------------------------------------------------------------------------
     //         CREATING A SECURED MULTIPLEX PROTCOL USING TOKIO TCP AND NOISE   
     // -------------------------------------------------------------------------------
-    //// creating a tokio-based TCP transport use noise for authenticated
-    //// encryption based on keypairs and Mplex for multiplexing 
-    //// of substreams on a TCP stream.
+    //// creating a tokio-based TCP transport using noise for an encrypted and 
+    //// authenticated communication based on generated keypairs for each node  
+    //// and Mplex for multiplexing of substreams on a TCP stream.
     //
     //// stream multiplexer protocol will be used to send 
     //// stream of information over a communication link 

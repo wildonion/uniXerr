@@ -392,7 +392,7 @@ impl P2PSwarmEventLoop{
 
     }
 
-    async fn handle_event(&mut self, event: SwarmEvent<P2PAppBehaviourEvent, EitherError<GossipsubHandlerError, std::io::Error>>){
+    async fn handle_event(&mut self, event: SwarmEvent<P2PAppBehaviourEvent, Either<GossipsubHandlerError, std::io::Error>>){
         //// following we're taking care of the swarm events 
         //// both kademlia and gossipsub events which is one of 
         //// the variant inside the `P2PAppBehaviourEvent`.
@@ -1403,6 +1403,14 @@ pub struct MerkleNode{
     //// in order we reach a 0 count in strong count then the parent
     //// can go out of scope or drop. 
     pub children: Option<RefCell<Vec<Rc<MerkleNode>>>>, 
+    pub position: NodePosition
+}
+
+#[derive(Debug)]
+pub enum NodePosition{
+    Left,
+    Right,
+    Root
 }
 
 impl MerkleNode{
@@ -1412,7 +1420,8 @@ impl MerkleNode{
             id: Uuid::new_v4(),
             data,
             parent: None,
-            children: None
+            children: None,
+            position: NodePosition::Root
         }
     }
 
@@ -1486,7 +1495,9 @@ impl MerkleNode{
                 id: self.id, 
                 data: self.data, 
                 parent: self.parent, 
-                children: self.children 
+                children: self.children,
+                position: NodePosition::Left //// since self referes to the left node
+
             }
         );
         p.add_child(right_node); //// also adding the right node child
