@@ -54,12 +54,16 @@ pub async fn bootstrap(
     //// also for each defined interface, the generated 
     //// code includes a Client struct that can be used 
     //// to call the interface's or actor object's methods.
+    //
+    //// zmq and rpc will be used for device actor communication 
+    //// if we want to use them in browser we must setup websocket 
 
 
 
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples
     // https://capnproto.org/language.html
+    // TODO - defien get_latest_blockhash, get_balance_of and etc ... methods to call them directly from the client using an RPC call to the coiniXerr node  
     // TODO - RPC capnp and borsh codec method call based on pubsub streaming
     // TODO - accessing Arc<Mutex<data>> + Send + Sync + 'static between threads using tokio channels  
     // TODO - implementing cap'n proto structures for coiniXerr transactions comming from the walleXerr with compilation commands in `app.sh` 

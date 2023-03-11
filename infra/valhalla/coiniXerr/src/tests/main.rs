@@ -434,6 +434,8 @@ pub async fn generic(){
     }
 
 
+    pub struct Mon;
+    pub struct Node<Mon>; //// using the Mon struct as the generic type inside the Node struct
 
     /////////////////////////////////////////////////////////
     // default type parameter example
@@ -825,8 +827,8 @@ pub async fn generic(){
 
 
 
-    
-
+    // ---------------------------------------------------------------------------------------------
+    // - generics, bounding to traits and lifetimes, Rc, RefCell, Weak, Arc, Mutex, DeRefMut, RefMut
     // =============================================================================================================================
     // closure coding - trait must be referenced by putting them inside Box or use with &dyn Trait if they want to be used as param or struct field
     // https://zhauniarovich.com/post/2020/2020-12-closures-in-rust/

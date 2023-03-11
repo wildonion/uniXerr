@@ -75,6 +75,9 @@ pub async fn bootstrap(
     //// topics are channels that will be broadcasted to the network
     //// using publishers so subscribers that are interested to those
     //// topics can subscribe to.
+    //
+    //// libp2p will be used for p2p communication based on gossipsub, kadmelia, 
+    //// websocket, webrtc over tokio tpc and quic with noise protocol.
 
     // ----------------------------------------------------------------------
     //                          SERVICE VARS INITIALIZATION
