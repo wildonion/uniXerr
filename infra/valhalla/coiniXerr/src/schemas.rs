@@ -1546,7 +1546,7 @@ pub struct Transaction{
     pub from_address: String,
     pub to_address: String,
     pub issued: i64,
-    pub signed: Option<i64>,
+    pub signed: Option<i64>, //// if this is Some means that this transaction has confirmed inside the node
     pub signature: Option<Vec<u8>>,
     pub hash: Option<String>,
 }
@@ -1701,7 +1701,7 @@ impl Transaction{
                 "ttype": transaction.ttype,
                 "amount": transaction.amount,
                 "public_key_bytes": transaction.public_key_bytes,
-                "from_address": transaction.from_address,
+                "from_address": transaction.from_address, //// transaction owner
                 "to_address": transaction.to_address,
                 "issued": transaction.issued,
                 "signed": transaction.signature,
@@ -1713,7 +1713,7 @@ impl Transaction{
                 "ttype": transaction.ttype,
                 "amount": transaction.amount,
                 "public_key_bytes": transaction.public_key_bytes,
-                "from_address": transaction.from_address,
+                "from_address": transaction.from_address, //// transaction owner
                 "to_address": transaction.to_address,
                 "issued": transaction.issued
             })

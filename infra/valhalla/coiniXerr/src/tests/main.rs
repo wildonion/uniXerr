@@ -1218,6 +1218,40 @@ pub async fn generic(){
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+    pub struct Req;
+    pub struct Res;
+    let req = Req;
+    let res = Res;
+    pub struct Test<T> where T: FnMut(Req, Res) -> Res{
+        pub f: T //// f is a FnMut closure which accepts Req and Res instances as its params 
+    }
+    let cb = |req, res| {res};
+    let instance = Test{f: cb};
+    let response = (instance.f)(req, res);
+    
+    //// traits as a field (param) or return type must be behind a 
+    //// pointer using Box or &dyn but as the type of a passed in 
+    //// param the generic type of the param must be bounded to that trait.
+    // 
+    //// stack pinning can be a captured state of async block or 
+    //// function which can be done using pin!{} which constructs 
+    //// Pin<&mut T> and is cheaper than heap pinning or Box::pin()
+    // fn run() -> impl Generator<Yield = i32, Return = ()>{} //// default type parameter
+    // /// Runs a future to completion.
+    // fn block_on<F: Future>(future: F) -> F::Output {
+    //     let waker_that_unparks_thread = todo!();  
+    //     let mut cx = Context::from_waker(&waker_that_unparks_thread);
+    //     // Pin the future into the ram so it can be polled later whenever it gets ready
+    //     let mut pinned_future = pin!(future);
+    //     loop {
+    //         match pinned_future.as_mut().poll(&mut cx) {
+    //             Poll::Pending => thread::park(), //// block_on method will block the current thread by parking it
+    //             Poll::Ready(result) => return result,
+    //         }
+    //     }
+    // }
+
+
     pub async fn return_vec_of_box_traits<G>(c: 
             Box<dyn InterfaceMe + Send + Sync + 'static>, 
             //// if we want to use generic in rust we have to specify the generic name in function signature  
