@@ -434,8 +434,8 @@ pub async fn generic(){
     }
 
 
-    pub struct Mon;
-    pub struct Node<Mon>; //// using the Mon struct as the generic type inside the Node struct
+    // pub struct Mon;
+    // pub struct Node<Mon>; //// using the Mon struct as the generic type inside the Node struct
 
     /////////////////////////////////////////////////////////
     // default type parameter example
@@ -1222,12 +1222,13 @@ pub async fn generic(){
     pub struct Res;
     let req = Req;
     let res = Res;
-    pub struct Test<T> where T: FnMut(Req, Res) -> Res{
+    pub struct Test<T, R: std::future::Future<Output=Res> + Send + Sync +'static> 
+        where T: FnMut(Req, Res) -> R{
         pub f: T //// f is a FnMut closure which accepts Req and Res instances as its params 
     }
-    let cb = |req, res| {res};
+    let cb = |req, res| { async {res} /* the return type of the closure must be future object */};
     let instance = Test{f: cb};
-    let response = (instance.f)(req, res);
+    let response = (instance.f)(req, res).await;
     
     //// traits as a field (param) or return type must be behind a 
     //// pointer using Box or &dyn but as the type of a passed in 
