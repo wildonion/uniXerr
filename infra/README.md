@@ -10,4 +10,4 @@
 
 #### `recognizer`: AI models responsible for recognizing users' state based on self-supervised learning techniques.
 
-#### `coiniXerr`: Distributed services including coiniXerr blockchain and FaaS Rafael Runtime with walleXerr front-end.
+#### `coiniXerr`: Distributed services including coiniXerr blockchain and walleXerr front-end.

@@ -9,6 +9,7 @@
 use crate::*;
 
 
+// tx <-----rcp/tcp/udp----> endpoint <----p2p gossipsub/kademlia----> nodes 
 
 
 

@@ -1942,6 +1942,21 @@ pub async fn unsafer(){
     // println!("`b` value after changing `a` is ===== {}", unsafe{&*b});
 
 
+    let name = "wildonion".to_string();
+    let pointer_to_name = &name; 
+    let another_name = name;
+    //// if we want to use the pointer of the name vairable
+    //// in other scopes like pinting it we can't move name 
+    //// variable into another_name variable since in the 
+    //// following we're using its pointer which is borrowed 
+    //// using the pointer_to_name variable that might be a 
+    //// dangling pointer once the name variable moved into 
+    //// the another_name variable thus rust doesn't allow us
+    //// to move the name if its pointer is being used by 
+    //// other scopes.
+    println!(">>>>>>>>> pointer {:?}", pointer_to_name);
+
+
 
     ///// ------------------------------------------------------------------------ /////
     

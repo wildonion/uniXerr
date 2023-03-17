@@ -12,7 +12,7 @@
 
 * update crates and add `quic` protocol for P2P stack
 
-* merkle root, parachain heartbeat and validator reward distribution
+* parachain heartbeat and validator reward distribution
 
 * first coiniXerr node compilation test
 
