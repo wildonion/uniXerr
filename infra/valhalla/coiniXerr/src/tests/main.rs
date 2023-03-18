@@ -1115,6 +1115,30 @@ pub async fn generic(){
             }
         )
     }
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   
+	    struct Nft;
+	    struct Account<'info, GenericData>{
+		pub account: GenericData,
+		pub name: &'info str,
+	    }
+
+	    impl<'info, GenericData> Account<'info, GenericData>{
+
+		pub fn run(&self) -> &[u8]{
+		    let a: &[u8] = &[1];
+		    a
+		}
+
+	    }
+
+	    let account = Account::<'_, Nft>{account: Nft, name: "wildonion"};
+	    let arr = account.run();
+
+
+
+	    const _: fn() = || {
+		fn run(){}
+	    };
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
     'aSexyLabeledBlock:{
         type EmptyType = ();
