@@ -63,6 +63,7 @@ pub async fn bootstrap(
     
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples
     // https://capnproto.org/language.html
+    //// json RPC is on top of the http but RPC capnp is on top of the socket
     // TODO - defien get_latest_blockhash, get_balance_of and etc ... methods to call them directly from the client using an RPC call to the coiniXerr node  
     // TODO - RPC capnp and borsh codec method call based on pubsub streaming like push notif over noise protocol
     // TODO - accessing Arc<Mutex<data>> + Send + Sync + 'static between threads using tokio channels  
