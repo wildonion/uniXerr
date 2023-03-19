@@ -1273,6 +1273,7 @@ impl Block{
             }
         }
 
+        // NOTE - Rc, Weak, RefCell
         // TODO - generate merkle root hash here from all the
         //        nodes inside the merkle_node_hashes vector
         // self.merkle_root = "".to_string();
