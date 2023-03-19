@@ -1139,6 +1139,19 @@ pub async fn generic(){
 	    const _: fn() = || {
 		fn run(){}
 	    };
+	
+	
+		struct Nft5;
+		struct Instance5<G>{
+		    pub nft: G,
+		}
+		fn run_with_5<G>(nft: G) -> Instance5<G>{
+
+		    let instance = Instance5::<G>{nft};
+		    instance
+		}
+
+		run_with_5(Nft);
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
     'aSexyLabeledBlock:{
         type EmptyType = ();
