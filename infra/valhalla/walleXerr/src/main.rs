@@ -19,7 +19,10 @@ use yew_router::*;
 fn main(){
 
 
-
+    // TODO - add async future objects and 
+    //        multithreading feature using 
+    //        rayon to the wasm 
+    // ...
 
 
 
