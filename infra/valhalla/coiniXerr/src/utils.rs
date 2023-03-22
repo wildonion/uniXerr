@@ -71,7 +71,7 @@ pub fn forward1(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //// without &mut self woul
     /* ------------------------ RAYON PARALLEL ITERATION -------------------------- */
     /* ----------------------------------------------------------------------------- */
     mat
-        .par_iter() //// iterate over the mat parallely using based on simd pattern
+        .par_iter() //// iterate over the mat parallely using simd pattern
         .for_each(|row| {
             println!("row is {:?}", row) 
         });
@@ -285,11 +285,11 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //// without &mut self would
 pub async fn simd<F>(number: u32, ops: F) -> Result<u32, String> where F: Fn(u8) -> u8 + std::marker::Send + 'static + Clone{ //// in order to move the F between threads it must be bounded to Send trait
     
     
-    // simd on a 32 bits number means solving 4 packs or operations like multiplication of 8 bits or 4 bytes in parallel
-    // simd on a 256 bits number means solving 4 packs or operations like multiplication of 64 bits (4 * 8 bytes = 256 bits) or 8 packs of 32 bits (8 * 4 bytes = 256 bits) 
+    // simd on a 32 bits number means solving 4 packs or operations like multiplication of 8 bits, doing each of them in parallel
+    // simd on a 256 bits number means solving 4 packs or operations like multiplication of 64 bits (4 * 8 bytes = 256 bits) or 8 packs of 32 bits (8 * 4 bytes = 256 bits), doing each of them in parallel
     let threads = 4; //// the total number of all packs or chunks containing 8 bits is 4 cause our number is of type u32
     let (sender, receiver) = std_mpsc::channel::<u8>();
-    let big_end_bytes = number.to_be_bytes(); //// network bytes which is in form utf8 or big endian bytes - since there are 4 chunks of 8 bits in the context of u32 bits there will be 4 chunks of 8 bits each chunk between 0 up to 255 
+    let big_end_bytes = number.to_be_bytes(); //// network bytes which is in form utf8 or big endian bytes - since there are 4 chunks of 8 bits in the context of u32 bits (since our number is of type u32) there will be 4 chunks of 8 bits each chunk between 0 up to 255 
     let mut index = 0;
     
 

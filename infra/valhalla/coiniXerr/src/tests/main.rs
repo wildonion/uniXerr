@@ -1196,7 +1196,7 @@ pub async fn generic(){
             job: J, //// the job itself
             res: T, //// job response
         }
-        let task_ = TaskStruct{
+        let mut task_ = TaskStruct{ //// since job field is of type FnMut thus we have to define the instance mutable in order to be able to call the job field
             job: {
                 //// the passed in param is of type function since 
                 //// the signature inside the struct accepts a function 
@@ -1221,7 +1221,8 @@ pub async fn generic(){
         //// finally we can call it like task_.job() by 
         //// passing the ret_string() function as the param.
         let mut job = task_.job; 
-        let res = job(ret_string);
+        // let res = job(ret_string);
+        let res = (task_.job)(ret_string);
 
         //// NOTE - impl Trait` only allowed in function and inherent 
         ////        method return types, not in closure return.
@@ -1979,9 +1980,45 @@ pub async fn unsafer(){
     // println!("`b` value after changing `a` is ===== {}", unsafe{&*b});
 
 
+
+
+    // ----------------
+    //  BORROWING RULE
+    // ---------------
+    //// in general we can't move a type into other scopes if 
+    //// there is a pointer of it since by doing this the pointer
+    //// might be converted into a dangling pointer and this is because
+    //// rust doesn't support gc and by moving a dynamic size like string and vector
+    //// into other scopes their lifetime will be dropped and in order to this 
+    //// can be happened there must be no reference of them in pervious scopes.
+    //
+    //// also we can use Rc, Weak pointers to break some cycles like having a 
+    //// field in struct of type struct itself by putting the field inside the 
+    //// Rc which means that the filed has a strong reference  counter of all the type 
+    //// that reference the field which doesn't allow to drop the field unless 
+    //// its strong reference counter reaches zero, but this is not the case for Weak.
+    //
+    //// `pointer_to_name` can't be dereferenced because we can't move out of it to put it inside other types  
+    //// since it's behind a shared reference of type `String` which doesn't implement 
+    //// Copy trait also rust doesn't allow us to move a type into other scopes or types 
+    //// when there is a borrowed type of that type is being used by other scopes since 
+    //// if we move that its lifetime will be dropped and its pointer will be a dangling 
+    //// pointer, pointing to a location which doesn't exist which is dropped, thus if 
+    //// it's inside an Option we can't move out of it too since methods of Option<T> 
+    //// is the same as `T` methods means that Copy is not implemented for `Option<String>` 
+    //// we can either move it between threads and scopes by borrowing it or cloning it.
+    //
+    //// a shared reference can be in use by other scopes and threads thus moving out of 
+    //// a shared referenced type requires one of the dereferencing methods which is either 
+    //// copying (the Copy trait must be implemented), borrowing it using & or cloning 
+    //// (Clone trait must be implemented) it or dereference it by using `*` otherwise 
+    //// we can' move out of it in our case `whitelist_data` which is of type String, can't be moved 
+    //// since `String` type doesn't implement Copy trait we have to either borrow it or clone it. 
+
     let name = "wildonion".to_string();
     let pointer_to_name = &name; 
-    let another_name = name;
+    // let another_name = name; //// Error in here: we can't move name into another type since it's borrowed above and its pointer might be being in used by other scopes thus rust doesn't allow us to this to avoid dangling pointer issues
+    let another_name = &name; //// can't move name into another_name thus based on above we have to either clone or borrow it 
     //// if we want to use the pointer of the name vairable
     //// in other scopes like pinting it we can't move name 
     //// variable into another_name variable since in the 
