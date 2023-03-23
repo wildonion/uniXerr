@@ -55,8 +55,16 @@ pub async fn bootstrap(
     //// code includes a Client struct that can be used 
     //// to call the interface's or actor object's methods.
     //
-    //// zmq and rpc will be used for device actor communication 
+    //// zmq and RPC will be used for device actor communication 
     //// if we want to use them in browser we must setup websocket 
+    //// although socket objects of zmq tlps are based on riker actor concepts 
+    //// (tokio::spawn simd, tokioc::select, tokio channels) and they can 
+    //// be used to build protocols like libp2p stacks and RPC although
+    //// every socket object has a queue to manage the async task coming 
+    //// from other socket actor object also socket actor objects can 
+    //// comunicate with each other using RPC capnp pubsub which allows 
+    //// us to call a method of another actor directly from other device 
+    //// without extra protocols on top of that.
 
 
 

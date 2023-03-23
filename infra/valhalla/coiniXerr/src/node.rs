@@ -612,7 +612,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
         while std::mem::size_of_val(&current_block) <= daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap(){ //// returns the dynamically-known size of the pointed-to value in bytes by passing a reference or pointer to the value to this method - push incoming transaction into the current_block until the current block size is smaller than the daemon::get_env_vars().get("MAX_BLOCK_SIZE")
             current_block.push_transaction(mutex_transaction.clone()); //// cloning transaction object in every iteration to prevent ownership moving and losing ownership - adding pending transaction from the mempool channel into the current block for validating that block
-            if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap() && current_block.transactions.len() % 2 ==0{ //// also the number of transaction inside the block must be even to generate merkle root hash
+            if std::mem::size_of_val(&current_block) > daemon::get_env_vars().get("MAX_BLOCK_SIZE").unwrap().parse::<usize>().unwrap() && current_block.transactions.len() % 2 == 0{ //// also the number of transaction inside the block must be even in order to be able to generate merkle root hash
                 info!("➔ 🔋🧊 passing the full block to consensus algorithms");
                 // TODO - consensus::zpk::consensus_on(current_block) || 
                 //        consensus::raft::consensus_on(current_block) || 

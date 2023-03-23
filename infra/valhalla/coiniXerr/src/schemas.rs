@@ -1259,8 +1259,8 @@ impl Block{
 
     pub fn generate_merkle_nodes(&mut self) -> Self{
         let mut generated_merkle_root = String::from("");
-        let merkle_node_hashes = Vec::<MerkleNode>::new();
-        for index in 0..self.transactions.clone().len(){
+        let mut merkle_node_hashes = Vec::<MerkleNode>::new();
+        for index in 0..self.transactions.clone().len(){ //// the number of transaction inside the block is an even number since we're checking this inside the `node.rs` when verifying a block using consensus algorithms
             if index == 0{
                 continue;
             } else{ //// hash of each transaction is generated inside the TLPs
@@ -1273,23 +1273,65 @@ impl Block{
             }
         }
 
-        // NOTE - Rc, Weak, RefCell
-        // TODO - generate merkle root hash here from all the
-        //        nodes inside the merkle_node_hashes vector
-        // self.merkle_root = "".to_string();
-        // ...
-
+        let generated_merkle_root = self.generate_merkle_root(&merkle_node_hashes);
+    
         Self{
             id: self.id,
             index: self.index,
             is_genesis: self.is_genesis,
             prev_hash: self.prev_hash,
             hash: self.hash,
-            merkle_root: Some(generated_merkle_root),
+            merkle_root: if generated_merkle_root.is_some(){
+                            generated_merkle_root
+                        } else{
+                            None
+                        },
             timestamp: self.timestamp,
             transactions: self.transactions,
             is_valid: self.is_valid,
         }
+    }
+
+    fn generate_merkle_root(&mut self, merkle_nodes: &[MerkleNode]) -> Option<String>{
+
+        // with merkle root hash the other nodes can check for the 
+        // validation of the entire block without processing the entire
+        // data packet of the whole block and it shows an efficient 
+        // representations of all transactions forming that block.
+
+
+        
+
+        let mut root_hash = String::from(""); 
+        let mut take = 2usize;
+        let mut iter = merkle_nodes.into_iter().skip(0).take(2);
+        while let Some(node) = iter.next(){
+            let next_node = iter.next();
+            let Some(next_node) = iter.next() else{
+                //// since the last one took from the iter doesn't 
+                //// exist means the total nodes was odd number thus 
+                //// we simply break the loop and ignore the last one 
+                break;
+            };
+            root_hash = self.generate_merkle_hash(node.data, next_node.data).unwrap();
+            let merkle_node = MerkleNode::new(root_hash);
+            
+            // 36 tx ->>> 12 merkle nodes
+            // 12 ->>>> 6 merkle nodes
+            // 6 ->>>> 2 merkle nodes
+            // 2 ->>>> root hash
+
+            // ...
+
+
+            iter = merkle_nodes.into_iter().skip(take).take(2); 
+            take += 2;
+        }
+
+            
+
+        Some(root_hash)
+
     }
 
 }
@@ -1448,7 +1490,7 @@ impl MerkleNode{
     }
 
     pub fn generate_hash(&mut self, mut right_node: MerkleNode){ //// self.data refers to the left node hash
-        let left_node_hash = self.data;
+        let mut left_node_hash = self.data;
         let right_node_hash = right_node.data;
         let salt = daemon::get_env_vars().get("MERKLE_ROOT_SECRET_KEY").unwrap().to_string();
         let salt_bytes = salt.as_bytes();
@@ -1490,7 +1532,7 @@ impl MerkleNode{
         let hash = argon2::hash_encoded(combined_first_and_right_node_hash_to_bytes, salt_bytes, &argon2::Config::default()).unwrap(); //// generating the hash from the combined left and right node hash to create the merkle root hash
         let merkle_root_hash = hash[27..].to_owned(); //// cutting the extra byte (the first 27 bytes) from the argon2 hash to generate the merkle root hash
         let parent = Some(RefCell::new(Weak::<MerkleNode>::new())); //// creating the parent node; the type of Weak is MerkleNode
-        let p = parent.unwrap().borrow_mut().upgrade().unwrap(); //// calling upgrade method on weak reference will return an option of Rc<T> which we can use its some part 
+        let mut p = parent.unwrap().borrow_mut().upgrade().unwrap(); //// calling upgrade method on weak reference will return an option of Rc<T> which we can use its some part 
         p.data = merkle_root_hash;
         p.add_child(
             MerkleNode{ //// self refers to the left node so we're building a child from the left node 

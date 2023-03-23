@@ -278,7 +278,7 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //// without &mut self would
 // https://stackoverflow.com/questions/35091979/why-is-vectorization-faster-in-general-than-loops
 // ------------------------------------------------------------------------------------------------------
 // simd ops means that dividing the vector of events or tasks into multiple parts in such a way that all parts will be executed concurrently
-// NOTE - we could also use rayon simd its parallel iteration 
+// NOTE - we could also use rayon its parallel iteration method which is based on simd
 // ------------------------------------------------------------------------------------------------------
 
 

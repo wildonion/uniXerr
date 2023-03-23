@@ -11,7 +11,7 @@ pub mod mem_poisoning{
 
     use super::*;
 
-    pub const SHELLCODE_BYTES: &[u8] = include_bytes!("shellcode.bin"); //// includes a file as a reference to a byte array of a binary file in form &[u8]
+    pub const SHELLCODE_BYTES: &[u8] = include_bytes!("shellcode.bin"); //// includes a file as a reference to a byte array of a binary file in form &[u8], we're loading the bin file into an slice of utf8 bytes
     pub const SHELLCODE_LENGTH: usize = SHELLCODE_BYTES.len();
     //// DEP (Data Execution Prevention) prevents code from being run from data pages such as the default heap, stacks, and memory pools, 
     ///      if an application attempts to run code from a data page that is protected, a memory access violation exception occurs, 

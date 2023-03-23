@@ -891,6 +891,15 @@ pub async fn generic(){
     //// Future is a trait and trait objects are dynamic sized we must use dyn keyword thus 
     //// our type will be Pin<Box<dyn Future<Output=T>>>
     //
+    //// since async blocks are of type Future trait in roder to return them
+    //// as a type their pointer either Box<dyn Trait> or &dyn Trait must be
+    //// pinned into the ram to let us solve them later because rust doesn't 
+    //// have gc and it'll drop the type after it moved into the new scope or
+    //// another type thus for the future objects we must pin them to ram and 
+    //// tell rust hey we're moving this in other scopes but don't drop it because
+    //// we pinned it to the ram to solve it in other scopes, also it must have
+    //// valid lifetime during the the entire lifetime of the app.  
+    //
     //// if we want to return a trait from a function or use it as a param in 
     //// struct fields or functions we must use the generic form like defining 
     //// a generic `T` and bound it to that trait using `where` or in function 
