@@ -1292,44 +1292,34 @@ impl Block{
         }
     }
 
-    fn generate_merkle_root(&mut self, merkle_nodes: &[MerkleNode]) -> Option<String>{
+    fn generate_merkle_root(&mut self, mut merkle_nodes: &[MerkleNode]) -> Option<String>{
 
-        // with merkle root hash the other nodes can check for the 
-        // validation of the entire block without processing the entire
-        // data packet of the whole block and it shows an efficient 
-        // representations of all transactions forming that block.
-
-
-        
+        //// with merkle root hash the other nodes can check for the 
+        //// validation of the entire block without processing the entire
+        //// data packet of the whole block and it shows an efficient 
+        //// representations of all transactions forming that block.
 
         let mut root_hash = String::from(""); 
-        let mut take = 2usize;
-        let mut iter = merkle_nodes.into_iter().skip(0).take(2);
-        while let Some(node) = iter.next(){
-            let next_node = iter.next();
-            let Some(next_node) = iter.next() else{
-                //// since the last one took from the iter doesn't 
-                //// exist means the total nodes was odd number thus 
-                //// we simply break the loop and ignore the last one 
-                break;
-            };
-            root_hash = self.generate_merkle_hash(node.data, next_node.data).unwrap();
-            let merkle_node = MerkleNode::new(root_hash);
-            
-            // 36 tx ->>> 12 merkle nodes
-            // 12 ->>>> 6 merkle nodes
-            // 6 ->>>> 2 merkle nodes
-            // 2 ->>>> root hash
-
-            // ...
-
-
-            iter = merkle_nodes.into_iter().skip(take).take(2); 
-            take += 2;
+        if merkle_nodes.len() == 2 || merkle_nodes.len() == 3{ //// we'll simply drop the last node which is the leaf
+            root_hash = self.generate_merkle_hash(merkle_nodes[0].data, merkle_nodes[1].data).unwrap();
+        } else{
+            let nodes = vec![];
+            let mut take = 2usize;
+            let mut iter = merkle_nodes.into_iter().skip(0).take(2);
+            while let Some(node) = iter.next(){
+                //// we're sure that if the length of the passed in
+                //// nodes to the function was greater or equal to 4
+                //// then we have a next element so we can unwrap it. 
+                let next_node = iter.next().unwrap(); 
+                root_hash = self.generate_merkle_hash(node.data, next_node.data).unwrap();
+                let merkle_node = MerkleNode::new(root_hash);
+                nodes.push(merkle_node);
+                iter = merkle_nodes.into_iter().skip(take).take(2); 
+                take += 2;
+            }
+            self.generate_merkle_root(&nodes); //// calling the method on the generated nodes recursively 
         }
-
-            
-
+        
         Some(root_hash)
 
     }
