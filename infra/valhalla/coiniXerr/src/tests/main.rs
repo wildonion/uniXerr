@@ -1161,6 +1161,32 @@ pub async fn generic(){
 		}
 
 		run_with_5(Nft);
+
+        //-------------------------------------
+        //-------------------------------------
+        //-------------------------------------
+        struct Process{cpu_core: u8}
+        let task = async{
+            let main = |pid| async move{
+                Process{cpu_core: pid as u8}
+            };
+            // unapacking the fetched process from the main() 
+            let pid = 10;
+            match main(pid).await{
+                Process{cpu_core} if cpu_core > 2 =>{
+                    4u8
+                },
+                Process{cpu_core} if cpu_core == 0 =>{
+                    0u8
+                },
+                _ => {
+                    10u8
+                }
+            }
+        };
+        //-------------------------------------
+        //-------------------------------------
+        //-------------------------------------
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
     'aSexyLabeledBlock:{
         type EmptyType = ();
