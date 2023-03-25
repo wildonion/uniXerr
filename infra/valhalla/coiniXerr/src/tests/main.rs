@@ -1184,6 +1184,39 @@ pub async fn generic(){
                 }
             }
         };
+        task.await; // or block_on(task)
+        // rust don't have gc thus by moving the type into 
+        // other scopes i'll be dropped, we can either clone 
+        // them or borrow them to move their pointers, for case 
+        // of future objects in order to move them as a type 
+        // between other threads we must pin them into the ram 
+        // and since they are future objects which are of type traits 
+        // and traits have no known size at compile time thus we have 
+        // to pin their pointer into them ram and their pointers be like 
+        // Box<dyn Future<Output=u8>> or &dyn Future<Output=u8>
+        // also they can be returned from the function using 
+        // ... -> impl Future<Output=u8> style in function signature
+        //////
+        // or inside the Box<Future<Output=u8>>
+        // to pin the future objects into the ram 
+        // we should pin their box into the ram 
+        // since they are traits and traits must be
+        // in their borrowed form which can be done
+        // using Box<dyn Trait> or &dyn Trait.
+        fn run() -> impl std::future::Future<Output=u8>{
+                
+            async{
+                23
+            }
+            
+        }
+        fn _run() -> Box<dyn std::future::Future<Output=u8>>{
+                
+            Box::new(async{
+                23
+            })
+            
+        }
         //-------------------------------------
         //-------------------------------------
         //-------------------------------------
@@ -2055,7 +2088,7 @@ pub async fn unsafer(){
     // let another_name = name; //// Error in here: we can't move name into another type since it's borrowed above and its pointer might be being in used by other scopes thus rust doesn't allow us to this to avoid dangling pointer issues
     let another_name = &name; //// can't move name into another_name thus based on above we have to either clone or borrow it 
     //// if we want to use the pointer of the name vairable
-    //// in other scopes like pinting it we can't move name 
+    //// in other scopes like printing it we can't move name 
     //// variable into another_name variable since in the 
     //// following we're using its pointer which is borrowed 
     //// using the pointer_to_name variable that might be a 
