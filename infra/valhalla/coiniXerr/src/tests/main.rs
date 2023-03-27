@@ -548,6 +548,19 @@ pub async fn generic(){
 	    Box::new(Pack {})
 	}
 
+    /////////////////////////////////////////////////////////////////
+    //// since rust doesn't have gc thus by moving a type into a new scope 
+    //// its lifetime will be dropped unless it implements the Copy trait 
+    //// otherwise if it's a heap data we must either clone it or borrow 
+    //// it thus we must alwasy pass by reference to the data and note that 
+    //// the heap data can be in their borrowed form like &[u8] and &str 
+    //// also we can return a pointer to the type from a method by using 
+    //// a specific or the self lifetime, note that we can also put the 
+    //// sized array behind a pointer like Option<&[u8; 64]>
+    /////////////////////////////////////////////////////////////////
+    // NOTE - every pointer in rust must have valid lifetime thus if 
+    //        we want to use & in return type of a method or struct 
+    //        field we should have a valid lifetime for that.
     // https://stackoverflow.com/a/57894943/12132470
     // https://stackoverflow.com/questions/37789925/how-to-return-a-newly-created-struct-as-a-reference
 	impl Pack{ ////// RETURN BY POINTER EXAMPLE ////// 
@@ -673,7 +686,9 @@ pub async fn generic(){
         // }
 
 	    // NOTE - first param can also be &mut self; a mutable reference to the instance and its fields
-	    pub fn ref_to_str_other_self_lifetime(&self) -> &str{ //// in this case we're good to return the pointer from the function or send a copy to the caller's space since we can use the lifetime of the first param which is &self which is a borrowed type (it's a shared reference means that other methods are using it in their scopes) of the instance and its fields (since we don't want to lose the lifetime of the created instance from the contract struct after calling each method) and have a valid lifetime (as long as the instance of the type is valid) which is generated from the caller scope by the compiler to return the pointer from the function
+	    // NOTE - this technique is being used in methods like as_mut() in which it'll return a mutable
+        //        reference to the data using the self parameter lifetime.
+        pub fn ref_to_str_other_self_lifetime(&self) -> &str{ //// in this case we're good to return the pointer from the function or send a copy to the caller's space since we can use the lifetime of the first param which is &self which is a borrowed type (it's a shared reference means that other methods are using it in their scopes) of the instance and its fields (since we don't want to lose the lifetime of the created instance from the contract struct after calling each method) and have a valid lifetime (as long as the instance of the type is valid) which is generated from the caller scope by the compiler to return the pointer from the function
             let name = "wildonion";
             name //// name has a lifetime as valid as the first param lifetime which is a borrowed type (it's a shared reference means that other methods are using it in their scopes) of the instance itself and its fields and will borrow the instance when we want to call the instance methods
 	    }
@@ -2053,6 +2068,11 @@ pub async fn unsafer(){
     // ----------------
     //  BORROWING RULE
     // ---------------
+    //// we can borrow in order to prevent from moving but 
+    ////        - can't later move the type into new scope since it has a borrow, we can clone it or move its borrow 
+    ////        - can't mutate the borrowed if it's not a mutable borrow 
+    ////        - only one mutable borrow can be exist in a scope
+    ////        - mutating the borrow needs the underlying data to be mutable too 
     //// in general we can't move a type into other scopes if 
     //// there is a pointer of it since by doing this the pointer
     //// might be converted into a dangling pointer and this is because
