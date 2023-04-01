@@ -68,7 +68,7 @@ pub async fn bootstrap(
 
 
 
-    
+    // https://docs.solana.com/api/http
     // https://github.com/capnproto/capnproto-rust/tree/master/capnp-rpc/examples
     // https://capnproto.org/language.html
     //// json RPC is on top of the http but RPC capnp is on top of the socket

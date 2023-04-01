@@ -279,6 +279,7 @@ pub fn forward(x_train: Arc<Vec<Vec<f64>>>) -> f64{ //// without &mut self would
 // ------------------------------------------------------------------------------------------------------
 // simd ops means that dividing the vector of events or tasks into multiple parts in such a way that all parts will be executed concurrently
 // NOTE - we could also use rayon its parallel iteration method which is based on simd
+// NOTE - if we have a buffer we can convert it into chunks of bytes using simd algos 
 // ------------------------------------------------------------------------------------------------------
 
 
@@ -780,6 +781,8 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 ////    #[..] applies an attribute to the thing after it (struct, struct/enum fields, functions, modules or crate) and  #![..] applies an attribute to the containing thing or crate
 ////    TokenStream arg using proc_macro2 crate and proc-macro = true flag inside the lib.rs file by using #[proc_macro], #[proc_macro_attribute] and #[proc_macro_derive] attributes
 ////    build #[payable] proc macro for rafael runtime the deposit() method 
+////    feature macro for decoding jpg using simd rayon, thread scope and spawn and tokio::spawn
+////    customg ErroCode struct using #[error] proc macro attribue 
 // ...
 
 

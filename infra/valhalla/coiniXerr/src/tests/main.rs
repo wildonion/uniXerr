@@ -422,6 +422,17 @@ pub async fn generic(){
         third_field: ret_name, //// setting a function as the value of the third field
     };
 
+    struct Otp<Generic=i32>{
+        pub data: Generic,
+    }
+    
+    let otp_instance = Otp::<u8>{
+        data: 89
+    };
+    
+    let instance_otp = Otp{ // the default type param is i32 for the Generic if it's not passed
+        data: 89
+    };
 
     /////////////////////////////////////////////////////////
     trait BorrowArray<T> where Self: Send + Sized{
@@ -965,6 +976,13 @@ pub async fn generic(){
 
     }
 
+    let network: Box<dyn FnMut(String) -> std::pin::Pin<Box<dyn std::future::Future<Output=String>>> + Send + Sync + 'static> =
+        Box::new(|addr: String|{
+            Box::pin(async move{
+            addr
+        })
+    });
+
     //--------------------------------------------------------------------
     // EXAMPLE - Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>
     // NOTE - closure types are traits so when we want 
@@ -975,7 +993,7 @@ pub async fn generic(){
     //        Box<dyn Trait> or &dyn Trait. 
     // implementing trait or bounding it to generics using: 
     //      - bounding it to generics (where in struct and function or function and struct signature) like where T: FnMut() -> () or struct Test<T: FnMut() -> ()>{pub d: T}
-    //      - in function return (-> impl Trait)
+    //      - in function return and param type (: impl Trait or -> impl Trait)
     //      - derive like macro on top of the struct or types
     //      - directly by using impl Trait for Type in other scopes
     // returning traits from the function or us it as a function param by:
@@ -1725,7 +1743,7 @@ pub async fn unsafer(){
     println!("{:#?}", c); //// 0x00007ffe673ace7c : this pointer is 8 bytes (every 2 char in hex is 1 byte and every char is 4 bits thus 16 chars has 64 bits or 8 bytes long) long since it's pointing to the location of a trait
     println!("{:#?}", &c); //// 0x7ffe673ace7c : this will print the address of &w or c which is casted to a *const u8 it has no extra size at the begening like the above address since it's not a dynmic size type like above Sync trait but the rest is the same of above trait address    
     println!("{:p}", c); //// 0x7ffe673ace7c : this will print the address of &w or c which is casted to a *const u8 it has no extra size at the begening like the above address since it's not a dynmic size type like above Sync trait but the rest is the same of above trait address  
-    println!("{:p}", &c); //// 0x7ffe673ace80 :  this is the address of the c pointer or &c
+    println!("{:p}", &c); //// 0x7ffe673ace80 :  this is the address of the c pointer or &c (address of a the c pointer inside the stack)
 
 
     struct Wrapper { member: i32 }
@@ -1757,7 +1775,13 @@ pub async fn unsafer(){
     ////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////
 
-
+    use std::cell::RefCell;
+    use std::rc::Rc;
+    let datarefcell: Rc<RefCell<&'static [u8; 64]>> = Rc::new(RefCell::new(&[0u8; 64]));
+    //// mutably borrow the type inside of RefCell will be done using RefMut struct
+    //// which takes the type and a valid lifetime for borrowing since every borrow or 
+    //// pointer of a type needs to be valid with a lifetime until it gets dropped
+    let lam = **datarefcell.borrow_mut(); //// double dereference to get the [0u8l 64] which has 64 bytes data 
 
 
     ///// -------------- unsafe: changing the vaule in runtime using its pointer -------------- /////
