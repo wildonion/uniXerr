@@ -10,7 +10,9 @@
 
 ## 🚧 WIP 
 
-* update crates and add `quic` protocol for P2P stack
+* sharding and scaling mechanism for `TCP`, `UDP` and `RPC` servers.
+
+* update crates and add `QUIC` protocol for P2P stack
 
 * parachain heartbeat and validator reward distribution
 
