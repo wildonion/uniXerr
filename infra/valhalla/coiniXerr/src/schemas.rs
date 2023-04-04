@@ -33,53 +33,6 @@ use crate::*; // loading all defined crates, structs and functions from the root
 
 
 
-//// since dynamic types like Vec, String and traits are on the heap, 
-//// by passing them into new scopes they will be moved by rust compiler 
-//// from the heap in order to free the memory location that they've just 
-//// allocated to free up some huge space at runtime and this why rust doesn't
-//// have garbage collector and use borrowing and ownership rule instead of that 
-//// hence due to this nature it'll let us have a safe concurrency and 
-//// it'll change the way of coding a little bit since you have to use 
-//// tokio job queue channels to pass and share Arc<Mutex<T>>: Send + Sync + 'static
-//// between threads in order to access them later outside the threads in other 
-//// scopes also if we move the type the lifetime of that will be dropped 
-//// due to not having garbage collector feature;
-//// the solution is to borrow the ownership of them from where they are stored 
-//// either by cloning and move that clone between other scopes also 
-//// which is expensive or by taking a reference to them using
-//// as_ref() method or putting & behind them to create a pointer which will 
-//// point to the location of their heap area and is good to know that their 
-//// pointers are fat ones since extra bytes which has been dedicated to their 
-//// length inside the heap are in their pointers also their pointers must have 
-//// valid lifetime across scopes and threads in order to avoid dangling pointer 
-//// issue since we can't return a pointer from a scope which is owned by a that scope 
-//// to fix this we can either by defining a lifetime in struct, enum 
-//// fields or function signatur or by putting them inside the Box 
-//// (with dyn keyword for trait) which is a smart pointer (smart pointers are wrapper
-////  around the allocation T which manages the allocation by borrowing the ownership of T)
-//// and have a valid lifetime in itself; as_ref() will convert the type into a shared 
-//// reference by returning the T as &T which we can't move out of it when it's being 
-//// used by other scopes and threads thus we have to dereferene it either by * or 
-//// cloning if the Clone trait is implemented for that, otherwise we CAN'T 
-//// dereference or move it at all because Clone is a supertrait 
-//// of the Copy trait; also we MUST know this that inside a scope multiple 
-//// immutable references of a type or instance can be there but only one 
-//// mutable reference must be used for that instance for example inside a method
-//// struct we can have multiple immutable reference of the self but only one mutable 
-//// reference of the self can be used, this rule allows rust to have safe concurreny 
-//// and thread safe channels like mpsc in which we can move a shareable data like 
-//// Arc<Mutex<T>>: Send + Sync + 'static (the type must be cloneable, lockable and bounded 
-//// to Send, Sync traits and have 'static lifetime to be valid across threads) between 
-//// threads that can be read by multiple producer or multiple threads (immutable references) 
-//// at the same time but only a single consumer or a single thread (mutable reference) 
-//// can use that data also the receiver side of the channel is not shareable since Clone 
-//// trait is not implemented for that but the sender side 
-//// can be cloned and shared between threads.
-
-
-
-
-
 
 
 
