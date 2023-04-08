@@ -807,6 +807,23 @@ pub async fn generic(){
     //  Generic : Type + 'lifetime
     // >>> variable lifetime is how long the data it points to can be statically verified by the compiler to be valid at its current memory address
 
+    ///--------------------------------------------
+    // kinda async closure 
+    async fn callback<C, T>(c: C) 
+            where 
+                C: futures::Future<Output=T>, 
+                T: FnMut(String) -> String
+    {
+        c.await;
+    }
+
+    let c = async {
+        |name: String|{
+            name
+        }
+    };
+    callback(c).await;
+   ///--------------------------------------------
 
     trait Some{
         fn run(&self){}
