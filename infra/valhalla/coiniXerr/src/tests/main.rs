@@ -26,15 +26,16 @@
 	allocation T which manages the allocation by borrowing the ownership of T) and have a valid lifetime in itself; as_ref() will convert the type into 
 	a shared reference by returning the T as &T which we can't move out of it when it's being used by other scopes and threads in other words moving out 
 	of a shared reference or moving the heap data that is behind a pointer it's not possible since by moving the type its lifetime will be dropped from 
-	the ram thus its pointer will point to no where, we must either clone the type, use its borrow (its pointer) or its dereferenced pointer to pass to 
-	other scopes otherwise we CAN'T dereference or move it at all because Clone is a supertrait of the Copy trait; also we MUST know this that inside a 
-	scope multiple immutable references of a type or instance can be there but only one mutable reference must be used for that instance for example inside 
-	a method struct we can have multiple immutable reference of the self but only one mutable reference of the self can be used, this rule allows rust to 
-	have safe concurreny and thread safe channels like mpsc in which we can move a shareable data like Arc<Mutex<T>>: Send + Sync + 'static (the type must 
-	be cloneable, lockable and bounded to Send, Sync traits and have 'static lifetime to be valid across threads) between threads that can be read by 
-	multiple producer or multiple threads (immutable references) at the same time but only a single consumer or a single thread (mutable reference) can 
-	use that data also the receiver side of the channel is not shareable since Clone trait is not implemented for that but the sender side can be 
-	cloned and shared between threads.
+	the ram thus its pointer will point to no where, we must either clone the type, use its borrow (its pointer) or its dereferenced pointer (note that 
+	dereferencing will move the type out of the pointer if Copy trait is not implemented for that thus for heap data can't dereference the pointer if the 
+	underlying data doesn't implement the Copy trait which we must clone it to prevent from moving) to pass to other scopes otherwise we CAN'T dereference 
+	or move it at all because Clone is a supertrait of the Copy trait; also we MUST know this that inside a scope multiple immutable references of a type 
+	or instance can be there but only one mutable reference must be used for that instance for example inside a method struct we can have multiple immutable 
+	reference of the self but only one mutable reference of the self can be used, this rule allows rust to have safe concurreny and thread safe channels 
+	like mpsc in which we can move a shareable data like Arc<Mutex<T>>: Send + Sync + 'static (the type must be cloneable, lockable and bounded to Send, 
+	Sync traits and have 'static lifetime to be valid across threads) between threads that can be read by multiple producer or multiple threads (immutable 
+	references) at the same time but only a single consumer or a single thread (mutable reference) can use that data also the receiver side of the channel 
+	is not shareable since Clone trait is not implemented for that but the sender side can be cloned and shared between threads.
 
 */
 
