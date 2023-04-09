@@ -783,6 +783,7 @@ pub enum Storagekey{ //// defining an enum based unique storage key for every ou
 ////    build #[payable] proc macro for rafael runtime the deposit() method 
 ////    feature macro for decoding jpg using simd rayon, thread scope and spawn and tokio::spawn
 ////    customg ErroCode struct using #[error] proc macro attribue 
+////    proc macro on top of functions to subs to fired hooks and events and on top of struct to convert struct name to string
 // ...
 
 
