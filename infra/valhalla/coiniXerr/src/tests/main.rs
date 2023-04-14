@@ -614,6 +614,32 @@ pub async fn generic(){
     //        field we should have a valid lifetime for that.
     // https://stackoverflow.com/a/57894943/12132470
     // https://stackoverflow.com/questions/37789925/how-to-return-a-newly-created-struct-as-a-reference
+    //// since rust doesn't have gc thus using value in other scopes we must notice that:
+    ////     - value will be moved by default if it's a heap data and their previous lifetime will be dropped
+    ////     - value will be copied by default if it's a stack data and we have them in other scopes
+    ////     - note that we can't borrow the value after it has moved
+    ////     - note that we can't move the value if it 
+    ////            - is behind a shared pointer or borrowed since the pointer of that might convert into a dangling pointer once the value gets dropped
+    ////            - doesn't implement the Copy trait
+    ////     - note that we borrow the value because 
+    ////            - its size can't be known at compile time
+    ////            - don't want to lose its ownership later
+    //// which in order to not to lose the ownership of heap data we can either pass their 
+    //// clone or their borrowed form or a pointer of them, note that if we clone them the main 
+    //// value won't be updated since clone will create a new data inside the heap also heap 
+    //// data sized can be in their borrowed for or behind a pointer like &str for String and 
+    //// &[u8] or &[0u8; SIZE] for Vec if we care about the cost of the app.  
+    //
+    //// based on borrowing and ownership rules in rust we can't move a type into new scope when there
+    //// is a borrow or a pointer of that type exists, rust moves heap data types by default since it 
+    //// has no gc rules means if the type doesn't implement Copy trait by moving it its lifetime will 
+    //// be dropped from the memory and if the type is behind a pointer rust doesn't allow the type to 
+    //// be moved, the reason is, by moving the type into new scopes its lifetime will be dropped 
+    //// accordingly its pointer will be a dangling one in the past scope, to solve this we must either 
+    //// pass its clone or its borrow to other scopes. in this case self is behind a mutable reference 
+    //// thus by moving every field of self which doesn't implement Copy trait we'll lose the ownership 
+    //// of that field and since it's behin a pointer rust won't let us do that in the first place which 
+    //// forces us to pass either its borrow or clone to other scopes. 
 	impl Pack{ ////// RETURN BY POINTER EXAMPLE ////// 
 
 
@@ -718,6 +744,23 @@ pub async fn generic(){
             instance //// it's ok to return a reference to `instance` since the instance does not allocate anything on the stack thus taking a reference to already allocated memory with long enough lifetime is ok since the allocated memory is happened in struct definition line
 	    }
 
+        // struct Taker{}
+        // fn run_taker_mut(taker: &mut Taker) -> &mut Taker{
+        //     //// for mutable reference the underlying type must be mutable
+        //     //// thus rust will allocate mut a temp Taker first in the ram 
+        //     //// (stack or heap depends on the types of the Taker struct) and when 
+        //     //// we want to return &mut Taker it'll return a mutable pointer
+        //     //// to the temp value inside the ram which is owned by the current 
+        //     //// function but it's ok to return &Traker since rust allocate no
+        //     //// space inside the ram for this and directly will return the Taker
+        //     //// struct on the fly to the caller
+        //     let oochik = &mut Taker{}; 
+        //     oochik
+        //     // or
+        //     // &mut Taker{} 
+        // } 
+
+
 	    // NOTE - argument can also be &mut u8
 	    pub fn ref_str_other_pointer_lifetime(status: &u8) -> &str{ //// in this case we're good to return the pointer from the function or copy to the caller's space since we can use the lifetime of the passed in argument, the status in this case which has been passed in by reference from the caller and have a valid lifetime which is generated from the caller scope by the compiler to return the pointer from the function
             let name = "wildonion";
@@ -725,10 +768,20 @@ pub async fn generic(){
 
 	    }
 
-        // pub fn ref_to_str() -> &str{ //// we can't return &str since we need a lifetime to do so
-        //     let name = "wildonion";
-        //     name
-        // }
+        fn run_taker(taker: &mut Command) -> &Command{
+            let instance = &Command{};
+            instance
+            // or
+            // &Command{} 
+        }
+        pub fn ref_to_str<'a>() -> &'a str{ //// we can't return &str since we need a lifetime to do so
+            let name = "wildonion";
+            name
+        }
+
+        fn ret_taker_mut(taker: &mut Command) -> &mut Command{
+            taker //// we're good to return a pointer to the taker since is not owned by the function 
+        }  
 
         // pub fn ref_to_str() -> HashMap<&str, &str>{ //// we can't return &str since we need a lifetime to do so
         //     let names = HashMap::new();
@@ -757,6 +810,11 @@ pub async fn generic(){
             name //// name has static lifetime valid as long as the whol lifetime of the caller scope which can be the main function which will be valid as long as the main or the app is valid
 	    }
 		
+        fn ret<'a>(name: String) -> &'a String{
+            let name = "wildonion".to_string();
+            &name
+        }
+
 	    //// ERROR - can't return a reference to heap allocated data structure from function due to their unknown size at compile time and they are temprary value
 	    // pub fn ref_to_string<'s>() -> &'s String{
 	    //     let name = &"wildonion".to_string();
@@ -770,6 +828,13 @@ pub async fn generic(){
 
 	    }
 
+        // NOTE - here we couldn't return its &str since this is 
+        //        owned by the function and its lifetime will be dropped once the function 
+        //        gets executed thus we can't return a pointer to &str or its utf8 bytes 
+        //        because its pointer might be a dangling one in the caller space since 
+        //        we don't have that String anymore inside the function! this is different
+        //        about the &str in the first place cause we're cool with returning them
+        //        because they are behind a pointer and kinda stack data types.
         pub const fn test(name: &String) -> &str{ // we can return &str in here sicne we're using the lifetime of the passed in param which is &String thus it's ok to use that reference (the reference to the passed in String) to return a &str (since its lifetime is valid as long as the passed in param is valid)
             WO // we must return const value from the constant function
         }
