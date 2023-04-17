@@ -1324,6 +1324,60 @@ pub async fn generic(){
             }
         )
     }
+	
+	 // ----------------------------------
+	 // ----------------------------------
+         // ----------------------------------
+	    pub trait Me{}
+	    fn ret<'a, C, Fut>(c: C) -> ()
+		where C: FnOnce(&'a dyn Me) -> Fut + Send + Sync + 'static,
+		    Fut: futures::future::Future<Output=Result<u8, Box<dyn std::error::Error + Send + Sync + 'static>>> + Send + Sync + 'static
+	    {
+		()
+	    }
+
+	    struct Sample;
+	    impl Me for Sample{}
+	    let instance = Sample{};
+	    let callback = |ins|{
+		async{
+		    Ok(32)
+		}
+	    };
+
+	    ret(callback);
+
+	    struct Rate{
+		limit: u8,
+	    }
+
+	    impl Rate{
+		fn get_rate_limit(&self) -> u8{
+		    self.limit
+		}        
+	    }
+
+	    pub trait RateEx{
+
+		// method interface
+		fn get_rate(&self) -> u8;
+	    }
+
+
+	    impl RateEx for Rate{
+
+		fn get_rate(&self) -> u8{
+		    self.get_rate_limit()
+		}
+
+	    }
+
+	    let rate_limit = Rate{limit: 24};
+	    rate_limit.get_rate();
+	 
+	 // ----------------------------------
+	 // ----------------------------------
+         // ----------------------------------
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   
 	    struct Nft;
 	    struct Account<'info, GenericData>{
