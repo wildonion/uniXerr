@@ -7,6 +7,7 @@
 // unsafe coding
 // writing engines
 
+// https://www.youtube.com/watch?v=yq-msJOQ4nU
 // https://github.com/wildonion/cs-concepts#%EF%B8%8F-system
 // https://doc.rust-lang.org/nomicon/index.html
 // https://stackoverflow.com/questions/26271151/precise-memory-layout-control-in-rust
