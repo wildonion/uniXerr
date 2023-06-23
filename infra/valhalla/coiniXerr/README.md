@@ -11,6 +11,8 @@ An Actor, Gossipsub P2P Pub/Sub, Sharded TCP, UDP and RPC Based Design Pattern R
 
 * Actor based validators and parachains
 
+* Actors can communicate with and send message to each other through the **RPC** channel
+
 * Transaction Server over `tokio` **TCP**, **UDP** and **RPC**
 
 * Transaction **mempool** channel based on `tokio` **MPSC** job queue channel 
