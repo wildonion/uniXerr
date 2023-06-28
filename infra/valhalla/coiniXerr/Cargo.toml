@@ -69,10 +69,3 @@ rustflags = ["-C", "link-args=-s"] # c linker to produce shared object file
 [[bin]]
 name = "coiniXerr"
 path = "src/node.rs"
-
-
-
-
-[[bin]]
-name = "ctest"
-path = "src/tests/main.rs"
