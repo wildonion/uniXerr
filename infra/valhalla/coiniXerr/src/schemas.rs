@@ -1302,7 +1302,7 @@ impl Default for Block{
 }
 
 
-
+// https://github.com/wildonion/rusty/blob/f681ab30477e2361ce0f310a73a484aaf78d19cf/src/llu.rs#L819
 // https://doc.rust-lang.org/book/ch15-05-interior-mutability.html
 // https://doc.rust-lang.org/book/ch15-06-reference-cycles.html
 // --- Rc will be used to point to a type with strong count 
